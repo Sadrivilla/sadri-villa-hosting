@@ -27,11 +27,6 @@ th{background:#f8fafc;text-align:left}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-card{background:#fff;padding:22px;border-radius:20px;width:92%;max-width:720px;max-height:85vh;overflow-y:auto}
 
-.label{font-size:13px;font-weight:bold;margin-top:10px}
-.block{border:1px dashed #c7d2fe;padding:12px;border-radius:14px;margin-bottom:10px;background:#fafafa}
-.block span{color:#dc2626}
-input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1.5px solid #d1d5db;margin-top:6px}
-
 .toast{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:9999}
 .toast div{padding:18px 34px;border-radius:20px;color:#fff;font-weight:bold}
 .toast.success div{background:linear-gradient(135deg,#16a34a,#22c55e)}
@@ -78,19 +73,6 @@ input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1.5px so
 <tbody id="tbody"></tbody>
 </table>
 
-<div class="modal" id="editModal">
-  <div class="modal-card">
-    <h3>Edit User</h3>
-    <div id="adminFieldsWrap"></div>
-    <div id="userCustomWrap"></div>
-
-    <div style="display:flex;gap:12px;margin-top:16px">
-      <button class="success" onclick="saveEdit()">Save</button>
-      <button class="secondary" onclick="closeEdit()">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"><div></div></div>
 <div id="spinner"><div></div></div>
 
@@ -100,7 +82,6 @@ import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore,collection,getDocs,doc,getDoc,updateDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
-/* 🔐 OLD PROJECT CONFIG */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -110,57 +91,33 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let users=[], profileFields={}, editUser=null;
+let users=[];
 
-/* 🔒 ADMIN GUARD */
+/* 🔐 ADMIN GUARD */
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    location.href = "login.html";
-    return;
+  if (!user) return location.href="login.html";
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if (!snap.exists() || snap.data().role !== "admin") {
+    alert("Access denied");
+    location.href="dashboard.html";
   }
-
-  try {
-    const snap = await getDoc(doc(db,"users",user.uid));
-    if (!snap.exists() || snap.data().role !== "admin") {
-      alert("Access denied");
-      location.href = "dashboard.html";
-      return;
-    }
-    load();
-  } catch (e) {
-    alert("Permission error");
-    location.href = "login.html";
-  }
+  load();
 });
 
-/* UI HELPERS */
-const toast=(msg,type="success")=>{
-  const t=document.getElementById("toast");
-  t.querySelector("div").innerText=msg;
-  t.className="toast "+type;
-  t.style.display="flex";
-  setTimeout(()=>t.style.display="none",2200);
-};
+const toast=(msg)=>{const t=toastEl; t.querySelector("div").innerText=msg; t.style.display="flex"; setTimeout(()=>t.style.display="none",2000);}
+const toastEl=document.getElementById("toast");
 const spinner=s=>spinnerEl.style.display=s?"flex":"none";
 const spinnerEl=document.getElementById("spinner");
 
-/* LOAD DATA */
 async function load(){
   spinner(true);
-
-  profileFields={};
-  (await getDocs(collection(db,"profileFields")))
-    .forEach(d=>profileFields[d.id]=d.data());
-
   users=[];
   (await getDocs(collection(db,"users")))
     .forEach(d=>users.push({uid:d.id,...d.data()}));
-
   render();
   spinner(false);
 }
 
-/* RENDER TABLE */
 window.render=()=>{
   tbody.innerHTML="";
   const f=statusFilter.value;
@@ -169,17 +126,21 @@ window.render=()=>{
   users.filter(u=>{
     if(f==="approved" && !u.isApproved) return false;
     if(f==="pending" && u.isApproved) return false;
-    const n=(u.adminFields?.Name||"").toLowerCase();
-    return n.includes(q)||(u.email||"").toLowerCase().includes(q);
+
+    const name=(u.Name || u.adminFields?.Name || "").toLowerCase();
+    const email=(u.Email || u.adminFields?.Email || u.email || "").toLowerCase();
+    return name.includes(q) || email.includes(q);
   }).forEach(u=>{
+    const email=u.Email || u.adminFields?.Email || u.email || "-";
+    const name=u.Name || u.adminFields?.Name || "-";
+
     tbody.innerHTML+=`
     <tr>
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-      <td>${u.adminFields?.Name||"-"}</td>
-      <td>${u.email||"-"}</td>
+      <td>${name}</td>
+      <td>${email}</td>
       <td><span class="badge ${u.isApproved?"green":"yellow"}">${u.isApproved?"Approved":"Pending"}</span></td>
       <td>
-        <button onclick="edit('${u.uid}')">Edit</button>
         <button onclick="toggle('${u.uid}',${u.isApproved})">${u.isApproved?"Unapprove":"Approve"}</button>
       </td>
     </tr>`;
@@ -187,68 +148,19 @@ window.render=()=>{
 };
 
 window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
-
-/* EDIT USER */
-window.edit=id=>{
-  editUser=users.find(u=>u.uid===id);
-  adminFieldsWrap.innerHTML="<h4>Admin Fields</h4>";
-  userCustomWrap.innerHTML="<h4>User Custom Fields</h4>";
-
-  Object.entries(profileFields)
-    .sort((a,b)=>(a[1].sequence||0)-(b[1].sequence||0))
-    .forEach(([k,f])=>{
-      if(f.visible===false) return;
-      const v=editUser.adminFields?.[k]||"";
-      adminFieldsWrap.innerHTML+=`
-      <div class="block">
-        <label class="label">${f.label||k}</label>
-        <input data-admin="${k}" value="${v}">
-      </div>`;
-    });
-
-  Object.entries(editUser.userCustomFields||{}).forEach(([k,v])=>{
-    userCustomWrap.innerHTML+=`
-    <div class="block">
-      <label class="label">${k}</label>
-      <input value="${v.value||""}" disabled>
-    </div>`;
-  });
-
-  editModal.style.display="flex";
-};
-
-window.closeEdit=()=>editModal.style.display="none";
-
-/* SAVE */
-window.saveEdit=async()=>{
-  const adminFields={};
-  for(const i of document.querySelectorAll("[data-admin]")){
-    adminFields[i.dataset.admin]=i.value.trim();
-  }
-  spinner(true);
-  await updateDoc(doc(db,"users",editUser.uid),{adminFields});
-  toast("User updated");
-  closeEdit();
-  load();
-};
-
-/* ACTIONS */
-window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{isApproved:!v});load();};
 const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
+
+window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{isApproved:!v});load();};
 window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:true});toast("Approved");load();};
 window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:false});toast("Unapproved");load();};
 window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));toast("Deleted");load();};
 
-/* EXPORT */
 window.exportXLSX=()=>{
-  const rows=[];
-  users.forEach(u=>{
-    rows.push({
-      name:u.adminFields?.Name||"",
-      email:u.email||"",
-      status:u.isApproved?"Approved":"Pending"
-    });
-  });
+  const rows=users.map(u=>({
+    Name:u.Name||u.adminFields?.Name||"",
+    Email:u.Email||u.adminFields?.Email||u.email||"",
+    Status:u.isApproved?"Approved":"Pending"
+  }));
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Users");
   XLSX.writeFile(wb,"users.xlsx");
