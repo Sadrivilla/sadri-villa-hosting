@@ -7,14 +7,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{--primary:#6d28d9;--bg:#eef2ff}
+:root{--bg:#eef2ff}
 body{margin:0;font-family:Arial;background:var(--bg)}
 
 /* HEADER */
 .header{
   margin:20px;padding:22px;border-radius:22px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
-  color:#fff;display:flex;justify-content:space-between;align-items:center;
+  color:#fff;display:flex;justify-content:space-between;align-items:center
 }
 .header-left{display:flex;gap:12px;align-items:center}
 .header button{
@@ -22,24 +22,12 @@ body{margin:0;font-family:Arial;background:var(--bg)}
   background:#fff;color:#4f46e5;font-weight:600;cursor:pointer
 }
 
-/* PROFILE */
-.profile-wrap{position:relative}
-.profile-icon{width:44px;height:44px;border-radius:50%;cursor:pointer;border:2px solid #fff}
-.profile-menu{
-  position:absolute;right:0;top:54px;background:#fff;border-radius:14px;
-  width:200px;box-shadow:0 20px 40px rgba(0,0,0,.25);
-  display:none;overflow:hidden;z-index:1000
-}
-.profile-menu div{padding:12px;border-bottom:1px solid #e5e7eb}
-.profile-menu button{width:100%;border:none;background:#fff;padding:12px;text-align:left;cursor:pointer}
-.profile-menu button:hover{background:#f3f4f6}
-
 /* GRID */
 .container{
   padding:20px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-  gap:22px;
+  grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+  gap:22px
 }
 .card{
   background:#fff;padding:22px;border-radius:20px;
@@ -47,48 +35,52 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 }
 .card h3{margin-top:0}
 
-/* PROFILE FIELD MANAGER */
-.field-row{
-  display:grid;
-  grid-template-columns:1.6fr 120px 120px 40px;
-  gap:10px;
-  align-items:center;
-  margin-bottom:10px;
-}
-.field-row input{padding:8px;border-radius:8px;border:1px solid #d1d5db}
-.toggle{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:bold}
-.delete{background:#dc2626;color:#fff;border:none;border-radius:8px;cursor:pointer}
+/* LISTS */
+.list-item{font-size:13px;padding:4px 0}
 
 /* TOAST */
 .toast{
-  position:fixed;inset:0;
-  display:none;align-items:center;justify-content:center;
+  position:fixed;inset:0;display:none;
+  align-items:center;justify-content:center;
   background:rgba(0,0,0,.35);z-index:9999
 }
 .toast div{
-  background:linear-gradient(135deg,#16a34a,#22c55e);
-  padding:18px 32px;border-radius:20px;color:#fff;font-weight:bold
+  background:#16a34a;padding:18px 32px;
+  border-radius:20px;color:#fff;font-weight:bold
+}
+
+/* 🔔 FIXED ALERT ICON */
+#pendingAlertIcon{
+  position:fixed;top:16px;right:16px;
+  width:48px;height:48px;border-radius:50%;
+  background:#fff;display:none;
+  align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+  z-index:2000
+}
+#pendingBadge{
+  position:absolute;top:-6px;right:-6px;
+  background:#dc2626;color:#fff;
+  font-size:12px;font-weight:bold;
+  padding:3px 7px;border-radius:999px
 }
 </style>
 </head>
 
 <body>
 
+<!-- 🔔 ALERT ICON -->
+<div id="pendingAlertIcon" onclick="location.href='admin.html'">
+  🔔 <span id="pendingBadge">0</span>
+</div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <h2>Admin Dashboard</h2>
     <button onclick="location.href='admin.html'">👥 Admin Panel</button>
-    <button onclick="location.href='admin-profile-fields.html'">🧩 Manage Profile Fields</button>
     <button onclick="location.href='dashboard.html'">⬅ User Dashboard</button>
-  </div>
-  <div class="profile-wrap">
-    <img src="images/default-user.png" class="profile-icon" onclick="toggleMenu()">
-    <div class="profile-menu" id="profileMenu">
-      <div><b id="pName">Admin</b><br><small>Admin</small></div>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
-    </div>
   </div>
 </div>
 
@@ -103,114 +95,151 @@ body{margin:0;font-family:Arial;background:var(--bg)}
   <div class="card">
     <h3>User Approval Status</h3>
     <canvas id="approvalChart"></canvas>
+    <button onclick="showAllApprovals()">Show All</button>
+    <div id="approvalList"></div>
   </div>
 
   <div class="card">
-    <h3>Profile Completion (Sample)</h3>
-    <div id="profileCompletion"></div>
+    <h3>User Age Distribution</h3>
+    <canvas id="ageChart"></canvas>
   </div>
 
-  <div class="card" style="grid-column:1/-1">
-    <h3>🧩 Manage User Profile Fields</h3>
-    <p style="font-size:13px;color:#6b7280">
-      Control which fields users see and which are mandatory.
-    </p>
-
-    <div id="fieldWrap"></div>
-    <button onclick="addField()">➕ Add Field</button>
-    <button onclick="saveFields()">💾 Save</button>
+  <div class="card">
+    <h3>Profile Completion (User-wise)</h3>
+    <canvas id="profileChart"></canvas>
+    <button onclick="showAllProfiles()">Show All</button>
   </div>
 
 </div>
 
-<div class="toast" id="toast"><div>Saved successfully</div></div>
+<div class="toast" id="toast"><div>Saved</div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,collection,getDocs,doc,getDoc,setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,collection,getDocs,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* 🔐 OLD PROJECT CONFIG (AUTH + DB) */
+/* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+/* STATE */
+let allUsers=[];
+let showAllApprovalUsers=false;
+let showAllProfileUsers=false;
 
-const fieldWrap = document.getElementById("fieldWrap");
-const toast = document.getElementById("toast");
-
-/* 🔒 STRONG ADMIN GUARD */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    location.href = "login.html";
-    return;
+/* AUTH GUARD */
+onAuthStateChanged(auth,async user=>{
+  if(!user) return location.href="login.html";
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().role!=="admin"){
+    alert("Access denied");
+    return location.href="dashboard.html";
   }
-
-  try {
-    const snap = await getDoc(doc(db, "users", user.uid));
-
-    if (!snap.exists() || snap.data().role !== "admin") {
-      alert("Access denied");
-      location.href = "dashboard.html";
-      return;
-    }
-
-    pName.innerText = snap.data().fullName || "Admin";
-    loadFields();
-
-  } catch (e) {
-    alert("Permission error");
-    location.href = "login.html";
-  }
+  loadDashboard();
 });
 
-/* MENU */
-window.toggleMenu = () =>
-  profileMenu.style.display =
-    profileMenu.style.display === "block" ? "none" : "block";
-
-window.logout = async () => {
-  await signOut(auth);
-  location.href = "login.html";
-};
-
-/* PROFILE FIELDS */
-async function loadFields(){
-  fieldWrap.innerHTML="";
-  const snap = await getDocs(collection(db,"profileFields"));
-  snap.forEach(d => drawField(d.id,d.data()));
+/* LOAD DASHBOARD */
+async function loadDashboard(){
+  const snap=await getDocs(collection(db,"users"));
+  allUsers=snap.docs.map(d=>({id:d.id,...d.data()}));
+  totalUsers.innerText=allUsers.length;
+  renderApprovalChart();
+  renderAgeChart();
+  renderProfileChart();
+  renderPendingAlerts();
 }
 
-function drawField(k="",v={visible:true,required:false}){
-  const r = document.createElement("div");
-  r.className="field-row";
-  r.innerHTML=`
-    <input placeholder="fieldKey (eg fatherName)" value="${k}" ${k?"disabled":""}>
-    <div class="toggle"><input type="checkbox" ${v.visible?"checked":""}>Visible</div>
-    <div class="toggle"><input type="checkbox" ${v.required?"checked":""}>Required</div>
-    <button class="delete" onclick="this.parentElement.remove()">🗑</button>
-  `;
-  fieldWrap.appendChild(r);
+/* APPROVAL CHART */
+function renderApprovalChart(){
+  const approved=allUsers.filter(u=>u.isApproved).length;
+  const pending=allUsers.length-approved;
+
+  new Chart(approvalChart,{
+    type:"doughnut",
+    data:{
+      labels:["Approved","Pending"],
+      datasets:[{data:[approved,pending],backgroundColor:["#16a34a","#f59e0b"]}]
+    },
+    options:{onClick:()=>location.href="admin.html"}
+  });
+
+  renderApprovalList();
 }
 
-window.addField = () => drawField();
-
-window.saveFields = async () => {
-  for(const r of [...fieldWrap.children]){
-    const i = r.querySelectorAll("input");
-    if(!i[0].value) continue;
-    await setDoc(doc(db,"profileFields",i[0].value),{
-      visible:i[1].checked,
-      required:i[2].checked
+function renderApprovalList(){
+  approvalList.innerHTML="";
+  (showAllApprovalUsers?allUsers:allUsers.slice(0,5))
+    .forEach(u=>{
+      approvalList.innerHTML+=`
+        <div class="list-item">
+          ${u.fullName||u.adminFields?.Name||"User"} –
+          <b>${u.isApproved?"Approved":"Pending"}</b>
+        </div>`;
     });
-  }
-  toast.style.display="flex";
-  setTimeout(()=>toast.style.display="none",2000);
+}
+window.showAllApprovals=()=>{
+  showAllApprovalUsers=true;
+  renderApprovalList();
 };
+
+/* AGE CHART */
+const getAge=d=>{
+  if(!d) return null;
+  return Math.floor((Date.now()-new Date(d))/31557600000);
+};
+function renderAgeChart(){
+  const b=[0,0,0,0,0];
+  allUsers.forEach(u=>{
+    const dob=u.dob||u.adminFields?.["Date of birth"];
+    const a=getAge(dob);
+    if(!a) return;
+    if(a<=20)b[0]++; else if(a<=40)b[1]++;
+    else if(a<=60)b[2]++; else if(a<=80)b[3]++; else b[4]++;
+  });
+  new Chart(ageChart,{
+    type:"bar",
+    data:{labels:["1–20","21–40","41–60","61–80","81–100"],
+      datasets:[{data:b,backgroundColor:"#6366f1"}]}
+  });
+}
+
+/* PROFILE COMPLETION */
+const completion=u=>{
+  const f=u.adminFields||{};
+  const t=Object.keys(f).length||1;
+  const filled=Object.values(f).filter(v=>v).length;
+  return Math.round((filled/t)*100);
+};
+function renderProfileChart(){
+  const list=showAllProfileUsers?allUsers:allUsers.slice(0,5);
+  new Chart(profileChart,{
+    type:"bar",
+    data:{
+      labels:list.map(u=>u.fullName||"User"),
+      datasets:[{data:list.map(completion),backgroundColor:"#22c55e"}]
+    },
+    options:{scales:{y:{max:100}}}
+  });
+}
+window.showAllProfiles=()=>{
+  showAllProfileUsers=true;
+  renderProfileChart();
+};
+
+/* 🔔 PENDING ALERT ICON */
+function renderPendingAlerts(){
+  const pending=allUsers.filter(u=>!u.isApproved);
+  if(pending.length){
+    pendingBadge.innerText=pending.length;
+    pendingAlertIcon.style.display="flex";
+  }
+}
 </script>
 
 </body>
