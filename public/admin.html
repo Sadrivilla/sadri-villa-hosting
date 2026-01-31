@@ -24,13 +24,8 @@ th{background:#f8fafc;text-align:left}
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
 
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
-.modal-card{background:#fff;padding:22px;border-radius:20px;width:92%;max-width:720px;max-height:85vh;overflow-y:auto}
-
 .toast{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:9999}
-.toast div{padding:18px 34px;border-radius:20px;color:#fff;font-weight:bold}
-.toast.success div{background:linear-gradient(135deg,#16a34a,#22c55e)}
-.toast.error div{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.toast div{padding:18px 34px;border-radius:20px;color:#fff;font-weight:bold;background:#16a34a}
 
 #spinner{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:10000}
 #spinner div{width:60px;height:60px;border:6px solid #e5e7eb;border-top:6px solid #6d28d9;border-radius:50%;animation:spin 1s linear infinite}
@@ -47,16 +42,22 @@ th{background:#f8fafc;text-align:left}
 
 <div class="controls">
   <select id="statusFilter" onchange="render()">
-    <option value="all">All</option>
+    <option value="all">All Status</option>
     <option value="approved">Approved</option>
     <option value="pending">Pending</option>
   </select>
 
-  <input id="search" placeholder="Search by Name / Email" oninput="render()">
+  <select id="roleFilter" onchange="render()">
+    <option value="all">All Roles</option>
+    <option value="admin">Admin</option>
+    <option value="user">User</option>
+  </select>
 
-  <button class="success" onclick="bulkApprove()">Approve Selected</button>
-  <button class="secondary" onclick="bulkUnapprove()">Unapprove Selected</button>
-  <button class="danger" onclick="bulkDelete()">Delete Selected</button>
+  <input id="search" placeholder="Search by Name / Email / Phone" oninput="render()">
+
+  <button class="success" onclick="bulkApprove()">Approve</button>
+  <button class="secondary" onclick="bulkUnapprove()">Unapprove</button>
+  <button class="danger" onclick="bulkDelete()">Delete</button>
   <button onclick="exportXLSX()">Export XLSX</button>
 </div>
 
@@ -66,14 +67,18 @@ th{background:#f8fafc;text-align:left}
   <th><input type="checkbox" onclick="toggleAll(this)"></th>
   <th>Name</th>
   <th>Email</th>
+  <th>Phone</th>
+  <th>Role</th>
+  <th>Created</th>
+  <th>Last Login</th>
   <th>Status</th>
-  <th>Actions</th>
+  <th>Action</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
 
-<div class="toast" id="toast"><div></div></div>
+<div class="toast" id="toast"><div id="toastMsg"></div></div>
 <div id="spinner"><div></div></div>
 
 <script type="module">
@@ -93,21 +98,24 @@ const db = getFirestore(app);
 
 let users=[];
 
+const toast=(msg)=>{
+  toastMsg.innerText=msg;
+  toast.style.display="flex";
+  setTimeout(()=>toast.style.display="none",2000);
+};
+const spinner=s=>spinnerEl.style.display=s?"flex":"none";
+const spinnerEl=document.getElementById("spinner");
+
 /* 🔐 ADMIN GUARD */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return location.href="login.html";
-  const snap = await getDoc(doc(db,"users",user.uid));
-  if (!snap.exists() || snap.data().role !== "admin") {
+onAuthStateChanged(auth, async user=>{
+  if(!user) return location.href="login.html";
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role!=="admin"){
     alert("Access denied");
-    location.href="dashboard.html";
+    return location.href="dashboard.html";
   }
   load();
 });
-
-const toast=(msg)=>{const t=toastEl; t.querySelector("div").innerText=msg; t.style.display="flex"; setTimeout(()=>t.style.display="none",2000);}
-const toastEl=document.getElementById("toast");
-const spinner=s=>spinnerEl.style.display=s?"flex":"none";
-const spinnerEl=document.getElementById("spinner");
 
 async function load(){
   spinner(true);
@@ -120,28 +128,37 @@ async function load(){
 
 window.render=()=>{
   tbody.innerHTML="";
-  const f=statusFilter.value;
+  const status=statusFilter.value;
+  const role=roleFilter.value;
   const q=search.value.toLowerCase();
 
   users.filter(u=>{
-    if(f==="approved" && !u.isApproved) return false;
-    if(f==="pending" && u.isApproved) return false;
+    if(status==="approved" && !u.isApproved) return false;
+    if(status==="pending" && u.isApproved) return false;
+    if(role!=="all" && u.role!==role) return false;
 
-    const name=(u.Name || u.adminFields?.Name || "").toLowerCase();
-    const email=(u.Email || u.adminFields?.Email || u.email || "").toLowerCase();
-    return name.includes(q) || email.includes(q);
+    const name=(u.Name||u.adminFields?.Name||"").toLowerCase();
+    const email=(u.Email||u.email||"").toLowerCase();
+    const phone=(u.Phone||"").toLowerCase();
+    return name.includes(q)||email.includes(q)||phone.includes(q);
   }).forEach(u=>{
-    const email=u.Email || u.adminFields?.Email || u.email || "-";
-    const name=u.Name || u.adminFields?.Name || "-";
+    const created=u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-";
+    const lastLogin=u.lastLogin?new Date(u.lastLogin).toLocaleString("en-IN"):"Never";
 
     tbody.innerHTML+=`
     <tr>
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-      <td>${name}</td>
-      <td>${email}</td>
+      <td>${u.Name||u.adminFields?.Name||"-"}</td>
+      <td>${u.Email||u.email||"-"}</td>
+      <td>${u.Phone||"-"}</td>
+      <td>${u.role||"user"}</td>
+      <td>${created}</td>
+      <td>${lastLogin}</td>
       <td><span class="badge ${u.isApproved?"green":"yellow"}">${u.isApproved?"Approved":"Pending"}</span></td>
       <td>
-        <button onclick="toggle('${u.uid}',${u.isApproved})">${u.isApproved?"Unapprove":"Approve"}</button>
+        <button onclick="toggle('${u.uid}',${u.isApproved})">
+          ${u.isApproved?"Unapprove":"Approve"}
+        </button>
       </td>
     </tr>`;
   });
@@ -158,8 +175,12 @@ window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"u
 window.exportXLSX=()=>{
   const rows=users.map(u=>({
     Name:u.Name||u.adminFields?.Name||"",
-    Email:u.Email||u.adminFields?.Email||u.email||"",
-    Status:u.isApproved?"Approved":"Pending"
+    Email:u.Email||u.email||"",
+    Phone:u.Phone||"",
+    Role:u.role||"user",
+    Status:u.isApproved?"Approved":"Pending",
+    Created:u.createdAt||"",
+    LastLogin:u.lastLogin||"Never"
   }));
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Users");
@@ -169,3 +190,4 @@ window.exportXLSX=()=>{
 
 </body>
 </html>
+
