@@ -1,0 +1,285 @@
+profile.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- PDF & Excel Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+body{font-family:Arial;background:#eef2ff;margin:0}
+.topbar{background:#4f46e5;color:#fff;padding:14px;display:flex;gap:10px;flex-wrap:wrap}
+.topbar button{background:#fff;color:#4f46e5;border:none;padding:8px 14px;border-radius:10px;font-weight:bold;cursor:pointer}
+
+.wrap{display:flex;justify-content:center;padding:20px}
+.card{background:#fff;padding:28px;border-radius:22px;max-width:560px;width:100%;box-shadow:0 20px 45px rgba(0,0,0,.15)}
+h2{text-align:center;margin-top:0}
+
+.block{border:1px dashed #c7d2fe;padding:14px;border-radius:14px;margin-bottom:12px;background:#fafafa}
+label{font-size:13px;font-weight:bold}
+label span{color:#dc2626}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1.5px solid #d1d5db;
+  margin-top:6px;
+}
+input[readonly]{background:#e5e7eb}
+
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.row span{font-size:13px;color:#4f46e5;font-weight:bold}
+.row button{background:#fee2e2;border:none;border-radius:10px;font-size:18px;cursor:pointer}
+
+button.add{margin-top:6px}
+button.save{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:#6d28d9;
+  color:#fff;
+  font-size:15px;
+  margin-top:14px;
+}
+
+.loader{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999
+}
+.loader div{
+  width:60px;height:60px;
+  border:6px solid #e5e7eb;
+  border-top:6px solid #6d28d9;
+  border-radius:50%;
+  animation:spin 1s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.popup{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10000}
+.popup .box{padding:20px 34px;border-radius:20px;color:#fff;font-size:16px;font-weight:bold}
+.success{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.error{background:linear-gradient(135deg,#dc2626,#ef4444)}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <button onclick="location.href='dashboard.html'">Dashboard</button>
+  <button onclick="location.href='profile.html'">Profile</button>
+  <button onclick="exportPDF()">📄 Export PDF</button>
+  <button onclick="exportExcel()">📊 Export Excel</button>
+</div>
+
+<div class="wrap">
+<div class="card">
+<h2>👤 My Profile</h2>
+
+<h3>🧩 User Details</h3>
+<div id="staticWrap"></div>
+
+<h3>🛠 Admin Fields</h3>
+<div id="adminWrap"></div>
+
+<h3>➕ Your Custom Fields</h3>
+<div id="userWrap"></div>
+<button class="add" onclick="addUserCustom()">Add Custom Field</button>
+
+<button class="save" onclick="saveProfile()">Save Profile</button>
+</div>
+</div>
+
+<div class="loader" id="loader"><div></div></div>
+<div class="popup" id="success"><div class="box success">✅ Profile saved</div></div>
+<div class="popup" id="error"><div class="box error">❌ Please fill required fields</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const adminWrap=document.getElementById("adminWrap");
+const staticWrap=document.getElementById("staticWrap");
+const userWrap=document.getElementById("userWrap");
+const loader=document.getElementById("loader");
+
+let uid,profileFields=[],adminValues={},userCustom={};
+
+const popup=id=>{
+  const p=document.getElementById(id);
+  p.style.display="flex";
+  setTimeout(()=>p.style.display="none",2200);
+};
+
+onAuthStateChanged(auth,async u=>{
+  if(!u)return location.href="login.html";
+  uid=u.uid;
+
+  const userSnap=await getDoc(doc(db,"users",uid));
+  const userData=userSnap.data()||{};
+
+  staticWrap.innerHTML=`
+    <div class="block"><label>Email</label><input value="${u.email}" readonly></div>
+    <div class="block"><label>Role</label><input value="${userData.role||'User'}" readonly></div>
+  `;
+
+  const fsnap=await getDocs(collection(db,"profileFields"));
+  profileFields=[];
+  fsnap.forEach(d=>profileFields.push({key:d.id,...d.data(),sequence:Number(d.data().sequence??9999)}));
+  profileFields.sort((a,b)=>a.sequence-b.sequence);
+
+  adminValues=userData.adminFields||{};
+  userCustom=userData.userCustomFields||{};
+
+  profileFields.forEach(f=>{
+    if(f.visible===false)return;
+
+    let fieldHTML="";
+
+    if(f.type==="dropdown" && Array.isArray(f.options)){
+      fieldHTML=`
+        <select data-admin="${f.key}">
+          <option value="">Select ${f.label||f.key}</option>
+          ${f.options.map(opt=>`
+            <option value="${opt}" ${adminValues[f.key]===opt?"selected":""}>${opt}</option>
+          `).join("")}
+        </select>
+      `;
+    } else {
+      const type=
+        f.type==="date"?"date":
+        f.type==="number"?"number":"text";
+
+      fieldHTML=`
+        <input type="${type}" data-admin="${f.key}" value="${adminValues[f.key]||""}">
+      `;
+    }
+
+    adminWrap.innerHTML+=`
+      <div class="block">
+        <label>${f.label||f.key} ${f.required?'<span>*</span>':''}</label>
+        ${fieldHTML}
+      </div>
+    `;
+  });
+
+  Object.entries(userCustom).forEach(([k,v])=>drawUserCustom(k,v.value,v.showOnDashboard));
+});
+
+window.addUserCustom=()=>drawUserCustom();
+
+function drawUserCustom(name="",value="",show=false){
+  userWrap.innerHTML+=`
+    <div class="block">
+      <input class="ckey" placeholder="Field Name" value="${name}">
+      <input class="cval" placeholder="Value" value="${value}">
+      <div class="row">
+        <span><input type="checkbox" class="cshow" ${show?"checked":""}> Dashboard</span>
+        <button onclick="this.closest('.block').remove()">🗑</button>
+      </div>
+    </div>
+  `;
+}
+
+window.saveProfile=async()=>{
+  adminValues={};
+  for(const i of document.querySelectorAll("[data-admin]")){
+    const f=profileFields.find(x=>x.key===i.dataset.admin);
+    if(f?.required && !i.value.trim()){popup("error");return;}
+    adminValues[i.dataset.admin]=i.value.trim();
+  }
+
+  userCustom={};
+  [...userWrap.children].forEach(b=>{
+    const k=b.querySelector(".ckey").value.trim();
+    if(k)userCustom[k]={
+      value:b.querySelector(".cval").value,
+      showOnDashboard:b.querySelector(".cshow").checked
+    };
+  });
+
+  loader.style.display="flex";
+  await setDoc(
+    doc(db,"users",uid),
+    {adminFields:adminValues,userCustomFields:userCustom,updatedAt:new Date().toISOString()},
+    {merge:true}
+  );
+  loader.style.display="none";
+  popup("success");
+};
+
+/* ---------- EXPORT PDF ---------- */
+window.exportPDF=()=>{
+  const { jsPDF } = window.jspdf;
+  const pdf=new jsPDF();
+  let y=15;
+
+  pdf.setFontSize(16);
+  pdf.text("My Profile Details",105,y,{align:"center"});
+  y+=10;
+
+  pdf.setFontSize(12);
+  pdf.text(`Email: ${auth.currentUser.email}`,10,y); y+=7;
+
+  profileFields.forEach(f=>{
+    if(f.visible===false)return;
+    pdf.text(`${f.label||f.key}: ${adminValues[f.key]||""}`,10,y);
+    y+=7;
+    if(y>280){pdf.addPage();y=15;}
+  });
+
+  y+=5;
+  pdf.setFontSize(14);
+  pdf.text("Custom Fields",10,y); y+=8;
+  pdf.setFontSize(12);
+
+  Object.entries(userCustom).forEach(([k,v])=>{
+    pdf.text(`${k}: ${v.value}`,10,y);
+    y+=7;
+  });
+
+  pdf.save("my-profile.pdf");
+};
+
+/* ---------- EXPORT EXCEL ---------- */
+window.exportExcel=()=>{
+  const rows=[];
+  rows.push(["Email",auth.currentUser.email]);
+
+  profileFields.forEach(f=>{
+    if(f.visible===false)return;
+    rows.push([f.label||f.key,adminValues[f.key]||""]);
+  });
+
+  Object.entries(userCustom).forEach(([k,v])=>{
+    rows.push([k,v.value]);
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Profile");
+  XLSX.writeFile(wb,"my-profile.xlsx");
+};
+</script>
+
+</body>
+</html>

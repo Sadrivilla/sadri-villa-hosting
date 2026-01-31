@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manage Profile Fields</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{font-family:Arial;background:#eef2ff;margin:0;padding:20px}
+.header{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+button{padding:8px 14px;border:none;border-radius:10px;background:#4f46e5;color:#fff;cursor:pointer}
+
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:18px;
+  max-width:1100px;
+  margin:auto;
+  box-shadow:0 12px 28px rgba(0,0,0,.1)
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1.4fr 80px 120px 110px 120px 140px 40px;
+  gap:10px;
+  align-items:center;
+  margin-bottom:10px
+}
+
+.row.head{font-weight:bold;margin-bottom:14px}
+
+input,select{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #d1d5db
+}
+input[type="number"]{text-align:center}
+
+.toggle{display:flex;gap:6px;font-size:13px;align-items:center}
+
+.delete{
+  background:#dc2626;
+  color:#fff;
+  border-radius:8px;
+  cursor:pointer
+}
+
+.optionsBox{
+  grid-column:1 / -1;
+  background:#f8fafc;
+  border:1px dashed #c7d2fe;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:14px;
+  display:none
+}
+.optRow{display:flex;gap:8px;margin-bottom:8px}
+.optRow button{background:#dc2626;padding:6px 10px}
+.addOpt{background:#16a34a;margin-top:6px}
+
+.toast{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.35)
+}
+.toast div{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  padding:18px 32px;
+  border-radius:18px;
+  color:#fff;
+  font-weight:bold
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <button onclick="location.href='admin-dashboard.html'">⬅ Back</button>
+  <h2>🧩 Manage Profile Fields</h2>
+</div>
+
+<div class="card">
+  <div class="row head">
+    <div>Field Key</div>
+    <div>Seq</div>
+    <div>Type</div>
+    <div>Visible</div>
+    <div>Required</div>
+    <div>Dashboard</div>
+    <div></div>
+  </div>
+
+  <div id="wrap"></div>
+
+  <button onclick="add()">➕ Add Field</button>
+  <button onclick="save()">💾 Save Changes</button>
+</div>
+
+<div class="toast" id="toast"><div id="toastMsg"></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,collection,getDocs,doc,getDoc,setDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔐 EXISTING PROJECT */
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const wrap=document.getElementById("wrap");
+const toast=document.getElementById("toast");
+const toastMsg=document.getElementById("toastMsg");
+
+const showMsg=t=>{
+  toastMsg.innerText=t;
+  toast.style.display="flex";
+  setTimeout(()=>toast.style.display="none",2200);
+};
+
+/* 🔒 ADMIN GUARD */
+onAuthStateChanged(auth, async user=>{
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+
+  try{
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if(!snap.exists() || snap.data().role !== "admin"){
+      alert("Access denied");
+      location.href="dashboard.html";
+      return;
+    }
+    load();
+  }catch(e){
+    alert("Permission error");
+    location.href="login.html";
+  }
+});
+
+/* LOAD FIELDS */
+async function load(){
+  wrap.innerHTML="";
+  const snap=await getDocs(collection(db,"profileFields"));
+  snap.forEach(d=>draw(d.id,d.data()));
+}
+
+/* DRAW ROW */
+function draw(key="",v={}){
+  const r=document.createElement("div");
+
+  r.innerHTML=`
+    <div class="row">
+      <input value="${key}" ${key?"disabled":""} placeholder="fieldKey">
+      <input type="number" min="1" value="${v.sequence ?? ""}">
+      <select class="typeSel">
+        <option value="text" ${v.type==="text"||!v.type?"selected":""}>Text</option>
+        <option value="number" ${v.type==="number"?"selected":""}>Number</option>
+        <option value="date" ${v.type==="date"?"selected":""}>Date</option>
+        <option value="dropdown" ${v.type==="dropdown"?"selected":""}>Dropdown</option>
+      </select>
+      <div class="toggle"><input type="checkbox" ${v.visible!==false?"checked":""}>Visible</div>
+      <div class="toggle"><input type="checkbox" ${v.required?"checked":""}>Required</div>
+      <div class="toggle"><input type="checkbox" ${v.showOnDashboard?"checked":""}>Dashboard</div>
+      <button class="delete">🗑</button>
+    </div>
+
+    <div class="optionsBox">
+      <strong>Dropdown Options (min 2)</strong>
+      <div class="opts"></div>
+      <button class="addOpt">➕ Add Option</button>
+    </div>
+  `;
+
+  const typeSel=r.querySelector(".typeSel");
+  const optBox=r.querySelector(".optionsBox");
+  const opts=r.querySelector(".opts");
+
+  const renderOpt=(val="")=>{
+    const d=document.createElement("div");
+    d.className="optRow";
+    d.innerHTML=`<input value="${val}" placeholder="Option value"><button>✖</button>`;
+    d.querySelector("button").onclick=()=>d.remove();
+    opts.appendChild(d);
+  };
+
+  (v.options||[]).forEach(o=>renderOpt(o));
+  r.querySelector(".addOpt").onclick=()=>renderOpt();
+
+  typeSel.onchange=()=>optBox.style.display=typeSel.value==="dropdown"?"block":"none";
+  typeSel.onchange();
+
+  r.querySelector(".delete").onclick=async()=>{
+    if(key) await deleteDoc(doc(db,"profileFields",key));
+    r.remove();
+  };
+
+  wrap.appendChild(r);
+}
+
+window.add=()=>draw();
+
+/* SAVE */
+window.save=async()=>{
+  for(const block of wrap.children){
+    const r=block.querySelector(".row");
+    const optBox=block.querySelector(".optionsBox");
+    const i=r.querySelectorAll("input,select");
+
+    const key=i[0].value.trim();
+    if(!key) continue;
+
+    let data={
+      sequence:Number(i[1].value)||9999,
+      type:i[2].value,
+      visible:i[3].checked,
+      required:i[4].checked,
+      showOnDashboard:i[5].checked
+    };
+
+    if(data.type==="dropdown"){
+      const options=[...optBox.querySelectorAll(".optRow input")]
+        .map(o=>o.value.trim()).filter(Boolean);
+      if(options.length<2){
+        showMsg(`❌ ${key}: Need at least 2 options`);
+        return;
+      }
+      data.options=options;
+    }
+
+    await setDoc(doc(db,"profileFields",key),data);
+  }
+  showMsg("✅ Profile fields updated successfully");
+};
+</script>
+
+</body>
+</html>

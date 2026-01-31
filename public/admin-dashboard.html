@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard – Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{--primary:#6d28d9;--bg:#eef2ff}
+body{margin:0;font-family:Arial;background:var(--bg)}
+
+/* HEADER */
+.header{
+  margin:20px;padding:22px;border-radius:22px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+  color:#fff;display:flex;justify-content:space-between;align-items:center;
+}
+.header-left{display:flex;gap:12px;align-items:center}
+.header button{
+  padding:10px 16px;border:none;border-radius:14px;
+  background:#fff;color:#4f46e5;font-weight:600;cursor:pointer
+}
+
+/* PROFILE */
+.profile-wrap{position:relative}
+.profile-icon{width:44px;height:44px;border-radius:50%;cursor:pointer;border:2px solid #fff}
+.profile-menu{
+  position:absolute;right:0;top:54px;background:#fff;border-radius:14px;
+  width:200px;box-shadow:0 20px 40px rgba(0,0,0,.25);
+  display:none;overflow:hidden;z-index:1000
+}
+.profile-menu div{padding:12px;border-bottom:1px solid #e5e7eb}
+.profile-menu button{width:100%;border:none;background:#fff;padding:12px;text-align:left;cursor:pointer}
+.profile-menu button:hover{background:#f3f4f6}
+
+/* GRID */
+.container{
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:22px;
+}
+.card{
+  background:#fff;padding:22px;border-radius:20px;
+  box-shadow:0 12px 28px rgba(0,0,0,.08)
+}
+.card h3{margin-top:0}
+
+/* PROFILE FIELD MANAGER */
+.field-row{
+  display:grid;
+  grid-template-columns:1.6fr 120px 120px 40px;
+  gap:10px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.field-row input{padding:8px;border-radius:8px;border:1px solid #d1d5db}
+.toggle{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:bold}
+.delete{background:#dc2626;color:#fff;border:none;border-radius:8px;cursor:pointer}
+
+/* TOAST */
+.toast{
+  position:fixed;inset:0;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.35);z-index:9999
+}
+.toast div{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  padding:18px 32px;border-radius:20px;color:#fff;font-weight:bold
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h2>Admin Dashboard</h2>
+    <button onclick="location.href='admin.html'">👥 Admin Panel</button>
+    <button onclick="location.href='admin-profile-fields.html'">🧩 Manage Profile Fields</button>
+    <button onclick="location.href='dashboard.html'">⬅ User Dashboard</button>
+  </div>
+  <div class="profile-wrap">
+    <img src="images/default-user.png" class="profile-icon" onclick="toggleMenu()">
+    <div class="profile-menu" id="profileMenu">
+      <div><b id="pName">Admin</b><br><small>Admin</small></div>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container">
+
+  <div class="card" onclick="location.href='admin.html'" style="cursor:pointer">
+    <h3>Total Users</h3>
+    <h1 id="totalUsers">—</h1>
+  </div>
+
+  <div class="card">
+    <h3>User Approval Status</h3>
+    <canvas id="approvalChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h3>Profile Completion (Sample)</h3>
+    <div id="profileCompletion"></div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <h3>🧩 Manage User Profile Fields</h3>
+    <p style="font-size:13px;color:#6b7280">
+      Control which fields users see and which are mandatory.
+    </p>
+
+    <div id="fieldWrap"></div>
+    <button onclick="addField()">➕ Add Field</button>
+    <button onclick="saveFields()">💾 Save</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"><div>Saved successfully</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,collection,getDocs,doc,getDoc,setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔐 OLD PROJECT CONFIG (AUTH + DB) */
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const fieldWrap = document.getElementById("fieldWrap");
+const toast = document.getElementById("toast");
+
+/* 🔒 STRONG ADMIN GUARD */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+
+  try {
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (!snap.exists() || snap.data().role !== "admin") {
+      alert("Access denied");
+      location.href = "dashboard.html";
+      return;
+    }
+
+    pName.innerText = snap.data().fullName || "Admin";
+    loadFields();
+
+  } catch (e) {
+    alert("Permission error");
+    location.href = "login.html";
+  }
+});
+
+/* MENU */
+window.toggleMenu = () =>
+  profileMenu.style.display =
+    profileMenu.style.display === "block" ? "none" : "block";
+
+window.logout = async () => {
+  await signOut(auth);
+  location.href = "login.html";
+};
+
+/* PROFILE FIELDS */
+async function loadFields(){
+  fieldWrap.innerHTML="";
+  const snap = await getDocs(collection(db,"profileFields"));
+  snap.forEach(d => drawField(d.id,d.data()));
+}
+
+function drawField(k="",v={visible:true,required:false}){
+  const r = document.createElement("div");
+  r.className="field-row";
+  r.innerHTML=`
+    <input placeholder="fieldKey (eg fatherName)" value="${k}" ${k?"disabled":""}>
+    <div class="toggle"><input type="checkbox" ${v.visible?"checked":""}>Visible</div>
+    <div class="toggle"><input type="checkbox" ${v.required?"checked":""}>Required</div>
+    <button class="delete" onclick="this.parentElement.remove()">🗑</button>
+  `;
+  fieldWrap.appendChild(r);
+}
+
+window.addField = () => drawField();
+
+window.saveFields = async () => {
+  for(const r of [...fieldWrap.children]){
+    const i = r.querySelectorAll("input");
+    if(!i[0].value) continue;
+    await setDoc(doc(db,"profileFields",i[0].value),{
+      visible:i[1].checked,
+      required:i[2].checked
+    });
+  }
+  toast.style.display="flex";
+  setTimeout(()=>toast.style.display="none",2000);
+};
+</script>
+
+</body>
+</html>

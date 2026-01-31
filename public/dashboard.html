@@ -1,0 +1,356 @@
+dashboard.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#eef2ff}
+
+/* TOP BAR */
+.topbar{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+  color:#fff;
+  padding:20px 24px;
+  margin:20px;
+  border-radius:22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+
+/* AVATAR */
+.avatar-wrap{display:flex;gap:12px;align-items:center}
+.avatar{
+  width:56px;height:56px;border-radius:50%;
+  object-fit:cover;border:3px solid #fff;
+  box-shadow:0 6px 15px rgba(0,0,0,.25)
+}
+
+/* TOP RIGHT */
+.top-right{display:flex;align-items:center;gap:10px}
+.actions{display:flex;gap:10px}
+.actions button,.menu-btn{
+  background:#fff;color:#4f46e5;
+  border:none;padding:8px 14px;
+  border-radius:12px;font-weight:bold;
+  cursor:pointer
+}
+.menu-btn{display:none;font-size:20px}
+
+/* MOBILE MENU */
+.mobile-menu{
+  display:none;flex-direction:column;gap:10px;
+  margin:0 20px;padding:14px;background:#fff;
+  border-radius:18px;
+  box-shadow:0 15px 35px rgba(0,0,0,.2)
+}
+.mobile-menu button{
+  background:#4f46e5;color:#fff;
+  border:none;padding:10px;
+  border-radius:12px;font-weight:bold
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;padding:20px
+}
+.card{
+  background:#fff;padding:22px;
+  border-radius:20px;
+  box-shadow:0 12px 28px rgba(0,0,0,.08)
+}
+
+/* PROFILE */
+.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
+.progress div{height:100%;transition:.4s}
+.tip{font-size:13px;color:#6b7280}
+
+/* HIGHLIGHTS */
+.custom p{margin:6px 0;font-size:14px}
+.custom b{color:#374151}
+
+/* GALLERY */
+.gallery-main{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  margin-top:12px
+}
+.gallery-main img{
+  width:100%;
+  max-width:520px;
+  height:280px;
+  object-fit:cover;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+  cursor:pointer
+}
+.gallery-main button{
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:12px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:18px
+}
+
+/* THUMBNAILS */
+.thumbs{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-top:12px
+}
+.thumbs img{
+  width:70px;
+  height:50px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+  opacity:.6;
+  border-bottom:3px solid transparent
+}
+.thumbs img.active{
+  opacity:1;
+  border-bottom:3px solid #4f46e5
+}
+
+/* FULLSCREEN */
+.fullscreen{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10000
+}
+.fullscreen img{
+  max-width:95%;
+  max-height:90%;
+  border-radius:16px
+}
+.fullscreen .close{
+  position:absolute;
+  top:20px;
+  right:24px;
+  color:#fff;
+  font-size:26px;
+  cursor:pointer
+}
+
+/* FULLSCREEN NAV BUTTONS (NEW – SAFE) */
+.fs-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  border:none;
+  padding:14px 18px;
+  font-size:22px;
+  border-radius:50%;
+  cursor:pointer;
+  z-index:10001
+}
+.fs-btn.left{left:30px}
+.fs-btn.right{right:30px}
+.fs-btn:hover{background:rgba(0,0,0,.85)}
+
+@media(max-width:768px){
+  .actions{display:none}
+  .menu-btn{display:block}
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="avatar-wrap">
+    <img class="avatar"
+      src="https://lh3.googleusercontent.com/p/AF1QipNTmIxIrZC_0kNgPr-X-mmRa34otal0_OBBKDkx=w1200-h800-k-no">
+    <div>
+      <h2 style="margin:0">Welcome to Sadri Villa</h2>
+      <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
+    </div>
+  </div>
+
+  <div class="top-right">
+    <div class="actions">
+      <button onclick="openMap()">📍 Map</button>
+      <button onclick="changePassword()">🔒 Change Password</button>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
+</div>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu">
+  <button onclick="openMap()">📍 Map</button>
+  <button onclick="changePassword()">🔒 Change Password</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
+
+<div class="grid">
+
+  <!-- PROFILE COMPLETION -->
+  <div class="card">
+    <h3>Profile Completion</h3>
+    <h1 id="percent">0%</h1>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="tip" class="tip"></p>
+    <canvas id="chart" height="160"></canvas>
+  </div>
+
+  <!-- HIGHLIGHTS -->
+  <div class="card">
+    <h3>Your Highlights</h3>
+    <div id="custom" class="custom"></div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="card">
+    <h3>📸 Sadri Villa Gallery</h3>
+    <div class="gallery-main">
+      <button onclick="prevPhoto()">⬅</button>
+      <img id="galleryImg" onclick="openFullscreen()">
+      <button onclick="nextPhoto()">➡</button>
+    </div>
+    <div id="thumbs" class="thumbs"></div>
+  </div>
+
+</div>
+
+<!-- FULLSCREEN -->
+<div id="fullscreen" class="fullscreen">
+  <span class="close" onclick="closeFullscreen()">✖</span>
+  <button class="fs-btn left" onclick="prevPhoto()">⬅</button>
+  <img id="fullscreenImg">
+  <button class="fs-btn right" onclick="nextPhoto()">➡</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+/* MENU */
+window.toggleMenu=()=>{
+  const m=document.getElementById("mobileMenu");
+  m.style.display=m.style.display==="flex"?"none":"flex";
+};
+
+/* ACTIONS */
+window.logout=async()=>{await signOut(auth);location.href="login.html"};
+window.changePassword=async()=>{
+  if(!auth.currentUser)return;
+  await sendPasswordResetEmail(auth,auth.currentUser.email);
+  alert("Password reset email sent");
+};
+window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
+
+/* GALLERY */
+const galleryPhotos=[
+  "https://lh3.googleusercontent.com/p/AF1QipNTmIxIrZC_0kNgPr-X-mmRa34otal0_OBBKDkx=w1200-h800-k-no",
+  "https://lh3.googleusercontent.com/p/AF1QipN2yRnFgxmxmy5qCN2Wht8lkgcVJSZl2NBqanP4=w1200-h800-k-no",
+  "https://lh3.googleusercontent.com/p/AF1QipP80UdSHfMCkU1DTCxdZibFh4m59C47azG7ulug=w1200-h800-k-no",
+  "https://lh3.googleusercontent.com/p/AF1QipPBPEs3uTjgMRomo8vfnmSLwEcgtgPJmX_WtKWD=w1200-h800-k-no",
+  "https://lh3.googleusercontent.com/p/AF1QipPBPEs3uTjgMRomo8vfnmSLwEcgtgPJmX_WtKWD=w1200-h1200-k-no"
+];
+
+let index=0,timer=null;
+const galleryImg=document.getElementById("galleryImg");
+const fullscreen=document.getElementById("fullscreen");
+const fullscreenImg=document.getElementById("fullscreenImg");
+const thumbs=document.getElementById("thumbs");
+
+function renderGallery(){
+  galleryImg.src=galleryPhotos[index];
+  fullscreenImg.src=galleryPhotos[index]; /* 🔑 keeps fullscreen in sync */
+  thumbs.innerHTML="";
+  galleryPhotos.forEach((p,i)=>{
+    const t=document.createElement("img");
+    t.src=p;
+    if(i===index)t.classList.add("active");
+    t.onclick=()=>{index=i;renderGallery()};
+    thumbs.appendChild(t);
+  });
+}
+
+window.nextPhoto=()=>{index=(index+1)%galleryPhotos.length;renderGallery()};
+window.prevPhoto=()=>{index=(index-1+galleryPhotos.length)%galleryPhotos.length;renderGallery()};
+
+function startSlide(){stopSlide();timer=setInterval(nextPhoto,5000)}
+function stopSlide(){if(timer)clearInterval(timer)}
+
+window.openFullscreen=()=>{
+  fullscreen.style.display="flex";
+  stopSlide();
+};
+window.closeFullscreen=()=>{
+  fullscreen.style.display="none";
+  startSlide();
+};
+
+renderGallery();
+startSlide();
+
+/* USER DATA */
+onAuthStateChanged(auth,async user=>{
+  if(!user)return location.href="login.html";
+  const snap=await getDoc(doc(db,"users",user.uid));
+  const data=snap.data()||{};
+  userName.innerText=data.adminFields?.Name||"User";
+
+  const adminFields=data.adminFields||{};
+  const userCustom=data.userCustomFields||{};
+
+  let total=0,filled=0;
+  Object.values(adminFields).forEach(v=>{total++;if(v?.toString().trim())filled++});
+
+  custom.innerHTML="";
+  Object.entries(userCustom).forEach(([k,v])=>{
+    total++;
+    if(v.value?.toString().trim())filled++;
+    if(v.showOnDashboard && v.value){
+      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
+    }
+  });
+
+  const p=total?Math.round((filled/total)*100):0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.backgroundColor=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+
+  new Chart(chart,{
+    type:"doughnut",
+    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
+  });
+});
+</script>
+
+</body>
+</html>

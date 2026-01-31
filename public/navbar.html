@@ -1,0 +1,36 @@
+navbar.html
+
+ <!-- ===== SHARED NAVBAR ===== -->
+<style>
+.shared-navbar{
+  background:#4f46e5;
+  padding:14px;
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  position:sticky;
+  top:0;
+  z-index:9999;
+}
+
+.shared-navbar button{
+  background:#fff;
+  color:#4f46e5;
+  border:none;
+  padding:10px 20px;
+  border-radius:22px;
+  font-weight:600;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.shared-navbar button:hover{
+  background:#e0e7ff;
+}
+</style>
+
+<div class="shared-navbar">
+  <button onclick="location.href='dashboard.html'">🏠 Dashboard</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="location.href='export.html'">📤 Export / Download</button>
+</div>

@@ -1,0 +1,149 @@
+export.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Export Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family:Arial;
+  background:#eef2ff;
+  margin:0;
+}
+
+.container{
+  max-width:600px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+}
+
+button{
+  width:100%;
+  margin:12px 0;
+  padding:14px;
+  font-size:16px;
+  border:none;
+  border-radius:14px;
+  background:#6d28d9;
+  color:#fff;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP NAV -->
+<div class="top-nav">
+  <button onclick="location.href='dashboard.html'">🏠 Dashboard</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="location.href='export.html'">📤 Export / Download</button>
+</div>
+
+<div class="container">
+  <h2>📤 Export My Profile</h2>
+
+  <button onclick="exportExcel()">⬇ Export to Excel</button>
+  <button onclick="exportPDF()">⬇ Export to PDF</button>
+</div>
+
+<!-- LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* FIREBASE */
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let userData = null;
+
+/* LOAD USER */
+onAuthStateChanged(auth, async user=>{
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(snap.exists()) userData = snap.data();
+});
+
+/* ===== EXCEL EXPORT ===== */
+window.exportExcel = ()=>{
+  if(!userData) return alert("No data");
+
+  const headers = [];
+  const row = [];
+
+  Object.entries(userData).forEach(([k,v])=>{
+    if(typeof v !== "object"){
+      headers.push(k);
+      row.push(v);
+    }
+  });
+
+  if(userData.customFields){
+    Object.entries(userData.customFields).forEach(([k,v])=>{
+      headers.push(k);
+      row.push(v);
+    });
+  }
+
+  let csv =
+    headers.join(",")+"\n"+
+    row.map(v=>`"${v}"`).join(",");
+
+  const blob = new Blob([csv],{type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "profile.csv";
+  a.click();
+};
+
+/* ===== PDF EXPORT ===== */
+window.exportPDF = ()=>{
+  if(!userData) return alert("No data");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  let y = 10;
+  pdf.setFontSize(12);
+  pdf.text("User Profile Export", 10, y);
+  y += 10;
+
+  Object.entries(userData).forEach(([k,v])=>{
+    if(typeof v !== "object"){
+      pdf.text(`${k}: ${v}`, 10, y);
+      y += 8;
+    }
+  });
+
+  if(userData.customFields){
+    Object.entries(userData.customFields).forEach(([k,v])=>{
+      pdf.text(`${k}: ${v}`, 10, y);
+      y += 8;
+    });
+  }
+
+  pdf.save("profile.pdf");
+};
+</script>
+
+</body>
+</html>
