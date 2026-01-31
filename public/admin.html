@@ -183,17 +183,59 @@ window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db
 window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));showToast("Deleted");load();};
 
 /* 📤 EXPORT */
-window.exportXLSX=()=>{
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.json_to_sheet(users),
-    "Users"
-  );
-  XLSX.writeFile(wb,"users.xlsx");
-};
-</script>
+window.exportXLSX = () => {
+/* 🔁 FLATTEN OBJECT (RECURSIVE) */
+  const flatten = (obj, prefix = "", res = {}) => {
+    for (const k in obj) {
+      const val = obj[k];
+      const key = prefix ? `${prefix}.${k}` : k;
 
-</body>
-</html>
+      if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+        flatten(val, key, res);
+      } else {
+        res[key] = val;
+      }
+    }
+    return res;
+  };
+
+  /* 📦 PREPARE ROWS */
+  const rows = usersRaw.map(u => flatten(u));
+
+  /* 📄 CREATE SHEET */
+  const ws = XLSX.utils.json_to_sheet(rows);
+
+  /* 🎨 HEADER STYLE (CYAN) */
+  const range = XLSX.utils.decode_range(ws["!ref"]);
+  for (let C = range.s.c; C <= range.e.c; C++) {
+    const cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })];
+    if (!cell) continue;
+
+    cell.s = {
+      fill: { fgColor: { rgb: "00FFFF" } }, // CYAN
+      font: { bold: true },
+      alignment: { vertical: "center", horizontal: "center" }
+    };
+  }
+
+  /* 📐 AUTO-FIT COLUMN WIDTH */
+  const colWidths = [];
+  rows.forEach(row => {
+    Object.values(row).forEach((val, i) => {
+      const len = val ? val.toString().length : 10;
+      colWidths[i] = Math.max(colWidths[i] || 10, len + 2);
+    });
+  });
+  ws["!cols"] = colWidths.map(w => ({ wch: w }));
+
+  /* 📏 DEFAULT ROW HEIGHT (BEST POSSIBLE) */
+  ws["!rows"] = Array(rows.length + 1).fill({ hpt: 20 });
+
+  /* 📘 WORKBOOK */
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+  XLSX.writeFile(wb, "users_full_export.xlsx");
+};
+
 
