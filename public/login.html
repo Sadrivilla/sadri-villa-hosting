@@ -23,7 +23,18 @@ body{
   max-width:420px;
   box-shadow:0 20px 45px rgba(0,0,0,.15);
 }
-h2{text-align:center;margin-bottom:26px}
+h2{text-align:center;margin-bottom:18px}
+
+/* STATUS MESSAGE */
+.status{
+  text-align:center;
+  font-size:14px;
+  margin-bottom:14px;
+  display:none;
+}
+.status.success{color:#16a34a}
+.status.error{color:#ef4444}
+
 .field{position:relative;margin-bottom:18px}
 .field input{
   width:100%;height:56px;padding:0 16px;
@@ -64,6 +75,11 @@ button{
 
 <div class="card">
   <h2>🔐 Login</h2>
+
+  <!-- STATUS MESSAGE -->
+  <div class="status success" id="statusMsg">
+    Login is initiating…
+  </div>
 
   <div class="field">
     <input id="email" type="email" placeholder="Email"
@@ -113,9 +129,14 @@ import {
   browserLocalPersistence,
   browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc } from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -124,31 +145,41 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* ELEMENTS */
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 const msg = document.getElementById("msg");
+const statusMsg = document.getElementById("statusMsg");
 
-/* 🔁 AUTO LOGIN */
+/* AUTO LOGIN */
 onAuthStateChanged(auth, async user => {
   if (!user) return;
   const snap = await getDoc(doc(db,"users",user.uid));
   if (!snap.exists()) return;
+
   location.href = snap.data().role === "admin"
     ? "admin-dashboard.html"
     : "dashboard.html";
 });
 
-/* 👁 Toggle password */
-eye.onclick = ()=>password.type =
-  password.type==="password"?"text":"password";
+/* TOGGLE PASSWORD */
+eye.onclick = () =>
+  password.type = password.type === "password" ? "text" : "password";
 
 /* LOGIN */
-loginBtn.onclick = async ()=>{
+loginBtn.onclick = async () => {
   msg.textContent="";
+  statusMsg.style.display="none";
+
   if(!email.value || !password.value){
     msg.textContent="Email and password required";
-    msg.className="msg error"; return;
+    msg.className="msg error";
+    return;
   }
+
+  /* SHOW INIT MESSAGE */
+  statusMsg.style.display="block";
+  statusMsg.textContent="Login is initiating…";
 
   try{
     await setPersistence(
@@ -161,32 +192,46 @@ loginBtn.onclick = async ()=>{
     const cred = await signInWithEmailAndPassword(
       auth,email.value,password.value
     );
+
+    /* SAVE LAST LOGIN */
+    await updateDoc(
+      doc(db,"users",cred.user.uid),
+      { lastLogin: new Date().toISOString() }
+    );
+
     const snap = await getDoc(doc(db,"users",cred.user.uid));
 
     if(!snap.data().isApproved){
+      statusMsg.style.display="none";
       msg.textContent="Account pending admin approval";
-      msg.className="msg error"; return;
+      msg.className="msg error";
+      return;
     }
 
-    location.href = snap.data().role==="admin"
+    location.href = snap.data().role === "admin"
       ? "admin-dashboard.html"
       : "dashboard.html";
 
   }catch(e){
-    msg.textContent="Invalid login credentials";
+    statusMsg.style.display="none";
+    msg.textContent="Invalid email or password";
     msg.className="msg error";
   }
 };
 
-/* Forgot password */
-forgotLink.onclick=()=>{
-  resetEmail.value=email.value||"";
+/* FORGOT PASSWORD */
+forgotLink.onclick = () => {
+  resetEmail.value = email.value || "";
+  resetMsg.textContent="";
   forgotModal.style.display="flex";
 };
-cancelReset.onclick=()=>forgotModal.style.display="none";
-sendResetBtn.onclick=async()=>{
+cancelReset.onclick = () =>
+  forgotModal.style.display="none";
+
+sendResetBtn.onclick = async () => {
+  if(!resetEmail.value) return;
   await sendPasswordResetEmail(auth,resetEmail.value);
-  resetMsg.textContent="Reset link sent";
+  resetMsg.textContent="Reset link sent to email";
   resetMsg.className="msg success";
 };
 </script>
