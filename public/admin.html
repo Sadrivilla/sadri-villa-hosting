@@ -83,47 +83,43 @@ import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore,collection,getDocs,doc,getDoc,updateDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
-/* 🔗 DOM REFERENCES */
-const tbody = document.getElementById("tbody");
-const toast = document.getElementById("toast");
-const toastMsg = document.getElementById("toastMsg");
-const spinnerEl = document.getElementById("spinner");
-const statusFilter = document.getElementById("statusFilter");
-const roleFilter = document.getElementById("roleFilter");
-const search = document.getElementById("search");
+/* DOM */
+const tbody=document.getElementById("tbody");
+const toast=document.getElementById("toast");
+const toastMsg=document.getElementById("toastMsg");
+const spinnerEl=document.getElementById("spinner");
+const statusFilter=document.getElementById("statusFilter");
+const roleFilter=document.getElementById("roleFilter");
+const search=document.getElementById("search");
 
-/* 🔥 FIREBASE INIT */
-const app = initializeApp({
+/* FIREBASE */
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
 let users=[];
+let usersRaw=[];
 
-/* 🔔 UI HELPERS */
-const showToast=(msg)=>{
-  toastMsg.innerText=msg;
-  toast.style.display="flex";
-  setTimeout(()=>toast.style.display="none",2000);
-};
+/* HELPERS */
+const showToast=m=>{toastMsg.innerText=m;toast.style.display="flex";setTimeout(()=>toast.style.display="none",2000);}
 const spinner=s=>spinnerEl.style.display=s?"flex":"none";
 
-/* 🔐 ADMIN GUARD */
-onAuthStateChanged(auth, async user=>{
+/* AUTH GUARD */
+onAuthStateChanged(auth,async user=>{
   if(!user) return location.href="login.html";
   const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists() || snap.data().role!=="admin"){
+  if(!snap.exists()||snap.data().role!=="admin"){
     alert("Access denied");
     return location.href="dashboard.html";
   }
   load();
 });
 
-/* ✅ NORMALIZER */
+/* NORMALIZE FOR UI ONLY */
 const normalize=u=>({
   uid:u.uid,
   name:u.Name||u.adminFields?.Name||u.fullName||"-",
@@ -135,21 +131,23 @@ const normalize=u=>({
   lastLogin:u.lastLogin||""
 });
 
-/* 📥 LOAD USERS */
+/* LOAD */
 async function load(){
   spinner(true);
-  users=[];
-  (await getDocs(collection(db,"users")))
-    .forEach(d=>users.push(normalize({uid:d.id,...d.data()})));
+  users=[];usersRaw=[];
+  (await getDocs(collection(db,"users"))).forEach(d=>{
+    const data={uid:d.id,...d.data()};
+    usersRaw.push(data);          // FULL DATA
+    users.push(normalize(data));  // UI DATA
+  });
   render();
   spinner(false);
 }
 
-/* 🖥️ RENDER */
+/* RENDER */
 window.render=()=>{
   tbody.innerHTML="";
   const q=search.value.toLowerCase();
-
   users.filter(u=>{
     if(statusFilter.value==="approved"&&!u.isApproved) return false;
     if(statusFilter.value==="pending"&&u.isApproved) return false;
@@ -173,69 +171,49 @@ window.render=()=>{
   });
 };
 
-/* ⚙️ ACTIONS */
+/* ACTIONS */
 window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
 const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
-
 window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{isApproved:!v});load();};
 window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:true});showToast("Approved");load();};
 window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:false});showToast("Unapproved");load();};
 window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));showToast("Deleted");load();};
 
-/* 📤 EXPORT */
-window.exportXLSX = () => {
-/* 🔁 FLATTEN OBJECT (RECURSIVE) */
-  const flatten = (obj, prefix = "", res = {}) => {
-    for (const k in obj) {
-      const val = obj[k];
-      const key = prefix ? `${prefix}.${k}` : k;
-
-      if (typeof val === "object" && val !== null && !Array.isArray(val)) {
-        flatten(val, key, res);
-      } else {
-        res[key] = val;
-      }
+/* 🔥 EXPORT FULL DATA */
+window.exportXLSX=()=>{
+  const flatten=(o,p="",r={})=>{
+    for(const k in o){
+      const v=o[k], key=p?`${p}.${k}`:k;
+      if(typeof v==="object"&&v&&!Array.isArray(v)) flatten(v,key,r);
+      else r[key]=v;
     }
-    return res;
+    return r;
   };
 
-  /* 📦 PREPARE ROWS */
-  const rows = usersRaw.map(u => flatten(u));
+  const rows=usersRaw.map(u=>flatten(u));
+  const ws=XLSX.utils.json_to_sheet(rows);
 
-  /* 📄 CREATE SHEET */
-  const ws = XLSX.utils.json_to_sheet(rows);
-
-  /* 🎨 HEADER STYLE (CYAN) */
-  const range = XLSX.utils.decode_range(ws["!ref"]);
-  for (let C = range.s.c; C <= range.e.c; C++) {
-    const cell = ws[XLSX.utils.encode_cell({ r: 0, c: C })];
-    if (!cell) continue;
-
-    cell.s = {
-      fill: { fgColor: { rgb: "00FFFF" } }, // CYAN
-      font: { bold: true },
-      alignment: { vertical: "center", horizontal: "center" }
-    };
+  /* HEADER CYAN */
+  const range=XLSX.utils.decode_range(ws["!ref"]);
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const cell=ws[XLSX.utils.encode_cell({r:0,c})];
+    if(cell) cell.s={fill:{fgColor:{rgb:"00FFFF"}},font:{bold:true}};
   }
 
-  /* 📐 AUTO-FIT COLUMN WIDTH */
-  const colWidths = [];
-  rows.forEach(row => {
-    Object.values(row).forEach((val, i) => {
-      const len = val ? val.toString().length : 10;
-      colWidths[i] = Math.max(colWidths[i] || 10, len + 2);
-    });
-  });
-  ws["!cols"] = colWidths.map(w => ({ wch: w }));
+  /* AUTO WIDTH */
+  const widths=[];
+  rows.forEach(r=>Object.values(r).forEach((v,i)=>{
+    const l=v?v.toString().length:10;
+    widths[i]=Math.max(widths[i]||10,l+2);
+  }));
+  ws["!cols"]=widths.map(w=>({wch:w}));
+  ws["!rows"]=Array(rows.length+1).fill({hpt:20});
 
-  /* 📏 DEFAULT ROW HEIGHT (BEST POSSIBLE) */
-  ws["!rows"] = Array(rows.length + 1).fill({ hpt: 20 });
-
-  /* 📘 WORKBOOK */
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Users");
-
-  XLSX.writeFile(wb, "users_full_export.xlsx");
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Users");
+  XLSX.writeFile(wb,"users_full_export.xlsx");
 };
+</script>
 
-
+</body>
+</html>
