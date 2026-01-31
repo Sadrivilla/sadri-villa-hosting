@@ -1,8 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{margin:0;font-family:Arial;background:#eef2ff;padding:20px}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.header button{padding:10px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;cursor:pointer;font-weight:bold}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.controls button,select,input{padding:8px 12px;border-radius:10px;border:none}
+.controls input,select{border:1px solid #c7d2fe}
+.success{background:#16a34a;color:#fff}
+.danger{background:#dc2626;color:#fff}
+.secondary{background:#64748b;color:#fff}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.1)}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb;font-size:14px}
+th{background:#f8fafc;text-align:left}
+.badge{padding:4px 10px;border-radius:999px;color:#fff;font-size:12px}
+.green{background:#16a34a}
+.yellow{background:#f59e0b}
+.toast{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:9999}
+.toast div{padding:18px 34px;border-radius:20px;color:#fff;font-weight:bold;background:#16a34a}
+#spinner{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:10000}
+#spinner div{width:60px;height:60px;border:6px solid #e5e7eb;border-top:6px solid #6d28d9;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <button onclick="location.href='admin-dashboard.html'">← Dashboard</button>
+  <h2>Admin Panel</h2>
+</div>
+
+<div class="controls">
+  <select id="statusFilter" onchange="render()">
+    <option value="all">All Status</option>
+    <option value="approved">Approved</option>
+    <option value="pending">Pending</option>
+  </select>
+
+  <select id="roleFilter" onchange="render()">
+    <option value="all">All Roles</option>
+    <option value="admin">Admin</option>
+    <option value="user">User</option>
+  </select>
+
+  <input id="search" placeholder="Search by Name / Email / Phone" oninput="render()">
+
+  <button class="success" onclick="bulkApprove()">Approve</button>
+  <button class="secondary" onclick="bulkUnapprove()">Unapprove</button>
+  <button class="danger" onclick="bulkDelete()">Delete</button>
+  <button onclick="exportXLSX()">Export XLSX</button>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th><input type="checkbox" onclick="toggleAll(this)"></th>
+  <th>Name</th>
+  <th>Email</th>
+  <th>Phone</th>
+  <th>Role</th>
+  <th>Created</th>
+  <th>Last Login</th>
+  <th>Status</th>
+  <th>Action</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<div class="toast" id="toast"><div id="toastMsg"></div></div>
+<div id="spinner"><div></div></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,collection,getDocs,doc,getDoc,updateDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+
+/* 🔗 DOM REFERENCES */
+const tbody = document.getElementById("tbody");
+const toast = document.getElementById("toast");
+const toastMsg = document.getElementById("toastMsg");
+const spinnerEl = document.getElementById("spinner");
+const statusFilter = document.getElementById("statusFilter");
+const roleFilter = document.getElementById("roleFilter");
+const search = document.getElementById("search");
 
 /* 🔥 FIREBASE INIT */
 const app = initializeApp({
@@ -17,13 +105,12 @@ const db = getFirestore(app);
 let users=[];
 
 /* 🔔 UI HELPERS */
-const toast=(msg)=>{
+const showToast=(msg)=>{
   toastMsg.innerText=msg;
   toast.style.display="flex";
   setTimeout(()=>toast.style.display="none",2000);
 };
 const spinner=s=>spinnerEl.style.display=s?"flex":"none";
-const spinnerEl=document.getElementById("spinner");
 
 /* 🔐 ADMIN GUARD */
 onAuthStateChanged(auth, async user=>{
@@ -36,34 +123,24 @@ onAuthStateChanged(auth, async user=>{
   load();
 });
 
-/* ✅ NORMALIZER (IMPORTANT) */
-function normalizeUser(u){
-  return {
-    uid: u.uid,
-    name: u.Name || u.adminFields?.Name || u.fullName || "-",
-    email:
-      u.email ||
-      u.adminFields?.Email ||
-      u.adminFields?.email ||
-      "-",
-    phone:
-      u.phone ||
-      u.adminFields?.["Mobile Number"] ||
-      u.adminFields?.Phone ||
-      "-",
-    role: u.role || "user",
-    isApproved: !!u.isApproved,
-    createdAt: u.createdAt || "",
-    lastLogin: u.lastLogin || ""
-  };
-}
+/* ✅ NORMALIZER */
+const normalize=u=>({
+  uid:u.uid,
+  name:u.Name||u.adminFields?.Name||u.fullName||"-",
+  email:u.email||u.adminFields?.Email||"-",
+  phone:u.phone||u.adminFields?.["Mobile Number"]||u.adminFields?.Phone||"-",
+  role:u.role||"user",
+  isApproved:!!u.isApproved,
+  createdAt:u.createdAt||"",
+  lastLogin:u.lastLogin||""
+});
 
 /* 📥 LOAD USERS */
 async function load(){
   spinner(true);
   users=[];
   (await getDocs(collection(db,"users")))
-    .forEach(d=>users.push(normalizeUser({uid:d.id,...d.data()})));
+    .forEach(d=>users.push(normalize({uid:d.id,...d.data()})));
   render();
   spinner(false);
 }
@@ -71,24 +148,16 @@ async function load(){
 /* 🖥️ RENDER */
 window.render=()=>{
   tbody.innerHTML="";
-  const status=statusFilter.value;
-  const role=roleFilter.value;
   const q=search.value.toLowerCase();
 
   users.filter(u=>{
-    if(status==="approved" && !u.isApproved) return false;
-    if(status==="pending" && u.isApproved) return false;
-    if(role!=="all" && u.role!==role) return false;
-
-    return (
-      u.name.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q) ||
-      u.phone.toLowerCase().includes(q)
-    );
+    if(statusFilter.value==="approved"&&!u.isApproved) return false;
+    if(statusFilter.value==="pending"&&u.isApproved) return false;
+    if(roleFilter.value!=="all"&&u.role!==roleFilter.value) return false;
+    return u.name.toLowerCase().includes(q)||
+           u.email.toLowerCase().includes(q)||
+           u.phone.toLowerCase().includes(q);
   }).forEach(u=>{
-    const created=u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-";
-    const lastLogin=u.lastLogin?new Date(u.lastLogin).toLocaleString("en-IN"):"Never";
-
     tbody.innerHTML+=`
     <tr>
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
@@ -96,59 +165,35 @@ window.render=()=>{
       <td>${u.email}</td>
       <td>${u.phone}</td>
       <td>${u.role}</td>
-      <td>${created}</td>
-      <td>${lastLogin}</td>
-      <td>
-        <span class="badge ${u.isApproved?"green":"yellow"}">
-          ${u.isApproved?"Approved":"Pending"}
-        </span>
-      </td>
-      <td>
-        <button onclick="toggle('${u.uid}',${u.isApproved})">
-          ${u.isApproved?"Unapprove":"Approve"}
-        </button>
-      </td>
+      <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
+      <td>${u.lastLogin?new Date(u.lastLogin).toLocaleString("en-IN"):"Never"}</td>
+      <td><span class="badge ${u.isApproved?"green":"yellow"}">${u.isApproved?"Approved":"Pending"}</span></td>
+      <td><button onclick="toggle('${u.uid}',${u.isApproved})">${u.isApproved?"Unapprove":"Approve"}</button></td>
     </tr>`;
   });
 };
 
-/* ✅ ACTIONS */
+/* ⚙️ ACTIONS */
 window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
 const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
 
-window.toggle=async(id,v)=>{
-  await updateDoc(doc(db,"users",id),{isApproved:!v});
-  load();
-};
-window.bulkApprove=async()=>{
-  for(const id of selected()) await updateDoc(doc(db,"users",id),{isApproved:true});
-  toast("Approved");
-  load();
-};
-window.bulkUnapprove=async()=>{
-  for(const id of selected()) await updateDoc(doc(db,"users",id),{isApproved:false});
-  toast("Unapproved");
-  load();
-};
-window.bulkDelete=async()=>{
-  for(const id of selected()) await deleteDoc(doc(db,"users",id));
-  toast("Deleted");
-  load();
-};
+window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{isApproved:!v});load();};
+window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:true});showToast("Approved");load();};
+window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{isApproved:false});showToast("Unapproved");load();};
+window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));showToast("Deleted");load();};
 
 /* 📤 EXPORT */
 window.exportXLSX=()=>{
-  const rows=users.map(u=>({
-    Name:u.name,
-    Email:u.email,
-    Phone:u.phone,
-    Role:u.role,
-    Status:u.isApproved?"Approved":"Pending",
-    Created:u.createdAt,
-    LastLogin:u.lastLogin||"Never"
-  }));
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Users");
+  XLSX.utils.book_append_sheet(
+    wb,
+    XLSX.utils.json_to_sheet(users),
+    "Users"
+  );
   XLSX.writeFile(wb,"users.xlsx");
 };
 </script>
+
+</body>
+</html>
+
