@@ -21,20 +21,40 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   border-radius:22px;
   display:flex;
   justify-content:space-between;
-  align-items:center
+  align-items:flex-start; /* 🔧 allow multi-line */
+  gap:14px;
+  flex-wrap:wrap; /* 🔧 prevent overlap */
 }
+
 .avatar-wrap{display:flex;gap:12px;align-items:center}
 .avatar{
   width:56px;height:56px;border-radius:50%;
   object-fit:cover;border:3px solid #fff
 }
-.actions button{
-  background:#fff;color:#4f46e5;
-  border:none;padding:8px 14px;
-  border-radius:12px;font-weight:bold;
-  cursor:pointer
+
+/* ===== ACTION BUTTONS ===== */
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;       /* ✅ KEY FIX */
+  justify-content:flex-end;
 }
-.actions button:disabled{opacity:.6;cursor:not-allowed}
+
+.actions button{
+  background:#fff;
+  color:#4f46e5;
+  border:none;
+  padding:8px 14px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  white-space:nowrap;   /* keeps text clean */
+}
+
+.actions button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
 
 /* ===== GRID ===== */
 .grid{
@@ -43,7 +63,11 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   gap:20px;
   padding:20px
 }
-.card{background:#fff;padding:22px;border-radius:20px}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:20px
+}
 
 /* ===== PROFILE ===== */
 .progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
@@ -96,8 +120,8 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   border:none;
   padding:8px 12px;
   border-radius:10px;
-  cursor:pointer;
-  font-weight:bold
+  font-weight:bold;
+  cursor:pointer
 }
 
 /* ===== RESET MODAL ===== */
@@ -149,6 +173,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
     </div>
   </div>
+
   <div class="actions">
     <button onclick="openMap()">📍 Map</button>
     <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
@@ -183,8 +208,6 @@ body{margin:0;font-family:Arial;background:#eef2ff}
         <img src="images/gallery3.jpg" onclick="openImage(this.src)">
         <img src="images/gallery4.jpg" onclick="openImage(this.src)">
         <img src="images/gallery5.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery1.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery2.jpg" onclick="openImage(this.src)">
       </div>
     </div>
   </div>
@@ -200,123 +223,18 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <img id="viewerImg">
 </div>
 
-<!-- RESET MODAL -->
-<div id="resetModal">
-  <div id="resetBox">
-    <div style="font-size:52px">📧</div>
-    <h2>Password Reset Link Sent</h2>
-    <p>Reset link sent to<br><b id="maskedEmail"></b></p>
-    <button id="okBtn" onclick="closeResetModal()">OK</button><br>
-    <button id="resendBtn" onclick="resendEmail()" disabled>Resend in 30s</button>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const auth=getAuth(app);
-const db=getFirestore(app);
-
+<script>
 let currentImage="";
-let resendTimer;
-
-/* ===== IMAGE VIEWER ===== */
-window.openImage=(src)=>{
-  currentImage=src;
-  viewerImg.src=src;
-  imageViewer.style.display="flex";
-};
-window.closeImage=()=>imageViewer.style.display="none";
-window.outsideClose=(e)=>{
-  if(e.target.id==="imageViewer") closeImage();
-};
-window.downloadImage=()=>{
+function openImage(src){currentImage=src;viewerImg.src=src;imageViewer.style.display="flex"}
+function closeImage(){imageViewer.style.display="none"}
+function outsideClose(e){if(e.target.id==="imageViewer")closeImage()}
+function downloadImage(){
   const a=document.createElement("a");
   a.href=currentImage;
   a.download=currentImage.split("/").pop();
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-};
-
-/* ===== HELPERS ===== */
-function maskEmail(e){
-  const [n,d]=e.split("@");
-  return n[0]+"***@"+d;
-}
-
-/* ===== ACTIONS ===== */
-window.logout=async()=>{await signOut(auth);location.href="login.html"};
-window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
-
-window.changePassword=async()=>{
-  changePwdBtn.disabled=true;
-  changePwdBtn.innerText="Sending…";
-  maskedEmail.innerText=maskEmail(auth.currentUser.email);
-  await sendPasswordResetEmail(auth,auth.currentUser.email);
-  resetModal.style.display="flex";
-  startResendTimer();
-};
-window.resendEmail=async()=>{
-  await sendPasswordResetEmail(auth,auth.currentUser.email);
-  startResendTimer();
-};
-function startResendTimer(){
-  let t=30;
-  resendBtn.disabled=true;
-  clearInterval(resendTimer);
-  resendTimer=setInterval(()=>{
-    resendBtn.innerText=`Resend in ${t--}s`;
-    if(t<0){
-      clearInterval(resendTimer);
-      resendBtn.disabled=false;
-      resendBtn.innerText="Resend Email";
-    }
-  },1000);
-}
-window.closeResetModal=()=>resetModal.style.display="none";
-
-/* ===== AUTH + DASHBOARD ===== */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().approved!==true){
-    await signOut(auth);
-    location.href="pending.html";
-    return;
-  }
-  loadDashboard(snap.data());
-});
-
-function loadDashboard(data){
-  userName.innerText=data.adminFields?.Name||"User";
-  let total=0,filled=0;
-  custom.innerHTML="";
-  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
-  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-    total++;if(v.value)filled++;
-    if(v.showOnDashboard&&v.value){
-      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
-    }
-  });
-  const p=Math.round((filled/total)*100)||0;
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
-  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-
-  new Chart(chart,{
-    type:"doughnut",
-    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
-  });
-  chart.onclick=()=>location.href="profile.html";
 }
 </script>
 
