@@ -50,7 +50,8 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 }
 .card{
   background:#fff;padding:22px;border-radius:20px;
-  box-shadow:0 12px 28px rgba(0,0,0,.08)
+  box-shadow:0 12px 28px rgba(0,0,0,.08);
+  cursor:pointer
 }
 .card h3{margin-top:0}
 .list-item{font-size:13px;padding:4px 0}
@@ -86,6 +87,7 @@ body{margin:0;font-family:Arial;background:var(--bg)}
   <div class="header-left">
     <h2>Admin Dashboard</h2>
     <button onclick="location.href='admin.html'">👥 Admin Panel</button>
+    <button onclick="location.href='manage-profile-fields.html'">🧩 Profile Fields</button>
     <button onclick="location.href='dashboard.html'">⬅ User Dashboard</button>
   </div>
 
@@ -102,9 +104,17 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 <!-- DASHBOARD -->
 <div class="container">
 
-  <div class="card" onclick="location.href='admin.html'" style="cursor:pointer">
+  <div class="card" onclick="location.href='admin.html'">
     <h3>Total Users</h3>
     <h1 id="totalUsers">—</h1>
+  </div>
+
+  <!-- 🧩 NEW CARD -->
+  <div class="card" onclick="location.href='manage-profile-fields.html'">
+    <h3>🧩 Manage Profile Fields</h3>
+    <p style="font-size:13px;color:#6b7280">
+      Control signup & profile form fields, validation and visibility
+    </p>
   </div>
 
   <div class="card">
@@ -191,8 +201,7 @@ function renderApprovalChart(){
         data:[approved,pending],
         backgroundColor:["#16a34a","#f59e0b"]
       }]
-    },
-    options:{onClick:()=>location.href="admin.html"}
+    }
   });
 
   renderApprovalList();
@@ -203,7 +212,7 @@ function renderApprovalList(){
   (showAllApprovalUsers?allUsers:allUsers.slice(0,5)).forEach(u=>{
     approvalList.innerHTML+=`
       <div class="list-item">
-        ${u.fullName||u.email||"User"} –
+        ${u.fullName||"User"} –
         <b>${u.approved?"Approved":"Pending"}</b>
       </div>`;
   });
@@ -257,12 +266,11 @@ window.showAllProfiles=()=>{
   renderProfileChart();
 };
 
-/* 🔔 LIVE ALERT LOGIC */
+/* 🔔 ALERT */
 function renderPendingAlerts(){
   const pending = allUsers.filter(
     u => u.approved !== true && u.approvalReminder === true
   );
-
   if(pending.length){
     pendingBadge.innerText = pending.length;
     pendingAlertIcon.style.display = "flex";
