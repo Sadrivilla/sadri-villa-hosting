@@ -30,7 +30,7 @@ body{
 
 h2{margin-bottom:24px}
 
-/* INPUTS – TRUE CENTER LOOK */
+/* INPUTS */
 .field{
   margin-bottom:18px;
 }
@@ -42,9 +42,9 @@ h2{margin-bottom:24px}
   border:1.5px solid #d1d5db;
   font-size:15px;
   outline:none;
-  text-align:left;
 }
 
+/* PASSWORD */
 .password-wrap{
   position:relative;
 }
@@ -110,7 +110,7 @@ button{
   z-index:999;
 }
 
-/* RESET FORM */
+/* RESET CARD */
 .reset-card{
   background:#fff;
   padding:30px;
@@ -120,7 +120,7 @@ button{
   text-align:center;
 }
 
-/* SUCCESS CARD (DASHBOARD STYLE) */
+/* SUCCESS CARD */
 .success-card{
   background:linear-gradient(135deg,#5b4bff,#8a3cff);
   color:#fff;
@@ -172,13 +172,21 @@ button{
   </div>
 </div>
 
-<!-- RESET EMAIL -->
+<!-- RESET PASSWORD -->
 <div class="overlay" id="resetOverlay">
   <div class="reset-card">
     <h3>Reset Password</h3>
-    <input id="resetEmail" type="email" placeholder="Email" style="margin:16px 0">
+
+    <!-- FIXED EMAIL INPUT -->
+    <div class="field">
+      <input id="resetEmail" type="email" placeholder="Email">
+    </div>
+
     <button id="sendResetBtn">Send Reset Link</button>
-    <div class="links"><a id="cancelReset">Cancel</a></div>
+
+    <div class="links">
+      <a id="cancelReset">Cancel</a>
+    </div>
   </div>
 </div>
 
@@ -220,28 +228,40 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 /* TOGGLE PASSWORD */
-eye.onclick=()=>password.type=password.type==="password"?"text":"password";
+eye.onclick = () =>
+  password.type = password.type === "password" ? "text" : "password";
 
 /* LOGIN */
-loginBtn.onclick=async()=>{
+loginBtn.onclick = async () => {
   errorMsg.style.display="none";
   statusMsg.style.display="block";
 
   try{
-    await setPersistence(auth,
-      rememberMe.checked?browserLocalPersistence:browserSessionPersistence);
+    await setPersistence(
+      auth,
+      rememberMe.checked
+        ? browserLocalPersistence
+        : browserSessionPersistence
+    );
 
-    const cred=await signInWithEmailAndPassword(auth,email.value,password.value);
-    const snap=await getDoc(doc(db,"users",cred.user.uid));
+    const cred = await signInWithEmailAndPassword(
+      auth,email.value,password.value
+    );
 
-    if(!snap.exists()||snap.data().approved!==true)
-      throw "Not approved";
+    const snap = await getDoc(doc(db,"users",cred.user.uid));
+    if(!snap.exists() || snap.data().approved !== true)
+      throw "not approved";
 
-    await updateDoc(doc(db,"users",cred.user.uid),
-      {lastLogin:new Date().toISOString()});
+    await updateDoc(
+      doc(db,"users",cred.user.uid),
+      { lastLogin:new Date().toISOString() }
+    );
 
-    location.href=snap.data().role==="admin"
-      ?"admin-dashboard.html":"dashboard.html";
+    location.href =
+      snap.data().role === "admin"
+        ? "admin-dashboard.html"
+        : "dashboard.html";
+
   }catch{
     statusMsg.style.display="none";
     errorMsg.textContent="Invalid email or password";
@@ -250,28 +270,33 @@ loginBtn.onclick=async()=>{
 };
 
 /* RESET FLOW */
-forgotLink.onclick=()=>{
-  resetEmail.value=email.value||"";
+forgotLink.onclick = () => {
+  resetEmail.value = email.value || "";
   resetOverlay.style.display="flex";
 };
-cancelReset.onclick=()=>resetOverlay.style.display="none";
 
-sendResetBtn.onclick=async()=>{
-  await sendPasswordResetEmail(auth,resetEmail.value);
+cancelReset.onclick = () =>
   resetOverlay.style.display="none";
 
-  maskedEmail.textContent=
-    "Reset link sent to "+resetEmail.value.replace(/(.).+(@.+)/,"$1***$2");
+sendResetBtn.onclick = async () => {
+  await sendPasswordResetEmail(auth, resetEmail.value);
+
+  resetOverlay.style.display="none";
+  maskedEmail.textContent =
+    "Reset link sent to " +
+    resetEmail.value.replace(/(.).+(@.+)/,"$1***$2");
 
   successOverlay.style.display="flex";
+
   let t=30;
   const iv=setInterval(()=>{
     timer.textContent=`Resend in ${--t}s`;
-    if(t===0)clearInterval(iv);
+    if(t===0) clearInterval(iv);
   },1000);
 };
 
-okBtn.onclick=()=>successOverlay.style.display="none";
+okBtn.onclick = () =>
+  successOverlay.style.display="none";
 </script>
 
 </body>
