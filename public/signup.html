@@ -14,6 +14,11 @@ body{
   color:#0f172a;
 }
 
+/* ===== ERROR BORDER ===== */
+input.error-border{
+  border:2px solid #ef4444 !important;
+}
+
 /* ===== NAVBAR ===== */
 .navbar{
   position:fixed;
@@ -54,31 +59,11 @@ body{
   display:grid;
   grid-template-columns:1fr 460px;
   gap:60px;
-  align-items:flex-start;
 }
 
 /* ===== LEFT ===== */
-.left h1{
-  font-size:44px;
-  margin-bottom:12px;
-}
-.left p{
-  color:#475569;
-  max-width:520px;
-}
-.benefit{
-  display:flex;
-  gap:12px;
-  margin-top:18px;
-}
-.icon{
-  width:36px;height:36px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:700
-}
-.blue{background:#2563eb}
-.green{background:#22c55e}
-.purple{background:#a855f7}
+.left h1{font-size:44px}
+.left p{color:#475569}
 
 /* ===== CARD ===== */
 .card{
@@ -87,8 +72,6 @@ body{
   padding:32px;
   box-shadow:0 25px 50px rgba(0,0,0,.12);
 }
-.card h2{margin:0}
-.card small{color:#64748b}
 
 /* ===== PROGRESS ===== */
 .progress{
@@ -96,14 +79,12 @@ body{
   background:#e5e7eb;
   border-radius:6px;
   margin:16px 0;
-  overflow:hidden;
 }
 .progress span{
   display:block;
   height:100%;
   width:0%;
   background:#22c55e;
-  transition:.3s;
 }
 
 /* ===== STEPS ===== */
@@ -122,21 +103,13 @@ body{
   padding:0 46px 0 14px;
   font-size:15px;
 }
+
+/* ===== PASSWORD ===== */
 .eye{
   position:absolute;
   right:14px; top:38px;
   cursor:pointer;
 }
-
-/* ===== PASSWORD STRENGTH ===== */
-.strength-bar{
-  height:6px;
-  background:#e5e7eb;
-  border-radius:6px;
-  overflow:hidden;
-}
-.strength-bar span{height:100%;display:block;width:0%}
-#strengthText{font-size:12px;color:#64748b}
 
 /* ===== ACTIONS ===== */
 .actions{
@@ -184,98 +157,6 @@ body{
   animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ===== MOBILE ===== */
-@media (max-width: 900px){
-
-  body{
-    overflow-x:hidden;
-  }
-
-  /* PAGE */
-  .page{
-    padding:96px 14px 32px; /* space for navbar */
-  }
-
-  .grid{
-    grid-template-columns:1fr;
-    gap:24px;
-  }
-
-  /* LEFT SECTION */
-  .left{
-    display:block;
-    text-align:left;
-  }
-
-  .left h1{
-    font-size:26px;
-    line-height:1.25;
-  }
-
-  .left p{
-    font-size:14px;
-    margin-bottom:16px;
-  }
-
-  .benefit{
-    align-items:flex-start;
-  }
-
-  .benefit div:last-child{
-    font-size:14px;
-    line-height:1.4;
-  }
-
-  /* CARD */
-  .card{
-    width:100%;
-    padding:22px;
-    border-radius:20px;
-  }
-
-  .card h2{
-    font-size:22px;
-  }
-
-  .card small{
-    font-size:13px;
-  }
-
-  /* INPUTS */
-  .field input{
-    height:50px;
-    font-size:14px;
-  }
-
-  /* BUTTONS */
-  .actions{
-    flex-direction:column-reverse;
-    gap:12px;
-  }
-
-  .actions button{
-    width:100%;
-    height:50px;
-  }
-
-  /* NAVBAR */
-  .navbar{
-    height:64px;
-    padding:0 14px;
-  }
-
-  .brand img{
-    height:34px;
-  }
-
-  .nav-right button{
-    height:36px;
-    padding:0 12px;
-    font-size:13px;
-  }
-}
-
 </style>
 </head>
 
@@ -284,12 +165,11 @@ body{
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img src="images/logo.png" alt="Sadri Villa">
+    <img src="images/logo.png">
   </div>
   <div class="nav-right">
     <button class="login-btn" onclick="location.href='login.html'">Login</button>
     <button class="signup-btn">Sign Up</button>
-    <button class="login-btn" onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
@@ -299,20 +179,7 @@ body{
 <!-- LEFT -->
 <div class="left">
   <h1>Sadri Villa – A Living Heritage</h1>
-  <p>Preserving tradition while serving society with compassion and care</p>
-
-  <div class="benefit">
-    <div class="icon blue">🏛</div>
-    <div>150+ year old heritage villa serving humanity and tradition</div>
-  </div>
-  <div class="benefit">
-    <div class="icon green">❤️</div>
-    <div>Free shelter and marriage support for needy families</div>
-  </div>
-  <div class="benefit">
-    <div class="icon purple">🌍</div>
-    <div>Community hub visited by leaders, scholars and officials</div>
-  </div>
+  <p>Preserving tradition while serving society</p>
 </div>
 
 <!-- RIGHT -->
@@ -322,9 +189,10 @@ body{
 
   <div class="progress"><span id="bar"></span></div>
 
+  <!-- STEP 1 -->
   <div class="step active">
     <small>Step 1 of 4</small>
-    <h3>Tell us about you</h3>
+    <h3>Your name</h3>
     <div class="field">
       <label>Name</label>
       <input id="name">
@@ -335,11 +203,12 @@ body{
     </div>
   </div>
 
+  <!-- STEP 2 -->
   <div class="step">
     <small>Step 2 of 4</small>
-    <h3>Contact details</h3>
+    <h3>Mobile number</h3>
     <div class="field">
-      <label>Mobile Number</label>
+      <label>Mobile</label>
       <input id="phone">
     </div>
     <div class="actions">
@@ -348,9 +217,10 @@ body{
     </div>
   </div>
 
+  <!-- STEP 3 -->
   <div class="step">
     <small>Step 3 of 4</small>
-    <h3>Email address</h3>
+    <h3>Email</h3>
     <div class="field">
       <label>Email</label>
       <input id="email" type="email">
@@ -361,24 +231,20 @@ body{
     </div>
   </div>
 
+  <!-- STEP 4 -->
   <div class="step">
     <small>Step 4 of 4</small>
-    <h3>Create password</h3>
-
+    <h3>Password</h3>
     <div class="field">
       <label>Password</label>
       <input id="password" type="password">
-      <span class="eye" onclick="toggle('password')">👁️</span>
-      <div class="strength-bar"><span id="strengthFill"></span></div>
-      <small id="strengthText">Password strength</small>
+      <span class="eye" onclick="toggle('password')">👁</span>
     </div>
-
     <div class="field">
       <label>Confirm Password</label>
       <input id="confirm" type="password">
-      <span class="eye" onclick="toggle('confirm')">👁️</span>
+      <span class="eye" onclick="toggle('confirm')">👁</span>
     </div>
-
     <div class="actions">
       <button class="back" onclick="prevStep()">Back</button>
       <button class="next" id="btn" onclick="register()">Create Account</button>
@@ -405,68 +271,80 @@ const app=initializeApp({
 });
 const auth=getAuth(app),db=getFirestore(app);
 
-/* FIXED WIZARD INIT */
-let steps, bar, i=0;
+let steps,bar,i=0;
 document.addEventListener("DOMContentLoaded",()=>{
   steps=document.querySelectorAll(".step");
   bar=document.getElementById("bar");
   show();
 });
+
 function show(){
   steps.forEach(s=>s.classList.remove("active"));
   steps[i].classList.add("active");
   bar.style.width=((i+1)/steps.length*100)+"%";
+  clearErrors();
 }
-window.nextStep=()=>{if(i<steps.length-1){i++;show()}}
-window.prevStep=()=>{if(i>0){i--;show()}}
 
-/* Toggle */
+function clearErrors(){
+  document.querySelectorAll("input").forEach(f=>f.classList.remove("error-border"));
+  document.getElementById("msg").style.display="none";
+}
+
+function showError(msg,field){
+  const m=document.getElementById("msg");
+  m.textContent=msg;
+  m.className="msg error";
+  m.style.display="block";
+  field.classList.add("error-border");
+  field.focus();
+}
+
+window.nextStep=()=>{
+  clearErrors();
+
+  if(i===0 && !name.value.trim())
+    return showError("Name is required",name);
+
+  if(i===1){
+    if(!phone.value.trim())
+      return showError("Mobile number required",phone);
+    if(!/^[0-9]{10}$/.test(phone.value))
+      return showError("Enter valid 10 digit mobile number",phone);
+  }
+
+  if(i===2){
+    if(!email.value.trim())
+      return showError("Email is required",email);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
+      return showError("Invalid email address",email);
+  }
+
+  if(i<steps.length-1){i++;show()}
+};
+
+window.prevStep=()=>{
+  clearErrors();
+  if(i>0){i--;show()}
+};
+
 window.toggle=id=>{
   const f=document.getElementById(id);
   f.type=f.type==="password"?"text":"password";
-}
+};
 
-/* Strength */
-const p=document.getElementById("password");
-const f=document.getElementById("strengthFill");
-const t=document.getElementById("strengthText");
-p.oninput=()=>{
-  let s=0,v=p.value;
-  if(v.length>=6)s++;
-  if(/[A-Z]/.test(v))s++;
-  if(/[0-9]/.test(v))s++;
-  if(/[^A-Za-z0-9]/.test(v))s++;
-  if(s<=1){f.style.width="25%";f.style.background="#ef4444";t.textContent="Weak"}
-  else if(s===2){f.style.width="50%";f.style.background="#f59e0b";t.textContent="Medium"}
-  else{f.style.width="100%";f.style.background="#22c55e";t.textContent="Strong"}
-}
-
-/* Register */
+/* REGISTER */
 window.register=async()=>{
-  const name=nameEl.value.trim();
-  const phone=phoneEl.value.trim();
-  const email=emailEl.value.trim();
-  const pass=p.value;
-  const confirm=confirmEl.value;
-  const msg=document.getElementById("msg");
-  const loader=document.getElementById("loader");
-  const btn=document.getElementById("btn");
+  clearErrors();
 
-  if(!name||!phone||!email||!pass||!confirm){
-    msg.textContent="All fields required";
-    msg.className="msg error";msg.style.display="block";return;
-  }
-  if(pass!==confirm){
-    msg.textContent="Passwords do not match";
-    msg.className="msg error";msg.style.display="block";return;
-  }
+  if(password.value!==confirm.value)
+    return showError("Passwords do not match",confirm);
 
   try{
-    loader.style.display="flex";btn.disabled=true;
-    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    loader.style.display="flex";
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{
       role:"user",approved:false,
-      adminFields:{Name:name,Email:email,Phone:phone},
+      adminFields:{Name:name.value,Email:email.value,Phone:phone.value},
       createdAt:new Date().toISOString()
     });
     msg.textContent="Account created. Pending admin approval.";
@@ -475,13 +353,8 @@ window.register=async()=>{
   }catch(e){
     msg.textContent=e.message;
     msg.className="msg error";msg.style.display="block";
-  }finally{loader.style.display="none";btn.disabled=false}
+  }finally{loader.style.display="none"}
 };
-
-const nameEl=document.getElementById("name");
-const phoneEl=document.getElementById("phone");
-const emailEl=document.getElementById("email");
-const confirmEl=document.getElementById("confirm");
 </script>
 
 </body>
