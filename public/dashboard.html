@@ -26,13 +26,37 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   object-fit:cover;border:3px solid #fff
 }
 
+.actions{display:flex;gap:10px}
 .actions button,.menu-btn{
   background:#fff;color:#4f46e5;
   border:none;padding:8px 14px;
   border-radius:12px;font-weight:bold;
   cursor:pointer
 }
+.actions button:disabled{opacity:.6}
 .menu-btn{display:none}
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu{
+  max-height:0;
+  overflow:hidden;
+  margin:0 20px;
+  background:#fff;
+  border-radius:18px;
+  transition:max-height .35s ease,padding .35s ease;
+}
+.mobile-menu.open{max-height:300px;padding:14px}
+.mobile-menu button{
+  width:100%;
+  margin-bottom:10px;
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer
+}
 
 /* ===== GRID ===== */
 .grid{
@@ -48,11 +72,10 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .progress div{height:100%}
 .tip{font-size:13px;color:#6b7280}
 
-/* ================= FULL WIDTH SLIDER (INDEX STYLE) ================= */
+/* ===== FULL WIDTH SLIDER ===== */
 .full-gallery{
   background:#fff;
   padding:50px 0;
-  margin-top:10px;
 }
 
 .full-gallery h2{
@@ -61,10 +84,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   margin-bottom:30px;
 }
 
-.gallery-slider{
-  overflow:hidden;
-  width:100%;
-}
+.gallery-slider{overflow:hidden;width:100%}
 
 .gallery-track{
   display:flex;
@@ -158,15 +178,25 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 
   <div>
     <div class="actions">
+      <button onclick="openMap()">📍 Map</button>
+      <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
       <button onclick="logout()">🚪 Logout</button>
     </div>
-    <button class="menu-btn">☰</button>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
   </div>
 </div>
 
-<!-- ===== DASHBOARD GRID (TWO COMPONENTS ONLY) ===== -->
-<div class="grid">
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu">
+  <button onclick="openMap();closeMenu()">📍 Map</button>
+  <button onclick="changePassword();closeMenu()">🔒 Change Password</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
 
+<!-- DASHBOARD GRID -->
+<div class="grid">
   <div class="card">
     <h3>Profile Completion</h3>
     <h1 id="percent">0%</h1>
@@ -179,13 +209,11 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <h3>Your Highlights</h3>
     <div id="custom"></div>
   </div>
-
 </div>
 
-<!-- ================= FULL WIDTH GALLERY BELOW ================= -->
+<!-- FULL WIDTH GALLERY -->
 <section class="full-gallery">
   <h2>Photo Gallery</h2>
-
   <div class="gallery-slider">
     <div class="gallery-track">
       <img src="images/gallery1.jpg" onclick="openImage(this.src)">
@@ -194,7 +222,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <img src="images/gallery4.jpg" onclick="openImage(this.src)">
       <img src="images/gallery5.jpg" onclick="openImage(this.src)">
 
-      <!-- duplicate for smooth infinite scroll -->
+      <!-- duplicate for infinite scroll -->
       <img src="images/gallery1.jpg" onclick="openImage(this.src)">
       <img src="images/gallery2.jpg" onclick="openImage(this.src)">
       <img src="images/gallery3.jpg" onclick="openImage(this.src)">
@@ -215,24 +243,87 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
 let currentImage="";
 
-function openImage(src){
+/* ===== MENU ===== */
+window.toggleMenu=()=>mobileMenu.classList.toggle("open");
+window.closeMenu=()=>mobileMenu.classList.remove("open");
+
+/* ===== ACTIONS ===== */
+window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
+
+window.logout=async()=>{
+  await signOut(auth);
+  location.href="login.html";
+};
+
+window.changePassword=async()=>{
+  const btn=document.getElementById("changePwdBtn");
+  btn.disabled=true;
+  btn.innerText="Sending…";
+  await sendPasswordResetEmail(auth,auth.currentUser.email);
+  btn.innerText="Sent";
+};
+
+/* ===== IMAGE ===== */
+window.openImage=(src)=>{
   currentImage=src;
   modalImg.src=src;
   imageModal.style.display="flex";
-}
-
-function closeImage(){
-  imageModal.style.display="none";
-}
-
-function downloadImage(){
+};
+window.closeImage=()=>imageModal.style.display="none";
+window.downloadImage=()=>{
   const a=document.createElement("a");
   a.href=currentImage;
   a.download="sadri-villa.jpg";
   a.click();
+};
+
+/* ===== DASHBOARD LOAD ===== */
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href="login.html";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().approved!==true){
+    await signOut(auth);
+    location.href="pending.html";
+    return;
+  }
+  loadDashboard(snap.data());
+});
+
+function loadDashboard(data){
+  userName.innerText=data.adminFields?.Name||"User";
+  let total=0,filled=0;
+  custom.innerHTML="";
+  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
+  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+    total++;if(v.value)filled++;
+    if(v.showOnDashboard&&v.value){
+      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
+    }
+  });
+  const p=Math.round((filled/total)*100)||0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+  new Chart(chart,{
+    type:"doughnut",
+    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
+  });
 }
 </script>
 
