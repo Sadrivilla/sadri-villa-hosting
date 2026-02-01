@@ -6,34 +6,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ===== BASE ===== */
+/* ===== RESET ===== */
+*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f5f7fb;
+  color:#0f172a;
 }
-.wrapper{
+
+/* ===== PAGE GRID ===== */
+.page{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
+  padding:40px 24px;
 }
-.container{
-  background:#fff;
+.grid{
   width:100%;
-  max-width:420px;
-  padding:28px;
-  border-radius:22px;
-  box-shadow:0 20px 45px rgba(0,0,0,.12);
+  max-width:1200px;
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:60px;
+  align-items:center;
 }
 
-/* ===== HEADER ===== */
-h2{margin:0}
-.sub{
-  color:#64748b;
-  margin:8px 0 18px;
+/* ===== LEFT PANEL ===== */
+.left h1{
+  font-size:44px;
+  line-height:1.2;
+  margin-bottom:16px;
 }
+.left p{
+  color:#475569;
+  max-width:520px;
+  margin-bottom:28px;
+}
+.benefit{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:14px;
+}
+.icon{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color:#fff;
+}
+.blue{background:#2563eb}
+.green{background:#22c55e}
+.purple{background:#a855f7}
+
+/* ===== CARD ===== */
+.card{
+  background:#fff;
+  border-radius:24px;
+  padding:32px;
+  box-shadow:0 25px 50px rgba(0,0,0,.12);
+}
+.card h2{margin:0}
+.card small{color:#64748b}
 
 /* ===== PROGRESS ===== */
 .progress{
@@ -41,7 +79,7 @@ h2{margin:0}
   background:#e5e7eb;
   border-radius:6px;
   overflow:hidden;
-  margin-bottom:20px;
+  margin:16px 0;
 }
 .progress span{
   display:block;
@@ -51,20 +89,15 @@ h2{margin:0}
   transition:.3s;
 }
 
-/* ===== STEP ===== */
+/* ===== STEPS ===== */
 .step{display:none}
 .step.active{display:block}
-
-.step small{
-  color:#64748b;
-  font-weight:600;
-}
 .step h3{
-  margin:8px 0 20px;
   color:#2563eb;
+  margin:12px 0 18px;
 }
 
-/* ===== FIELD ===== */
+/* ===== FIELDS ===== */
 .field{
   margin-bottom:16px;
   position:relative;
@@ -76,8 +109,8 @@ h2{margin:0}
 }
 .field input{
   width:100%;
-  height:50px;
-  padding:0 44px 0 14px;
+  height:52px;
+  padding:0 46px 0 14px;
   border-radius:12px;
   border:1.5px solid #d1d5db;
   font-size:15px;
@@ -104,14 +137,13 @@ h2{margin:0}
   display:block;
   height:100%;
   width:0%;
-  transition:.3s;
 }
 #strengthText{
   font-size:12px;
   color:#64748b;
 }
 
-/* ===== BUTTONS ===== */
+/* ===== ACTIONS ===== */
 .actions{
   display:flex;
   justify-content:space-between;
@@ -134,8 +166,8 @@ h2{margin:0}
   margin-top:16px;
   padding:14px;
   border-radius:14px;
-  text-align:center;
   font-weight:600;
+  text-align:center;
 }
 .error{background:#fee2e2;color:#991b1b}
 .success{background:#dcfce7;color:#166534}
@@ -156,212 +188,192 @@ h2{margin:0}
   border:6px solid #e5e7eb;
   border-top:6px solid #2563eb;
   border-radius:50%;
-  animation:spin 1s linear infinite;
+  animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ===== MOBILE ===== */
-@media(max-width:768px){
-  .wrapper{align-items:flex-start}
+@media(max-width:900px){
+  .page{padding:24px}
+  .grid{
+    grid-template-columns:1fr;
+    gap:32px;
+  }
+  .left h1{font-size:32px}
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrapper">
-<div class="container">
+<div class="page">
+<div class="grid">
 
-<h2>Sign Up</h2>
-<p class="sub">Create your account</p>
+<!-- LEFT -->
+<div class="left">
+  <h1>Enterprise Facility Management System</h1>
+  <p>Streamline your facility operations with our comprehensive management platform</p>
 
-<div class="progress"><span id="bar"></span></div>
-
-<!-- STEP 1 -->
-<div class="step active">
-  <small>Step 1 of 4</small>
-  <h3>Tell us about you</h3>
-
-  <div class="field">
-    <label>Name</label>
-    <input id="name">
+  <div class="benefit">
+    <div class="icon blue">✓</div>
+    <div><b>15 Days Trial</b><br><small>Start from initial signup date</small></div>
   </div>
-
-  <div class="actions">
-    <span></span>
-    <button class="next" onclick="nextStep()">Continue</button>
+  <div class="benefit">
+    <div class="icon green">🛡</div>
+    <div><b>Shield</b><br><small>Security & privacy at its best</small></div>
+  </div>
+  <div class="benefit">
+    <div class="icon purple">🚫</div>
+    <div><b>No Ads</b><br><small>Never!</small></div>
   </div>
 </div>
 
-<!-- STEP 2 -->
-<div class="step">
-  <small>Step 2 of 4</small>
-  <h3>Contact details</h3>
+<!-- RIGHT -->
+<div class="card">
+  <h2>Sign Up</h2>
+  <small>Create your account</small>
 
-  <div class="field">
-    <label>Mobile Number</label>
-    <input id="phone">
-  </div>
+  <div class="progress"><span id="bar"></span></div>
 
-  <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
-    <button class="next" onclick="nextStep()">Continue</button>
-  </div>
-</div>
-
-<!-- STEP 3 -->
-<div class="step">
-  <small>Step 3 of 4</small>
-  <h3>Email address</h3>
-
-  <div class="field">
-    <label>Email</label>
-    <input id="email" type="email">
-  </div>
-
-  <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
-    <button class="next" onclick="nextStep()">Continue</button>
-  </div>
-</div>
-
-<!-- STEP 4 -->
-<div class="step">
-  <small>Step 4 of 4</small>
-  <h3>Create password</h3>
-
-  <div class="field">
-    <label>Password</label>
-    <input id="password" type="password">
-    <span class="eye" onclick="toggle('password')">👁️</span>
-
-    <div class="strength-bar">
-      <span id="strengthFill"></span>
+  <!-- STEP 1 -->
+  <div class="step active">
+    <small>Step 1 of 4</small>
+    <h3>Tell us about you</h3>
+    <div class="field">
+      <label>Name</label>
+      <input id="name">
     </div>
-    <small id="strengthText">Password strength</small>
+    <div class="actions">
+      <span></span>
+      <button class="next" onclick="nextStep()">Continue</button>
+    </div>
   </div>
 
-  <div class="field">
-    <label>Confirm Password</label>
-    <input id="confirm" type="password">
-    <span class="eye" onclick="toggle('confirm')">👁️</span>
+  <!-- STEP 2 -->
+  <div class="step">
+    <small>Step 2 of 4</small>
+    <h3>Contact details</h3>
+    <div class="field">
+      <label>Mobile Number</label>
+      <input id="phone">
+    </div>
+    <div class="actions">
+      <button class="back" onclick="prevStep()">Back</button>
+      <button class="next" onclick="nextStep()">Continue</button>
+    </div>
   </div>
 
-  <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
-    <button class="next" id="btn" onclick="register()">Create Account</button>
+  <!-- STEP 3 -->
+  <div class="step">
+    <small>Step 3 of 4</small>
+    <h3>Email address</h3>
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email">
+    </div>
+    <div class="actions">
+      <button class="back" onclick="prevStep()">Back</button>
+      <button class="next" onclick="nextStep()">Continue</button>
+    </div>
   </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <small>Step 4 of 4</small>
+    <h3>Create password</h3>
+
+    <div class="field">
+      <label>Password</label>
+      <input id="password" type="password">
+      <span class="eye" onclick="toggle('password')">👁️</span>
+      <div class="strength-bar"><span id="strengthFill"></span></div>
+      <small id="strengthText">Password strength</small>
+    </div>
+
+    <div class="field">
+      <label>Confirm Password</label>
+      <input id="confirm" type="password">
+      <span class="eye" onclick="toggle('confirm')">👁️</span>
+    </div>
+
+    <div class="actions">
+      <button class="back" onclick="prevStep()">Back</button>
+      <button class="next" id="btn" onclick="register()">Create Account</button>
+    </div>
+  </div>
+
+  <div id="msg" class="msg"></div>
 </div>
-
-<div id="msg" class="msg"></div>
 
 </div>
 </div>
 
 <div class="loader" id="loader"><div></div></div>
 
-<!-- ===== FIREBASE (UNCHANGED) ===== -->
+<!-- ===== FIREBASE LOGIC (UNCHANGED) ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, setDoc, doc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth=getAuth(app),db=getFirestore(app);
 
-/* ===== WIZARD ===== */
+/* Wizard */
 const steps=document.querySelectorAll(".step");
 const bar=document.getElementById("bar");
-let current=0;
+let i=0;
+function show(){steps.forEach(s=>s.classList.remove("active"));steps[i].classList.add("active");bar.style.width=((i+1)/steps.length*100)+"%"}
+window.nextStep=()=>{if(i<steps.length-1){i++;show()}}
+window.prevStep=()=>{if(i>0){i--;show()}}
 
-function showStep(){
-  steps.forEach(s=>s.classList.remove("active"));
-  steps[current].classList.add("active");
-  bar.style.width=((current+1)/steps.length*100)+"%";
-}
-window.nextStep=()=>{if(current<steps.length-1){current++;showStep()}};
-window.prevStep=()=>{if(current>0){current--;showStep()}};
+/* Toggle */
+window.toggle=id=>{const f=document.getElementById(id);f.type=f.type==="password"?"text":"password"}
 
-/* ===== PASSWORD ===== */
-window.toggle=id=>{
-  const f=document.getElementById(id);
-  f.type=f.type==="password"?"text":"password";
-};
+/* Strength */
+const p=document.getElementById("password"),f=document.getElementById("strengthFill"),t=document.getElementById("strengthText");
+p.oninput=()=>{let s=0,v=p.value;if(v.length>=6)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+if(s<=1){f.style.width="25%";f.style.background="#ef4444";t.textContent="Weak"}
+else if(s===2){f.style.width="50%";f.style.background="#f59e0b";t.textContent="Medium"}
+else{f.style.width="100%";f.style.background="#22c55e";t.textContent="Strong"}}
 
-const password=document.getElementById("password");
-const fill=document.getElementById("strengthFill");
-const text=document.getElementById("strengthText");
-
-password.addEventListener("input",()=>{
-  let s=0,v=password.value;
-  if(v.length>=6)s++;
-  if(/[A-Z]/.test(v))s++;
-  if(/[0-9]/.test(v))s++;
-  if(/[^A-Za-z0-9]/.test(v))s++;
-
-  if(s<=1){fill.style.width="25%";fill.style.background="#ef4444";text.textContent="Weak"}
-  else if(s===2){fill.style.width="50%";fill.style.background="#f59e0b";text.textContent="Medium"}
-  else{fill.style.width="100%";fill.style.background="#22c55e";text.textContent="Strong"}
-});
-
-/* ===== REGISTER (UNCHANGED LOGIC) ===== */
+/* Register */
 window.register=async()=>{
   const name=document.getElementById("name").value.trim();
   const phone=document.getElementById("phone").value.trim();
   const email=document.getElementById("email").value.trim();
-  const pass=password.value;
+  const pass=p.value;
   const confirm=document.getElementById("confirm").value;
   const msg=document.getElementById("msg");
   const loader=document.getElementById("loader");
   const btn=document.getElementById("btn");
 
   msg.style.display="none";
-
   if(!name||!phone||!email||!pass||!confirm){
-    msg.textContent="All fields required";
-    msg.className="msg error";
-    msg.style.display="block";
-    return;
+    msg.textContent="All fields required";msg.className="msg error";msg.style.display="block";return;
   }
   if(pass!==confirm){
-    msg.textContent="Passwords do not match";
-    msg.className="msg error";
-    msg.style.display="block";
-    return;
+    msg.textContent="Passwords do not match";msg.className="msg error";msg.style.display="block";return;
   }
 
   try{
-    loader.style.display="flex";
-    btn.disabled=true;
-
+    loader.style.display="flex";btn.disabled=true;
     const cred=await createUserWithEmailAndPassword(auth,email,pass);
     await setDoc(doc(db,"users",cred.user.uid),{
-      role:"user",
-      approved:false,
+      role:"user",approved:false,
       adminFields:{Name:name,Email:email,Phone:phone},
       createdAt:new Date().toISOString()
     });
-
     msg.textContent="Account created. Pending admin approval.";
-    msg.className="msg success";
-    msg.style.display="block";
-
+    msg.className="msg success";msg.style.display="block";
     setTimeout(()=>location.href="pending.html",3000);
   }catch(e){
-    msg.textContent=e.message;
-    msg.className="msg error";
-    msg.style.display="block";
-  }finally{
-    loader.style.display="none";
-    btn.disabled=false;
-  }
+    msg.textContent=e.message;msg.className="msg error";msg.style.display="block";
+  }finally{loader.style.display="none";btn.disabled=false}
 };
 </script>
 
