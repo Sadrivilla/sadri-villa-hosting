@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>User Dashboard | Sadri Villa</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -25,53 +28,22 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   width:56px;height:56px;border-radius:50%;
   object-fit:cover;border:3px solid #fff
 }
-
-.actions button,.menu-btn{
+.actions button{
   background:#fff;color:#4f46e5;
   border:none;padding:8px 14px;
   border-radius:12px;font-weight:bold;
   cursor:pointer
 }
 .actions button:disabled{opacity:.6;cursor:not-allowed}
-.menu-btn{display:none}
-
-/* ===== MOBILE MENU (SLIDE DOWN) ===== */
-.mobile-menu{
-  max-height:0;
-  overflow:hidden;
-  margin:0 20px;
-  background:#fff;
-  border-radius:18px;
-  transition:max-height .35s ease, padding .35s ease;
-}
-.mobile-menu.open{
-  max-height:300px;
-  padding:14px;
-}
-.mobile-menu button{
-  width:100%;
-  margin-bottom:10px;
-  background:#4f46e5;
-  color:#fff;
-  border:none;
-  padding:10px;
-  border-radius:12px;
-  font-weight:bold;
-  cursor:pointer
-}
 
 /* ===== GRID ===== */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
   gap:20px;
   padding:20px
 }
-.card{
-  background:#fff;
-  padding:22px;
-  border-radius:20px
-}
+.card{background:#fff;padding:22px;border-radius:20px}
 
 /* ===== PROFILE ===== */
 .progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
@@ -89,11 +61,43 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .slide-track img{
   height:220px;
   border-radius:16px;
-  object-fit:cover
+  object-fit:cover;
+  cursor:pointer
 }
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
+}
+
+/* ===== IMAGE VIEWER ===== */
+#imageViewer{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  align-items:center;
+  justify-content:center;
+  z-index:9999
+}
+#imageViewer img{
+  max-width:92%;
+  max-height:92%;
+  border-radius:16px
+}
+.viewer-controls{
+  position:absolute;
+  top:20px;
+  right:30px;
+  display:flex;
+  gap:12px
+}
+.viewer-controls button{
+  background:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold
 }
 
 /* ===== RESET MODAL ===== */
@@ -131,12 +135,6 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   border:2px solid #fff
 }
 #resendBtn:disabled{opacity:.6;cursor:not-allowed}
-
-@media(max-width:768px){
-  .actions{display:none}
-  .menu-btn{display:block}
-  .slide-track img{height:180px}
-}
 </style>
 </head>
 
@@ -151,27 +149,15 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
     </div>
   </div>
-
-  <div>
-    <div class="actions">
-      <button onclick="openMap()">📍 Map</button>
-      <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
-    </div>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="actions">
+    <button onclick="openMap()">📍 Map</button>
+    <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="logout()">🚪 Logout</button>
   </div>
 </div>
 
-<!-- MOBILE MENU -->
-<div id="mobileMenu" class="mobile-menu">
-  <button onclick="openMap();closeMenu()">📍 Map</button>
-  <button onclick="changePassword();closeMenu()">🔒 Change Password</button>
-  <button onclick="location.href='profile.html'">👤 Profile</button>
-  <button onclick="logout()">🚪 Logout</button>
-</div>
-
-<!-- DASHBOARD GRID -->
+<!-- DASHBOARD -->
 <div class="grid">
 
   <div class="card">
@@ -179,7 +165,8 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <h1 id="percent">0%</h1>
     <div class="progress"><div id="bar"></div></div>
     <p id="tip" class="tip"></p>
-    <canvas id="chart" height="160"></canvas>
+    <canvas id="chart" height="160" style="cursor:pointer"></canvas>
+    <p style="font-size:12px;color:#6b7280">Tap chart to open profile</p>
   </div>
 
   <div class="card">
@@ -191,20 +178,26 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <h3>📸 Sadri Villa Gallery</h3>
     <div class="slider">
       <div class="slide-track">
-        <img src="images/gallery1.jpg">
-        <img src="images/gallery2.jpg">
-        <img src="images/gallery3.jpg">
-        <img src="images/gallery4.jpg">
-        <img src="images/gallery5.jpg">
-        <img src="images/gallery1.jpg">
-        <img src="images/gallery2.jpg">
-        <img src="images/gallery3.jpg">
-        <img src="images/gallery4.jpg">
-        <img src="images/gallery5.jpg">
+        <img src="images/gallery1.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery2.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery3.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery4.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery5.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery1.jpg" onclick="openImage(this.src)">
+        <img src="images/gallery2.jpg" onclick="openImage(this.src)">
       </div>
     </div>
   </div>
 
+</div>
+
+<!-- IMAGE VIEWER -->
+<div id="imageViewer" onclick="outsideClose(event)">
+  <div class="viewer-controls">
+    <button onclick="downloadImage()">⬇ Download</button>
+    <button onclick="closeImage()">✕ Close</button>
+  </div>
+  <img id="viewerImg">
 </div>
 
 <!-- RESET MODAL -->
@@ -231,7 +224,27 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
+let currentImage="";
 let resendTimer;
+
+/* ===== IMAGE VIEWER ===== */
+window.openImage=(src)=>{
+  currentImage=src;
+  viewerImg.src=src;
+  imageViewer.style.display="flex";
+};
+window.closeImage=()=>imageViewer.style.display="none";
+window.outsideClose=(e)=>{
+  if(e.target.id==="imageViewer") closeImage();
+};
+window.downloadImage=()=>{
+  const a=document.createElement("a");
+  a.href=currentImage;
+  a.download=currentImage.split("/").pop();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
 
 /* ===== HELPERS ===== */
 function maskEmail(e){
@@ -239,53 +252,38 @@ function maskEmail(e){
   return n[0]+"***@"+d;
 }
 
-/* ===== MOBILE MENU ===== */
-window.toggleMenu=()=>{
-  document.getElementById("mobileMenu").classList.toggle("open");
-};
-window.closeMenu=()=>{
-  document.getElementById("mobileMenu").classList.remove("open");
-};
-
 /* ===== ACTIONS ===== */
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 
 window.changePassword=async()=>{
-  const btn=document.getElementById("changePwdBtn");
-  btn.disabled=true;
-  btn.innerText="Sending…";
-  document.getElementById("maskedEmail").innerText=maskEmail(auth.currentUser.email);
+  changePwdBtn.disabled=true;
+  changePwdBtn.innerText="Sending…";
+  maskedEmail.innerText=maskEmail(auth.currentUser.email);
   await sendPasswordResetEmail(auth,auth.currentUser.email);
-  document.getElementById("resetModal").style.display="flex";
+  resetModal.style.display="flex";
   startResendTimer();
 };
-
 window.resendEmail=async()=>{
   await sendPasswordResetEmail(auth,auth.currentUser.email);
   startResendTimer();
 };
-
 function startResendTimer(){
   let t=30;
-  const r=document.getElementById("resendBtn");
-  r.disabled=true;
+  resendBtn.disabled=true;
   clearInterval(resendTimer);
   resendTimer=setInterval(()=>{
-    r.innerText=`Resend in ${t--}s`;
+    resendBtn.innerText=`Resend in ${t--}s`;
     if(t<0){
       clearInterval(resendTimer);
-      r.disabled=false;
-      r.innerText="Resend Email";
+      resendBtn.disabled=false;
+      resendBtn.innerText="Resend Email";
     }
   },1000);
 }
+window.closeResetModal=()=>resetModal.style.display="none";
 
-window.closeResetModal=()=>{
-  document.getElementById("resetModal").style.display="none";
-};
-
-/* ===== DASHBOARD LOAD ===== */
+/* ===== AUTH + DASHBOARD ===== */
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
@@ -313,10 +311,12 @@ function loadDashboard(data){
   bar.style.width=p+"%";
   bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
   tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+
   new Chart(chart,{
     type:"doughnut",
     data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
   });
+  chart.onclick=()=>location.href="profile.html";
 }
 </script>
 
