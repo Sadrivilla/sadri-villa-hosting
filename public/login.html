@@ -117,8 +117,7 @@ import {
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
-  browserSessionPersistence,
-  signOut
+  browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
@@ -162,18 +161,16 @@ loginBtn.onclick = async () => {
     const snap = await getDoc(ref);
 
     if(!snap.exists()){
-      await signOut(auth);
       throw { type:"no-record" };
     }
 
-    /* ⏳ NOT APPROVED → REDIRECT */
+    /* ⏳ NOT APPROVED → REDIRECT (NO LOGOUT) */
     if(snap.data().approved !== true){
       await updateDoc(ref,{
         approvalReminder:true,
         approvalRequestedAt:new Date().toISOString()
       });
 
-      await signOut(auth);
       location.href="pending.html";
       return;
     }
