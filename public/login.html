@@ -90,7 +90,7 @@ button{
   <div class="status error" id="errorMsg"></div>
 
   <div class="field">
-    <input id="email" type="email" placeholder="Email">
+    <input id="identifier" placeholder="Email or Phone number">
   </div>
 
   <div class="field password-wrap">
@@ -123,7 +123,11 @@ import {
   getFirestore,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
@@ -145,6 +149,9 @@ loginBtn.onclick = async () => {
   statusMsg.style.display="block";
   statusMsg.textContent="Login is initiating…";
 
+  const idValue = identifier.value.trim();
+  const pass    = password.value;
+
   try{
     await setPersistence(
       auth,
@@ -153,24 +160,41 @@ loginBtn.onclick = async () => {
         : browserSessionPersistence
     );
 
+    let emailToUse = idValue;
+
+    /* 📱 If phone entered, find email */
+    if(!idValue.includes("@")){
+      const q = query(
+        collection(db,"users"),
+        where("phone","==",idValue)
+      );
+      const snap = await getDocs(q);
+
+      if(snap.empty){
+        throw { type:"no-record" };
+      }
+      emailToUse = snap.docs[0].data().email;
+    }
+
     const cred = await signInWithEmailAndPassword(
-      auth,email.value,password.value
+      auth,
+      emailToUse,
+      pass
     );
 
     const ref = doc(db,"users",cred.user.uid);
-    const snap = await getDoc(ref);
+    const userSnap = await getDoc(ref);
 
-    if(!snap.exists()){
+    if(!userSnap.exists()){
       throw { type:"no-record" };
     }
 
-    /* ⏳ NOT APPROVED → REDIRECT (NO LOGOUT) */
-    if(snap.data().approved !== true){
+    /* ⏳ NOT APPROVED */
+    if(userSnap.data().approved !== true){
       await updateDoc(ref,{
         approvalReminder:true,
         approvalRequestedAt:new Date().toISOString()
       });
-
       location.href="pending.html";
       return;
     }
@@ -180,7 +204,7 @@ loginBtn.onclick = async () => {
     });
 
     location.href =
-      snap.data().role === "admin"
+      userSnap.data().role === "admin"
         ? "admin-dashboard.html"
         : "dashboard.html";
 
@@ -191,7 +215,7 @@ loginBtn.onclick = async () => {
     if(err?.type==="no-record"){
       errorMsg.textContent="Account not found. Please sign up.";
     }else{
-      errorMsg.textContent="Invalid email or password";
+      errorMsg.textContent="Invalid login credentials";
     }
   }
 };
