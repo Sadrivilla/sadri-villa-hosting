@@ -8,87 +8,169 @@
 <style>
 *{box-sizing:border-box}
 body{
-  font-family:Arial,sans-serif;
-  background:#eef2ff;
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#e0e7ff);
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:100vh;
-  margin:0;
 }
+
 .card{
   background:#fff;
-  padding:36px;
-  border-radius:24px;
   width:100%;
-  max-width:420px;
-  box-shadow:0 25px 60px rgba(0,0,0,.15);
+  max-width:440px;
+  padding:36px 34px;
+  border-radius:26px;
+  box-shadow:0 30px 70px rgba(0,0,0,.18);
+}
+
+h2{
+  margin:0 0 6px;
   text-align:center;
 }
-h2{margin-bottom:20px}
-.field{margin-bottom:14px}
+.sub{
+  text-align:center;
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:22px;
+}
+
+.field{margin-bottom:16px}
+.field label{
+  display:block;
+  font-size:13px;
+  color:#374151;
+  margin-bottom:6px;
+}
 .field input{
   width:100%;
   height:52px;
-  padding:0 16px;
+  padding:0 44px 0 14px;
   border-radius:14px;
   border:1.5px solid #d1d5db;
   font-size:15px;
 }
+.field input:focus{
+  outline:none;
+  border-color:#6d28d9;
+}
+
+/* PASSWORD */
+.pass-wrap{position:relative}
+.eye{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* STRENGTH BAR */
+.strength{
+  height:6px;
+  border-radius:999px;
+  background:#e5e7eb;
+  overflow:hidden;
+  margin-top:6px;
+}
+.strength div{
+  height:100%;
+  width:0;
+  transition:.3s;
+}
+.weak{background:#dc2626}
+.medium{background:#f59e0b}
+.strong{background:#16a34a}
+
+.strength-text{
+  font-size:12px;
+  margin-top:4px;
+  color:#6b7280;
+}
+
 button{
   width:100%;
-  height:52px;
-  margin-top:14px;
+  height:54px;
+  margin-top:12px;
   border:none;
-  border-radius:16px;
-  background:#6d28d9;
+  border-radius:18px;
+  background:linear-gradient(135deg,#6d28d9,#7c3aed);
   color:#fff;
   font-size:16px;
+  font-weight:bold;
   cursor:pointer;
 }
-.msg{margin-top:12px;font-size:14px}
-.error{color:#dc2626}
+
+.msg{
+  margin-top:14px;
+  font-size:14px;
+  text-align:center;
+}
 .success{color:#16a34a}
-a{color:#6d28d9;font-weight:600;text-decoration:none}
+.error{color:#dc2626}
+
+.footer{
+  margin-top:20px;
+  text-align:center;
+  font-size:14px;
+}
+.footer a{
+  color:#6d28d9;
+  font-weight:600;
+  text-decoration:none;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-  <h2>📝 Sign Up</h2>
+  <h2>📝 Create Account</h2>
+  <div class="sub">Register to access Sadri Villa</div>
 
   <div class="field">
-    <input id="name" placeholder="Full Name">
+    <label>Full Name</label>
+    <input id="name" placeholder="Enter your full name">
   </div>
 
   <div class="field">
-    <input id="phone" placeholder="Mobile Number">
+    <label>Mobile Number</label>
+    <input id="phone" placeholder="Enter mobile number">
   </div>
 
   <div class="field">
-    <input id="email" type="email" placeholder="Email">
+    <label>Email Address</label>
+    <input id="email" type="email" placeholder="Enter email">
   </div>
 
-  <div class="field">
-    <input id="password" type="password" placeholder="Password (min 6 chars)">
+  <div class="field pass-wrap">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Minimum 6 characters">
+    <span class="eye" id="eye">👁</span>
+
+    <div class="strength">
+      <div id="bar"></div>
+    </div>
+    <div class="strength-text" id="strengthText">Password strength</div>
   </div>
 
   <button id="signupBtn">Create Account</button>
 
   <div id="msg" class="msg"></div>
 
-  <p style="margin-top:16px">
-    Already have an account? <a href="login.html">Login</a>
-  </p>
+  <div class="footer">
+    Already have an account?
+    <a href="login.html">Login</a>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
   doc,
@@ -108,63 +190,82 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* SHOW / HIDE PASSWORD */
+eye.onclick = () => {
+  password.type = password.type === "password" ? "text" : "password";
+  eye.textContent = password.type === "password" ? "👁" : "🙈";
+};
+
+/* PASSWORD STRENGTH */
+password.oninput = () => {
+  const v = password.value;
+  let score = 0;
+  if(v.length >= 6) score++;
+  if(/[A-Z]/.test(v)) score++;
+  if(/[0-9]/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v)) score++;
+
+  bar.className = "";
+  if(score <= 1){
+    bar.style.width = "33%";
+    bar.classList.add("weak");
+    strengthText.textContent = "Weak password";
+  }else if(score === 2 || score === 3){
+    bar.style.width = "66%";
+    bar.classList.add("medium");
+    strengthText.textContent = "Medium password";
+  }else{
+    bar.style.width = "100%";
+    bar.classList.add("strong");
+    strengthText.textContent = "Strong password";
+  }
+};
+
 /* SIGNUP */
 signupBtn.onclick = async () => {
-  msg.textContent = "";
-  msg.className = "msg";
+  msg.textContent="";
+  msg.className="msg";
 
-  const fullName = name.value.trim();
-  const phoneNum = phone.value.trim();
-  const emailVal = email.value.trim();
-  const passVal  = password.value;
+  const fullName=name.value.trim();
+  const phoneNum=phone.value.trim();
+  const emailVal=email.value.trim();
+  const passVal=password.value;
 
   if(!fullName || !phoneNum || !emailVal || passVal.length < 6){
-    msg.textContent = "Please fill all fields correctly";
-    msg.className = "msg error";
+    msg.textContent="Please fill all fields correctly";
+    msg.className="msg error";
     return;
   }
 
   try{
-    /* 🔍 CHECK PHONE UNIQUE */
-    const q = query(
-      collection(db,"users"),
-      where("phone","==",phoneNum)
-    );
-    const exists = await getDocs(q);
+    const q=query(collection(db,"users"),where("phone","==",phoneNum));
+    const exists=await getDocs(q);
     if(!exists.empty){
-      msg.textContent = "Phone number already registered";
-      msg.className = "msg error";
+      msg.textContent="Phone number already registered";
+      msg.className="msg error";
       return;
     }
 
-    /* AUTH CREATE */
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      emailVal,
-      passVal
-    );
+    const cred=await createUserWithEmailAndPassword(auth,emailVal,passVal);
 
-    /* SAVE PROFILE */
     await setDoc(doc(db,"users",cred.user.uid),{
-      fullName: fullName,
-      phone: phoneNum,
-      email: emailVal,
-      role: "user",
-      approved: false,
-      approvalReminder: false,
-      createdAt: new Date().toISOString()
+      fullName,
+      phone:phoneNum,
+      email:emailVal,
+      role:"user",
+      approved:false,
+      approvalReminder:false,
+      createdAt:new Date().toISOString()
     });
 
-    msg.textContent = "Account created. Waiting for admin approval.";
-    msg.className = "msg success";
+    msg.textContent="Account created. Waiting for admin approval.";
+    msg.className="msg success";
 
-    setTimeout(()=>{
-      location.href="pending.html";
-    },1200);
+    setTimeout(()=>location.href="pending.html",1200);
 
   }catch(e){
-    msg.textContent = e.message.replace("Firebase: ","");
-    msg.className = "msg error";
+    msg.textContent=e.message.replace("Firebase: ","");
+    msg.className="msg error";
   }
 };
 </script>
