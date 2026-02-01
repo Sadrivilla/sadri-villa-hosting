@@ -2,125 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sign Up – Sadri Villa</title>
+<title>Login – Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#eef2ff,#e0e7ff);
-  min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:#eef2ff;
   display:flex;
   align-items:center;
   justify-content:center;
+  min-height:100vh;
+  margin:0;
 }
-
 .card{
   background:#fff;
+  padding:40px 36px;
+  border-radius:24px;
   width:100%;
-  max-width:440px;
-  padding:36px 34px;
-  border-radius:26px;
-  box-shadow:0 30px 70px rgba(0,0,0,.18);
-}
-
-h2{
-  margin:0 0 6px;
+  max-width:420px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15);
   text-align:center;
 }
-.sub{
-  text-align:center;
-  font-size:14px;
-  color:#6b7280;
-  margin-bottom:22px;
-}
-
-.field{margin-bottom:16px}
-.field label{
-  display:block;
-  font-size:13px;
-  color:#374151;
-  margin-bottom:6px;
-}
+h2{margin-bottom:24px}
+.field{margin-bottom:18px}
 .field input{
   width:100%;
-  height:52px;
-  padding:0 44px 0 14px;
-  border-radius:14px;
+  height:56px;
+  padding:0 18px;
+  border-radius:16px;
   border:1.5px solid #d1d5db;
   font-size:15px;
 }
-.field input:focus{
-  outline:none;
-  border-color:#6d28d9;
-}
-
-/* PASSWORD */
-.pass-wrap{position:relative}
-.eye{
+.password-wrap{position:relative}
+.password-wrap .eye{
   position:absolute;
-  right:14px;
+  right:18px;
   top:50%;
   transform:translateY(-50%);
   cursor:pointer;
-  font-size:18px;
 }
-
-/* STRENGTH BAR */
-.strength{
-  height:6px;
-  border-radius:999px;
-  background:#e5e7eb;
-  overflow:hidden;
-  margin-top:6px;
-}
-.strength div{
-  height:100%;
-  width:0;
-  transition:.3s;
-}
-.weak{background:#dc2626}
-.medium{background:#f59e0b}
-.strong{background:#16a34a}
-
-.strength-text{
-  font-size:12px;
-  margin-top:4px;
-  color:#6b7280;
-}
-
 button{
   width:100%;
-  height:54px;
-  margin-top:12px;
+  height:56px;
+  margin-top:14px;
   border:none;
   border-radius:18px;
-  background:linear-gradient(135deg,#6d28d9,#7c3aed);
+  background:#6d28d9;
   color:#fff;
   font-size:16px;
-  font-weight:bold;
   cursor:pointer;
 }
-
-.msg{
-  margin-top:14px;
+.status{
+  display:none;
   font-size:14px;
-  text-align:center;
+  margin-bottom:14px;
 }
 .success{color:#16a34a}
-.error{color:#dc2626}
-
-.footer{
-  margin-top:20px;
-  text-align:center;
+.error{color:#ef4444}
+.links{
+  margin-top:18px;
   font-size:14px;
 }
-.footer a{
+.links a{
   color:#6d28d9;
   font-weight:600;
-  text-decoration:none;
+  cursor:pointer;
+  display:block;
+}
+.remember{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  margin:8px 0 6px;
 }
 </style>
 </head>
@@ -128,57 +84,50 @@ button{
 <body>
 
 <div class="card">
-  <h2>📝 Create Account</h2>
-  <div class="sub">Register to access Sadri Villa</div>
+  <h2>🔐 Login</h2>
+
+  <div class="status success" id="statusMsg">Login is initiating…</div>
+  <div class="status error" id="errorMsg"></div>
 
   <div class="field">
-    <label>Full Name</label>
-    <input id="name" placeholder="Enter your full name">
+    <input id="identifier" placeholder="Email or Mobile number">
   </div>
 
-  <div class="field">
-    <label>Mobile Number</label>
-    <input id="phone" placeholder="Enter mobile number">
-  </div>
-
-  <div class="field">
-    <label>Email Address</label>
-    <input id="email" type="email" placeholder="Enter email">
-  </div>
-
-  <div class="field pass-wrap">
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Minimum 6 characters">
+  <div class="field password-wrap">
+    <input id="password" type="password" placeholder="Password">
     <span class="eye" id="eye">👁</span>
-
-    <div class="strength">
-      <div id="bar"></div>
-    </div>
-    <div class="strength-text" id="strengthText">Password strength</div>
   </div>
 
-  <button id="signupBtn">Create Account</button>
+  <label class="remember">
+    <input type="checkbox" id="rememberMe" checked> Remember me
+  </label>
 
-  <div id="msg" class="msg"></div>
+  <button id="loginBtn">Login</button>
 
-  <div class="footer">
-    Already have an account?
-    <a href="login.html">Login</a>
+  <div class="links">
+    <a href="signup.html">Sign Up</a>
+    <a id="forgotLink">Forgot Password?</a>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
-  doc,
-  setDoc,
+  collection,
   query,
   where,
-  collection,
-  getDocs
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
@@ -188,84 +137,91 @@ const app = initializeApp({
   projectId:"sadri-villa-14c06"
 });
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
-/* SHOW / HIDE PASSWORD */
+/* TOGGLE PASSWORD */
 eye.onclick = () => {
   password.type = password.type === "password" ? "text" : "password";
-  eye.textContent = password.type === "password" ? "👁" : "🙈";
 };
 
-/* PASSWORD STRENGTH */
-password.oninput = () => {
-  const v = password.value;
-  let score = 0;
-  if(v.length >= 6) score++;
-  if(/[A-Z]/.test(v)) score++;
-  if(/[0-9]/.test(v)) score++;
-  if(/[^A-Za-z0-9]/.test(v)) score++;
+/* LOGIN */
+loginBtn.onclick = async () => {
+  errorMsg.style.display="none";
+  statusMsg.style.display="block";
+  statusMsg.textContent="Login is initiating…";
 
-  bar.className = "";
-  if(score <= 1){
-    bar.style.width = "33%";
-    bar.classList.add("weak");
-    strengthText.textContent = "Weak password";
-  }else if(score === 2 || score === 3){
-    bar.style.width = "66%";
-    bar.classList.add("medium");
-    strengthText.textContent = "Medium password";
-  }else{
-    bar.style.width = "100%";
-    bar.classList.add("strong");
-    strengthText.textContent = "Strong password";
-  }
-};
-
-/* SIGNUP */
-signupBtn.onclick = async () => {
-  msg.textContent="";
-  msg.className="msg";
-
-  const fullName=name.value.trim();
-  const phoneNum=phone.value.trim();
-  const emailVal=email.value.trim();
-  const passVal=password.value;
-
-  if(!fullName || !phoneNum || !emailVal || passVal.length < 6){
-    msg.textContent="Please fill all fields correctly";
-    msg.className="msg error";
-    return;
-  }
+  const idValue = identifier.value.trim();
+  const pass    = password.value;
 
   try{
-    const q=query(collection(db,"users"),where("phone","==",phoneNum));
-    const exists=await getDocs(q);
-    if(!exists.empty){
-      msg.textContent="Phone number already registered";
-      msg.className="msg error";
+    await setPersistence(
+      auth,
+      rememberMe.checked
+        ? browserLocalPersistence
+        : browserSessionPersistence
+    );
+
+    let emailToUse = idValue;
+
+    /* 📱 IF MOBILE ENTERED → FIND EMAIL */
+    if(!idValue.includes("@")){
+      const q = query(
+        collection(db,"users"),
+        where("phone","==",idValue)
+      );
+      const snap = await getDocs(q);
+
+      if(snap.empty){
+        throw { type:"no-record" };
+      }
+      emailToUse = snap.docs[0].data().email;
+    }
+
+    /* AUTH LOGIN */
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      emailToUse,
+      pass
+    );
+
+    /* FETCH USER PROFILE */
+    const ref  = doc(db,"users",cred.user.uid);
+    const userSnap = await getDoc(ref);
+
+    if(!userSnap.exists()){
+      throw { type:"no-record" };
+    }
+
+    /* ⏳ NOT APPROVED */
+    if(userSnap.data().approved !== true){
+      await updateDoc(ref,{
+        approvalReminder:true,
+        approvalRequestedAt:new Date().toISOString()
+      });
+      location.href="pending.html";
       return;
     }
 
-    const cred=await createUserWithEmailAndPassword(auth,emailVal,passVal);
-
-    await setDoc(doc(db,"users",cred.user.uid),{
-      fullName,
-      phone:phoneNum,
-      email:emailVal,
-      role:"user",
-      approved:false,
-      approvalReminder:false,
-      createdAt:new Date().toISOString()
+    /* UPDATE LAST LOGIN */
+    await updateDoc(ref,{
+      lastLogin:new Date().toISOString()
     });
 
-    msg.textContent="Account created. Waiting for admin approval.";
-    msg.className="msg success";
+    /* REDIRECT */
+    location.href =
+      userSnap.data().role === "admin"
+        ? "admin-dashboard.html"
+        : "dashboard.html";
 
-    setTimeout(()=>location.href="pending.html",1200);
+  }catch(err){
+    statusMsg.style.display="none";
+    errorMsg.style.display="block";
 
-  }catch(e){
-    msg.textContent=e.message.replace("Firebase: ","");
-    msg.className="msg error";
+    if(err?.type==="no-record"){
+      errorMsg.textContent="Account not found. Please sign up.";
+    }else{
+      errorMsg.textContent="Invalid email / mobile or password";
+    }
   }
 };
 </script>
