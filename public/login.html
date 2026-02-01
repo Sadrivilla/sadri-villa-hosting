@@ -105,7 +105,6 @@ button{
   <button id="loginBtn">Login</button>
 
   <div class="links">
-    <span>New user?</span>
     <a href="signup.html">Sign Up</a>
     <a id="forgotLink">Forgot Password?</a>
   </div>
@@ -159,24 +158,29 @@ loginBtn.onclick = async () => {
       auth,email.value,password.value
     );
 
-    const snap = await getDoc(doc(db,"users",cred.user.uid));
+    const ref = doc(db,"users",cred.user.uid);
+    const snap = await getDoc(ref);
 
-    /* USER RECORD MISSING */
     if(!snap.exists()){
       await signOut(auth);
       throw { type:"no-record" };
     }
 
-    /* NOT APPROVED */
+    /* ⏳ NOT APPROVED → REDIRECT */
     if(snap.data().approved !== true){
+      await updateDoc(ref,{
+        approvalReminder:true,
+        approvalRequestedAt:new Date().toISOString()
+      });
+
       await signOut(auth);
-      throw { type:"not-approved" };
+      location.href="pending.html";
+      return;
     }
 
-    await updateDoc(
-      doc(db,"users",cred.user.uid),
-      { lastLogin:new Date().toISOString() }
-    );
+    await updateDoc(ref,{
+      lastLogin:new Date().toISOString()
+    });
 
     location.href =
       snap.data().role === "admin"
@@ -187,17 +191,10 @@ loginBtn.onclick = async () => {
     statusMsg.style.display="none";
     errorMsg.style.display="block";
 
-    if(err?.type === "not-approved"){
-      errorMsg.textContent =
-        "Your account is pending admin approval. Please wait.";
-    }
-    else if(err?.type === "no-record"){
-      errorMsg.textContent =
-        "Account not found. Please sign up.";
-    }
-    else{
-      errorMsg.textContent =
-        "Invalid email or password";
+    if(err?.type==="no-record"){
+      errorMsg.textContent="Account not found. Please sign up.";
+    }else{
+      errorMsg.textContent="Invalid email or password";
     }
   }
 };
