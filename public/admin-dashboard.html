@@ -77,7 +77,7 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 <body>
 
 <!-- 🔔 FIXED ALERT -->
-<div id="pendingAlertIcon" onclick="location.href='admin.html'">
+<div id="pendingAlertIcon" onclick="location.href='admin-approval-requests.html'">
   🔔 <span id="pendingBadge">0</span>
 </div>
 
@@ -180,29 +180,35 @@ async function loadDashboard(){
 function renderApprovalChart(){
   if(approvalChartInst) approvalChartInst.destroy();
 
-  const approved=allUsers.filter(u=>u.isApproved).length;
-  const pending=allUsers.length-approved;
+  const approved = allUsers.filter(u=>u.approved===true).length;
+  const pending  = allUsers.length - approved;
 
   approvalChartInst=new Chart(approvalChart,{
     type:"doughnut",
-    data:{labels:["Approved","Pending"],
-      datasets:[{data:[approved,pending],
-      backgroundColor:["#16a34a","#f59e0b"]}]},
+    data:{
+      labels:["Approved","Pending"],
+      datasets:[{
+        data:[approved,pending],
+        backgroundColor:["#16a34a","#f59e0b"]
+      }]
+    },
     options:{onClick:()=>location.href="admin.html"}
   });
 
   renderApprovalList();
 }
+
 function renderApprovalList(){
   approvalList.innerHTML="";
   (showAllApprovalUsers?allUsers:allUsers.slice(0,5)).forEach(u=>{
     approvalList.innerHTML+=`
       <div class="list-item">
-        ${u.fullName||u.adminFields?.Name||"User"} –
-        <b>${u.isApproved?"Approved":"Pending"}</b>
+        ${u.fullName||u.email||"User"} –
+        <b>${u.approved?"Approved":"Pending"}</b>
       </div>`;
   });
 }
+
 window.showAllApprovals=()=>{
   showAllApprovalUsers=true;
   renderApprovalList();
@@ -215,13 +221,15 @@ function renderAgeChart(){
     const dob=u.dob||u.adminFields?.["Date of birth"];
     if(!dob) return;
     const a=Math.floor((Date.now()-new Date(dob))/31557600000);
-    if(a<=20)b[0]++;else if(a<=40)b[1]++;else if(a<=60)b[2]++;
-    else if(a<=80)b[3]++;else b[4]++;
+    if(a<=20)b[0]++;else if(a<=40)b[1]++;
+    else if(a<=60)b[2]++;else if(a<=80)b[3]++;else b[4]++;
   });
   new Chart(ageChart,{
     type:"bar",
-    data:{labels:["1–20","21–40","41–60","61–80","81–100"],
-      datasets:[{data:b,backgroundColor:"#6366f1"}]}
+    data:{
+      labels:["1–20","21–40","41–60","61–80","81–100"],
+      datasets:[{data:b,backgroundColor:"#6366f1"}]
+    }
   });
 }
 
@@ -234,7 +242,6 @@ function completion(u){
 }
 function renderProfileChart(){
   if(profileChartInst) profileChartInst.destroy();
-
   const list=showAllProfileUsers?allUsers:allUsers.slice(0,5);
   profileChartInst=new Chart(profileChart,{
     type:"bar",
@@ -250,12 +257,17 @@ window.showAllProfiles=()=>{
   renderProfileChart();
 };
 
-/* 🔔 ALERT */
+/* 🔔 LIVE ALERT LOGIC */
 function renderPendingAlerts(){
-  const p=allUsers.filter(u=>!u.isApproved);
-  if(p.length){
-    pendingBadge.innerText=p.length;
-    pendingAlertIcon.style.display="flex";
+  const pending = allUsers.filter(
+    u => u.approved !== true && u.approvalReminder === true
+  );
+
+  if(pending.length){
+    pendingBadge.innerText = pending.length;
+    pendingAlertIcon.style.display = "flex";
+  }else{
+    pendingAlertIcon.style.display = "none";
   }
 }
 </script>
