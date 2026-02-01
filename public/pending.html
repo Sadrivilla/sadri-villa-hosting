@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Account Pending Approval | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f7fb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+.card{
+  background:#fff;
+  padding:36px;
+  border-radius:22px;
+  width:100%;
+  max-width:420px;
+  box-shadow:0 20px 45px rgba(0,0,0,.15);
+  text-align:center;
+}
+h2{
+  margin-bottom:10px;
+  color:#2563eb;
+}
+p{
+  color:#475569;
+  font-size:15px;
+  margin-bottom:22px;
+}
+.badge{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:999px;
+  background:#fff7ed;
+  color:#c2410c;
+  font-weight:600;
+  font-size:13px;
+  margin-bottom:18px;
+}
+button{
+  height:48px;
+  padding:0 24px;
+  border:none;
+  border-radius:14px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+small{
+  display:block;
+  margin-top:18px;
+  color:#64748b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="badge">⏳ Pending Approval</div>
+  <h2>Account Under Review</h2>
+  <p>
+    Thank you for signing up at <b>Sadri Villa</b>.<br><br>
+    Your account is currently pending admin approval.
+    You will be able to log in once it is approved.
+  </p>
+
+  <button onclick="location.href='login.html'">
+    Go to Login
+  </button>
+
+  <small>
+    If this takes longer than expected,<br>
+    please contact the administrator.
+  </small>
+</div>
+
+</body>
+</html>
