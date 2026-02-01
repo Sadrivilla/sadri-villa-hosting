@@ -34,20 +34,41 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .actions button:disabled{opacity:.6;cursor:not-allowed}
 .menu-btn{display:none}
 
-/* ===== MOBILE MENU ===== */
-.mobile-menu{
-  display:none;flex-direction:column;gap:10px;
-  margin:0 20px;padding:14px;background:#fff;
-  border-radius:18px
-}
-
 /* ===== GRID ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:20px;padding:20px
+  gap:20px;
+  padding:20px
 }
-.card{background:#fff;padding:22px;border-radius:20px}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:20px
+}
+
+/* ===== PROFILE ===== */
+.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
+.progress div{height:100%}
+.tip{font-size:13px;color:#6b7280}
+
+/* ===== GALLERY ===== */
+.slider{overflow:hidden}
+.slide-track{
+  display:flex;
+  gap:16px;
+  animation:scroll 25s linear infinite
+}
+.slider:hover .slide-track{animation-play-state:paused}
+.slide-track img{
+  height:220px;
+  border-radius:16px;
+  object-fit:cover
+}
+@keyframes scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
 
 /* ===== RESET MODAL ===== */
 #resetModal{
@@ -58,7 +79,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   backdrop-filter:blur(6px);
   align-items:center;
   justify-content:center;
-  z-index:9999;
+  z-index:9999
 }
 #resetBox{
   background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
@@ -67,7 +88,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   max-width:420px;
   width:90%;
   border-radius:24px;
-  text-align:center;
+  text-align:center
 }
 #resetBox button{
   border:none;
@@ -81,13 +102,14 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   margin-top:10px;
   background:transparent;
   color:#fff;
-  border:2px solid #fff;
+  border:2px solid #fff
 }
 #resendBtn:disabled{opacity:.6;cursor:not-allowed}
 
 @media(max-width:768px){
   .actions{display:none}
   .menu-btn{display:block}
+  .slide-track img{height:180px}
 }
 </style>
 </head>
@@ -103,39 +125,64 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
     </div>
   </div>
-  <div>
-    <div class="actions">
-      <button onclick="openMap()">📍 Map</button>
-      <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
-    </div>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="actions">
+    <button onclick="openMap()">📍 Map</button>
+    <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
+    <button onclick="location.href='profile.html'">👤 Profile</button>
+    <button onclick="logout()">🚪 Logout</button>
   </div>
 </div>
 
-<!-- MOBILE MENU -->
-<div id="mobileMenu" class="mobile-menu">
-  <button onclick="openMap()">📍 Map</button>
-  <button onclick="changePassword()">🔒 Change Password</button>
-  <button onclick="location.href='profile.html'">👤 Profile</button>
-  <button onclick="logout()">🚪 Logout</button>
+<!-- DASHBOARD GRID -->
+<div class="grid">
+
+  <!-- PROFILE -->
+  <div class="card">
+    <h3>Profile Completion</h3>
+    <h1 id="percent">0%</h1>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="tip" class="tip"></p>
+    <canvas id="chart" height="160"></canvas>
+  </div>
+
+  <!-- HIGHLIGHTS -->
+  <div class="card">
+    <h3>Your Highlights</h3>
+    <div id="custom"></div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="card">
+    <h3>📸 Sadri Villa Gallery</h3>
+    <div class="slider">
+      <div class="slide-track">
+        <img src="images/gallery1.jpg">
+        <img src="images/gallery2.jpg">
+        <img src="images/gallery3.jpg">
+        <img src="images/gallery4.jpg">
+        <img src="images/gallery5.jpg">
+        <img src="images/gallery1.jpg">
+        <img src="images/gallery2.jpg">
+        <img src="images/gallery3.jpg">
+        <img src="images/gallery4.jpg">
+        <img src="images/gallery5.jpg">
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- PASSWORD RESET MODAL -->
+<!-- RESET MODAL -->
 <div id="resetModal">
   <div id="resetBox">
     <div style="font-size:52px">📧</div>
     <h2>Password Reset Link Sent</h2>
-    <p style="font-size:15px;line-height:1.6">
-      A password reset link has been shared on<br>
-      <b id="maskedEmail">your email</b><br><br>
-      Please check your inbox and click the link to set a new password.
+    <p>
+      Reset link sent to<br>
+      <b id="maskedEmail"></b>
     </p>
-    <button id="okBtn" onclick="closeResetModal()">OK, Got it</button><br>
-    <button id="resendBtn" onclick="resendEmail()" disabled>
-      Resend in 30s
-    </button>
+    <button id="okBtn" onclick="closeResetModal()">OK</button><br>
+    <button id="resendBtn" onclick="resendEmail()" disabled>Resend in 30s</button>
   </div>
 </div>
 
@@ -152,36 +199,29 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-window.toggleMenu=()=>{
-  const m=document.getElementById("mobileMenu");
-  m.style.display=m.style.display==="flex"?"none":"flex";
-};
-window.logout=async()=>{await signOut(auth);location.href="login.html"};
-window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
+/* ===== HELPERS ===== */
+function maskEmail(e){
+  const [n,d]=e.split("@");
+  return n[0]+"***@"+d;
+}
 
 let resendTimer;
 
-/* ===== EMAIL MASKING ===== */
-function maskEmail(email){
-  const [name,domain]=email.split("@");
-  if(name.length<=1) return "*@"+domain;
-  return name[0]+"***@"+domain;
-}
+/* ===== ACTIONS ===== */
+window.logout=async()=>{await signOut(auth);location.href="login.html"};
+window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 
-window.changePassword = async () => {
+window.changePassword=async()=>{
   const btn=document.getElementById("changePwdBtn");
   btn.disabled=true;
   btn.innerText="Sending…";
-
-  const email=auth.currentUser.email;
-  document.getElementById("maskedEmail").innerText=maskEmail(email);
-
-  await sendPasswordResetEmail(auth,email);
+  document.getElementById("maskedEmail").innerText=maskEmail(auth.currentUser.email);
+  await sendPasswordResetEmail(auth,auth.currentUser.email);
   document.getElementById("resetModal").style.display="flex";
   startResendTimer();
 };
 
-window.resendEmail = async () => {
+window.resendEmail=async()=>{
   await sendPasswordResetEmail(auth,auth.currentUser.email);
   startResendTimer();
 };
@@ -190,12 +230,10 @@ function startResendTimer(){
   let t=30;
   const r=document.getElementById("resendBtn");
   r.disabled=true;
-  r.innerText=`Resend in ${t}s`;
   clearInterval(resendTimer);
   resendTimer=setInterval(()=>{
-    t--;
-    r.innerText=`Resend in ${t}s`;
-    if(t<=0){
+    r.innerText=`Resend in ${t--}s`;
+    if(t<0){
       clearInterval(resendTimer);
       r.disabled=false;
       r.innerText="Resend Email";
@@ -203,10 +241,9 @@ function startResendTimer(){
   },1000);
 }
 
-window.closeResetModal=()=>{
-  document.getElementById("resetModal").style.display="none";
-};
+window.closeResetModal=()=>document.getElementById("resetModal").style.display="none";
 
+/* ===== LOAD DASHBOARD ===== */
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
@@ -215,8 +252,37 @@ onAuthStateChanged(auth,async user=>{
     location.href="pending.html";
     return;
   }
-  userName.innerText=snap.data().adminFields?.Name||"User";
+  loadDashboard(snap.data());
 });
+
+function loadDashboard(data){
+  userName.innerText=data.adminFields?.Name||"User";
+
+  let total=0,filled=0;
+  custom.innerHTML="";
+
+  Object.values(data.adminFields||{}).forEach(v=>{
+    total++; if(v) filled++;
+  });
+
+  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+    total++; if(v.value) filled++;
+    if(v.showOnDashboard && v.value){
+      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
+    }
+  });
+
+  const p=Math.round((filled/total)*100)||0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+
+  new Chart(chart,{
+    type:"doughnut",
+    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
+  });
+}
 </script>
 
 </body>
