@@ -59,11 +59,31 @@ input.error-border{
   display:grid;
   grid-template-columns:1fr 460px;
   gap:60px;
+  align-items:flex-start;
 }
 
 /* ===== LEFT ===== */
-.left h1{font-size:44px}
-.left p{color:#475569}
+.left h1{
+  font-size:44px;
+  margin-bottom:12px;
+}
+.left p{
+  color:#475569;
+  max-width:520px;
+}
+.benefit{
+  display:flex;
+  gap:12px;
+  margin-top:18px;
+}
+.icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700
+}
+.blue{background:#2563eb}
+.green{background:#22c55e}
+.purple{background:#a855f7}
 
 /* ===== CARD ===== */
 .card{
@@ -72,6 +92,8 @@ input.error-border{
   padding:32px;
   box-shadow:0 25px 50px rgba(0,0,0,.12);
 }
+.card h2{margin:0}
+.card small{color:#64748b}
 
 /* ===== PROGRESS ===== */
 .progress{
@@ -79,6 +101,7 @@ input.error-border{
   background:#e5e7eb;
   border-radius:6px;
   margin:16px 0;
+  overflow:hidden;
 }
 .progress span{
   display:block;
@@ -103,12 +126,28 @@ input.error-border{
   padding:0 46px 0 14px;
   font-size:15px;
 }
-
-/* ===== PASSWORD ===== */
 .eye{
   position:absolute;
   right:14px; top:38px;
   cursor:pointer;
+}
+
+/* ===== PASSWORD STRENGTH ===== */
+.strength-bar{
+  height:6px;
+  background:#e5e7eb;
+  border-radius:6px;
+  overflow:hidden;
+}
+.strength-bar span{
+  height:100%;
+  display:block;
+  width:0%;
+}
+#strengthText{
+  font-size:12px;
+  color:#64748b;
+  margin-top:4px;
 }
 
 /* ===== ACTIONS ===== */
@@ -165,11 +204,12 @@ input.error-border{
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img src="images/logo.png">
+    <img src="images/logo.png" alt="Sadri Villa">
   </div>
   <div class="nav-right">
     <button class="login-btn" onclick="location.href='login.html'">Login</button>
     <button class="signup-btn">Sign Up</button>
+    <button class="login-btn" onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
@@ -179,7 +219,20 @@ input.error-border{
 <!-- LEFT -->
 <div class="left">
   <h1>Sadri Villa – A Living Heritage</h1>
-  <p>Preserving tradition while serving society</p>
+  <p>Preserving tradition while serving society with compassion and care</p>
+
+  <div class="benefit">
+    <div class="icon blue">🏛</div>
+    <div>150+ year old heritage villa serving humanity and tradition</div>
+  </div>
+  <div class="benefit">
+    <div class="icon green">❤️</div>
+    <div>Free shelter and marriage support for needy families</div>
+  </div>
+  <div class="benefit">
+    <div class="icon purple">🌍</div>
+    <div>Community hub visited by leaders, scholars and officials</div>
+  </div>
 </div>
 
 <!-- RIGHT -->
@@ -206,9 +259,9 @@ input.error-border{
   <!-- STEP 2 -->
   <div class="step">
     <small>Step 2 of 4</small>
-    <h3>Mobile number</h3>
+    <h3>Contact details</h3>
     <div class="field">
-      <label>Mobile</label>
+      <label>Mobile Number</label>
       <input id="phone">
     </div>
     <div class="actions">
@@ -220,7 +273,7 @@ input.error-border{
   <!-- STEP 3 -->
   <div class="step">
     <small>Step 3 of 4</small>
-    <h3>Email</h3>
+    <h3>Email address</h3>
     <div class="field">
       <label>Email</label>
       <input id="email" type="email">
@@ -234,17 +287,22 @@ input.error-border{
   <!-- STEP 4 -->
   <div class="step">
     <small>Step 4 of 4</small>
-    <h3>Password</h3>
+    <h3>Create password</h3>
+
     <div class="field">
       <label>Password</label>
       <input id="password" type="password">
-      <span class="eye" onclick="toggle('password')">👁</span>
+      <span class="eye" onclick="toggle('password')">👁️</span>
+      <div class="strength-bar"><span id="strengthFill"></span></div>
+      <small id="strengthText">Password strength</small>
     </div>
+
     <div class="field">
       <label>Confirm Password</label>
       <input id="confirm" type="password">
-      <span class="eye" onclick="toggle('confirm')">👁</span>
+      <span class="eye" onclick="toggle('confirm')">👁️</span>
     </div>
+
     <div class="actions">
       <button class="back" onclick="prevStep()">Back</button>
       <button class="next" id="btn" onclick="register()">Create Account</button>
@@ -287,63 +345,61 @@ function show(){
 
 function clearErrors(){
   document.querySelectorAll("input").forEach(f=>f.classList.remove("error-border"));
-  document.getElementById("msg").style.display="none";
+  msg.style.display="none";
 }
 
-function showError(msg,field){
-  const m=document.getElementById("msg");
-  m.textContent=msg;
-  m.className="msg error";
-  m.style.display="block";
+function showError(text,field){
+  msg.textContent=text;
+  msg.className="msg error";
+  msg.style.display="block";
   field.classList.add("error-border");
   field.focus();
 }
 
 window.nextStep=()=>{
   clearErrors();
-
-  if(i===0 && !name.value.trim())
-    return showError("Name is required",name);
-
+  if(i===0 && !name.value.trim()) return showError("Name is required",name);
   if(i===1){
-    if(!phone.value.trim())
-      return showError("Mobile number required",phone);
-    if(!/^[0-9]{10}$/.test(phone.value))
-      return showError("Enter valid 10 digit mobile number",phone);
+    if(!phone.value.trim()) return showError("Mobile number required",phone);
+    if(!/^[0-9]{10}$/.test(phone.value)) return showError("Enter valid 10 digit mobile number",phone);
   }
-
   if(i===2){
-    if(!email.value.trim())
-      return showError("Email is required",email);
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
-      return showError("Invalid email address",email);
+    if(!email.value.trim()) return showError("Email is required",email);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) return showError("Invalid email address",email);
   }
-
   if(i<steps.length-1){i++;show()}
 };
 
-window.prevStep=()=>{
-  clearErrors();
-  if(i>0){i--;show()}
-};
+window.prevStep=()=>{clearErrors();if(i>0){i--;show()}}
 
 window.toggle=id=>{
   const f=document.getElementById(id);
   f.type=f.type==="password"?"text":"password";
 };
 
+/* PASSWORD STRENGTH */
+password.oninput=()=>{
+  let s=0,v=password.value;
+  if(v.length>=6)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  if(s<=1){strengthFill.style.width="25%";strengthFill.style.background="#ef4444";strengthText.textContent="Weak"}
+  else if(s===2){strengthFill.style.width="50%";strengthFill.style.background="#f59e0b";strengthText.textContent="Medium"}
+  else{strengthFill.style.width="100%";strengthFill.style.background="#22c55e";strengthText.textContent="Strong"}
+};
+
 /* REGISTER */
 window.register=async()=>{
   clearErrors();
-
-  if(password.value!==confirm.value)
-    return showError("Passwords do not match",confirm);
+  if(password.value!==confirm.value) return showError("Passwords do not match",confirm);
 
   try{
     loader.style.display="flex";
     const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{
-      role:"user",approved:false,
+      role:"user",
+      approved:false,
       adminFields:{Name:name.value,Email:email.value,Phone:phone.value},
       createdAt:new Date().toISOString()
     });
