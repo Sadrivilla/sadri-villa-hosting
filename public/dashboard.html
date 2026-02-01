@@ -64,91 +64,79 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .progress div{height:100%}
 .tip{font-size:13px;color:#6b7280}
 
-/* ===== GALLERY ===== */
-.slider{overflow:hidden}
-.slide-track{
-  display:flex;gap:16px;
-  animation:scroll 25s linear infinite
+/* ===== GALLERY (INDEX STYLE) ===== */
+.gallery-row{
+  display:flex;
+  gap:24px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
-.slider:hover .slide-track{animation-play-state:paused}
 
-.slide-track img{
-  width:360px;
-  aspect-ratio:16/9;
+.gallery-row img{
+  width:320px;
+  height:200px;
   object-fit:cover;
-  border-radius:16px;
-  cursor:pointer
+  border-radius:24px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  cursor:pointer;
+  transition:.3s;
 }
 
-@keyframes scroll{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
+.gallery-row img:hover{
+  transform:translateY(-6px) scale(1.02);
 }
 
 /* ===== IMAGE MODAL ===== */
-#imgModal{
+.image-modal{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.75);
   backdrop-filter:blur(6px);
   z-index:9999;
   align-items:center;
-  justify-content:center
+  justify-content:center;
 }
-#imgBox{
+
+.image-box{
   background:#fff;
   padding:16px;
-  border-radius:18px;
+  border-radius:20px;
   max-width:90%;
-  text-align:center
+  text-align:center;
 }
-#imgBox img{
+
+.image-box img{
   max-width:100%;
-  border-radius:12px
+  max-height:70vh;
+  border-radius:14px;
 }
-#imgBox button{
-  margin-top:12px;
+
+.modal-actions{
+  margin-top:14px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+
+.modal-actions button{
   background:#4f46e5;
   color:#fff;
   border:none;
-  padding:10px 16px;
+  padding:10px 18px;
   border-radius:12px;
   font-weight:bold;
-  cursor:pointer
+  cursor:pointer;
 }
 
-/* ===== RESET MODAL ===== */
-#resetModal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(79,70,229,.35);
-  backdrop-filter:blur(6px);
-  align-items:center;
-  justify-content:center;
-  z-index:9999
+.modal-actions .close-btn{
+  background:#ef4444;
 }
-#resetBox{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
-  color:#fff;
-  padding:30px;
-  max-width:420px;
-  width:90%;
-  border-radius:24px;
-  text-align:center
-}
-#resetBox button{
-  border:none;border-radius:14px;
-  padding:10px 18px;
-  font-weight:bold
-}
-#okBtn{background:#fff;color:#4f46e5}
-#resendBtn{background:transparent;color:#fff;border:2px solid #fff}
 
 @media(max-width:768px){
   .actions{display:none}
   .menu-btn{display:block}
+  .gallery-row img{width:100%;max-width:360px}
 }
 </style>
 </head>
@@ -164,6 +152,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
     </div>
   </div>
+
   <div>
     <div class="actions">
       <button onclick="openMap()">📍 Map</button>
@@ -173,6 +162,14 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     </div>
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
   </div>
+</div>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu">
+  <button onclick="openMap();closeMenu()">📍 Map</button>
+  <button onclick="changePassword();closeMenu()">🔒 Change Password</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="logout()">🚪 Logout</button>
 </div>
 
 <!-- DASHBOARD GRID -->
@@ -191,51 +188,120 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <div id="custom"></div>
   </div>
 
-  <!-- ✅ BLANK CARD -->
+  <!-- BLANK CARD -->
   <div class="card">
     <h3>More Coming Soon</h3>
     <p class="tip">This space is reserved for future features.</p>
   </div>
 
+  <!-- UPDATED GALLERY -->
   <div class="card">
     <h3>📸 Sadri Villa Gallery</h3>
-    <div class="slider">
-      <div class="slide-track">
-        <img src="images/gallery1.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery2.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery3.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery4.jpg" onclick="openImage(this.src)">
-        <img src="images/gallery5.jpg" onclick="openImage(this.src)">
-      </div>
+    <div class="gallery-row">
+      <img src="images/gallery1.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery2.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery3.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery4.jpg" onclick="openImage(this.src)">
     </div>
   </div>
 
 </div>
 
 <!-- IMAGE MODAL -->
-<div id="imgModal" onclick="closeImage()">
-  <div id="imgBox" onclick="event.stopPropagation()">
+<div id="imageModal" class="image-modal" onclick="closeImage()">
+  <div class="image-box" onclick="event.stopPropagation()">
     <img id="modalImg">
-    <br>
-    <button onclick="downloadImage()">⬇ Download Image</button>
+    <div class="modal-actions">
+      <button onclick="downloadImage()">⬇ Download</button>
+      <button class="close-btn" onclick="closeImage()">✖ Close</button>
+    </div>
   </div>
 </div>
 
-<script>
-let currentImg="";
-function openImage(src){
-  currentImg=src;
-  document.getElementById("modalImg").src=src;
-  document.getElementById("imgModal").style.display="flex";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let resendTimer;
+let currentImage="";
+
+/* ===== HELPERS ===== */
+function maskEmail(e){
+  const [n,d]=e.split("@");
+  return n[0]+"***@"+d;
 }
-function closeImage(){
-  document.getElementById("imgModal").style.display="none";
-}
-function downloadImage(){
+
+/* ===== MENU ===== */
+window.toggleMenu=()=>mobileMenu.classList.toggle("open");
+window.closeMenu=()=>mobileMenu.classList.remove("open");
+
+/* ===== ACTIONS ===== */
+window.logout=async()=>{await signOut(auth);location.href="login.html"};
+window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
+
+window.changePassword=async()=>{
+  const btn=document.getElementById("changePwdBtn");
+  btn.disabled=true;
+  btn.innerText="Sending…";
+  await sendPasswordResetEmail(auth,auth.currentUser.email);
+  btn.innerText="Sent";
+};
+
+/* ===== IMAGE FUNCTIONS ===== */
+window.openImage=(src)=>{
+  currentImage=src;
+  modalImg.src=src;
+  imageModal.style.display="flex";
+};
+window.closeImage=()=>imageModal.style.display="none";
+window.downloadImage=()=>{
   const a=document.createElement("a");
-  a.href=currentImg;
+  a.href=currentImage;
   a.download="sadri-villa.jpg";
   a.click();
+};
+
+/* ===== DASHBOARD LOAD ===== */
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href="login.html";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().approved!==true){
+    await signOut(auth);
+    location.href="pending.html";
+    return;
+  }
+  loadDashboard(snap.data());
+});
+
+function loadDashboard(data){
+  userName.innerText=data.adminFields?.Name||"User";
+  let total=0,filled=0;
+  custom.innerHTML="";
+  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
+  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+    total++;if(v.value)filled++;
+    if(v.showOnDashboard&&v.value){
+      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
+    }
+  });
+  const p=Math.round((filled/total)*100)||0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+  new Chart(chart,{
+    type:"doughnut",
+    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
+  });
 }
 </script>
 
