@@ -25,6 +25,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   width:56px;height:56px;border-radius:50%;
   object-fit:cover;border:3px solid #fff
 }
+
 .actions button,.menu-btn{
   background:#fff;color:#4f46e5;
   border:none;padding:8px 14px;
@@ -33,6 +34,31 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 }
 .actions button:disabled{opacity:.6;cursor:not-allowed}
 .menu-btn{display:none}
+
+/* ===== MOBILE MENU (SLIDE DOWN) ===== */
+.mobile-menu{
+  max-height:0;
+  overflow:hidden;
+  margin:0 20px;
+  background:#fff;
+  border-radius:18px;
+  transition:max-height .35s ease, padding .35s ease;
+}
+.mobile-menu.open{
+  max-height:300px;
+  padding:14px;
+}
+.mobile-menu button{
+  width:100%;
+  margin-bottom:10px;
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer
+}
 
 /* ===== GRID ===== */
 .grid{
@@ -125,18 +151,29 @@ body{margin:0;font-family:Arial;background:#eef2ff}
       <p id="userName" style="margin:4px 0 0;font-weight:bold">Loading...</p>
     </div>
   </div>
-  <div class="actions">
-    <button onclick="openMap()">📍 Map</button>
-    <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
-    <button onclick="location.href='profile.html'">👤 Profile</button>
-    <button onclick="logout()">🚪 Logout</button>
+
+  <div>
+    <div class="actions">
+      <button onclick="openMap()">📍 Map</button>
+      <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
   </div>
+</div>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu" class="mobile-menu">
+  <button onclick="openMap();closeMenu()">📍 Map</button>
+  <button onclick="changePassword();closeMenu()">🔒 Change Password</button>
+  <button onclick="location.href='profile.html'">👤 Profile</button>
+  <button onclick="logout()">🚪 Logout</button>
 </div>
 
 <!-- DASHBOARD GRID -->
 <div class="grid">
 
-  <!-- PROFILE -->
   <div class="card">
     <h3>Profile Completion</h3>
     <h1 id="percent">0%</h1>
@@ -145,13 +182,11 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <canvas id="chart" height="160"></canvas>
   </div>
 
-  <!-- HIGHLIGHTS -->
   <div class="card">
     <h3>Your Highlights</h3>
     <div id="custom"></div>
   </div>
 
-  <!-- GALLERY -->
   <div class="card">
     <h3>📸 Sadri Villa Gallery</h3>
     <div class="slider">
@@ -177,10 +212,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <div id="resetBox">
     <div style="font-size:52px">📧</div>
     <h2>Password Reset Link Sent</h2>
-    <p>
-      Reset link sent to<br>
-      <b id="maskedEmail"></b>
-    </p>
+    <p>Reset link sent to<br><b id="maskedEmail"></b></p>
     <button id="okBtn" onclick="closeResetModal()">OK</button><br>
     <button id="resendBtn" onclick="resendEmail()" disabled>Resend in 30s</button>
   </div>
@@ -199,13 +231,21 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
+let resendTimer;
+
 /* ===== HELPERS ===== */
 function maskEmail(e){
   const [n,d]=e.split("@");
   return n[0]+"***@"+d;
 }
 
-let resendTimer;
+/* ===== MOBILE MENU ===== */
+window.toggleMenu=()=>{
+  document.getElementById("mobileMenu").classList.toggle("open");
+};
+window.closeMenu=()=>{
+  document.getElementById("mobileMenu").classList.remove("open");
+};
 
 /* ===== ACTIONS ===== */
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
@@ -241,9 +281,11 @@ function startResendTimer(){
   },1000);
 }
 
-window.closeResetModal=()=>document.getElementById("resetModal").style.display="none";
+window.closeResetModal=()=>{
+  document.getElementById("resetModal").style.display="none";
+};
 
-/* ===== LOAD DASHBOARD ===== */
+/* ===== DASHBOARD LOAD ===== */
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
@@ -257,27 +299,20 @@ onAuthStateChanged(auth,async user=>{
 
 function loadDashboard(data){
   userName.innerText=data.adminFields?.Name||"User";
-
   let total=0,filled=0;
   custom.innerHTML="";
-
-  Object.values(data.adminFields||{}).forEach(v=>{
-    total++; if(v) filled++;
-  });
-
+  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
   Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-    total++; if(v.value) filled++;
-    if(v.showOnDashboard && v.value){
+    total++;if(v.value)filled++;
+    if(v.showOnDashboard&&v.value){
       custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
     }
   });
-
   const p=Math.round((filled/total)*100)||0;
   percent.innerText=p+"%";
   bar.style.width=p+"%";
   bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
   tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-
   new Chart(chart,{
     type:"doughnut",
     data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
