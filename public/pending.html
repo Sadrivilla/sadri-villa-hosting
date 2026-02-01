@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Pending Approval – Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 body{
   font-family:Arial,sans-serif;
@@ -12,6 +13,7 @@ body{
   align-items:center;
   justify-content:center;
   min-height:100vh;
+  margin:0;
 }
 .card{
   background:#fff;
@@ -32,8 +34,16 @@ button{
   font-size:15px;
   cursor:pointer;
 }
-.msg{margin-top:14px;font-size:14px}
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+.msg{
+  margin-top:14px;
+  font-size:14px
+}
 .success{color:#16a34a}
+.error{color:#dc2626}
 </style>
 </head>
 
@@ -49,29 +59,61 @@ button{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth,
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app=initializeApp({
+/* FIREBASE */
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-resendBtn.onclick=async()=>{
-  resendBtn.disabled=true;
-  await updateDoc(
-    doc(db,"users",auth.currentUser.uid),
-    {
-      approvalReminder:true,
-      approvalRequestedAt:new Date().toISOString()
-    }
-  );
-  msg.textContent="Approval request resent to admin.";
-  msg.className="msg success";
-  resendBtn.disabled=false;
+/* AUTH CHECK */
+let currentUser = null;
+
+onAuthStateChanged(auth, user => {
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+  currentUser = user;
+});
+
+/* RESEND REQUEST */
+resendBtn.onclick = async () => {
+  if(!currentUser) return;
+
+  resendBtn.disabled = true;
+  msg.textContent = "Sending request...";
+  msg.className = "msg";
+
+  try{
+    await updateDoc(
+      doc(db,"users",currentUser.uid),
+      {
+        approvalReminder: true,
+        approvalRequestedAt: new Date().toISOString()
+      }
+    );
+
+    msg.textContent = "Approval request resent to admin.";
+    msg.className = "msg success";
+  }catch(e){
+    msg.textContent = "Something went wrong. Please try again.";
+    msg.className = "msg error";
+  }
+
+  resendBtn.disabled = false;
 };
 </script>
 
