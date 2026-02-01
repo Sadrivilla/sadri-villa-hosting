@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Approval Requests – Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#eef2ff;
+}
+.header{
+  padding:20px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;
+}
+.container{
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:20px;
+}
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 15px 30px rgba(0,0,0,.1);
+}
+.card h3{margin-top:0}
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+.pending{background:#fde68a;color:#92400e}
+.approved{background:#bbf7d0;color:#065f46}
+button{
+  margin-top:12px;
+  padding:10px 16px;
+  border:none;
+  border-radius:14px;
+  background:#16a34a;
+  color:#fff;
+  cursor:pointer;
+}
+small{color:#6b7280}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>🔔 Pending Approval Requests</h2>
+</div>
+
+<div class="container" id="list"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,collection,getDocs,doc,updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* FIREBASE */
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+onAuthStateChanged(auth,async user=>{
+  if(!user) location.href="login.html";
+  loadRequests();
+});
+
+async function loadRequests(){
+  const snap=await getDocs(collection(db,"users"));
+  const users=snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .filter(u=>u.approved!==true && u.approvalReminder===true);
+
+  list.innerHTML = users.length
+    ? ""
+    : "<p>No pending requests 🎉</p>";
+
+  users.forEach(u=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`
+      <h3>${u.fullName || "User"}</h3>
+      <p><b>Email:</b> ${u.email || "—"}</p>
+      <p><b>Requested:</b>
+        <small>${u.approvalRequestedAt || "-"}</small>
+      </p>
+      <span class="badge pending">Pending</span>
+      <br>
+      <button onclick="approveUser('${u.id}')">Approve</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.approveUser = async (uid)=>{
+  await updateDoc(doc(db,"users",uid),{
+    approved:true,
+    approvalReminder:false,
+    approvedAt:new Date().toISOString()
+  });
+  loadRequests();
+};
+</script>
+
+</body>
+</html>
