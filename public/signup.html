@@ -6,32 +6,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+/* ===== BASE ===== */
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f5f7fb;
+}
+.wrapper{
   min-height:100vh;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 .container{
   background:#fff;
   width:100%;
-  max-width:460px;
-  padding:32px;
+  max-width:420px;
+  padding:28px;
   border-radius:22px;
   box-shadow:0 20px 45px rgba(0,0,0,.12);
 }
-h2{
-  margin-bottom:6px;
-}
+
+/* ===== HEADER ===== */
+h2{margin:0}
 .sub{
   color:#64748b;
-  margin-bottom:20px;
+  margin:8px 0 18px;
 }
 
-/* PROGRESS */
+/* ===== PROGRESS ===== */
 .progress{
   height:6px;
   background:#e5e7eb;
@@ -42,11 +46,25 @@ h2{
 .progress span{
   display:block;
   height:100%;
-  width:30%;
+  width:0%;
   background:#22c55e;
+  transition:.3s;
 }
 
-/* FIELDS */
+/* ===== STEP ===== */
+.step{display:none}
+.step.active{display:block}
+
+.step small{
+  color:#64748b;
+  font-weight:600;
+}
+.step h3{
+  margin:8px 0 20px;
+  color:#2563eb;
+}
+
+/* ===== FIELD ===== */
 .field{
   margin-bottom:16px;
   position:relative;
@@ -65,7 +83,7 @@ h2{
   font-size:15px;
 }
 
-/* EYE ICON */
+/* ===== EYE ===== */
 .eye{
   position:absolute;
   right:14px;
@@ -75,10 +93,7 @@ h2{
   color:#64748b;
 }
 
-/* PASSWORD STRENGTH */
-.strength{
-  margin-top:6px;
-}
+/* ===== PASSWORD STRENGTH ===== */
 .strength-bar{
   height:6px;
   background:#e5e7eb;
@@ -89,7 +104,6 @@ h2{
   display:block;
   height:100%;
   width:0%;
-  background:red;
   transition:.3s;
 }
 #strengthText{
@@ -97,23 +111,24 @@ h2{
   color:#64748b;
 }
 
-/* BUTTON */
-button{
-  width:100%;
-  height:52px;
+/* ===== BUTTONS ===== */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
+}
+.actions button{
+  height:48px;
+  padding:0 22px;
   border:none;
   border-radius:14px;
-  background:#2563eb;
-  color:#fff;
-  font-size:16px;
   font-weight:600;
   cursor:pointer;
 }
-button:disabled{
-  opacity:.6;
-}
+.back{background:#e5e7eb}
+.next{background:#2563eb;color:#fff}
 
-/* MESSAGE */
+/* ===== MESSAGE ===== */
 .msg{
   display:none;
   margin-top:16px;
@@ -125,7 +140,7 @@ button:disabled{
 .error{background:#fee2e2;color:#991b1b}
 .success{background:#dcfce7;color:#166534}
 
-/* LOADER */
+/* ===== LOADER ===== */
 .loader{
   position:fixed;
   inset:0;
@@ -145,121 +160,160 @@ button:disabled{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.links{
-  text-align:center;
-  margin-top:16px;
-}
-.links a{
-  color:#2563eb;
-  font-weight:600;
-  text-decoration:none;
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .wrapper{align-items:flex-start}
 }
 </style>
 </head>
 
 <body>
 
+<div class="wrapper">
 <div class="container">
-  <h2>Create Account</h2>
-  <p class="sub">Step 1 of 1 · Tell us about you</p>
 
-  <div class="progress"><span></span></div>
+<h2>Sign Up</h2>
+<p class="sub">Create your account</p>
+
+<div class="progress"><span id="bar"></span></div>
+
+<!-- STEP 1 -->
+<div class="step active">
+  <small>Step 1 of 4</small>
+  <h3>Tell us about you</h3>
 
   <div class="field">
-    <label>Full Name</label>
-    <input id="name" placeholder="Your name">
+    <label>Name</label>
+    <input id="name">
   </div>
+
+  <div class="actions">
+    <span></span>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step">
+  <small>Step 2 of 4</small>
+  <h3>Contact details</h3>
 
   <div class="field">
     <label>Mobile Number</label>
-    <input id="phone" placeholder="Mobile number">
+    <input id="phone">
   </div>
+
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step">
+  <small>Step 3 of 4</small>
+  <h3>Email address</h3>
 
   <div class="field">
     <label>Email</label>
-    <input id="email" type="email" placeholder="Email address">
+    <input id="email" type="email">
   </div>
+
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step">
+  <small>Step 4 of 4</small>
+  <h3>Create password</h3>
 
   <div class="field">
     <label>Password</label>
-    <input id="password" type="password" placeholder="Password">
+    <input id="password" type="password">
     <span class="eye" onclick="toggle('password')">👁️</span>
 
-    <div class="strength">
-      <div class="strength-bar">
-        <span id="strengthFill"></span>
-      </div>
-      <small id="strengthText">Password strength</small>
+    <div class="strength-bar">
+      <span id="strengthFill"></span>
     </div>
+    <small id="strengthText">Password strength</small>
   </div>
 
   <div class="field">
     <label>Confirm Password</label>
-    <input id="confirm" type="password" placeholder="Confirm password">
+    <input id="confirm" type="password">
     <span class="eye" onclick="toggle('confirm')">👁️</span>
   </div>
 
-  <button id="btn" onclick="register()">Create Account</button>
-
-  <div id="msg" class="msg"></div>
-
-  <div class="links">
-    <a href="login.html">Already have an account? Login</a>
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" id="btn" onclick="register()">Create Account</button>
   </div>
+</div>
+
+<div id="msg" class="msg"></div>
+
+</div>
 </div>
 
 <div class="loader" id="loader"><div></div></div>
 
+<!-- ===== FIREBASE (UNCHANGED) ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, setDoc, doc }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-window.toggle = (id)=>{
+/* ===== WIZARD ===== */
+const steps=document.querySelectorAll(".step");
+const bar=document.getElementById("bar");
+let current=0;
+
+function showStep(){
+  steps.forEach(s=>s.classList.remove("active"));
+  steps[current].classList.add("active");
+  bar.style.width=((current+1)/steps.length*100)+"%";
+}
+window.nextStep=()=>{if(current<steps.length-1){current++;showStep()}};
+window.prevStep=()=>{if(current>0){current--;showStep()}};
+
+/* ===== PASSWORD ===== */
+window.toggle=id=>{
   const f=document.getElementById(id);
-  f.type = f.type === "password" ? "text" : "password";
+  f.type=f.type==="password"?"text":"password";
 };
 
 const password=document.getElementById("password");
-const strengthFill=document.getElementById("strengthFill");
-const strengthText=document.getElementById("strengthText");
+const fill=document.getElementById("strengthFill");
+const text=document.getElementById("strengthText");
 
 password.addEventListener("input",()=>{
-  const v=password.value;
-  let s=0;
-  if(v.length>=6) s++;
-  if(/[A-Z]/.test(v)) s++;
-  if(/[0-9]/.test(v)) s++;
-  if(/[^A-Za-z0-9]/.test(v)) s++;
+  let s=0,v=password.value;
+  if(v.length>=6)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
 
-  if(s<=1){
-    strengthFill.style.width="25%";
-    strengthFill.style.background="#ef4444";
-    strengthText.textContent="Weak password";
-  }else if(s===2){
-    strengthFill.style.width="50%";
-    strengthFill.style.background="#f59e0b";
-    strengthText.textContent="Medium strength";
-  }else{
-    strengthFill.style.width="100%";
-    strengthFill.style.background="#22c55e";
-    strengthText.textContent="Strong password";
-  }
+  if(s<=1){fill.style.width="25%";fill.style.background="#ef4444";text.textContent="Weak"}
+  else if(s===2){fill.style.width="50%";fill.style.background="#f59e0b";text.textContent="Medium"}
+  else{fill.style.width="100%";fill.style.background="#22c55e";text.textContent="Strong"}
 });
 
-window.register = async ()=>{
-  const name=nameEl.value=nameEl=document.getElementById("name").value.trim();
+/* ===== REGISTER (UNCHANGED LOGIC) ===== */
+window.register=async()=>{
+  const name=document.getElementById("name").value.trim();
   const phone=document.getElementById("phone").value.trim();
   const email=document.getElementById("email").value.trim();
   const pass=password.value;
@@ -271,7 +325,7 @@ window.register = async ()=>{
   msg.style.display="none";
 
   if(!name||!phone||!email||!pass||!confirm){
-    msg.textContent="All fields are required";
+    msg.textContent="All fields required";
     msg.className="msg error";
     msg.style.display="block";
     return;
