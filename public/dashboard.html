@@ -31,6 +31,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   border-radius:12px;font-weight:bold;
   cursor:pointer
 }
+.actions button:disabled{opacity:.6;cursor:not-allowed}
 .menu-btn{display:none}
 
 /* ===== MOBILE MENU ===== */
@@ -46,39 +47,47 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
   gap:20px;padding:20px
 }
-.card{
-  background:#fff;padding:22px;
-  border-radius:20px
-}
+.card{background:#fff;padding:22px;border-radius:20px}
 
-/* ===== PROFILE ===== */
-.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
-.progress div{height:100%}
-.tip{font-size:13px;color:#6b7280}
-
-/* ===== GALLERY (SAME AS index.html) ===== */
-.slider{overflow:hidden}
-.slide-track{
-  display:flex;
-  gap:16px;
-  animation:scroll 25s linear infinite;
+/* ===== RESET MODAL ===== */
+#resetModal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(79,70,229,.35);
+  backdrop-filter:blur(6px);
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
 }
-.slider:hover .slide-track{animation-play-state:paused}
-.slide-track img{
-  height:220px;
-  border-radius:16px;
-  object-fit:cover;
+#resetBox{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+  color:#fff;
+  padding:30px;
+  max-width:420px;
+  width:90%;
+  border-radius:24px;
+  text-align:center;
+}
+#resetBox button{
+  border:none;
+  border-radius:14px;
+  padding:10px 18px;
+  font-weight:bold;
   cursor:pointer
 }
-@keyframes scroll{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
+#okBtn{background:#fff;color:#4f46e5}
+#resendBtn{
+  margin-top:10px;
+  background:transparent;
+  color:#fff;
+  border:2px solid #fff;
 }
+#resendBtn:disabled{opacity:.6;cursor:not-allowed}
 
 @media(max-width:768px){
   .actions{display:none}
   .menu-btn{display:block}
-  .slide-track img{height:180px}
 }
 </style>
 </head>
@@ -97,7 +106,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <div>
     <div class="actions">
       <button onclick="openMap()">📍 Map</button>
-      <button onclick="changePassword()">🔒 Change Password</button>
+      <button id="changePwdBtn" onclick="changePassword()">🔒 Change Password</button>
       <button onclick="location.href='profile.html'">👤 Profile</button>
       <button onclick="logout()">🚪 Logout</button>
     </div>
@@ -113,43 +122,21 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <button onclick="logout()">🚪 Logout</button>
 </div>
 
-<div class="grid">
-
-  <!-- PROFILE -->
-  <div class="card">
-    <h3>Profile Completion</h3>
-    <h1 id="percent">0%</h1>
-    <div class="progress"><div id="bar"></div></div>
-    <p id="tip" class="tip"></p>
-    <canvas id="chart" height="160"></canvas>
+<!-- PASSWORD RESET MODAL -->
+<div id="resetModal">
+  <div id="resetBox">
+    <div style="font-size:52px">📧</div>
+    <h2>Password Reset Link Sent</h2>
+    <p style="font-size:15px;line-height:1.6">
+      A password reset link has been shared on<br>
+      <b id="maskedEmail">your email</b><br><br>
+      Please check your inbox and click the link to set a new password.
+    </p>
+    <button id="okBtn" onclick="closeResetModal()">OK, Got it</button><br>
+    <button id="resendBtn" onclick="resendEmail()" disabled>
+      Resend in 30s
+    </button>
   </div>
-
-  <!-- HIGHLIGHTS -->
-  <div class="card">
-    <h3>Your Highlights</h3>
-    <div id="custom"></div>
-  </div>
-
-  <!-- GALLERY (EXACT SAME AS index.html) -->
-  <div class="card">
-    <h3>📸 Sadri Villa Gallery</h3>
-    <div class="slider">
-      <div class="slide-track">
-        <img src="images/gallery1.jpg">
-        <img src="images/gallery2.jpg">
-        <img src="images/gallery3.jpg">
-        <img src="images/gallery4.jpg">
-        <img src="images/gallery5.jpg">
-        <!-- duplicate for smooth loop -->
-        <img src="images/gallery1.jpg">
-        <img src="images/gallery2.jpg">
-        <img src="images/gallery3.jpg">
-        <img src="images/gallery4.jpg">
-        <img src="images/gallery5.jpg">
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <script type="module">
@@ -157,7 +144,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -166,16 +152,61 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* MENU */
 window.toggleMenu=()=>{
   const m=document.getElementById("mobileMenu");
   m.style.display=m.style.display==="flex"?"none":"flex";
 };
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
-window.changePassword=async()=>{await sendPasswordResetEmail(auth,auth.currentUser.email);alert("Reset email sent")};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 
-/* AUTH + APPROVAL */
+let resendTimer;
+
+/* ===== EMAIL MASKING ===== */
+function maskEmail(email){
+  const [name,domain]=email.split("@");
+  if(name.length<=1) return "*@"+domain;
+  return name[0]+"***@"+domain;
+}
+
+window.changePassword = async () => {
+  const btn=document.getElementById("changePwdBtn");
+  btn.disabled=true;
+  btn.innerText="Sending…";
+
+  const email=auth.currentUser.email;
+  document.getElementById("maskedEmail").innerText=maskEmail(email);
+
+  await sendPasswordResetEmail(auth,email);
+  document.getElementById("resetModal").style.display="flex";
+  startResendTimer();
+};
+
+window.resendEmail = async () => {
+  await sendPasswordResetEmail(auth,auth.currentUser.email);
+  startResendTimer();
+};
+
+function startResendTimer(){
+  let t=30;
+  const r=document.getElementById("resendBtn");
+  r.disabled=true;
+  r.innerText=`Resend in ${t}s`;
+  clearInterval(resendTimer);
+  resendTimer=setInterval(()=>{
+    t--;
+    r.innerText=`Resend in ${t}s`;
+    if(t<=0){
+      clearInterval(resendTimer);
+      r.disabled=false;
+      r.innerText="Resend Email";
+    }
+  },1000);
+}
+
+window.closeResetModal=()=>{
+  document.getElementById("resetModal").style.display="none";
+};
+
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
@@ -184,33 +215,8 @@ onAuthStateChanged(auth,async user=>{
     location.href="pending.html";
     return;
   }
-  loadDashboard(snap.data());
+  userName.innerText=snap.data().adminFields?.Name||"User";
 });
-
-/* DASHBOARD DATA */
-function loadDashboard(data){
-  userName.innerText=data.adminFields?.Name||"User";
-  const adminFields=data.adminFields||{};
-  const userCustom=data.userCustomFields||{};
-  let total=0,filled=0;
-  custom.innerHTML="";
-  Object.values(adminFields).forEach(v=>{total++;if(v)filled++});
-  Object.entries(userCustom).forEach(([k,v])=>{
-    total++;if(v.value)filled++;
-    if(v.showOnDashboard&&v.value){
-      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
-    }
-  });
-  const p=total?Math.round((filled/total)*100):0;
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
-  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-  new Chart(chart,{
-    type:"doughnut",
-    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
-  });
-}
 </script>
 
 </body>
