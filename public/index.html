@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- PRIMARY SEO -->
+<!-- ===== SEO (SAFE – DOES NOT AFFECT UI) ===== -->
 <title>Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar</title>
-<meta name="description" content="Sadri Villa Fazilpur is a 150+ year old heritage villa in Samastipur, Bihar, preserving the Sadri family legacy and supporting the local community.">
+<meta name="description" content="Sadri Villa Fazilpur is a 150+ year old heritage villa in Samastipur, Bihar providing free shelter and marriage support to economically weaker families.">
 <link rel="canonical" href="https://sadrivilla.in/">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- OPEN GRAPH (Google + WhatsApp + Facebook) -->
+<!-- Open Graph -->
 <meta property="og:title" content="Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar">
-<meta property="og:description" content="A living heritage of the Sadri family in Fazilpur, Samastipur, Bihar. Serving humanity for over 150 years.">
+<meta property="og:description" content="A living heritage of the Sadri family in Fazilpur, Samastipur, Bihar.">
 <meta property="og:url" content="https://sadrivilla.in/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 /* ===== BASE ===== */
@@ -27,12 +27,13 @@ body{
 }
 a{text-decoration:none}
 
-/* ===== NAVBAR ===== */
+/* ===== NAVBAR (ORIGINAL STYLE) ===== */
 .navbar{
   position:fixed;
   top:0; left:0; right:0;
   background:rgba(255,255,255,0.75);
   backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -41,6 +42,25 @@ a{text-decoration:none}
   z-index:1000;
 }
 .brand img{height:52px}
+
+.nav-right button{
+  margin-left:10px;
+  padding:8px 16px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.login-btn{
+  background:transparent;
+  color:#4f46e5;
+}
+
+.signup-btn{
+  background:#4f46e5;
+  color:#fff;
+}
 
 /* ===== HERO ===== */
 .hero{
@@ -56,16 +76,46 @@ a{text-decoration:none}
   color:#fff;
   padding:20px;
 }
-.hero h1{font-size:42px;max-width:900px}
-.hero p{font-size:18px;max-width:820px;margin:14px auto}
+.hero h1{
+  font-size:42px;
+  max-width:900px;
+}
+.hero p{
+  font-size:18px;
+  max-width:820px;
+  margin:14px auto;
+}
+.hero-buttons button{
+  padding:14px 28px;
+  border-radius:16px;
+  border:none;
+  margin:8px;
+  font-size:16px;
+  cursor:pointer;
+  font-weight:600;
+}
+.primary{background:#22c55e;color:#fff}
+.secondary{background:transparent;color:#fff;border:2px solid #fff}
 
-/* ===== GALLERY ===== */
+/* ===== SECTION (RESTORED SPACING) ===== */
+.section{
+  max-width:1100px;
+  margin:auto;
+  padding:60px 20px;
+}
+.section h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+/* ===== GALLERY SLIDER ===== */
 .slider{overflow:hidden}
 .slide-track{
   display:flex;
   gap:16px;
   animation:scroll 25s linear infinite;
 }
+.slider:hover .slide-track{animation-play-state:paused}
 .slide-track img{
   height:220px;
   border-radius:16px;
@@ -91,11 +141,27 @@ a{text-decoration:none}
   gap:30px;
 }
 .footer h3,.footer h4{color:#fff}
+.footer a{
+  display:block;
+  color:#cbd5f5;
+  margin:8px 0;
+}
+.footer a:hover{color:#22c55e}
+
+.footer-bottom{
+  text-align:center;
+  margin-top:30px;
+  font-size:14px;
+  color:#94a3b8;
+}
 
 /* ===== MOBILE ===== */
 @media(max-width:768px){
+  .navbar{flex-direction:column;gap:10px}
+  .brand img{height:44px}
   .hero h1{font-size:28px}
   .hero{height:auto;padding:80px 16px}
+  .slide-track img{height:180px}
 }
 </style>
 </head>
@@ -107,10 +173,10 @@ a{text-decoration:none}
   <div class="brand">
     <img src="images/logo.png" alt="Sadri Villa Fazilpur Logo">
   </div>
-  <div>
-    <button onclick="location.href='login.html'">Login</button>
-    <button onclick="location.href='signup.html'">Sign Up</button>
-    <button onclick="location.href='about.html'">About</button>
+  <div class="nav-right">
+    <button class="login-btn" onclick="location.href='login.html'">Login</button>
+    <button class="signup-btn" onclick="location.href='signup.html'">Sign Up</button>
+    <button class="login-btn" onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
@@ -120,16 +186,26 @@ a{text-decoration:none}
     <h1>Sadri Villa – A Living Heritage of the Sadri Family</h1>
     <p>📍 Fazilpur, Samastipur, Bihar • 🏛️ 150+ Years of Legacy</p>
     <p>Providing free shelter and marriage support to economically weaker families.</p>
+    <div class="hero-buttons">
+      <button class="primary" onclick="location.href='login.html'">Enter Portal</button>
+      <button class="secondary" onclick="location.href='about.html'">Learn More</button>
+    </div>
   </div>
 </div>
 
-<!-- GALLERY -->
-<div class="slider">
-  <div class="slide-track">
-    <img src="images/gallery1.jpg" alt="Sadri Villa heritage architecture">
-    <img src="images/gallery2.jpg" alt="Sadri Villa interior courtyard">
-    <img src="images/gallery3.jpg" alt="Sadri Villa historical building">
-    <img src="images/gallery4.jpg" alt="Sadri Villa cultural heritage">
+<!-- GALLERY (SPACING RESTORED) -->
+<div class="section">
+  <h2>Photo Gallery</h2>
+  <div class="slider">
+    <div class="slide-track">
+      <img src="images/gallery1.jpg" alt="Sadri Villa heritage architecture">
+      <img src="images/gallery2.jpg" alt="Sadri Villa interior courtyard">
+      <img src="images/gallery3.jpg" alt="Sadri Villa historic building">
+      <img src="images/gallery4.jpg" alt="Sadri Villa cultural heritage">
+      <img src="images/gallery5.jpg" alt="Sadri Villa night view">
+      <img src="images/gallery1.jpg" alt="Sadri Villa heritage architecture">
+      <img src="images/gallery2.jpg" alt="Sadri Villa interior courtyard">
+    </div>
   </div>
 </div>
 
@@ -142,19 +218,40 @@ a{text-decoration:none}
     </div>
 
     <div>
+      <h4>Quick Links</h4>
+      <a href="login.html">Login</a>
+      <a href="signup.html">Sign Up</a>
+      <a href="about.html">About</a>
+    </div>
+
+    <div>
       <h4>Contact</h4>
-      <p>📍 Fazilpur, Samastipur, Bihar</p>
-      <p>📧 sadrivillafazilpur@gmail.com</p>
+      <p>📍 Fazilpur, Samastipur</p>
+      <p>📧 info@sadrivilla.in</p>
     </div>
   </div>
 
-  <div style="text-align:center;margin-top:20px;">
-    © <span id="year"></span> Sadri Villa
+  <div class="footer-bottom">
+    © <span id="year"></span> Sadri Villa. All rights reserved.
   </div>
 </footer>
 
 <script>
 document.getElementById("year").innerText=new Date().getFullYear();
+
+/* IMAGE FULL SCREEN */
+document.querySelectorAll(".slide-track img").forEach(img=>{
+  img.onclick=()=>{
+    const o=document.createElement("div");
+    o.style="position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999";
+    const b=document.createElement("img");
+    b.src=img.src;
+    b.style="max-width:90%;max-height:90%;border-radius:14px";
+    o.appendChild(b);
+    o.onclick=()=>o.remove();
+    document.body.appendChild(o);
+  }
+});
 </script>
 
 </body>
