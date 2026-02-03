@@ -3,61 +3,17 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ===== SEO (UPDATED ONLY) ===== -->
+<!-- ===== SEO ===== -->
 <title>About Sadri Villa | 150+ Year Old Heritage Villa in Fazilpur, Bihar</title>
-
 <meta name="description" content="Learn about Sadri Villa, a 150+ year old heritage villa of the Sadri family in Fazilpur, Samastipur, Bihar, dedicated to social welfare and community support.">
-
 <meta name="keywords" content="Sadri Villa, Sadri Family, Heritage Villa Fazilpur, Samastipur Bihar">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <link rel="canonical" href="https://sadrivilla.in/about.html">
 
-<!-- Open Graph -->
-<meta property="og:title" content="About Sadri Villa | Heritage Villa in Bihar">
-<meta property="og:description" content="History and legacy of Sadri Villa, a living heritage of the Sadri family in Fazilpur, Samastipur, Bihar.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://sadrivilla.in/about.html">
-<meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
-
-<!-- Twitter -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="About Sadri Villa">
-<meta name="twitter:description" content="150+ year old heritage villa serving humanity in Bihar.">
-<meta name="twitter:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
-
-<!-- Structured Data -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  "name": "About Sadri Villa",
-  "url": "https://sadrivilla.in/about.html",
-  "description": "Sadri Villa is a 150+ year old heritage villa of the Sadri family located in Fazilpur, Samastipur, Bihar.",
-  "mainEntity": {
-    "@type": "TouristAttraction",
-    "name": "Sadri Villa",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Fazilpur",
-      "addressRegion": "Bihar",
-      "addressCountry": "IN"
-    }
-  }
-}
-</script>
-
+<!-- ===== STYLE ===== -->
 <style>
-/* ===== MOBILE BUG FIX (NO DESIGN CHANGE) ===== */
-html, body{
-  overflow-x:hidden;
-}
-
-/* ===== BASE ===== */
+html,body{overflow-x:hidden;margin:0;font-family:Arial,sans-serif}
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
   background:linear-gradient(180deg,#0f1e4a,#1e3a8a);
   color:#e5e7eb;
 }
@@ -65,11 +21,8 @@ a{text-decoration:none}
 
 /* ===== NAVBAR ===== */
 .navbar{
-  position:fixed;
-  top:0; left:0; right:0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  position:fixed;top:0;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:center;
   padding:14px 26px;
   background:rgba(15,23,42,.7);
   backdrop-filter:blur(12px);
@@ -92,10 +45,7 @@ a{text-decoration:none}
   text-align:center;
   padding:120px 20px 80px;
 }
-.hero h1{
-  font-size:44px;
-  margin-bottom:10px;
-}
+.hero h1{font-size:44px;margin-bottom:10px}
 .hero h1 span{color:#38bdf8}
 .hero p{
   max-width:760px;
@@ -104,7 +54,7 @@ a{text-decoration:none}
   color:#c7d2fe;
 }
 
-/* ===== VISION CARD ===== */
+/* ===== VISION ===== */
 .vision{
   max-width:720px;
   margin:40px auto;
@@ -113,20 +63,33 @@ a{text-decoration:none}
   background:rgba(255,255,255,.08);
   box-shadow:0 20px 40px rgba(0,0,0,.25);
 }
-.vision h2{
-  margin:10px 0;
-  color:#fff;
+.vision h2{color:#fff}
+
+/* ===== KEY POINTS ===== */
+.keypoints{
+  max-width:900px;
+  margin:60px auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
 }
+.keycard{
+  background:rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+}
+.keycard .icon{font-size:26px;margin-bottom:10px}
+.keycard h4{margin:6px 0;color:#fff}
+.keycard p{font-size:14px;color:#c7d2fe;line-height:1.6}
 
 /* ===== CARDS ===== */
 .cards{
-  margin-top:60px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
   gap:24px;
   max-width:1000px;
-  margin-left:auto;
-  margin-right:auto;
+  margin:40px auto;
 }
 .card{
   background:rgba(255,255,255,.07);
@@ -135,15 +98,10 @@ a{text-decoration:none}
   box-shadow:0 10px 30px rgba(0,0,0,.25);
 }
 .card h3{color:#fff}
-.card p{
-  color:#c7d2fe;
-  line-height:1.6;
-}
+.card p{color:#c7d2fe;line-height:1.6}
 
 /* ===== BUTTONS ===== */
-.buttons{
-  margin-top:50px;
-}
+.buttons{margin-top:40px}
 .btn{
   display:inline-block;
   padding:12px 26px;
@@ -151,17 +109,31 @@ a{text-decoration:none}
   font-weight:600;
   margin:6px;
 }
-.btn-primary{
-  background:#38bdf8;
-  color:#0f172a;
-}
-.btn-secondary{
-  border:1px solid #38bdf8;
-  color:#38bdf8;
-}
+.btn-primary{background:#38bdf8;color:#0f172a}
+.btn-secondary{border:1px solid #38bdf8;color:#38bdf8}
 
-/* ===== MOBILE ===== */
+/* ===== SCROLL ANIMATION ===== */
+.animate{
+  opacity:0;
+  transform:translateY(40px);
+  transition:all .7s ease;
+}
+.animate.show{
+  opacity:1;
+  transform:translateY(0);
+}
+.delay-1{transition-delay:.1s}
+.delay-2{transition-delay:.2s}
+.delay-3{transition-delay:.3s}
+.delay-4{transition-delay:.4s}
+
+/* ===== MOBILE FIX ===== */
 @media(max-width:768px){
+  .hero{
+    min-height:auto;
+    padding-top:100px;
+    padding-bottom:60px;
+  }
   .hero h1{font-size:30px}
   .brand img{height:36px}
 }
@@ -186,44 +158,51 @@ a{text-decoration:none}
 <section class="hero">
   <div>
     <h1>Why <span>Sadri Villa</span></h1>
-    <p>
-      Sadri Villa is a living heritage of the Sadri family in Fazilpur,
-      Samastipur, Bihar — serving humanity for more than 150 years.
-    </p>
-    <p>
-      Our mission is to preserve tradition while supporting society
-      through free shelter and marriage assistance for the needy.
-    </p>
+    <p>Sadri Villa is a living heritage of the Sadri family in Fazilpur, Samastipur, Bihar — serving humanity for more than 150 years.</p>
+    <p>Preserving tradition while supporting society through shelter and marriage assistance.</p>
 
-    <div class="vision">
+    <div class="vision animate">
       <h2>Our Vision</h2>
-      <p>
-        To serve humanity with compassion by preserving heritage,
-        providing shelter, and supporting economically weaker families.
-      </p>
+      <p>To serve humanity with compassion by preserving heritage, providing shelter, and supporting economically weaker families.</p>
     </div>
 
+    <!-- KEY POINTS -->
+    <div class="keypoints">
+      <div class="keycard animate delay-1">
+        <div class="icon">🏛</div>
+        <h4>150+ Years Legacy</h4>
+        <p>A historic villa preserving culture, architecture, and tradition.</p>
+      </div>
+      <div class="keycard animate delay-2">
+        <div class="icon">❤️</div>
+        <h4>Social Welfare</h4>
+        <p>Free marriages and temporary shelter for families in need.</p>
+      </div>
+      <div class="keycard animate delay-3">
+        <div class="icon">🤝</div>
+        <h4>Community First</h4>
+        <p>Open for community gatherings with dignity and respect.</p>
+      </div>
+      <div class="keycard animate delay-4">
+        <div class="icon">🌱</div>
+        <h4>Future Vision</h4>
+        <p>Balancing heritage preservation with responsible growth.</p>
+      </div>
+    </div>
+
+    <!-- CARDS -->
     <div class="cards">
-      <div class="card">
+      <div class="card animate">
         <h3>🏛 Heritage</h3>
-        <p>
-          A 150-year-old historical villa representing culture,
-          architecture, and tradition.
-        </p>
+        <p>150-year-old historical villa representing timeless architecture.</p>
       </div>
-      <div class="card">
+      <div class="card animate">
         <h3>❤️ Social Service</h3>
-        <p>
-          Supporting free marriages and providing temporary shelter
-          to people in need.
-        </p>
+        <p>Supporting free marriages and temporary shelter.</p>
       </div>
-      <div class="card">
+      <div class="card animate">
         <h3>🌱 Community</h3>
-        <p>
-          Open access for visitors and community events
-          with dignity and respect.
-        </p>
+        <p>Respectful open access for visitors and events.</p>
       </div>
     </div>
 
@@ -233,6 +212,20 @@ a{text-decoration:none}
     </div>
   </div>
 </section>
+
+<!-- SCROLL SCRIPT -->
+<script>
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add("show");
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:.15});
+
+document.querySelectorAll(".animate").forEach(el=>observer.observe(el));
+</script>
 
 </body>
 </html>
