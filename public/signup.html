@@ -14,10 +14,12 @@ body{
   color:#0f172a;
 }
 
-/* ================= HEADER (SAME AS INDEX) ================= */
+/* ERROR BORDER */
+input.error-border{border:2px solid #ef4444!important}
+
+/* NAVBAR */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
+  position:fixed;top:0;left:0;right:0;
   height:64px;
   background:#fff;
   display:flex;
@@ -28,45 +30,22 @@ body{
   z-index:1000;
 }
 .brand img{height:38px}
-
-.nav-right{
-  display:flex;
-}
-.nav-right a{
-  margin-left:18px;
+.nav-right button{
+  margin-left:10px;
+  height:40px;
+  padding:0 18px;
+  border-radius:10px;
+  border:none;
   font-weight:600;
-  color:#2563eb;
-}
-
-.menu-btn{
-  display:none;
-  font-size:26px;
   cursor:pointer;
 }
+.login-btn{background:#fff;color:#2563eb;border:1px solid #2563eb}
+.signup-btn{background:#2563eb;color:#fff}
 
-/* Mobile menu */
-.mobile-menu{
-  position:fixed;
-  top:64px;left:0;right:0;
-  background:#fff;
-  transform:translateY(-100%);
-  transition:transform .35s ease;
-  box-shadow:0 10px 25px rgba(0,0,0,.12);
-  z-index:999;
-}
-.mobile-menu.show{transform:translateY(0)}
-.mobile-menu a{
-  display:block;
-  padding:14px;
-  border-bottom:1px solid #e5e7eb;
-  color:#2563eb;
-  font-weight:600;
-}
-
-/* ================= PAGE ================= */
+/* PAGE */
 .page{
   min-height:100vh;
-  padding:120px 24px 60px;
+  padding:120px 24px 40px;
   display:flex;
   justify-content:center;
 }
@@ -216,58 +195,25 @@ body{
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ================= FOOTER (SAME AS INDEX) ================= */
-.footer{
-  background:#0b122f;
-  color:#c7d2fe;
-  padding:36px 20px;
-}
-.footer-grid{
-  max-width:1100px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:30px;
-}
-.footer h4{color:#fff;margin-bottom:10px}
-.footer a{color:#c7d2fe}
-.footer a:hover{color:#38bdf8}
-.footer-bottom{
-  text-align:center;
-  margin-top:30px;
-  font-size:13px;
-  color:#94a3b8;
-}
-
-/* ================= MOBILE ================= */
+/* MOBILE UI ONLY */
 @media(max-width:900px){
-  .page{padding:100px 16px 40px}
+  .page{padding:100px 16px 32px}
   .grid{grid-template-columns:1fr;gap:32px}
   .left h1{font-size:30px}
-
-  .nav-right{display:none}
-  .menu-btn{display:block}
 }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
+<!-- NAVBAR -->
 <div class="navbar">
   <div class="brand"><img src="images/logo.png"></div>
   <div class="nav-right">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="login.html">Login</a>
+    <button class="login-btn" onclick="location.href='about.html'">About</button>
+    <button class="login-btn" onclick="location.href='login.html'">Login</button>
+    <button class="signup-btn">Sign Up</button>
   </div>
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
-</div>
-
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html" onclick="closeMenu()">Home</a>
-  <a href="about.html" onclick="closeMenu()">About</a>
-  <a href="login.html" onclick="closeMenu()">Login</a>
 </div>
 
 <div class="page">
@@ -283,7 +229,7 @@ body{
   <div class="benefit"><div class="icon">✓</div>Community hub for leaders and scholars</div>
 </div>
 
-<!-- RIGHT (SIGNUP CARD — LOGIC UNCHANGED) -->
+<!-- RIGHT -->
 <div class="card">
   <h2>Sign Up</h2>
   <small>Create your account</small>
@@ -325,41 +271,102 @@ body{
 </div>
 </div>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div>
-      <h4>Sadri Villa</h4>
-      <p>A living heritage serving humanity.</p>
-    </div>
-    <div>
-      <h4>Quick Links</h4>
-      <a href="index.html">Home</a><br>
-      <a href="about.html">About</a><br>
-      <a href="login.html">Login</a>
-    </div>
-    <div>
-      <h4>Contact</h4>
-      <p>📍 Fazilpur, Samastipur</p>
-      <p>📧 <a href="mailto:info@sadrivilla.in">info@sadrivilla.in</a></p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    © 2026 Sadri Villa. All rights reserved.
-  </div>
-</footer>
+<div class="loader" id="loader"><div></div></div>
 
-<script>
-function toggleMenu(){
-  document.getElementById("mobileMenu").classList.toggle("show");
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const name=document.getElementById("name");
+const phone=document.getElementById("phone");
+const email=document.getElementById("email");
+const password=document.getElementById("password");
+const confirm=document.getElementById("confirm");
+const msg=document.getElementById("msg");
+const loader=document.getElementById("loader");
+let steps=document.querySelectorAll(".step");
+let bar=document.getElementById("bar");
+let i=0;
+
+function show(){
+  steps.forEach(s=>s.classList.remove("active"));
+  setTimeout(()=>{
+    steps[i].classList.add("active");
+    const n=steps[i].querySelector(".step-num");
+    if(n){n.classList.remove("step-num");void n.offsetWidth;n.classList.add("step-num")}
+    bar.style.width=((i+1)/steps.length*100)+"%";
+  },60);
+  clearErrors();
 }
-function closeMenu(){
-  document.getElementById("mobileMenu").classList.remove("show");
+function clearErrors(){
+  document.querySelectorAll("input").forEach(f=>f.classList.remove("error-border"));
+  msg.style.display="none";
 }
+function error(text,field){
+  msg.textContent=text;
+  msg.className="msg error";
+  msg.style.display="block";
+  field.classList.add("error-border");
+  field.focus();
+}
+window.nextStep=()=>{
+  clearErrors();
+  if(i===0 && !name.value.trim()) return error("Name required",name);
+  if(i===1){
+    if(!phone.value.trim()) return error("Mobile required",phone);
+    if(!/^[0-9]{10}$/.test(phone.value)) return error("Invalid mobile",phone);
+  }
+  if(i===2){
+    if(!email.value.trim()) return error("Email required",email);
+    if(!/^[^@]+@[^@]+\.[^@]+$/.test(email.value)) return error("Invalid email",email);
+  }
+  if(i<steps.length-1){i++;show()}
+};
+window.prevStep=()=>{if(i>0){i--;show()}};
+window.toggle=id=>{
+  const f=document.getElementById(id);
+  f.type=f.type==="password"?"text":"password";
+};
+window.register=async()=>{
+  clearErrors();
+  if(password.value!==confirm.value) return error("Passwords do not match",confirm);
+  try{
+    loader.style.display="flex";
+    const q=query(collection(db,"users"),where("phone","==",phone.value.trim()));
+    const snap=await getDocs(q);
+    if(!snap.empty) return error("Mobile already registered",phone);
+
+    const cred=await createUserWithEmailAndPassword(auth,email.value.trim(),password.value);
+    await setDoc(doc(db,"users",cred.user.uid),{
+      fullName:name.value.trim(),
+      phone:phone.value.trim(),
+      email:email.value.trim(),
+      adminFields:{Name:name.value.trim(),Phone:phone.value.trim(),Email:email.value.trim()},
+      role:"user",approved:false,approvalReminder:false,createdAt:new Date().toISOString()
+    });
+
+    msg.textContent="Account created. Pending admin approval.";
+    msg.className="msg success";
+    msg.style.display="block";
+    setTimeout(()=>location.href="pending.html",3000);
+  }catch(e){
+    msg.textContent=e.message.replace("Firebase: ","");
+    msg.className="msg error";
+    msg.style.display="block";
+  }finally{
+    loader.style.display="none";
+  }
+};
 </script>
-
-<!-- 🔒 SIGNUP SCRIPT (UNCHANGED – SAME AS YOURS) -->
-<!-- your existing Firebase script continues exactly here -->
 
 </body>
 </html>
