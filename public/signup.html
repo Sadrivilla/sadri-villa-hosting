@@ -7,22 +7,19 @@
 
 <style>
 *{box-sizing:border-box}
+html,body{margin:0;overflow-x:hidden}
 body{
-  margin:0;
   font-family:Arial,sans-serif;
   background:#f5f7fb;
   color:#0f172a;
 }
 
 /* ERROR BORDER */
-input.error-border{
-  border:2px solid #ef4444 !important;
-}
+input.error-border{border:2px solid #ef4444!important}
 
 /* NAVBAR */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
+  position:fixed;top:0;left:0;right:0;
   height:64px;
   background:#fff;
   display:flex;
@@ -67,18 +64,17 @@ input.error-border{
 .icon{
   width:36px;height:36px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:700
+  background:#2563eb;color:#fff;font-weight:700
 }
-.blue{background:#2563eb}
-.green{background:#22c55e}
-.purple{background:#a855f7}
 
-/* CARD */
+/* CARD – FACTECH STYLE */
 .card{
   background:#fff;
   border-radius:24px;
   padding:32px;
-  box-shadow:0 25px 50px rgba(0,0,0,.12);
+  box-shadow:
+    0 10px 25px rgba(15,23,42,.08),
+    0 30px 60px rgba(15,23,42,.12);
 }
 
 /* PROGRESS */
@@ -93,12 +89,38 @@ input.error-border{
   height:100%;
   width:0%;
   background:#22c55e;
+  border-radius:6px;
+  transition:width .45s ease-in-out;
 }
 
 /* STEPS */
-.step{display:none}
-.step.active{display:block}
+.step{
+  display:none;
+  opacity:0;
+  transform:translateX(20px);
+  transition:opacity .35s ease,transform .35s ease;
+}
+.step.active{
+  display:block;
+  opacity:1;
+  transform:translateX(0);
+}
 .step h3{color:#2563eb}
+.step small{font-size:13px;color:#64748b}
+
+/* STEP NUMBER */
+.step-num{
+  display:inline-block;
+  min-width:14px;
+  font-weight:700;
+  color:#2563eb;
+  animation:stepPop .35s ease;
+}
+@keyframes stepPop{
+  0%{transform:scale(.6);opacity:0}
+  60%{transform:scale(1.15);opacity:1}
+  100%{transform:scale(1)}
+}
 
 /* FIELDS */
 .field{margin-bottom:16px;position:relative}
@@ -110,26 +132,35 @@ input.error-border{
   border:1.5px solid #d1d5db;
   padding:0 46px 0 14px;
   font-size:15px;
+  transition:transform .08s ease,box-shadow .08s ease;
 }
-.eye{
-  position:absolute;
-  right:14px;top:38px;
-  cursor:pointer;
+.field input:focus{
+  transform:scale(1.01);
+  box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
+.eye{position:absolute;right:14px;top:38px;cursor:pointer}
 
 /* ACTIONS */
 .actions{
   display:flex;
   justify-content:space-between;
   margin-top:20px;
+  gap:12px;
 }
 .actions button{
+  flex:1;
   height:48px;
-  padding:0 22px;
   border:none;
   border-radius:14px;
   font-weight:600;
   cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:transform .08s ease,box-shadow .08s ease;
+}
+.actions button:active{
+  transform:scale(.97);
+  box-shadow:inset 0 6px 14px rgba(0,0,0,.18);
 }
 .back{background:#e5e7eb}
 .next{background:#2563eb;color:#fff}
@@ -163,6 +194,13 @@ input.error-border{
   animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* MOBILE UI ONLY */
+@media(max-width:900px){
+  .page{padding:100px 16px 32px}
+  .grid{grid-template-columns:1fr;gap:32px}
+  .left h1{font-size:30px}
+}
 </style>
 </head>
 
@@ -170,13 +208,11 @@ input.error-border{
 
 <!-- NAVBAR -->
 <div class="navbar">
-  <div class="brand">
-    <img src="images/logo.png">
-  </div>
+  <div class="brand"><img src="images/logo.png"></div>
   <div class="nav-right">
+    <button class="login-btn" onclick="location.href='about.html'">About</button>
     <button class="login-btn" onclick="location.href='login.html'">Login</button>
     <button class="signup-btn">Sign Up</button>
-    <button class="login-btn" onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
@@ -188,18 +224,9 @@ input.error-border{
   <h1>Sadri Villa – A Living Heritage</h1>
   <p>Preserving tradition while serving society with compassion and care</p>
 
-  <div class="benefit">
-    <div class="icon blue"></div>
-    <div>150+ year old heritage villa serving humanity</div>
-  </div>
-  <div class="benefit">
-    <div class="icon green"></div>
-    <div>Free shelter and marriage support</div>
-  </div>
-  <div class="benefit">
-    <div class="icon purple"></div>
-    <div>Community hub for leaders and scholars</div>
-  </div>
+  <div class="benefit"><div class="icon">✓</div>150+ year old heritage villa serving humanity</div>
+  <div class="benefit"><div class="icon">✓</div>Free shelter and marriage support</div>
+  <div class="benefit"><div class="icon">✓</div>Community hub for leaders and scholars</div>
 </div>
 
 <!-- RIGHT -->
@@ -209,66 +236,33 @@ input.error-border{
 
   <div class="progress"><span id="bar"></span></div>
 
-  <!-- STEP 1 -->
   <div class="step active">
-    <small>Step 1 of 4</small>
+    <small>Step <span class="step-num">1</span> of 4</small>
     <h3>Your name</h3>
-    <div class="field">
-      <label>Name</label>
-      <input id="name">
-    </div>
-    <div class="actions">
-      <span></span>
-      <button class="next" onclick="nextStep()">Continue</button>
-    </div>
+    <div class="field"><label>Name</label><input id="name"></div>
+    <div class="actions"><span></span><button class="next" onclick="nextStep()">Continue</button></div>
   </div>
 
-  <!-- STEP 2 -->
   <div class="step">
-    <small>Step 2 of 4</small>
+    <small>Step <span class="step-num">2</span> of 4</small>
     <h3>Mobile number</h3>
-    <div class="field">
-      <label>Mobile</label>
-      <input id="phone">
-    </div>
-    <div class="actions">
-      <button class="back" onclick="prevStep()">Back</button>
-      <button class="next" onclick="nextStep()">Continue</button>
-    </div>
+    <div class="field"><label>Mobile</label><input id="phone"></div>
+    <div class="actions"><button class="back" onclick="prevStep()">Back</button><button class="next" onclick="nextStep()">Continue</button></div>
   </div>
 
-  <!-- STEP 3 -->
   <div class="step">
-    <small>Step 3 of 4</small>
+    <small>Step <span class="step-num">3</span> of 4</small>
     <h3>Email</h3>
-    <div class="field">
-      <label>Email</label>
-      <input id="email" type="email">
-    </div>
-    <div class="actions">
-      <button class="back" onclick="prevStep()">Back</button>
-      <button class="next" onclick="nextStep()">Continue</button>
-    </div>
+    <div class="field"><label>Email</label><input id="email" type="email"></div>
+    <div class="actions"><button class="back" onclick="prevStep()">Back</button><button class="next" onclick="nextStep()">Continue</button></div>
   </div>
 
-  <!-- STEP 4 -->
   <div class="step">
-    <small>Step 4 of 4</small>
+    <small>Step <span class="step-num">4</span> of 4</small>
     <h3>Create password</h3>
-    <div class="field">
-      <label>Password</label>
-      <input id="password" type="password">
-      <span class="eye" onclick="toggle('password')">👁</span>
-    </div>
-    <div class="field">
-      <label>Confirm Password</label>
-      <input id="confirm" type="password">
-      <span class="eye" onclick="toggle('confirm')">👁</span>
-    </div>
-    <div class="actions">
-      <button class="back" onclick="prevStep()">Back</button>
-      <button class="next" onclick="register()">Sign Up</button>
-    </div>
+    <div class="field"><label>Password</label><input id="password" type="password"><span class="eye" onclick="toggle('password')">👁</span></div>
+    <div class="field"><label>Confirm Password</label><input id="confirm" type="password"><span class="eye" onclick="toggle('confirm')">👁</span></div>
+    <div class="actions"><button class="back" onclick="prevStep()">Back</button><button class="next" onclick="register()">Sign Up</button></div>
   </div>
 
   <div id="msg" class="msg"></div>
@@ -284,16 +278,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, setDoc, doc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-/* ELEMENTS */
 const name=document.getElementById("name");
 const phone=document.getElementById("phone");
 const email=document.getElementById("email");
@@ -301,16 +293,18 @@ const password=document.getElementById("password");
 const confirm=document.getElementById("confirm");
 const msg=document.getElementById("msg");
 const loader=document.getElementById("loader");
-
 let steps=document.querySelectorAll(".step");
 let bar=document.getElementById("bar");
 let i=0;
 
-/* STEP LOGIC (UNCHANGED) */
 function show(){
   steps.forEach(s=>s.classList.remove("active"));
-  steps[i].classList.add("active");
-  bar.style.width=((i+1)/steps.length*100)+"%";
+  setTimeout(()=>{
+    steps[i].classList.add("active");
+    const n=steps[i].querySelector(".step-num");
+    if(n){n.classList.remove("step-num");void n.offsetWidth;n.classList.add("step-num")}
+    bar.style.width=((i+1)/steps.length*100)+"%";
+  },60);
   clearErrors();
 }
 function clearErrors(){
@@ -342,48 +336,27 @@ window.toggle=id=>{
   const f=document.getElementById(id);
   f.type=f.type==="password"?"text":"password";
 };
-
-/* REGISTER (DATA FIXED, UI SAME) */
 window.register=async()=>{
   clearErrors();
-  if(password.value!==confirm.value){
-    return error("Passwords do not match",confirm);
-  }
+  if(password.value!==confirm.value) return error("Passwords do not match",confirm);
   try{
     loader.style.display="flex";
-
-    /* CHECK PHONE UNIQUE */
     const q=query(collection(db,"users"),where("phone","==",phone.value.trim()));
     const snap=await getDocs(q);
     if(!snap.empty) return error("Mobile already registered",phone);
 
-    const cred=await createUserWithEmailAndPassword(
-      auth,
-      email.value.trim(),
-      password.value
-    );
-
+    const cred=await createUserWithEmailAndPassword(auth,email.value.trim(),password.value);
     await setDoc(doc(db,"users",cred.user.uid),{
       fullName:name.value.trim(),
       phone:phone.value.trim(),
       email:email.value.trim(),
-
-      adminFields:{
-        Name:name.value.trim(),
-        Phone:phone.value.trim(),
-        Email:email.value.trim()
-      },
-
-      role:"user",
-      approved:false,
-      approvalReminder:false,
-      createdAt:new Date().toISOString()
+      adminFields:{Name:name.value.trim(),Phone:phone.value.trim(),Email:email.value.trim()},
+      role:"user",approved:false,approvalReminder:false,createdAt:new Date().toISOString()
     });
 
     msg.textContent="Account created. Pending admin approval.";
     msg.className="msg success";
     msg.style.display="block";
-
     setTimeout(()=>location.href="pending.html",3000);
   }catch(e){
     msg.textContent=e.message.replace("Firebase: ","");
