@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<title>About Sadri Villa | 150+ Year Old Heritage Villa</title>
+<title>About Sadri Villa | Heritage Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-html,body{margin:0;overflow-x:hidden;font-family:Arial,sans-serif}
+html,body{
+  margin:0;
+  overflow-x:hidden;
+  font-family:Arial,sans-serif;
+}
 body{
   background:linear-gradient(180deg,#0f1e4a,#1e3a8a);
   color:#e5e7eb;
@@ -16,14 +19,22 @@ a{text-decoration:none}
 
 /* ===== NAVBAR ===== */
 .navbar{
-  position:fixed;top:0;left:0;right:0;
-  display:flex;justify-content:space-between;align-items:center;
+  position:fixed;
+  top:0;left:0;right:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   padding:14px 22px;
   background:rgba(15,23,42,.75);
   backdrop-filter:blur(12px);
   z-index:1000;
 }
 .brand img{height:40px}
+
+/* Desktop nav */
+.nav-right{
+  display:flex;
+}
 .nav-right a{
   margin-left:16px;
   color:#e5e7eb;
@@ -31,10 +42,34 @@ a{text-decoration:none}
 }
 .nav-right a:hover{color:#38bdf8}
 
+/* Mobile hamburger */
+.menu-btn{
+  display:none;
+  font-size:26px;
+  cursor:pointer;
+  color:#e5e7eb;
+}
+
+/* Mobile dropdown */
+.mobile-menu{
+  display:none;
+  position:fixed;
+  top:64px;
+  left:0;right:0;
+  background:#0f172a;
+  text-align:center;
+  z-index:999;
+}
+.mobile-menu a{
+  display:block;
+  padding:14px;
+  color:#c7d2fe;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
 /* ===== HERO ===== */
 .hero{
-  min-height:auto;
-  padding:110px 18px 90px;
+  padding:110px 18px 80px;
   text-align:center;
 }
 .hero h1{font-size:40px}
@@ -55,7 +90,7 @@ a{text-decoration:none}
   background:rgba(255,255,255,.08);
 }
 
-/* ===== KEY POINT CARDS ===== */
+/* ===== CARDS ===== */
 .keypoints{
   max-width:900px;
   margin:50px auto;
@@ -74,9 +109,13 @@ a{text-decoration:none}
 }
 .keycard .icon{font-size:26px;margin-bottom:10px}
 .keycard h4{color:#fff}
-.keycard p{margin-top:auto;color:#c7d2fe;font-size:14px}
+.keycard p{
+  margin-top:auto;
+  font-size:14px;
+  color:#c7d2fe;
+}
 
-/* ===== ANIMATION ===== */
+/* ===== SCROLL ANIMATION ===== */
 .animate{
   opacity:0;
   transform:translateY(35px);
@@ -86,77 +125,63 @@ a{text-decoration:none}
   opacity:1;
   transform:translateY(0);
 }
-.delay-1{transition-delay:.1s}
-.delay-2{transition-delay:.2s}
-.delay-3{transition-delay:.3s}
 
 /* ===== DESKTOP HOVER GLOW ===== */
 @media(min-width:769px){
   .keycard:hover{
     transform:translateY(-6px);
-    box-shadow:0 0 0 1px #38bdf8, 0 25px 50px rgba(56,189,248,.35);
-    transition:.3s ease;
+    box-shadow:0 0 0 1px #38bdf8,
+               0 25px 50px rgba(56,189,248,.35);
   }
 }
 
-/* ===== BUTTONS ===== */
-.buttons{
-  margin-top:50px;
+/* ===== FOOTER ===== */
+.footer{
+  background:#0b122f;
+  padding:30px 16px;
+  text-align:center;
+  color:#94a3b8;
+  margin-top:60px;
 }
-.btn{
-  padding:12px 26px;
-  border-radius:14px;
-  font-weight:600;
-  margin:6px;
-  display:inline-block;
-}
-.btn-primary{background:#38bdf8;color:#0f172a}
-.btn-secondary{border:1px solid #38bdf8;color:#38bdf8}
 
-/* ===== MOBILE BOTTOM BAR ===== */
-.mobile-bar{
-  display:none;
-}
+/* ===== MOBILE ONLY ===== */
 @media(max-width:768px){
-  .hero{padding-top:95px;padding-bottom:120px}
+  .hero{padding-top:95px}
   .hero h1{font-size:28px}
-  .mobile-bar{
-    position:fixed;
-    bottom:0;left:0;right:0;
-    background:#0f172a;
-    display:flex;
-    justify-content:space-around;
-    padding:10px 0;
-    z-index:2000;
-    border-top:1px solid rgba(255,255,255,.1);
-  }
-  .mobile-bar a{
-    color:#c7d2fe;
-    font-size:14px;
-    text-align:center;
-  }
-  .mobile-bar a span{
-    display:block;
-    font-size:18px;
-  }
+
+  .nav-right{display:none}
+  .menu-btn{display:block}
+
+  .mobile-menu.show{display:block}
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOP NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
     <img src="images/logo.png" alt="Sadri Villa">
   </div>
+
   <div class="nav-right">
     <a href="index.html">Home</a>
     <a href="login.html">Login</a>
     <a href="signup.html">Sign Up</a>
   </div>
+
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </div>
 
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
+</div>
+
+<!-- HERO -->
 <section class="hero">
   <h1>Why <span>Sadri Villa</span></h1>
   <p>A living heritage of the Sadri family in Fazilpur, Bihar — serving humanity for over 150 years.</p>
@@ -167,52 +192,40 @@ a{text-decoration:none}
   </div>
 
   <div class="keypoints">
-    <div class="keycard animate delay-1">
+    <div class="keycard animate">
       <div class="icon">🏛</div>
       <h4>Heritage Legacy</h4>
-      <p>150+ years of culture, values, and tradition.</p>
+      <p>150+ years of cultural and family heritage.</p>
     </div>
-    <div class="keycard animate delay-2">
+    <div class="keycard animate">
       <div class="icon">❤️</div>
       <h4>Social Welfare</h4>
       <p>Free marriages and shelter for the needy.</p>
     </div>
-    <div class="keycard animate delay-3">
+    <div class="keycard animate">
       <div class="icon">🤝</div>
       <h4>Community Service</h4>
       <p>Serving people with dignity and respect.</p>
     </div>
-    <div class="keycard animate delay-1">
-      <div class="icon">🛏</div>
-      <h4>Free Shelter</h4>
-      <p>Temporary accommodation in difficult times.</p>
-    </div>
-    <div class="keycard animate delay-2">
-      <div class="icon">📜</div>
-      <h4>Family Values</h4>
-      <p>A legacy rooted in Fazilpur, Bihar.</p>
-    </div>
-    <div class="keycard animate delay-3">
+    <div class="keycard animate">
       <div class="icon">🌱</div>
       <h4>Future Vision</h4>
       <p>Preserving heritage for generations ahead.</p>
     </div>
   </div>
-
-  <div class="buttons">
-    <a href="index.html" class="btn btn-primary">Back to Home</a>
-    <a href="signup.html" class="btn btn-secondary">Join Us</a>
-  </div>
 </section>
 
-<!-- MOBILE BOTTOM BAR -->
-<div class="mobile-bar">
-  <a href="index.html"><span>🏠</span>Home</a>
-  <a href="login.html"><span>🔐</span>Login</a>
-  <a href="signup.html"><span>📝</span>Sign Up</a>
+<!-- FOOTER -->
+<div class="footer">
+  © 2026 Sadri Villa · Fazilpur, Bihar · Serving Humanity
 </div>
 
 <script>
+function toggleMenu(){
+  document.getElementById("mobileMenu").classList.toggle("show");
+}
+
+/* Scroll animation */
 const observer=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
