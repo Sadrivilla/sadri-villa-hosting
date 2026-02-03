@@ -3,19 +3,46 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ===== SEO (SAFE – DOES NOT AFFECT UI) ===== -->
+<!-- ===== BASIC SEO (SAFE) ===== -->
 <title>Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar</title>
-<meta name="description" content="Sadri Villa Fazilpur is a 150+ year old heritage villa in Samastipur, Bihar providing free shelter and marriage support to economically weaker families.">
-<link rel="canonical" href="https://sadrivilla.in/">
-
-<!-- Open Graph -->
-<meta property="og:title" content="Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar">
-<meta property="og:description" content="A living heritage of the Sadri family in Fazilpur, Samastipur, Bihar.">
-<meta property="og:url" content="https://sadrivilla.in/">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
+<meta name="description" content="Sadri Villa is a 150-year-old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and marriage support to economically weaker families.">
+<meta name="keywords" content="Sadri Villa, Heritage Villa Bihar, Fazilpur, Samastipur, Sadri Family Villa">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- ===== CANONICAL ===== -->
+<link rel="canonical" href="https://sadrivilla.in/">
+
+<!-- ===== OPEN GRAPH (SEO / SOCIAL) ===== -->
+<meta property="og:title" content="Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar">
+<meta property="og:description" content="A living heritage of the Sadri family in Fazilpur, Samastipur, Bihar.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sadrivilla.in/">
+<meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
+
+<!-- ===== TWITTER CARD ===== -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sadri Villa Fazilpur | Heritage Villa">
+<meta name="twitter:description" content="150+ year old heritage villa serving humanity in Bihar.">
+<meta name="twitter:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
+
+<!-- ===== STRUCTURED DATA (JSON-LD) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TouristAttraction",
+  "name": "Sadri Villa",
+  "description": "A 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and marriage support.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Fazilpur",
+    "addressRegion": "Bihar",
+    "addressCountry": "IN"
+  },
+  "url": "https://sadrivilla.in",
+  "image": "https://sadrivilla.in/images/sadri-villa-hero.jpg"
+}
+</script>
 
 <style>
 /* ===== BASE ===== */
@@ -27,7 +54,7 @@ body{
 }
 a{text-decoration:none}
 
-/* ===== NAVBAR (ORIGINAL STYLE) ===== */
+/* ===== NAVBAR (BLUR) ===== */
 .navbar{
   position:fixed;
   top:0; left:0; right:0;
@@ -42,7 +69,6 @@ a{text-decoration:none}
   z-index:1000;
 }
 .brand img{height:52px}
-
 .nav-right button{
   margin-left:10px;
   padding:8px 16px;
@@ -51,16 +77,8 @@ a{text-decoration:none}
   cursor:pointer;
   font-weight:600;
 }
-
-.login-btn{
-  background:transparent;
-  color:#4f46e5;
-}
-
-.signup-btn{
-  background:#4f46e5;
-  color:#fff;
-}
+.login-btn{background:transparent;color:#4f46e5}
+.signup-btn{background:#4f46e5;color:#fff}
 
 /* ===== HERO ===== */
 .hero{
@@ -76,15 +94,8 @@ a{text-decoration:none}
   color:#fff;
   padding:20px;
 }
-.hero h1{
-  font-size:42px;
-  max-width:900px;
-}
-.hero p{
-  font-size:18px;
-  max-width:820px;
-  margin:14px auto;
-}
+.hero h1{font-size:42px;max-width:900px}
+.hero p{font-size:18px;max-width:820px;margin:14px auto}
 .hero-buttons button{
   padding:14px 28px;
   border-radius:16px;
@@ -97,16 +108,13 @@ a{text-decoration:none}
 .primary{background:#22c55e;color:#fff}
 .secondary{background:transparent;color:#fff;border:2px solid #fff}
 
-/* ===== SECTION (RESTORED SPACING) ===== */
+/* ===== SECTION ===== */
 .section{
   max-width:1100px;
   margin:auto;
   padding:60px 20px;
 }
-.section h2{
-  text-align:center;
-  margin-bottom:20px;
-}
+.section h2{text-align:center;margin-bottom:20px}
 
 /* ===== GALLERY SLIDER ===== */
 .slider{overflow:hidden}
@@ -147,6 +155,19 @@ a{text-decoration:none}
   margin:8px 0;
 }
 .footer a:hover{color:#22c55e}
+
+/* ===== SOCIAL ICONS ===== */
+.socials{
+  display:flex;
+  gap:14px;
+  margin-top:12px;
+}
+.socials a svg{
+  width:22px;
+  height:22px;
+  fill:#cbd5f5;
+}
+.socials a:hover svg{fill:#22c55e}
 
 .footer-bottom{
   text-align:center;
@@ -193,7 +214,7 @@ a{text-decoration:none}
   </div>
 </div>
 
-<!-- GALLERY (SPACING RESTORED) -->
+<!-- GALLERY -->
 <div class="section">
   <h2>Photo Gallery</h2>
   <div class="slider">
@@ -212,6 +233,7 @@ a{text-decoration:none}
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
+
     <div>
       <h3>Sadri Villa</h3>
       <p>A living heritage serving humanity.</p>
@@ -228,7 +250,11 @@ a{text-decoration:none}
       <h4>Contact</h4>
       <p>📍 Fazilpur, Samastipur</p>
       <p>📧 info@sadrivilla.in</p>
+      <a href="https://maps.google.com?q=Sadri+Villa+Fazilpur" target="_blank">
+        🗺️ Villa Map
+      </a>
     </div>
+
   </div>
 
   <div class="footer-bottom">
