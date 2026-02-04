@@ -39,32 +39,29 @@
 <style>
 :root{
   --blue:#60a5fa;
-  --blue-soft:#e0f2fe;
   --blue-dark:#2563eb;
   --glass:rgba(255,255,255,.35);
   --border:rgba(255,255,255,.5);
 }
 
 /* ===== BASE ===== */
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f8fafc;
-  color:#0f172a;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
 a{text-decoration:none}
 
-/* ===== HEADER (LIGHT) ===== */
+/* ===== HEADER ===== */
 .navbar{
   position:fixed;top:0;left:0;right:0;
-  background:rgba(224,242,254,.75);
+  background:rgba(224,242,254,.8);
   backdrop-filter:blur(14px);
   display:flex;justify-content:space-between;align-items:center;
   padding:14px 22px;
   box-shadow:0 6px 24px rgba(0,0,0,.08);
   z-index:1000;
 }
-.brand img{height:70px}
+.brand img{height:56px}
+
+/* ===== NAV ACTIONS ===== */
+.nav-actions{display:flex;gap:8px;align-items:center}
 
 /* ===== GLASS BUTTON ===== */
 .glass-btn{
@@ -77,13 +74,40 @@ a{text-decoration:none}
   font-weight:600;
   color:#1e3a8a;
   transition:.25s;
+  position:relative;
+  overflow:hidden;
 }
-.glass-btn:active{transform:scale(.96)}
+.glass-btn:active{
+  background:rgba(255,255,255,.6);
+  transform:scale(.96);
+}
 .primary{
   background:linear-gradient(135deg,var(--blue),var(--blue-dark));
   color:#fff;
   border:none;
 }
+
+/* ===== MORE MENU ===== */
+.more-menu{position:relative;display:none}
+.more-btn{font-size:18px;padding:8px 12px}
+.more-dropdown{
+  position:absolute;
+  right:0;top:44px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(12px);
+  border-radius:14px;
+  box-shadow:0 20px 40px rgba(0,0,0,.2);
+  display:none;
+  min-width:120px;
+}
+.more-dropdown a{
+  display:block;
+  padding:12px 16px;
+  color:#1e3a8a;
+  font-weight:600;
+}
+.more-dropdown a:hover{background:#e0f2fe}
+.more-menu:focus-within .more-dropdown{display:block}
 
 /* ===== HERO ===== */
 .hero{
@@ -98,24 +122,16 @@ a{text-decoration:none}
 .hero-content{max-width:900px}
 .hero h1{font-size:46px}
 .hero p{font-size:19px;line-height:1.6}
-
-/* ===== ULTRA PREMIUM MOBILE HERO ===== */
-@media(max-width:768px){
-  .hero{
-    min-height:auto;
-    padding:100px 16px 80px;
-    text-align:left;
-  }
-  .hero h1{font-size:30px}
-  .hero p{font-size:16px}
+.hero-buttons{
+  margin-top:20px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
 /* ===== SECTIONS ===== */
-.section{
-  max-width:1100px;
-  margin:auto;
-  padding:80px 20px;
-}
+.section{max-width:1100px;margin:auto;padding:80px 20px}
 .section h2{text-align:center;margin-bottom:20px}
 
 /* ===== GLASS CARDS ===== */
@@ -138,64 +154,57 @@ a{text-decoration:none}
 .glass-card:hover{transform:translateY(-6px)}
 
 /* ===== COUNTERS ===== */
-.counter{
-  font-size:40px;
-  font-weight:700;
-  color:#2563eb;
-}
+.counter{font-size:40px;font-weight:700;color:#2563eb}
 
-/* ===== TIMELINE (IMPROVED + STICKY) ===== */
-.timeline-wrap{
-  display:grid;
-  grid-template-columns:1fr 2fr;
-  gap:40px;
-}
-.timeline-title{
-  position:sticky;
-  top:120px;
-}
-.timeline{
-  position:relative;
-  padding-left:30px;
-}
+/* ===== TIMELINE ===== */
+.timeline-wrap{display:grid;grid-template-columns:1fr 2fr;gap:40px}
+.timeline-title{position:sticky;top:120px}
+.timeline{position:relative;padding-left:30px}
 .timeline:before{
   content:"";
-  position:absolute;
-  left:10px;top:0;bottom:0;
-  width:3px;
-  background:linear-gradient(var(--blue),transparent);
+  position:absolute;left:10px;top:0;bottom:0;
+  width:3px;background:linear-gradient(var(--blue),transparent);
 }
-.timeline-item{
-  margin-bottom:40px;
-}
-.timeline-item h4{
-  margin:0;
-  color:#1d4ed8;
-}
+.timeline-item{margin-bottom:40px}
+.timeline-item h4{margin:0;color:#1d4ed8}
 
-/* ===== GALLERY ===== */
-.slider{overflow:hidden}
-.slide-track{
-  display:flex;gap:16px;
-  animation:scroll 25s linear infinite;
+/* ===== EDGE TO EDGE CAROUSEL ===== */
+.slider-full{
+  width:100vw;
+  margin-left:calc(-50vw + 50%);
+  overflow:hidden;
+  padding:30px 0 70px;
 }
-.slide-track img{
-  height:220px;
-  border-radius:20px;
-  object-fit:cover;
+.carousel .slide-track{
+  display:flex;gap:24px;
+  padding:0 30px;
+  animation:scroll 32s linear infinite;
+  align-items:center;
+}
+.carousel:hover .slide-track{animation-play-state:paused}
+.carousel-item{
+  height:260px;
+  min-width:420px;
+  object-fit:contain;
+  background:#000;
+  border-radius:24px;
+  filter:blur(2px) brightness(.85);
+  transform:scale(.92);
+  transition:.6s;
   cursor:pointer;
-  transition:.4s;
 }
-.slide-track img:hover{
-  transform:scale(1.05);
-  box-shadow:0 20px 40px rgba(0,0,0,.3);
+.carousel-item.active{
+  filter:none;
+  transform:scale(1.08);
+  box-shadow:0 30px 60px rgba(0,0,0,.35);
+  z-index:2;
 }
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
 
-/* ===== FOOTER (UNCHANGED / FULL) ===== */
+/* ===== FOOTER ===== */
 .footer{
   background:#0f172a;
   color:#cbd5f5;
@@ -209,28 +218,28 @@ a{text-decoration:none}
   gap:30px;
 }
 .footer h3,.footer h4{color:#fff}
-.footer a{
-  display:block;
-  color:#cbd5f5;
-  margin:8px 0;
-}
+.footer a{display:block;color:#cbd5f5;margin:8px 0}
 .footer a:hover{color:#22c55e}
-.footer-bottom{
-  text-align:center;
-  margin-top:30px;
-  font-size:14px;
-  color:#94a3b8;
-}
+.footer-bottom{text-align:center;margin-top:30px;font-size:14px;color:#94a3b8}
 
 /* ===== SCROLL REVEAL ===== */
-.reveal{
-  opacity:0;
-  transform:translateY(40px);
-  transition:1s;
+.reveal{opacity:0;transform:translateY(40px);transition:1s}
+.reveal.show{opacity:1;transform:none}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .navbar{padding:12px}
+  .brand img{height:40px;margin-left:0}
+  .hero{padding:100px 16px 80px;text-align:left}
+  .hero h1{font-size:30px}
+  .hero p{font-size:16px}
+  .carousel-item{height:200px;min-width:300px}
 }
-.reveal.show{
-  opacity:1;
-  transform:none;
+
+/* ===== ULTRA SMALL ===== */
+@media(max-width:360px){
+  .about-btn{display:none}
+  .more-menu{display:block}
 }
 </style>
 </head>
@@ -242,10 +251,16 @@ a{text-decoration:none}
   <div class="brand">
     <img src="images/logo.png" alt="Sadri Villa Fazilpur Heritage Logo">
   </div>
-  <div>
+  <div class="nav-actions">
     <button class="glass-btn" onclick="location.href='login.html'">Login</button>
     <button class="glass-btn primary" onclick="location.href='signup.html'">Sign Up</button>
-    <button class="glass-btn" onclick="location.href='about.html'">About</button>
+    <button class="glass-btn about-btn" onclick="location.href='about.html'">About</button>
+    <div class="more-menu" tabindex="0">
+      <button class="glass-btn more-btn">⋮</button>
+      <div class="more-dropdown">
+        <a href="about.html">About</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -254,7 +269,12 @@ a{text-decoration:none}
   <div class="hero-content reveal">
     <h1>Sadri Villa – A Living Heritage</h1>
     <p>150+ years of compassion, shelter, and service in Fazilpur, Samastipur, Bihar.</p>
-    <button class="glass-btn primary" onclick="location.href='signup.html'">Join the Legacy</button>
+
+    <!-- UPDATED BUTTONS -->
+    <div class="hero-buttons">
+      <button class="glass-btn primary" onclick="location.href='signup.html'">Join the Legacy</button>
+      <button class="glass-btn" onclick="location.href='about.html'">About Sadri Villa</button>
+    </div>
   </div>
 </div>
 
@@ -288,18 +308,18 @@ a{text-decoration:none}
 <!-- GALLERY -->
 <div class="section reveal">
   <h2>Photo Gallery</h2>
-  <div class="slider">
-    <div class="slide-track">
-      <img src="images/gallery1.jpg">
-      <img src="images/gallery2.jpg">
-      <img src="images/gallery3.jpg">
-      <img src="images/gallery4.jpg">
-      <img src="images/gallery1.jpg">
-    </div>
+</div>
+<div class="slider-full carousel reveal">
+  <div class="slide-track">
+    <img class="carousel-item" src="images/gallery1.jpg">
+    <img class="carousel-item" src="images/gallery2.jpg">
+    <img class="carousel-item" src="images/gallery3.jpg">
+    <img class="carousel-item" src="images/gallery4.jpg">
+    <img class="carousel-item" src="images/gallery1.jpg">
   </div>
 </div>
 
-<!-- FOOTER (UNCHANGED) -->
+<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
     <div>
@@ -343,8 +363,22 @@ const obs=new IntersectionObserver(e=>{
 },{threshold:.2});
 document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
 
+/* CAROUSEL CENTER FOCUS */
+const items=document.querySelectorAll(".carousel-item");
+setInterval(()=>{
+  const center=window.innerWidth/2;
+  let closest=null,dist=Infinity;
+  items.forEach(img=>{
+    const r=img.getBoundingClientRect();
+    const d=Math.abs(center-(r.left+r.width/2));
+    img.classList.remove("active");
+    if(d<dist){dist=d;closest=img}
+  });
+  if(closest)closest.classList.add("active");
+},300);
+
 /* GALLERY FULLSCREEN */
-document.querySelectorAll(".slide-track img").forEach(img=>{
+document.querySelectorAll(".carousel-item").forEach(img=>{
   img.onclick=()=>{
     const o=document.createElement("div");
     o.style="position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999";
