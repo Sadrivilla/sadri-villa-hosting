@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Admin Media | Sadri Villa</title>
 
-<!-- Firebase compat (stable for admin tools) -->
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
@@ -15,43 +15,46 @@ body{font-family:Arial;background:#f8fafc;padding:30px}
 .card{background:#fff;padding:20px;border-radius:14px;max-width:520px;margin-bottom:22px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
 button{padding:10px 16px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer}
 small{color:#64748b}
-.preview{margin-top:10px}
-.preview img{max-width:100%;border-radius:12px}
+.preview img{max-width:100%;border-radius:12px;margin-top:10px}
 .back{background:#64748b;margin-bottom:20px}
+.progress{margin-top:8px;font-size:13px;color:#2563eb}
 </style>
 </head>
 
 <body>
 
-<button class="back" onclick="history.back()">← Back</button>
+<button class="back" onclick="location.href='admin-dashboard.html'">← Back</button>
 
 <h2>Admin Media Upload – Sadri Villa</h2>
 
 <div class="card">
   <h3>Upload Logo</h3>
-  <small>PNG | 300 × 80 px</small><br><br>
-  <input type="file" id="logo" accept="image/*">
+  <small>PNG | 300 × 80</small><br><br>
+  <input type="file" id="logo">
   <button onclick="uploadSingle('logo',300,80)">Upload Logo</button>
+  <div class="progress" id="logoProg"></div>
   <div class="preview" id="logoPrev"></div>
 </div>
 
 <div class="card">
   <h3>Upload Hero Image</h3>
-  <small>JPG | 1920 × 1080 px</small><br><br>
-  <input type="file" id="hero" accept="image/*">
+  <small>JPG | 1920 × 1080</small><br><br>
+  <input type="file" id="hero">
   <button onclick="uploadSingle('hero',1920,1080)">Upload Hero</button>
+  <div class="progress" id="heroProg"></div>
   <div class="preview" id="heroPrev"></div>
 </div>
 
 <div class="card">
   <h3>Upload Slider Images</h3>
-  <small>Multiple images | 1600 × 900 px</small><br><br>
-  <input type="file" id="slider" multiple accept="image/*">
-  <button onclick="uploadSlider()">Upload Slider Images</button>
+  <small>Multiple | 1600 × 900</small><br><br>
+  <input type="file" id="slider" multiple>
+  <button onclick="uploadSlider()">Upload Slider</button>
+  <div class="progress" id="sliderProg"></div>
 </div>
 
 <script>
-/* 🔥 FIREBASE CONFIG — REQUIRED */
+/* ================= FIREBASE INIT ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
@@ -59,73 +62,97 @@ firebase.initializeApp({
   storageBucket: "sadri-villa-14c06.appspot.com"
 });
 
-const auth = firebase.auth();
-const storage = firebase.storage();
-const db = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
+const storage=firebase.storage();
 
-/* AUTH GUARD */
-auth.onAuthStateChanged(user=>{
+/* ================= AUTH + ADMIN CHECK ================= */
+auth.onAuthStateChanged(async user=>{
   if(!user){
-    alert("Login required");
+    alert("❌ Login required");
     location.href="login.html";
+    return;
+  }
+  const snap=await db.collection("users").doc(user.uid).get();
+  if(!snap.exists || snap.data().role!=="admin"){
+    alert("❌ Admin access only");
+    location.href="dashboard.html";
   }
 });
 
-/* IMAGE RESIZE */
+/* ================= IMAGE RESIZER ================= */
 function resizeImage(file,w,h){
-  return new Promise(res=>{
+  return new Promise((res,rej)=>{
     const img=new Image();
     img.onload=()=>{
       const c=document.createElement("canvas");
       c.width=w;c.height=h;
       c.getContext("2d").drawImage(img,0,0,w,h);
-      c.toBlob(b=>res(b),"image/jpeg",0.85);
+      c.toBlob(b=>b?res(b):rej("Resize failed"),"image/jpeg",0.85);
     };
+    img.onerror=()=>rej("Invalid image");
     img.src=URL.createObjectURL(file);
   });
 }
 
-/* SINGLE UPLOAD */
+/* ================= SINGLE UPLOAD ================= */
 async function uploadSingle(type,w,h){
   const file=document.getElementById(type).files[0];
-  if(!file) return alert("Select image");
+  if(!file) return alert("❌ No file selected");
 
-  const blob=await resizeImage(file,w,h);
-  const ref=storage.ref(`images/site/${type}.jpg`);
-  await ref.put(blob);
-  const url=await ref.getDownloadURL();
+  const prog=document.getElementById(type+"Prog");
+  prog.innerText="⏳ Preparing image...";
 
-  await db.collection("siteSettings").doc("home").set({
-    [type]:{url, width:w, height:h, alt:`Sadri Villa ${type}`}
-  },{merge:true});
+  try{
+    const blob=await resizeImage(file,w,h);
+    const ref=storage.ref(`images/site/${type}.jpg`);
 
-  document.getElementById(type+"Prev").innerHTML=`<img src="${url}">`;
-  alert(type+" uploaded");
+    const task=ref.put(blob);
+    task.on("state_changed",
+      s=>prog.innerText=`⬆ Uploading ${Math.round(s.bytesTransferred/s.totalBytes*100)}%`,
+      e=>{console.error(e);alert("❌ Upload failed: "+e.message)},
+      async ()=>{
+        const url=await ref.getDownloadURL();
+        await db.collection("siteSettings").doc("home").set({
+          [type]:{url,width:w,height:h,alt:`Sadri Villa ${type}`}
+        },{merge:true});
+        document.getElementById(type+"Prev").innerHTML=`<img src="${url}">`;
+        prog.innerText="✅ Uploaded successfully";
+      }
+    );
+  }catch(e){
+    console.error(e);
+    alert("❌ ERROR: "+e);
+  }
 }
 
-/* SLIDER UPLOAD */
+/* ================= SLIDER UPLOAD ================= */
 async function uploadSlider(){
   const files=[...document.getElementById("slider").files];
-  if(!files.length) return alert("Select images");
+  if(!files.length) return alert("❌ No images selected");
 
-  const ref=db.collection("siteSettings").doc("home");
+  const prog=document.getElementById("sliderProg");
+  prog.innerText="⏳ Uploading slider images...";
 
-  for(const f of files){
-    const blob=await resizeImage(f,1600,900);
-    const path=`images/site/slider/${Date.now()}-${f.name}`;
-    const sref=storage.ref(path);
-    await sref.put(blob);
-    const url=await sref.getDownloadURL();
+  try{
+    for(const f of files){
+      const blob=await resizeImage(f,1600,900);
+      const path=`images/site/slider/${Date.now()}-${f.name}`;
+      const ref=storage.ref(path);
+      await ref.put(blob);
+      const url=await ref.getDownloadURL();
 
-    await ref.set({
-      sliderImages:firebase.firestore.FieldValue.arrayUnion({
-        url, width:1600, height:900,
-        alt:"Sadri Villa Gallery",
-        order:Date.now()
-      })
-    },{merge:true});
+      await db.collection("siteSettings").doc("home").set({
+        sliderImages:firebase.firestore.FieldValue.arrayUnion({
+          url,width:1600,height:900,alt:"Sadri Villa Gallery",order:Date.now()
+        })
+      },{merge:true});
+    }
+    prog.innerText="✅ Slider upload complete";
+  }catch(e){
+    console.error(e);
+    alert("❌ Slider upload failed: "+e.message);
   }
-  alert("Slider images uploaded");
 }
 </script>
 
