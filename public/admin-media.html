@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Media | Sadri Villa</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{font-family:Arial;padding:30px;background:#f8fafc}
+.card{background:#fff;padding:20px;border-radius:12px;max-width:500px;margin-bottom:20px}
+button{padding:10px 16px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+</style>
+</head>
+
+<body>
+
+<h2>Admin Media Upload – Sadri Villa</h2>
+
+<div class="card">
+  <h3>Upload Logo</h3>
+  <input type="file" id="logo">
+  <button onclick="upload('logo')">Upload Logo</button>
+</div>
+
+<div class="card">
+  <h3>Upload Hero Image</h3>
+  <input type="file" id="hero">
+  <button onclick="upload('hero')">Upload Hero</button>
+</div>
+
+<div class="card">
+  <h3>Upload Slider Image</h3>
+  <input type="file" id="slider">
+  <button onclick="upload('slider')">Upload Slider</button>
+</div>
+
+<script>
+const firebaseConfig = {
+  /* YOUR FIREBASE CONFIG HERE */
+};
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+/* Admin check */
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    alert("Login required");
+    location.href="login.html";
+  }
+});
+
+async function upload(type){
+  const file = document.getElementById(type).files[0];
+  if(!file){ alert("Select a file"); return; }
+
+  let path = "";
+  if(type==="logo") path="images/site/logo.png";
+  if(type==="hero") path="images/site/hero.jpg";
+  if(type==="slider") path=`images/site/slider/${Date.now()}.jpg`;
+
+  const ref = storage.ref(path);
+  await ref.put(file);
+  const url = await ref.getDownloadURL();
+
+  const docRef = db.collection("siteSettings").doc("home");
+
+  if(type==="slider"){
+    await docRef.update({
+      sliderImages: firebase.firestore.FieldValue.arrayUnion({
+        url:url,
+        active:true,
+        order:Date.now()
+      })
+    });
+  }else{
+    await docRef.set({ [`${type}Url`]: url }, { merge:true });
+  }
+
+  alert(type+" uploaded successfully!");
+}
+</script>
+
+</body>
+</html>
