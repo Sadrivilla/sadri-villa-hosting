@@ -4,225 +4,118 @@
 <meta charset="UTF-8">
 
 <title>Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar</title>
-
+<meta name="description" content="Sadri Villa is a 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing shelter and community support.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Sadri Villa is a 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and community support.">
-
 <link rel="canonical" href="https://sadrivilla.in/">
 
-<!-- ===== SEO PRELOAD (CRITICAL) ===== -->
-<link rel="preload" as="image" href="images/logo.png">
-<link rel="preload" as="image" href="images/hero-fallback.jpg">
+<!-- ✅ SEO PRELOAD (fallback images) -->
+<link rel="preload" as="image" href="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media">
+<link rel="preload" as="image" href="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Fhero.jpg?alt=media">
 
-<!-- ===== BASE CSS ===== -->
 <style>
-:root{
-  --blue:#3b82f6;
-  --blue-dark:#1d4ed8;
-  --glass:rgba(255,255,255,.35);
-  --border:rgba(255,255,255,.5);
-}
+/* ===== EXISTING UI (SAFE) ===== */
+body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
 
-/* RESET */
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:#f8fafc;
-  color:#0f172a;
-}
-a{text-decoration:none;color:inherit}
-
-/* ===== LOADING SKELETON ===== */
-.skeleton{
-  background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%);
-  background-size:400% 100%;
-  animation:shimmer 1.4s ease infinite;
-}
-@keyframes shimmer{
-  0%{background-position:100% 0}
-  100%{background-position:-100% 0}
-}
-
-/* ===== NAVBAR ===== */
+/* NAVBAR */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:72px;
-  background:rgba(224,242,254,.85);
-  backdrop-filter:blur(14px);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 24px;
-  z-index:1000;
-  box-shadow:0 8px 30px rgba(0,0,0,.08);
+  position:fixed;top:0;left:0;right:0;
+  background:#e0f2fe;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 22px;z-index:1000
 }
+.brand img{height:56px}
+.nav-actions{display:flex;gap:10px}
+button{padding:10px 18px;border-radius:14px;border:none;cursor:pointer;font-weight:600}
+.primary{background:#2563eb;color:#fff}
 
-.brand img{
-  height:48px;
-}
-
-.nav-actions{
-  display:flex;
-  gap:10px;
-}
-
-.glass-btn{
-  padding:10px 18px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--glass);
-  font-weight:600;
-  cursor:pointer;
-  transition:.25s;
-}
-.glass-btn:hover{transform:translateY(-1px)}
-.primary{
-  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
-  color:#fff;
-  border:none;
-}
-
-/* ===== HERO ===== */
+/* HERO */
 .hero{
-  margin-top:72px;
-  min-height:92vh;
-  background:
-    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-    url("images/hero-fallback.jpg") center/cover no-repeat;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  color:#fff;
-  padding:20px;
+  margin-top:80px;
+  min-height:90vh;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;color:#fff;
+  background:#999;
+  transition:background .4s ease
 }
+.hero h1{font-size:46px}
+.hero p{font-size:18px}
+.hero-buttons{margin-top:20px;display:flex;gap:12px;justify-content:center}
 
-.hero-content{
-  max-width:900px;
-}
-
-.hero h1{
-  font-size:46px;
-  margin-bottom:10px;
-}
-
-.hero p{
-  font-size:18px;
-  line-height:1.6;
-}
-
-.hero-buttons{
-  margin-top:22px;
-  display:flex;
-  gap:14px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
-/* ===== SLIDER ===== */
+/* SLIDER */
 .slider-full{
   width:100vw;
   margin-left:calc(-50vw + 50%);
   overflow:hidden;
-  padding:60px 0;
-  background:#fff;
+  padding:40px 0
 }
-
-.carousel .slide-track{
+.slide-track{
   display:flex;
   gap:24px;
-  padding:0 30px;
-  animation:scroll 35s linear infinite;
-  align-items:center;
+  animation:scroll 35s linear infinite
 }
-
-.carousel:hover .slide-track{
-  animation-play-state:paused;
-}
-
 .carousel-item{
-  min-width:420px;
   height:260px;
+  min-width:420px;
   object-fit:contain;
-  background:#000;
-  border-radius:24px;
-  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  border-radius:20px;
+  background:#000
 }
-
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
 
-/* ===== FOOTER ===== */
-.footer{
-  background:#0f172a;
-  color:#cbd5f5;
-  padding:60px 20px 20px;
-}
-.footer-grid{
-  max-width:1100px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:30px;
-}
-.footer h3,.footer h4{color:#fff}
-.footer a{display:block;margin:6px 0;color:#cbd5f5}
-.footer-bottom{
-  text-align:center;
-  margin-top:30px;
-  font-size:14px;
-  color:#94a3b8;
-}
+/* FOOTER */
+.footer{background:#0f172a;color:#cbd5f5;padding:50px 20px}
+.footer-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.footer a{color:#cbd5f5;text-decoration:none}
+.footer-bottom{text-align:center;margin-top:20px;font-size:14px}
 
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-  .hero h1{font-size:30px}
-  .hero p{font-size:16px}
-  .carousel-item{min-width:300px;height:200px}
+/* LOADING SKELETON */
+.skeleton{
+  background:linear-gradient(90deg,#ddd,#eee,#ddd);
+  background-size:200% 100%;
+  animation:skeleton 1.2s infinite;
+}
+@keyframes skeleton{
+  from{background-position:0%}
+  to{background-position:200%}
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== NAVBAR ===== -->
+<!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <!-- Skeleton until Firebase loads -->
-    <img id="siteLogo"
-         src="images/logo.png"
-         alt="Sadri Villa Logo"
-         class="skeleton">
+    <img id="siteLogo" class="skeleton" alt="Sadri Villa Logo">
   </div>
   <div class="nav-actions">
-    <button class="glass-btn" onclick="location.href='login.html'">Login</button>
-    <button class="glass-btn primary" onclick="location.href='signup.html'">Sign Up</button>
-    <button class="glass-btn" onclick="location.href='about.html'">About</button>
+    <button onclick="location.href='login.html'">Login</button>
+    <button class="primary" onclick="location.href='signup.html'">Sign Up</button>
+    <button onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
-<!-- ===== HERO ===== -->
+<!-- HERO -->
 <div class="hero" id="heroSection">
-  <div class="hero-content">
+  <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p>150+ years of compassion, shelter, and service in Fazilpur, Samastipur, Bihar.</p>
     <div class="hero-buttons">
-      <button class="glass-btn primary" onclick="location.href='signup.html'">Join the Legacy</button>
-      <button class="glass-btn" onclick="location.href='about.html'">About Sadri Villa</button>
+      <button class="primary" onclick="location.href='signup.html'">Join the Legacy</button>
+      <button onclick="location.href='about.html'">About Sadri Villa</button>
     </div>
   </div>
 </div>
 
-<!-- ===== SLIDER ===== -->
-<div class="slider-full carousel">
-  <div class="slide-track skeleton" id="sliderTrack"></div>
+<!-- SLIDER -->
+<div class="slider-full">
+  <div class="slide-track" id="sliderTrack"></div>
 </div>
 
-<!-- ===== FOOTER ===== -->
+<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-grid">
     <div>
@@ -231,70 +124,74 @@ a{text-decoration:none;color:inherit}
     </div>
     <div>
       <h4>Quick Links</h4>
-      <a href="login.html">Login</a>
-      <a href="signup.html">Sign Up</a>
+      <a href="login.html">Login</a><br>
+      <a href="signup.html">Sign Up</a><br>
       <a href="about.html">About</a>
     </div>
   </div>
-  <div class="footer-bottom">
-    © <span id="year"></span> Sadri Villa
-  </div>
+  <div class="footer-bottom">© <span id="year"></span> Sadri Villa</div>
 </footer>
 
 <script>
 document.getElementById("year").innerText=new Date().getFullYear();
 </script>
 
-<!-- ===== FIREBASE MEDIA LOADER ===== -->
+<!-- ===== FIREBASE MEDIA LOADER (WITH FALLBACK) ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+const firebaseConfig={
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
+/* 🔁 FALLBACK STORAGE URLS */
+const FALLBACK={
+  logo:"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media",
+  hero:"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Fhero.jpg?alt=media"
+};
+
+/* APPLY FALLBACK FIRST */
+const logoEl=document.getElementById("siteLogo");
+logoEl.src=FALLBACK.logo;
+logoEl.classList.remove("skeleton");
+
+document.getElementById("heroSection").style.background=
+`linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('${FALLBACK.hero}') center/cover no-repeat`;
+
+/* LOAD FROM FIRESTORE IF EXISTS */
 async function loadSiteMedia(){
-  const snap = await getDoc(doc(db,"siteSettings","home"));
+  const snap=await getDoc(doc(db,"siteSettings","home"));
   if(!snap.exists()) return;
-  const d = snap.data();
 
-  /* LOGO */
-  if(d.logo){
-    const logo=document.getElementById("siteLogo");
-    logo.src=d.logo.url;
-    logo.classList.remove("skeleton");
+  const d=snap.data();
+
+  if(d.logo?.url){
+    logoEl.src=d.logo.url;
   }
 
-  /* HERO */
-  if(d.hero){
-    document.getElementById("heroSection").style.background =
-      `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('${d.hero.url}') center/cover no-repeat`;
+  if(d.hero?.url){
+    document.getElementById("heroSection").style.background=
+    `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('${d.hero.url}') center/cover no-repeat`;
   }
 
-  /* SLIDER */
   if(Array.isArray(d.sliderImages)){
     const track=document.getElementById("sliderTrack");
     track.innerHTML="";
-    track.classList.remove("skeleton");
-
-    const ordered=[...d.sliderImages].sort((a,b)=>a.order-b.order);
-    [...ordered,...ordered].forEach(img=>{
-      const el=document.createElement("img");
-      el.src=img.url;
-      el.alt=img.alt || "Sadri Villa Gallery";
-      el.className="carousel-item";
-      el.loading="lazy";
-      track.appendChild(el);
+    const imgs=[...d.sliderImages,...d.sliderImages];
+    imgs.forEach(i=>{
+      const im=document.createElement("img");
+      im.src=i.url;
+      im.className="carousel-item";
+      track.appendChild(im);
     });
   }
 }
-
 loadSiteMedia();
 </script>
 
