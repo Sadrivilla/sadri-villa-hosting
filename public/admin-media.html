@@ -4,128 +4,66 @@
 <meta charset="UTF-8">
 <title>Admin Media | Sadri Villa</title>
 
-<!-- Firebase v9 compat -->
+<!-- Firebase compat (stable for admin tools) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<!-- Image compression -->
-<script src="https://unpkg.com/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
-
 <style>
-body{
-  font-family:Arial;
-  background:#f8fafc;
-  padding:30px
-}
-h2{margin-bottom:20px}
-.card{
-  background:#fff;
-  padding:22px;
-  border-radius:16px;
-  max-width:650px;
-  margin-bottom:28px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08)
-}
-button{
-  padding:10px 16px;
-  border-radius:10px;
-  border:none;
-  background:#2563eb;
-  color:#fff;
-  font-weight:600;
-  cursor:pointer
-}
-button.delete{background:#dc2626}
-small{color:#6b7280}
-img.preview{
-  max-width:100%;
-  margin-top:12px;
-  border-radius:10px
-}
-.slider-item{
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-  margin-top:14px;
-  cursor:grab
-}
-.slider-item.dragging{
-  opacity:.5;
-  border:2px dashed #6366f1
-}
-.slider-item img{
-  width:160px;
-  aspect-ratio:16/9;
-  object-fit:cover;
-  border-radius:10px;
-  border:1px solid #e5e7eb
-}
-.slider-meta{
-  font-size:12px;
-  color:#6b7280
-}
-.badge{
-  display:inline-block;
-  background:#e0e7ff;
-  color:#3730a3;
-  padding:4px 8px;
-  border-radius:8px;
-  font-size:12px;
-  margin-top:6px
-}
+body{font-family:Arial;background:#f8fafc;padding:30px}
+.card{background:#fff;padding:20px;border-radius:14px;max-width:520px;margin-bottom:22px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+button{padding:10px 16px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+small{color:#64748b}
+.preview{margin-top:10px}
+.preview img{max-width:100%;border-radius:12px}
+.back{background:#64748b;margin-bottom:20px}
 </style>
 </head>
 
 <body>
 
-<h2>🖼 Admin Media Manager – Sadri Villa</h2>
+<button class="back" onclick="history.back()">← Back</button>
 
-<!-- LOGO -->
+<h2>Admin Media Upload – Sadri Villa</h2>
+
 <div class="card">
-  <h3>Logo</h3>
-  <small>Required size: <b>400 × 120 px</b></small><br><br>
-  <input type="file" id="logo" accept="image/*"><br><br>
-  <button onclick="uploadSingle('logo')">Upload Logo</button>
-  <img id="logoPreview" class="preview">
-  <div id="logoSize" class="badge"></div>
+  <h3>Upload Logo</h3>
+  <small>PNG | 300 × 80 px</small><br><br>
+  <input type="file" id="logo" accept="image/*">
+  <button onclick="uploadSingle('logo',300,80)">Upload Logo</button>
+  <div class="preview" id="logoPrev"></div>
 </div>
 
-<!-- HERO -->
 <div class="card">
-  <h3>Hero Image</h3>
-  <small>Required size: <b>1920 × 1080 px (16:9)</b></small><br><br>
-  <input type="file" id="hero" accept="image/*"><br><br>
-  <button onclick="uploadSingle('hero')">Upload Hero</button>
-  <img id="heroPreview" class="preview">
-  <div id="heroSize" class="badge"></div>
+  <h3>Upload Hero Image</h3>
+  <small>JPG | 1920 × 1080 px</small><br><br>
+  <input type="file" id="hero" accept="image/*">
+  <button onclick="uploadSingle('hero',1920,1080)">Upload Hero</button>
+  <div class="preview" id="heroPrev"></div>
 </div>
 
-<!-- SLIDER -->
 <div class="card">
-  <h3>Slider Images</h3>
-  <small>
-    Required size: <b>1600 × 900 px (16:9)</b><br>
-    All images auto-resized to same size
-  </small><br><br>
-  <input type="file" id="slider" accept="image/*" multiple><br><br>
+  <h3>Upload Slider Images</h3>
+  <small>Multiple images | 1600 × 900 px</small><br><br>
+  <input type="file" id="slider" multiple accept="image/*">
   <button onclick="uploadSlider()">Upload Slider Images</button>
-  <div id="sliderList"></div>
 </div>
 
 <script>
-/* ================= FIREBASE INIT ================= */
-const firebaseConfig = {
-  /* 🔴 PASTE YOUR FIREBASE CONFIG HERE 🔴 */
-};
-firebase.initializeApp(firebaseConfig);
+/* 🔥 FIREBASE CONFIG — REQUIRED */
+firebase.initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.appspot.com"
+});
 
 const auth = firebase.auth();
 const storage = firebase.storage();
 const db = firebase.firestore();
 
-/* ================= AUTH CHECK ================= */
+/* AUTH GUARD */
 auth.onAuthStateChanged(user=>{
   if(!user){
     alert("Login required");
@@ -133,169 +71,62 @@ auth.onAuthStateChanged(user=>{
   }
 });
 
-/* ================= HELPERS ================= */
-function seoAlt(type){
-  if(type==="logo") return "Sadri Villa official heritage logo";
-  if(type==="hero") return "Sadri Villa ancestral family home in Fazilpur village";
-  return "Sadri Villa heritage family residence in Fazilpur";
-}
-
-function showImageSize(img,target){
-  img.onload=()=>{
-    document.getElementById(target).innerText =
-      `Final size: ${img.naturalWidth} × ${img.naturalHeight}px`;
-  };
-}
-
-async function compressImage(file,maxSide){
-  return await imageCompression(file,{
-    maxSizeMB:0.6,
-    maxWidthOrHeight:maxSide,
-    initialQuality:0.82,
-    useWebWorker:true
+/* IMAGE RESIZE */
+function resizeImage(file,w,h){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas");
+      c.width=w;c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      c.toBlob(b=>res(b),"image/jpeg",0.85);
+    };
+    img.src=URL.createObjectURL(file);
   });
 }
 
-/* ================= LOGO & HERO ================= */
-async function uploadSingle(type){
+/* SINGLE UPLOAD */
+async function uploadSingle(type,w,h){
   const file=document.getElementById(type).files[0];
-  if(!file) return alert("Select an image");
+  if(!file) return alert("Select image");
 
-  const maxSide=type==="logo"?400:1920;
-  const compressed=await compressImage(file,maxSide);
-
-  const path=type==="logo"
-    ?"images/site/logo.png"
-    :"images/site/hero.jpg";
-
-  const ref=storage.ref(path);
-  await ref.put(compressed);
+  const blob=await resizeImage(file,w,h);
+  const ref=storage.ref(`images/site/${type}.jpg`);
+  await ref.put(blob);
   const url=await ref.getDownloadURL();
 
-  const width=type==="logo"?400:1920;
-  const height=type==="logo"?120:1080;
-
   await db.collection("siteSettings").doc("home").set({
-    [type]:{url,alt:seoAlt(type),width,height}
+    [type]:{url, width:w, height:h, alt:`Sadri Villa ${type}`}
   },{merge:true});
 
-  const img=document.getElementById(type+"Preview");
-  img.src=url;
-  showImageSize(img,type+"Size");
-
-  alert(type.toUpperCase()+" uploaded successfully");
+  document.getElementById(type+"Prev").innerHTML=`<img src="${url}">`;
+  alert(type+" uploaded");
 }
 
-/* ================= SLIDER UPLOAD ================= */
+/* SLIDER UPLOAD */
 async function uploadSlider(){
   const files=[...document.getElementById("slider").files];
-  if(!files.length) return alert("Select slider images");
+  if(!files.length) return alert("Select images");
 
-  const docRef=db.collection("siteSettings").doc("home");
+  const ref=db.collection("siteSettings").doc("home");
 
-  for(const file of files){
-    const compressed=await compressImage(file,1600);
-    const name=`images/site/slider/sadri-villa-slider-${Date.now()}.jpg`;
+  for(const f of files){
+    const blob=await resizeImage(f,1600,900);
+    const path=`images/site/slider/${Date.now()}-${f.name}`;
+    const sref=storage.ref(path);
+    await sref.put(blob);
+    const url=await sref.getDownloadURL();
 
-    const ref=storage.ref(name);
-    await ref.put(compressed);
-    const url=await ref.getDownloadURL();
-
-    await docRef.update({
-      sliderImages: firebase.firestore.FieldValue.arrayUnion({
-        url,
-        alt:seoAlt("slider"),
-        width:1600,
-        height:900,
+    await ref.set({
+      sliderImages:firebase.firestore.FieldValue.arrayUnion({
+        url, width:1600, height:900,
+        alt:"Sadri Villa Gallery",
         order:Date.now()
       })
-    });
+    },{merge:true});
   }
-  loadSlider();
-  alert("Slider images uploaded (uniform size applied)");
+  alert("Slider images uploaded");
 }
-
-/* ================= LOAD + DRAG REORDER ================= */
-async function loadSlider(){
-  const snap=await db.collection("siteSettings").doc("home").get();
-  const list=snap.data()?.sliderImages||[];
-  sliderList.innerHTML="";
-
-  list.sort((a,b)=>a.order-b.order).forEach((img,i)=>{
-    const div=document.createElement("div");
-    div.className="slider-item";
-    div.draggable=true;
-    div.dataset.index=i;
-
-    div.innerHTML=`
-      <div>
-        <img src="${img.url}" alt="${img.alt}"
-          onload="showImageSize(this,'sliderSize-${i}')">
-        <div id="sliderSize-${i}" class="slider-meta"></div>
-      </div>
-      <button class="delete" onclick="deleteSlider(${i},'${img.url}')">Delete</button>
-    `;
-
-    div.addEventListener("dragstart",()=>div.classList.add("dragging"));
-    div.addEventListener("dragend",()=>{
-      div.classList.remove("dragging");
-      saveNewOrder();
-    });
-
-    sliderList.appendChild(div);
-  });
-
-  sliderList.addEventListener("dragover",e=>{
-    e.preventDefault();
-    const after=getDragAfter(sliderList,e.clientY);
-    const dragging=document.querySelector(".dragging");
-    if(!dragging) return;
-    after==null
-      ? sliderList.appendChild(dragging)
-      : sliderList.insertBefore(dragging,after);
-  });
-}
-
-function getDragAfter(container,y){
-  const els=[...container.querySelectorAll(".slider-item:not(.dragging)")];
-  return els.reduce((c,el)=>{
-    const box=el.getBoundingClientRect();
-    const offset=y-box.top-box.height/2;
-    return offset<0&&offset>c.offset?{offset,el}:c;
-  },{offset:Number.NEGATIVE_INFINITY}).el;
-}
-
-async function saveNewOrder(){
-  const items=[...sliderList.querySelectorAll(".slider-item")];
-  const snap=await db.collection("siteSettings").doc("home").get();
-  const arr=snap.data().sliderImages;
-
-  items.forEach((el,i)=>{
-    arr[el.dataset.index].order=i+1;
-  });
-  await db.collection("siteSettings").doc("home").update({sliderImages:arr});
-}
-
-/* ================= DELETE ================= */
-async function deleteSlider(index,url){
-  if(!confirm("Delete this slider image permanently?")) return;
-
-  const docRef=db.collection("siteSettings").doc("home");
-  const snap=await docRef.get();
-  const arr=snap.data().sliderImages;
-
-  arr.splice(index,1);
-  await docRef.update({sliderImages:arr});
-
-  const path=decodeURIComponent(url.split("/o/")[1].split("?")[0]);
-  await storage.ref(path).delete();
-
-  loadSlider();
-  alert("Slider image deleted");
-}
-
-/* INIT */
-loadSlider();
 </script>
 
 </body>
