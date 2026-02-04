@@ -10,37 +10,106 @@
 <meta name="author" content="Sadri Family">
 <meta name="robots" content="index, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="canonical" href="https://sadrivilla.in/">
 
-<!-- SOCIAL -->
+<!-- ===== SOCIAL ===== -->
 <meta property="og:title" content="Sadri Villa Fazilpur">
-<meta property="og:description" content="A living heritage of the Sadri family">
-<meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
+<meta property="og:description" content="150+ years of living heritage in Bihar">
+<meta property="og:image" content="images/sadri-villa-hero.jpg">
 <meta property="og:url" content="https://sadrivilla.in/">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ===== STRUCTURED DATA ===== -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"TouristAttraction",
+  "name":"Sadri Villa",
+  "address":{
+    "@type":"PostalAddress",
+    "addressLocality":"Fazilpur",
+    "addressRegion":"Bihar",
+    "addressCountry":"IN"
+  },
+  "url":"https://sadrivilla.in"
+}
+</script>
 
 <style>
-/* 🔴 YOUR FULL CSS — UNCHANGED 🔴 */
-:root{--blue:#60a5fa;--blue-dark:#2563eb;--glass:rgba(255,255,255,.35);--border:rgba(255,255,255,.5)}
+/* =================== BASE =================== */
 body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
 a{text-decoration:none}
 
-/* NAVBAR */
-.navbar{position:fixed;top:0;left:0;right:0;background:rgba(224,242,254,.8);backdrop-filter:blur(14px);display:flex;justify-content:space-between;align-items:center;padding:14px 22px;z-index:1000}
+/* =================== NAVBAR =================== */
+.navbar{
+  position:fixed;top:0;left:0;right:0;
+  background:rgba(224,242,254,.9);
+  backdrop-filter:blur(14px);
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 22px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  z-index:1000;
+}
 .brand img{height:56px}
+.nav-actions{display:flex;gap:8px}
 
-/* BUTTONS */
-.glass-btn{padding:10px 18px;border-radius:14px;border:1px solid var(--border);background:var(--glass);font-weight:600;cursor:pointer}
-.primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;border:none}
+/* =================== BUTTONS =================== */
+.glass-btn{
+  padding:10px 18px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.35);
+  backdrop-filter:blur(12px);
+  font-weight:600;cursor:pointer
+}
+.primary{
+  background:linear-gradient(135deg,#60a5fa,#2563eb);
+  color:#fff;border:none
+}
 
-/* HERO */
-.hero{margin-top:80px;min-height:90vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url("images/sadri-villa-hero.jpg") center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center}
+/* =================== HERO =================== */
+.hero{
+  margin-top:80px;
+  min-height:90vh;
+  background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url("images/sadri-villa-hero.jpg") center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;text-align:center;padding:20px;
+}
+.hero h1{font-size:46px}
+.hero p{font-size:18px;max-width:800px;margin:auto}
+.hero-buttons{margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
-/* SLIDER */
-.slider-full{width:100vw;margin-left:calc(-50vw + 50%);overflow:hidden;padding:30px 0}
-.slide-track{display:flex;gap:24px;animation:scroll 32s linear infinite}
-.carousel-item{height:260px;min-width:420px;object-fit:contain;background:#000;border-radius:24px}
+/* =================== SECTION =================== */
+.section{max-width:1100px;margin:auto;padding:80px 20px}
+.glass-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.glass-card{
+  background:rgba(255,255,255,.35);
+  backdrop-filter:blur(14px);
+  border-radius:22px;
+  padding:30px;text-align:center
+}
+.counter{font-size:40px;font-weight:700;color:#2563eb}
 
+/* =================== SLIDER =================== */
+.slider-full{width:100vw;margin-left:calc(-50vw + 50%);overflow:hidden;padding:40px 0}
+.slide-track{display:flex;gap:24px;animation:scroll 30s linear infinite}
+.carousel-item{
+  height:260px;min-width:420px;
+  object-fit:contain;border-radius:22px;
+  background:#000;filter:blur(2px);transform:scale(.92);
+  transition:.6s
+}
+.carousel-item.active{filter:none;transform:scale(1.08)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* =================== FOOTER =================== */
+.footer{background:#0f172a;color:#cbd5f5;padding:50px 20px}
+.footer-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:30px}
+.footer h3,.footer h4{color:#fff}
+.footer a{color:#cbd5f5}
+.footer-bottom{text-align:center;margin-top:20px;font-size:14px}
 </style>
 </head>
 
@@ -49,12 +118,12 @@ a{text-decoration:none}
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <!-- ✅ FALLBACK LOGO -->
-    <img id="siteLogo" src="images/logo.png" alt="Sadri Villa Heritage Logo">
+    <img id="siteLogo" src="images/logo.png" alt="Sadri Villa Logo">
   </div>
-  <div>
+  <div class="nav-actions">
     <button class="glass-btn" onclick="location.href='login.html'">Login</button>
     <button class="glass-btn primary" onclick="location.href='signup.html'">Sign Up</button>
+    <button class="glass-btn" onclick="location.href='about.html'">About</button>
   </div>
 </div>
 
@@ -62,72 +131,53 @@ a{text-decoration:none}
 <div class="hero" id="heroSection">
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
-    <p>150+ years of compassion and service</p>
+    <p>150+ years of compassion, shelter, and service in Fazilpur, Samastipur, Bihar.</p>
+    <div class="hero-buttons">
+      <button class="glass-btn primary" onclick="location.href='signup.html'">Join the Legacy</button>
+      <button class="glass-btn" onclick="location.href='about.html'">About Sadri Villa</button>
+    </div>
   </div>
 </div>
 
-<!-- GALLERY -->
+<!-- COUNTERS -->
+<div class="section">
+  <div class="glass-grid">
+    <div class="glass-card"><div class="counter" data-target="150">0</div>Years</div>
+    <div class="glass-card"><div class="counter" data-target="500">0</div>Families</div>
+    <div class="glass-card"><div class="counter" data-target="6">0</div>Generations</div>
+  </div>
+</div>
+
+<!-- SLIDER -->
 <div class="slider-full">
   <div class="slide-track" id="sliderTrack">
-    <!-- ✅ FALLBACK SLIDER -->
     <img class="carousel-item" src="images/gallery1.jpg">
     <img class="carousel-item" src="images/gallery2.jpg">
     <img class="carousel-item" src="images/gallery3.jpg">
+    <img class="carousel-item" src="images/gallery1.jpg">
   </div>
 </div>
 
-<footer style="padding:30px;text-align:center">© Sadri Villa</footer>
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div><h3>Sadri Villa</h3><p>Living heritage of Bihar</p></div>
+    <div><h4>Links</h4><a href="about.html">About</a></div>
+    <div><h4>Contact</h4><p>Fazilpur, Samastipur</p></div>
+  </div>
+  <div class="footer-bottom">© <span id="year"></span> Sadri Villa</div>
+</footer>
 
-<!-- ================= FIREBASE MEDIA LOADER ================= -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* 🔥 YOUR REAL CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* LOAD ADMIN MEDIA */
-(async ()=>{
-  const snap = await getDoc(doc(db,"siteSettings","home"));
-  if(!snap.exists()) return;
-  const d = snap.data();
-
-  /* LOGO */
-  if(d.logo?.url){
-    const l=document.getElementById("siteLogo");
-    l.src=d.logo.url;
-    l.alt=d.logo.alt||"Sadri Villa Logo";
-  }
-
-  /* HERO */
-  if(d.hero?.url){
-    document.getElementById("heroSection").style.background=
-      `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('${d.hero.url}') center/cover no-repeat`;
-  }
-
-  /* SLIDER */
-  if(Array.isArray(d.sliderImages)){
-    const track=document.getElementById("sliderTrack");
-    track.innerHTML="";
-    d.sliderImages.sort((a,b)=>a.order-b.order)
-      .concat(d.sliderImages)
-      .forEach(i=>{
-        const img=document.createElement("img");
-        img.src=i.url;
-        img.alt=i.alt||"Sadri Villa Gallery";
-        img.className="carousel-item";
-        img.loading="lazy";
-        track.appendChild(img);
-      });
-  }
-})();
+<!-- COUNTER JS -->
+<script>
+document.getElementById("year").innerText=new Date().getFullYear();
+document.querySelectorAll(".counter").forEach(c=>{
+  let t=+c.dataset.target,i=0;
+  let int=setInterval(()=>{
+    i++;c.innerText=i;
+    if(i>=t){c.innerText=t+"+";clearInterval(int)}
+  },30);
+});
 </script>
 
 </body>
