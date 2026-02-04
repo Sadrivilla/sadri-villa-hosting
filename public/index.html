@@ -5,39 +5,42 @@
 
 <!-- ===== SEO ===== -->
 <title>Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar</title>
-<meta name="description" content="Sadri Villa is a 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and marriage support to economically weaker families.">
-<meta name="keywords" content="Sadri Villa, Heritage Villa Bihar, Fazilpur, Samastipur, Sadri Family Villa">
+<meta name="description" content="Sadri Villa is a 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and marriage support.">
+<meta name="keywords" content="Sadri Villa, Heritage Villa Bihar, Fazilpur, Samastipur">
 <meta name="author" content="Sadri Family">
 <meta name="robots" content="index, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="canonical" href="https://sadrivilla.in/">
 
-<!-- ===== SOCIAL ===== -->
-<meta property="og:title" content="Sadri Villa Fazilpur | Heritage Villa in Samastipur, Bihar">
-<meta property="og:description" content="A living heritage of the Sadri family in Fazilpur, Samastipur, Bihar.">
+<!-- SOCIAL -->
+<meta property="og:title" content="Sadri Villa Fazilpur">
+<meta property="og:description" content="A living heritage of the Sadri family">
 <meta property="og:image" content="https://sadrivilla.in/images/sadri-villa-hero.jpg">
 <meta property="og:url" content="https://sadrivilla.in/">
-<meta name="twitter:card" content="summary_large_image">
-
-<!-- ===== STRUCTURED DATA ===== -->
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"TouristAttraction",
-  "name":"Sadri Villa",
-  "description":"A 150+ year old heritage villa in Fazilpur, Samastipur, Bihar providing free shelter and marriage support.",
-  "address":{
-    "@type":"PostalAddress",
-    "addressLocality":"Fazilpur",
-    "addressRegion":"Bihar",
-    "addressCountry":"IN"
-  },
-  "url":"https://sadrivilla.in"
-}
-</script>
 
 <style>
-/* 🔴 YOUR ORIGINAL CSS — UNCHANGED 🔴 */
+/* 🔴 YOUR FULL CSS — UNCHANGED 🔴 */
+:root{--blue:#60a5fa;--blue-dark:#2563eb;--glass:rgba(255,255,255,.35);--border:rgba(255,255,255,.5)}
+body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
+a{text-decoration:none}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;background:rgba(224,242,254,.8);backdrop-filter:blur(14px);display:flex;justify-content:space-between;align-items:center;padding:14px 22px;z-index:1000}
+.brand img{height:56px}
+
+/* BUTTONS */
+.glass-btn{padding:10px 18px;border-radius:14px;border:1px solid var(--border);background:var(--glass);font-weight:600;cursor:pointer}
+.primary{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;border:none}
+
+/* HERO */
+.hero{margin-top:80px;min-height:90vh;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url("images/sadri-villa-hero.jpg") center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center}
+
+/* SLIDER */
+.slider-full{width:100vw;margin-left:calc(-50vw + 50%);overflow:hidden;padding:30px 0}
+.slide-track{display:flex;gap:24px;animation:scroll 32s linear infinite}
+.carousel-item{height:260px;min-width:420px;object-fit:contain;background:#000;border-radius:24px}
+
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 </style>
 </head>
 
@@ -46,105 +49,85 @@
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Fazilpur Heritage Logo">
+    <!-- ✅ FALLBACK LOGO -->
+    <img id="siteLogo" src="images/logo.png" alt="Sadri Villa Heritage Logo">
   </div>
-  <div class="nav-actions">
+  <div>
     <button class="glass-btn" onclick="location.href='login.html'">Login</button>
     <button class="glass-btn primary" onclick="location.href='signup.html'">Sign Up</button>
-    <button class="glass-btn about-btn" onclick="location.href='about.html'">About</button>
-    <div class="more-menu" tabindex="0">
-      <button class="glass-btn more-btn">⋮</button>
-      <div class="more-dropdown">
-        <a href="about.html">About</a>
-      </div>
-    </div>
   </div>
 </div>
 
 <!-- HERO -->
 <div class="hero" id="heroSection">
-  <div class="hero-content reveal">
+  <div>
     <h1>Sadri Villa – A Living Heritage</h1>
-    <p>150+ years of compassion, shelter, and service in Fazilpur, Samastipur, Bihar.</p>
-    <div class="hero-buttons">
-      <button class="glass-btn primary" onclick="location.href='signup.html'">Join the Legacy</button>
-      <button class="glass-btn" onclick="location.href='about.html'">About Sadri Villa</button>
-    </div>
+    <p>150+ years of compassion and service</p>
   </div>
 </div>
 
-<!-- COUNTERS / TIMELINE / CONTENT -->
-<!-- 🔴 ALL YOUR EXISTING HTML — UNCHANGED 🔴 -->
-
 <!-- GALLERY -->
-<div class="slider-full carousel reveal">
-  <div class="slide-track" id="sliderTrack"></div>
+<div class="slider-full">
+  <div class="slide-track" id="sliderTrack">
+    <!-- ✅ FALLBACK SLIDER -->
+    <img class="carousel-item" src="images/gallery1.jpg">
+    <img class="carousel-item" src="images/gallery2.jpg">
+    <img class="carousel-item" src="images/gallery3.jpg">
+  </div>
 </div>
 
-<!-- FOOTER -->
-<!-- 🔴 YOUR EXISTING FOOTER — UNCHANGED 🔴 -->
+<footer style="padding:30px;text-align:center">© Sadri Villa</footer>
 
-<script>
-/* ================= EXISTING JS — UNCHANGED ================= */
-</script>
-
-<!-- ================= FIREBASE IMAGE LOADER ================= -->
+<!-- ================= FIREBASE MEDIA LOADER ================= -->
 <script type="module">
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* 🔴 FIREBASE CONFIG */
+/* 🔥 YOUR REAL CONFIG */
 const firebaseConfig = {
-  /* PASTE YOUR FIREBASE CONFIG HERE */
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* LOAD SITE MEDIA */
-async function loadSiteMedia(){
+/* LOAD ADMIN MEDIA */
+(async ()=>{
   const snap = await getDoc(doc(db,"siteSettings","home"));
   if(!snap.exists()) return;
   const d = snap.data();
 
   /* LOGO */
-  if(d.logo){
-    const logo = document.getElementById("siteLogo");
-    logo.src = d.logo.url;
-    logo.alt = d.logo.alt;
-    logo.width = d.logo.width;
-    logo.height = d.logo.height;
+  if(d.logo?.url){
+    const l=document.getElementById("siteLogo");
+    l.src=d.logo.url;
+    l.alt=d.logo.alt||"Sadri Villa Logo";
   }
 
   /* HERO */
-  if(d.hero){
-    document.getElementById("heroSection").style.background =
+  if(d.hero?.url){
+    document.getElementById("heroSection").style.background=
       `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),url('${d.hero.url}') center/cover no-repeat`;
   }
 
   /* SLIDER */
   if(Array.isArray(d.sliderImages)){
-    const track = document.getElementById("sliderTrack");
-    track.innerHTML = "";
-
-    const ordered = d.sliderImages.sort((a,b)=>a.order-b.order);
-
-    [...ordered, ...ordered].forEach(img=>{
-      const el = document.createElement("img");
-      el.src = img.url;
-      el.alt = img.alt;
-      el.className = "carousel-item";
-      el.loading = "lazy";
-      el.width = img.width;
-      el.height = img.height;
-      track.appendChild(el);
-    });
+    const track=document.getElementById("sliderTrack");
+    track.innerHTML="";
+    d.sliderImages.sort((a,b)=>a.order-b.order)
+      .concat(d.sliderImages)
+      .forEach(i=>{
+        const img=document.createElement("img");
+        img.src=i.url;
+        img.alt=i.alt||"Sadri Villa Gallery";
+        img.className="carousel-item";
+        img.loading="lazy";
+        track.appendChild(img);
+      });
   }
-}
-
-loadSiteMedia();
+})();
 </script>
 
 </body>
