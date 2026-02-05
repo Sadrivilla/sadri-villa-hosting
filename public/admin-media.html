@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Media | Sadri Villa</title>
+<title>Admin Media Manager – Sadri Villa</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -10,24 +10,45 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body{font-family:Arial;background:#f1f5f9;padding:30px}
-.card{background:#fff;padding:20px;border-radius:18px;max-width:900px;margin-bottom:26px;box-shadow:0 12px 30px rgba(0,0,0,.08)}
-h2,h3{margin-bottom:10px}
-button{padding:8px 14px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-weight:600}
+body{font-family:Arial;background:#f3f6f9;padding:30px}
+h2{margin-bottom:20px}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:20px;
+  max-width:900px;
+  margin-bottom:26px;
+  box-shadow:0 14px 35px rgba(0,0,0,.08)
+}
+button{
+  padding:10px 18px;
+  border-radius:10px;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+  font-weight:600
+}
 button.danger{background:#dc2626}
-button.gray{background:#64748b}
-.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
 .thumb{
-  width:160px;background:#fff;border-radius:14px;
+  width:160px;
+  background:#fff;
+  border-radius:14px;
   box-shadow:0 8px 20px rgba(0,0,0,.15);
-  padding:8px;text-align:center
+  padding:8px;
+  text-align:center
 }
 .thumb img{width:100%;border-radius:10px}
 .progress{height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:6px}
 .progress span{height:100%;display:block;background:#2563eb;width:0%}
 .drop{
-  border:2px dashed #94a3b8;padding:26px;border-radius:16px;
-  text-align:center;background:#f8fafc;cursor:pointer
+  border:2px dashed #94a3b8;
+  padding:28px;
+  border-radius:18px;
+  text-align:center;
+  background:#f8fafc;
+  cursor:pointer
 }
 .drop.drag{border-color:#2563eb;background:#e0f2fe}
 .modal{
@@ -38,15 +59,32 @@ button.gray{background:#64748b}
 .modal .box{
   background:#fff;padding:20px;border-radius:14px;width:320px;text-align:center
 }
-.msg{margin-top:10px;font-size:14px}
-.msg.success{color:#065f46}
-.msg.error{color:#991b1b}
 </style>
 </head>
 
 <body>
 
 <h2>Admin Media Manager – Sadri Villa</h2>
+
+<!-- LOGO -->
+<div class="card">
+  <h3>Logo</h3>
+  <input type="file" id="logoInput" accept="image/*">
+  <br><br>
+  <button onclick="uploadSingle('logo')">Upload Logo</button>
+  <button class="danger" onclick="deleteSingle('logo')">Delete Logo</button>
+  <div class="row" id="logoView"></div>
+</div>
+
+<!-- HERO -->
+<div class="card">
+  <h3>Hero Image</h3>
+  <input type="file" id="heroInput" accept="image/*">
+  <br><br>
+  <button onclick="uploadSingle('hero')">Upload Hero</button>
+  <button class="danger" onclick="deleteSingle('hero')">Delete Hero</button>
+  <div class="row" id="heroView"></div>
+</div>
 
 <!-- SLIDER UPLOAD -->
 <div class="card">
@@ -59,8 +97,8 @@ button.gray{background:#64748b}
 
   <div class="row" id="sliderPreview"></div>
 
+  <br>
   <button onclick="uploadAllSlider()">Upload All</button>
-  <div class="msg" id="sliderMsg"></div>
 </div>
 
 <!-- EXISTING SLIDER -->
@@ -72,15 +110,15 @@ button.gray{background:#64748b}
 <!-- CONFIRM MODAL -->
 <div class="modal" id="confirmModal">
   <div class="box">
-    <h4>Delete this image?</h4>
-    <p>This action cannot be undone.</p>
+    <h4>Delete image?</h4>
+    <p>This cannot be undone.</p>
     <button class="danger" onclick="confirmDelete()">Delete</button>
-    <button class="gray" onclick="closeModal()">Cancel</button>
+    <button onclick="closeModal()">Cancel</button>
   </div>
 </div>
 
 <script>
-/* ===== FIREBASE INIT ===== */
+/* ===== FIREBASE ===== */
 firebase.initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -92,9 +130,48 @@ const storage=firebase.storage();
 
 /* ===== STATE ===== */
 let sliderFiles=[];
-let deleteData=null;
+let deleteTarget=null;
 
-/* ===== DRAG & DROP ===== */
+/* ===== LOAD EXISTING ===== */
+async function loadSingles(){
+  const snap=await db.collection("siteSettings").doc("home").get();
+  const data=snap.data()||{};
+  if(data.logo) document.getElementById("logoView").innerHTML=`<div class="thumb"><img src="${data.logo.url}"></div>`;
+  if(data.hero) document.getElementById("heroView").innerHTML=`<div class="thumb"><img src="${data.hero.url}"></div>`;
+}
+async function loadSlider(){
+  const box=document.getElementById("existingSlider");
+  box.innerHTML="";
+  const snap=await db.collection("siteSettings").doc("home").get();
+  (snap.data()?.sliderImages||[]).forEach(img=>{
+    box.innerHTML+=`
+      <div class="thumb">
+        <img src="${img.url}">
+        <button class="danger" onclick='askDelete(${JSON.stringify(img)})'>Delete</button>
+      </div>`;
+  });
+}
+
+/* ===== UPLOAD SINGLE ===== */
+async function uploadSingle(type){
+  const file=document.getElementById(type+"Input").files[0];
+  if(!file) return;
+  const ref=storage.ref(`images/site/${type}-${Date.now()}`);
+  await ref.put(file);
+  const url=await ref.getDownloadURL();
+  await db.collection("siteSettings").doc("home").set({
+    [type]:{url,alt:`Sadri Villa ${type}`}
+  },{merge:true});
+  loadSingles();
+}
+
+/* ===== DELETE SINGLE ===== */
+function deleteSingle(type){
+  deleteTarget={type};
+  document.getElementById("confirmModal").classList.add("show");
+}
+
+/* ===== SLIDER ===== */
 const drop=document.getElementById("drop");
 const input=document.getElementById("sliderInput");
 
@@ -104,15 +181,14 @@ drop.ondragleave=()=>drop.classList.remove("drag");
 drop.ondrop=e=>{
   e.preventDefault();
   drop.classList.remove("drag");
-  handleSlider(e.dataTransfer.files);
-};
-input.onchange=e=>handleSlider(e.target.files);
-
-/* ===== PREVIEW BEFORE UPLOAD ===== */
-function handleSlider(list){
-  sliderFiles=[...list].map(f=>({file:f,progress:0}));
+  sliderFiles=[...e.dataTransfer.files].map(f=>({file:f,progress:0}));
   renderPreview();
-}
+};
+input.onchange=e=>{
+  sliderFiles=[...e.target.files].map(f=>({file:f,progress:0}));
+  renderPreview();
+};
+
 function renderPreview(){
   const box=document.getElementById("sliderPreview");
   box.innerHTML="";
@@ -125,19 +201,10 @@ function renderPreview(){
   });
 }
 
-/* ===== UPLOAD ALL ===== */
 async function uploadAllSlider(){
-  const msg=document.getElementById("sliderMsg");
-  if(!sliderFiles.length){
-    msg.className="msg error";
-    msg.innerText="No images selected";
-    return;
-  }
-
   for(const f of sliderFiles){
     const ref=storage.ref(`images/site/slider/${Date.now()}-${f.file.name}`);
     const task=ref.put(f.file);
-
     await new Promise(res=>{
       task.on("state_changed",s=>{
         f.progress=Math.round(s.bytesTransferred/s.totalBytes*100);
@@ -146,71 +213,47 @@ async function uploadAllSlider(){
         const url=await ref.getDownloadURL();
         await db.collection("siteSettings").doc("home").set({
           sliderImages:firebase.firestore.FieldValue.arrayUnion({
-            url,
-            alt:"Sadri Villa Gallery",
-            order:Date.now()
+            url,alt:"Sadri Villa Gallery",order:Date.now()
           })
         },{merge:true});
         res();
       });
     });
   }
-
-  msg.className="msg success";
-  msg.innerText="Slider images uploaded successfully";
   sliderFiles=[];
   renderPreview();
-  loadExistingSlider();
+  loadSlider();
 }
 
-/* ===== LOAD EXISTING SLIDER ===== */
-async function loadExistingSlider(){
-  const box=document.getElementById("existingSlider");
-  box.innerHTML="";
-
-  const snap=await db.collection("siteSettings").doc("home").get();
-  const list=snap.data()?.sliderImages||[];
-
-  list
-    .sort((a,b)=>a.order-b.order)
-    .forEach(img=>{
-      box.innerHTML+=`
-        <div class="thumb">
-          <img src="${img.url}">
-          <button class="danger" onclick='askDelete(${JSON.stringify(img)})'>
-            Delete
-          </button>
-        </div>`;
-    });
-}
-
-/* ===== DELETE EXISTING ===== */
+/* ===== DELETE SLIDER ===== */
 function askDelete(data){
-  deleteData=data;
+  deleteTarget=data;
   document.getElementById("confirmModal").classList.add("show");
 }
-
 async function confirmDelete(){
-  const ref=storage.refFromURL(deleteData.url);
-  await ref.delete();
-
-  await db.collection("siteSettings").doc("home").update({
-    sliderImages:firebase.firestore.FieldValue.arrayRemove(deleteData)
-  });
-
+  if(deleteTarget.type){
+    await db.collection("siteSettings").doc("home").update({
+      [deleteTarget.type]:firebase.firestore.FieldValue.delete()
+    });
+    loadSingles();
+  }else{
+    await storage.refFromURL(deleteTarget.url).delete();
+    await db.collection("siteSettings").doc("home").update({
+      sliderImages:firebase.firestore.FieldValue.arrayRemove(deleteTarget)
+    });
+    loadSlider();
+  }
   closeModal();
-  loadExistingSlider();
 }
-
 function closeModal(){
-  deleteData=null;
+  deleteTarget=null;
   document.getElementById("confirmModal").classList.remove("show");
 }
 
-/* ===== INIT ===== */
-loadExistingSlider();
+/* INIT */
+loadSingles();
+loadSlider();
 </script>
 
 </body>
 </html>
-
