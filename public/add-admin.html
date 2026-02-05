@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Arial;background:#eef2ff;padding:20px}
+input,button{padding:10px;border-radius:10px;border:none}
+button{background:#16a34a;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+
+<h2>➕ Add Admin</h2>
+
+<input id="uid" placeholder="Enter User UID">
+<button onclick="add()">Make Admin</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const fn=getFunctions(app,"us-central1");
+const addAdmin=httpsCallable(fn,"addAdmin");
+
+onAuthStateChanged(auth,async user=>{
+  if(!user) location.href="login.html";
+  const t=await user.getIdTokenResult();
+  if(!t.claims.admin) location.href="dashboard.html";
+});
+
+window.add=async()=>{
+  const uid=document.getElementById("uid").value.trim();
+  if(!uid) return alert("UID required");
+  await addAdmin({ uid });
+  alert("Admin added");
+};
+</script>
+
+</body>
+</html>
