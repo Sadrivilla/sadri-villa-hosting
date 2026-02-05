@@ -51,6 +51,10 @@ button.danger{background:#dc2626}
   cursor:pointer
 }
 .drop.drag{border-color:#2563eb;background:#e0f2fe}
+.msg{margin-top:10px;font-size:14px}
+.msg.success{color:#065f46}
+.msg.error{color:#991b1b}
+.msg.loading{color:#1d4ed8}
 .modal{
   position:fixed;inset:0;background:rgba(0,0,0,.45);
   display:none;align-items:center;justify-content:center
@@ -59,46 +63,57 @@ button.danger{background:#dc2626}
 .modal .box{
   background:#fff;padding:20px;border-radius:14px;width:320px;text-align:center
 }
+.back-btn{
+  backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.6);
+  border:1px solid rgba(255,255,255,.4);
+  border-radius:14px;
+  padding:10px 18px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+  margin-bottom:20px
+}
 </style>
 </head>
 
 <body>
 
+<button class="back-btn" onclick="history.back()">← Back</button>
 <h2>Admin Media Manager – Sadri Villa</h2>
 
 <!-- LOGO -->
 <div class="card">
   <h3>Logo</h3>
-  <input type="file" id="logoInput" accept="image/*">
-  <br><br>
+  <input type="file" id="logoInput" accept="image/*"
+    onchange="previewSingle(this,'logoView')">
+  <div class="row" id="logoView"></div>
   <button onclick="uploadSingle('logo')">Upload Logo</button>
   <button class="danger" onclick="deleteSingle('logo')">Delete Logo</button>
-  <div class="row" id="logoView"></div>
+  <div class="msg" id="logoMsg"></div>
 </div>
 
 <!-- HERO -->
 <div class="card">
   <h3>Hero Image</h3>
-  <input type="file" id="heroInput" accept="image/*">
-  <br><br>
+  <input type="file" id="heroInput" accept="image/*"
+    onchange="previewSingle(this,'heroView')">
+  <div class="row" id="heroView"></div>
   <button onclick="uploadSingle('hero')">Upload Hero</button>
   <button class="danger" onclick="deleteSingle('hero')">Delete Hero</button>
-  <div class="row" id="heroView"></div>
+  <div class="msg" id="heroMsg"></div>
 </div>
 
 <!-- SLIDER UPLOAD -->
 <div class="card">
   <h3>Upload Slider Images</h3>
-
   <div class="drop" id="drop">
     Drag & drop images here or click to select
     <input type="file" id="sliderInput" multiple hidden>
   </div>
-
   <div class="row" id="sliderPreview"></div>
-
-  <br>
   <button onclick="uploadAllSlider()">Upload All</button>
+  <div class="msg" id="sliderMsg"></div>
 </div>
 
 <!-- EXISTING SLIDER -->
@@ -118,7 +133,7 @@ button.danger{background:#dc2626}
 </div>
 
 <script>
-/* ===== FIREBASE ===== */
+/* FIREBASE INIT */
 firebase.initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -128,23 +143,32 @@ firebase.initializeApp({
 const db=firebase.firestore();
 const storage=firebase.storage();
 
-/* ===== STATE ===== */
+/* STATE */
 let sliderFiles=[];
 let deleteTarget=null;
 
-/* ===== LOAD EXISTING ===== */
+/* PREVIEW SINGLE */
+function previewSingle(input,target){
+  const box=document.getElementById(target);
+  box.innerHTML="";
+  if(!input.files[0]) return;
+  const img=document.createElement("img");
+  img.src=URL.createObjectURL(input.files[0]);
+  box.appendChild(img);
+}
+
+/* LOAD EXISTING */
 async function loadSingles(){
   const snap=await db.collection("siteSettings").doc("home").get();
-  const data=snap.data()||{};
-  if(data.logo) document.getElementById("logoView").innerHTML=`<div class="thumb"><img src="${data.logo.url}"></div>`;
-  if(data.hero) document.getElementById("heroView").innerHTML=`<div class="thumb"><img src="${data.hero.url}"></div>`;
+  const d=snap.data()||{};
+  if(d.logo) logoView.innerHTML=`<div class="thumb"><img src="${d.logo.url}"></div>`;
+  if(d.hero) heroView.innerHTML=`<div class="thumb"><img src="${d.hero.url}"></div>`;
 }
 async function loadSlider(){
-  const box=document.getElementById("existingSlider");
-  box.innerHTML="";
   const snap=await db.collection("siteSettings").doc("home").get();
+  existingSlider.innerHTML="";
   (snap.data()?.sliderImages||[]).forEach(img=>{
-    box.innerHTML+=`
+    existingSlider.innerHTML+=`
       <div class="thumb">
         <img src="${img.url}">
         <button class="danger" onclick='askDelete(${JSON.stringify(img)})'>Delete</button>
@@ -152,48 +176,57 @@ async function loadSlider(){
   });
 }
 
-/* ===== UPLOAD SINGLE ===== */
+/* UPLOAD SINGLE */
 async function uploadSingle(type){
   const file=document.getElementById(type+"Input").files[0];
-  if(!file) return;
-  const ref=storage.ref(`images/site/${type}-${Date.now()}`);
-  await ref.put(file);
-  const url=await ref.getDownloadURL();
-  await db.collection("siteSettings").doc("home").set({
-    [type]:{url,alt:`Sadri Villa ${type}`}
-  },{merge:true});
-  loadSingles();
+  const msg=document.getElementById(type+"Msg");
+  if(!file){
+    msg.className="msg error";
+    msg.innerText="Please select an image first";
+    return;
+  }
+  msg.className="msg loading";
+  msg.innerText="Uploading...";
+  try{
+    const ref=storage.ref(`images/site/${type}-${Date.now()}`);
+    await ref.put(file);
+    const url=await ref.getDownloadURL();
+    await db.collection("siteSettings").doc("home").set({
+      [type]:{url,alt:`Sadri Villa ${type}`}
+    },{merge:true});
+    msg.className="msg success";
+    msg.innerText="Uploaded successfully";
+    loadSingles();
+  }catch(e){
+    msg.className="msg error";
+    msg.innerText=e.message;
+  }
 }
 
-/* ===== DELETE SINGLE ===== */
+/* DELETE SINGLE */
 function deleteSingle(type){
   deleteTarget={type};
-  document.getElementById("confirmModal").classList.add("show");
+  confirmModal.classList.add("show");
 }
 
-/* ===== SLIDER ===== */
-const drop=document.getElementById("drop");
-const input=document.getElementById("sliderInput");
-
-drop.onclick=()=>input.click();
+/* SLIDER DRAG */
+drop.onclick=()=>sliderInput.click();
 drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};
 drop.ondragleave=()=>drop.classList.remove("drag");
 drop.ondrop=e=>{
-  e.preventDefault();
-  drop.classList.remove("drag");
+  e.preventDefault();drop.classList.remove("drag");
   sliderFiles=[...e.dataTransfer.files].map(f=>({file:f,progress:0}));
   renderPreview();
 };
-input.onchange=e=>{
+sliderInput.onchange=e=>{
   sliderFiles=[...e.target.files].map(f=>({file:f,progress:0}));
   renderPreview();
 };
 
 function renderPreview(){
-  const box=document.getElementById("sliderPreview");
-  box.innerHTML="";
+  sliderPreview.innerHTML="";
   sliderFiles.forEach(f=>{
-    box.innerHTML+=`
+    sliderPreview.innerHTML+=`
       <div class="thumb">
         <img src="${URL.createObjectURL(f.file)}">
         <div class="progress"><span style="width:${f.progress}%"></span></div>
@@ -201,7 +234,14 @@ function renderPreview(){
   });
 }
 
+/* UPLOAD ALL SLIDER */
 async function uploadAllSlider(){
+  const msg=document.getElementById("sliderMsg");
+  if(!sliderFiles.length){
+    msg.className="msg error";
+    msg.innerText="No images selected";
+    return;
+  }
   for(const f of sliderFiles){
     const ref=storage.ref(`images/site/slider/${Date.now()}-${f.file.name}`);
     const task=ref.put(f.file);
@@ -220,15 +260,17 @@ async function uploadAllSlider(){
       });
     });
   }
+  msg.className="msg success";
+  msg.innerText="Slider images uploaded successfully";
   sliderFiles=[];
   renderPreview();
   loadSlider();
 }
 
-/* ===== DELETE SLIDER ===== */
+/* DELETE SLIDER */
 function askDelete(data){
   deleteTarget=data;
-  document.getElementById("confirmModal").classList.add("show");
+  confirmModal.classList.add("show");
 }
 async function confirmDelete(){
   if(deleteTarget.type){
@@ -247,7 +289,7 @@ async function confirmDelete(){
 }
 function closeModal(){
   deleteTarget=null;
-  document.getElementById("confirmModal").classList.remove("show");
+  confirmModal.classList.remove("show");
 }
 
 /* INIT */
