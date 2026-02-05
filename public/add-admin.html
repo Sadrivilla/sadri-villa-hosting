@@ -1,46 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Add Admin</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<title>Add Admin | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:Arial;background:#eef2ff;padding:20px}
-input,button{padding:10px;border-radius:10px;border:none}
-button{background:#16a34a;color:#fff;cursor:pointer}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#eef2ff;
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 22px;
+  background:#eaf2ff;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)
+}
+.header button{
+  padding:8px 14px;
+  border:none;
+  border-radius:12px;
+  background:#4f46e5;
+  color:#fff;
+  cursor:pointer;
+  font-weight:bold
+}
+
+/* CARD */
+.card{
+  max-width:420px;
+  margin:60px auto;
+  background:#fff;
+  padding:26px;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.12)
+}
+.card h2{
+  margin-top:0;
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #c7d2fe;
+  font-size:14px;
+  margin-bottom:14px
+}
+
+button.primary{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:14px;
+  background:#16a34a;
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer
+}
+button.primary:disabled{
+  background:#94a3b8;
+  cursor:not-allowed
+}
+
+/* MESSAGE */
+.msg{
+  margin-top:14px;
+  padding:12px;
+  border-radius:12px;
+  font-size:14px;
+  display:none
+}
+.msg.success{
+  background:#dcfce7;
+  color:#166534
+}
+.msg.error{
+  background:#fee2e2;
+  color:#991b1b
+}
 </style>
 </head>
+
 <body>
 
-<h2>➕ Add Admin</h2>
+<!-- HEADER -->
+<div class="header">
+  <button onclick="location.href='admin.html'">← Back</button>
+  <h3>Add Admin</h3>
+</div>
 
-<input id="uid" placeholder="Enter User UID">
-<button onclick="add()">Make Admin</button>
+<!-- CARD -->
+<div class="card">
+  <h2>➕ Make New Admin</h2>
+
+  <input id="uid" placeholder="Enter User UID">
+
+  <button class="primary" id="btn" onclick="makeAdmin()">
+    Make Admin
+  </button>
+
+  <div id="msg" class="msg"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
-const app=initializeApp({
+/* FIREBASE */
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const fn=getFunctions(app,"us-central1");
-const addAdmin=httpsCallable(fn,"addAdmin");
+const auth = getAuth(app);
+const fn = getFunctions(app,"us-central1");
+const addAdmin = httpsCallable(fn,"addAdmin");
 
-onAuthStateChanged(auth,async user=>{
-  if(!user) location.href="login.html";
-  const t=await user.getIdTokenResult();
-  if(!t.claims.admin) location.href="dashboard.html";
+/* UI */
+const uidInput = document.getElementById("uid");
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+
+const showMsg = (text,type)=>{
+  msg.className = "msg " + type;
+  msg.innerText = text;
+  msg.style.display = "block";
+};
+
+/* AUTH GUARD */
+onAuthStateChanged(auth, async user=>{
+  if(!user) return location.href="login.html";
+  const token = await user.getIdTokenResult(true);
+  if(!token.claims.admin){
+    alert("Admin access only");
+    location.href="dashboard.html";
+  }
 });
 
-window.add=async()=>{
-  const uid=document.getElementById("uid").value.trim();
-  if(!uid) return alert("UID required");
-  await addAdmin({ uid });
-  alert("Admin added");
+/* ACTION */
+window.makeAdmin = async ()=>{
+  const uid = uidInput.value.trim();
+  if(!uid){
+    showMsg("❌ UID is required","error");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "Processing…";
+  msg.style.display = "none";
+
+  try{
+    await addAdmin({ uid });
+    showMsg("✅ Admin role granted successfully","success");
+    uidInput.value = "";
+  }catch(err){
+    console.error(err);
+    showMsg("❌ Failed to add admin. Check UID or permissions.","error");
+  }finally{
+    btn.disabled = false;
+    btn.innerText = "Make Admin";
+  }
 };
 </script>
 
