@@ -9,7 +9,7 @@
 *{box-sizing:border-box}
 body{
   font-family:Arial,sans-serif;
-  background:#eef2ff;
+  background:linear-gradient(135deg,#e0f2fe,#eef2ff);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -17,7 +17,8 @@ body{
   margin:0;
 }
 .card{
-  background:#fff;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(10px);
   padding:40px 36px;
   border-radius:24px;
   width:100%;
@@ -49,11 +50,13 @@ button{
   margin-top:14px;
   border:none;
   border-radius:18px;
-  background:#6d28d9;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
   color:#fff;
   font-size:16px;
   cursor:pointer;
+  box-shadow:0 10px 30px rgba(56,189,248,.45);
 }
+button:hover{opacity:.95}
 .status{
   display:none;
   font-size:14px;
@@ -66,10 +69,11 @@ button{
   font-size:14px;
 }
 .links a{
-  color:#6d28d9;
+  color:#0284c7;
   font-weight:600;
   cursor:pointer;
   display:block;
+  margin-top:6px;
 }
 .remember{
   display:flex;
@@ -86,7 +90,7 @@ button{
 <div class="card">
   <h2>🔐 Login</h2>
 
-  <div class="status success" id="statusMsg">Login is initiating…</div>
+  <div class="status success" id="statusMsg"></div>
   <div class="status error" id="errorMsg"></div>
 
   <div class="field">
@@ -111,14 +115,17 @@ button{
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
-  browserSessionPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  browserSessionPersistence,
+  sendPasswordResetEmail
+} from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
   doc,
@@ -128,7 +135,8 @@ import {
   query,
   where,
   getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
 const app = initializeApp({
@@ -147,10 +155,7 @@ eye.onclick = () =>
 loginBtn.onclick = async () => {
   errorMsg.style.display="none";
   statusMsg.style.display="block";
-  statusMsg.textContent="Login is initiating…";
-
-  const idValue = identifier.value.trim();
-  const pass    = password.value;
+  statusMsg.textContent="Signing in…";
 
   try{
     await setPersistence(
@@ -160,63 +165,61 @@ loginBtn.onclick = async () => {
         : browserSessionPersistence
     );
 
-    let emailToUse = idValue;
+    let emailToUse = identifier.value.trim();
 
-    /* 📱 If phone entered, find email */
-    if(!idValue.includes("@")){
-      const q = query(
+    /* PHONE → EMAIL */
+    if(!emailToUse.includes("@")){
+      const q=query(
         collection(db,"users"),
-        where("phone","==",idValue)
+        where("phone","==",emailToUse)
       );
-      const snap = await getDocs(q);
-
-      if(snap.empty){
-        throw { type:"no-record" };
-      }
-      emailToUse = snap.docs[0].data().email;
+      const snap=await getDocs(q);
+      if(snap.empty) throw "no-user";
+      emailToUse=snap.docs[0].data().email;
     }
 
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      emailToUse,
-      pass
+    const cred=await signInWithEmailAndPassword(
+      auth,emailToUse,password.value
     );
 
-    const ref = doc(db,"users",cred.user.uid);
-    const userSnap = await getDoc(ref);
+    const ref=doc(db,"users",cred.user.uid);
+    const snap=await getDoc(ref);
+    if(!snap.exists()) throw "no-user";
 
-    if(!userSnap.exists()){
-      throw { type:"no-record" };
-    }
-
-    /* ⏳ NOT APPROVED */
-    if(userSnap.data().approved !== true){
-      await updateDoc(ref,{
-        approvalReminder:true,
-        approvalRequestedAt:new Date().toISOString()
-      });
+    if(snap.data().approved!==true){
+      await updateDoc(ref,{approvalReminder:true});
       location.href="pending.html";
       return;
     }
 
-    await updateDoc(ref,{
-      lastLogin:new Date().toISOString()
-    });
+    await updateDoc(ref,{lastLogin:new Date().toISOString()});
 
-    location.href =
-      userSnap.data().role === "admin"
-        ? "admin-dashboard.html"
-        : "dashboard.html";
+    const token = await cred.user.getIdTokenResult(true);
+    location.href = token.claims.admin
+      ? "admin-dashboard.html"
+      : "dashboard.html";
 
-  }catch(err){
+  }catch{
     statusMsg.style.display="none";
     errorMsg.style.display="block";
+    errorMsg.textContent="Invalid login details";
+  }
+};
 
-    if(err?.type==="no-record"){
-      errorMsg.textContent="Account not found. Please sign up.";
-    }else{
-      errorMsg.textContent="Invalid login credentials";
-    }
+/* 🔑 FORGOT PASSWORD */
+forgotLink.onclick = async () => {
+  const email = prompt("Enter your registered email");
+  if(!email) return;
+
+  try{
+    await sendPasswordResetEmail(auth,email);
+    statusMsg.style.display="block";
+    statusMsg.textContent="✅ Password reset link sent to your email";
+    errorMsg.style.display="none";
+  }catch{
+    errorMsg.style.display="block";
+    errorMsg.textContent="❌ Email not found or invalid";
+    statusMsg.style.display="none";
   }
 };
 </script>
