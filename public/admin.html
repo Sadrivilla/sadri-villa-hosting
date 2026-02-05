@@ -7,7 +7,7 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2ff;padding:20px}
-.header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .header button{
   padding:10px 16px;border:none;border-radius:12px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
@@ -34,38 +34,21 @@ th{background:#f8fafc;text-align:left}
 }
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
-.toast{
-  position:fixed;inset:0;display:none;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.35);z-index:9999
-}
-.toast div{
-  padding:18px 34px;border-radius:20px;
-  color:#fff;font-weight:bold;background:#16a34a
-}
-#spinner{
-  position:fixed;inset:0;display:none;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.35);z-index:10000
-}
-#spinner div{
-  width:60px;height:60px;
-  border:6px solid #e5e7eb;
-  border-top:6px solid #6d28d9;
-  border-radius:50%;
-  animation:spin 1s linear infinite
-}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <button onclick="location.href='admin-dashboard.html'">← Dashboard</button>
+  <button onclick="location.href='admin-list.html'">👥 Admin List</button>
+  <button onclick="location.href='add-admin.html'">➕ Add Admin</button>
+  <button onclick="location.href='admin-logs.html'">🔍 Admin Logs</button>
   <h2>Admin Panel</h2>
 </div>
 
+<!-- CONTROLS -->
 <div class="controls">
   <select id="statusFilter" onchange="render()">
     <option value="all">All Status</option>
@@ -73,20 +56,14 @@ th{background:#f8fafc;text-align:left}
     <option value="pending">Pending</option>
   </select>
 
-  <select id="roleFilter" onchange="render()">
-    <option value="all">All Roles</option>
-    <option value="admin">Admin</option>
-    <option value="user">User</option>
-  </select>
-
   <input id="search" placeholder="Search by Name / Email / Phone" oninput="render()">
 
   <button class="success" onclick="bulkApprove()">Approve</button>
   <button class="secondary" onclick="bulkUnapprove()">Unapprove</button>
   <button class="danger" onclick="bulkDelete()">Delete</button>
-  <button onclick="exportXLSX()">Export XLSX</button>
 </div>
 
+<!-- TABLE -->
 <table>
 <thead>
 <tr>
@@ -94,18 +71,13 @@ th{background:#f8fafc;text-align:left}
   <th>Name</th>
   <th>Email</th>
   <th>Phone</th>
-  <th>Role</th>
   <th>Created</th>
-  <th>Last Login</th>
   <th>Status</th>
   <th>Action</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
-
-<div class="toast" id="toast"><div id="toastMsg"></div></div>
-<div id="spinner"><div></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -115,11 +87,9 @@ import {
   collection,
   getDocs,
   doc,
-  getDoc,
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 /* FIREBASE */
 const app = initializeApp({
@@ -132,91 +102,63 @@ const db=getFirestore(app);
 
 /* DOM */
 const tbody=document.getElementById("tbody");
-const toast=document.getElementById("toast");
-const toastMsg=document.getElementById("toastMsg");
-const spinner=document.getElementById("spinner");
-const statusFilter=document.getElementById("statusFilter");
-const roleFilter=document.getElementById("roleFilter");
 const search=document.getElementById("search");
+const statusFilter=document.getElementById("statusFilter");
 
-let users=[], usersRaw=[];
+let users=[];
 
-/* HELPERS */
-const showToast=m=>{
-  toastMsg.innerText=m;
-  toast.style.display="flex";
-  setTimeout(()=>toast.style.display="none",2000);
-};
-const spin=s=>spinner.style.display=s?"flex":"none";
-
-/* AUTH GUARD */
-onAuthStateChanged(auth,async user=>{
+/* 🔐 AUTH GUARD (CLAIM BASED) */
+onAuthStateChanged(auth, async user=>{
   if(!user) return location.href="login.html";
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists() || snap.data().role!=="admin"){
-    alert("Access denied");
+
+  const token = await user.getIdTokenResult(true);
+  if(!token.claims.admin){
+    alert("Admin access only");
     return location.href="dashboard.html";
   }
   load();
 });
 
-/* NORMALIZE */
-const normalize=u=>({
-  uid:u.uid,
-  name:u.adminFields?.Name || "-",
-  email:u.adminFields?.Email || "-",
-  phone:u.adminFields?.Phone || "-",
-  role:u.role || "user",
-  approved:!!u.approved,
-  createdAt:u.createdAt || "",
-  lastLogin:u.lastLogin || ""
-});
-
 /* LOAD USERS */
 async function load(){
-  spin(true);
-  users=[];usersRaw=[];
-  (await getDocs(collection(db,"users"))).forEach(d=>{
-    const data={uid:d.id,...d.data()};
-    usersRaw.push(data);
-    users.push(normalize(data));
+  users=[];
+  const snap = await getDocs(collection(db,"users"));
+  snap.forEach(d=>{
+    users.push({uid:d.id,...d.data()});
   });
   render();
-  spin(false);
 }
 
 /* RENDER */
 window.render=()=>{
   tbody.innerHTML="";
   const q=search.value.toLowerCase();
+
   users.filter(u=>{
-    if(statusFilter.value==="approved"&&!u.approved) return false;
-    if(statusFilter.value==="pending"&&u.approved) return false;
-    if(roleFilter.value!=="all"&&u.role!==roleFilter.value) return false;
-    return u.name.toLowerCase().includes(q) ||
-           u.email.toLowerCase().includes(q) ||
-           u.phone.toLowerCase().includes(q);
+    if(statusFilter.value==="approved" && !u.approved) return false;
+    if(statusFilter.value==="pending" && u.approved) return false;
+    return (u.fullName||"").toLowerCase().includes(q) ||
+           (u.email||"").toLowerCase().includes(q) ||
+           (u.phone||"").includes(q);
   }).forEach(u=>{
     tbody.innerHTML+=`
-    <tr>
-      <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-      <td>${u.name}</td>
-      <td>${u.email}</td>
-      <td>${u.phone}</td>
-      <td>${u.role}</td>
-      <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
-      <td>${u.lastLogin?new Date(u.lastLogin).toLocaleString("en-IN"):"Never"}</td>
-      <td>
-        <span class="badge ${u.approved?"green":"yellow"}">
-          ${u.approved?"Approved":"Pending"}
-        </span>
-      </td>
-      <td>
-        <button onclick="toggle('${u.uid}',${u.approved})">
-          ${u.approved?"Unapprove":"Approve"}
-        </button>
-      </td>
-    </tr>`;
+      <tr>
+        <td><input type="checkbox" class="sel" value="${u.uid}"></td>
+        <td>${u.fullName||"-"}</td>
+        <td>${u.email||"-"}</td>
+        <td>${u.phone||"-"}</td>
+        <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
+        <td>
+          <span class="badge ${u.approved?"green":"yellow"}">
+            ${u.approved?"Approved":"Pending"}
+          </span>
+        </td>
+        <td>
+          <button onclick="toggle('${u.uid}',${u.approved})">
+            ${u.approved?"Unapprove":"Approve"}
+          </button>
+        </td>
+      </tr>`;
   });
 };
 
@@ -234,31 +176,19 @@ window.toggle=async(id,v)=>{
 window.bulkApprove=async()=>{
   for(const id of selected())
     await updateDoc(doc(db,"users",id),{approved:true});
-  showToast("Approved");
   load();
 };
 
 window.bulkUnapprove=async()=>{
   for(const id of selected())
     await updateDoc(doc(db,"users",id),{approved:false});
-  showToast("Unapproved");
   load();
 };
 
 window.bulkDelete=async()=>{
   for(const id of selected())
     await deleteDoc(doc(db,"users",id));
-  showToast("Deleted");
   load();
-};
-
-/* EXPORT */
-window.exportXLSX=()=>{
-  const rows=usersRaw.map(u=>u);
-  const ws=XLSX.utils.json_to_sheet(rows);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Users");
-  XLSX.writeFile(wb,"users_export.xlsx");
 };
 </script>
 
