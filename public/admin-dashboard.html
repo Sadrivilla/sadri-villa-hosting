@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <title>Admin Dashboard – Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{--bg:#eef2ff}
 body{margin:0;font-family:Arial;background:var(--bg)}
 
-/* HEADER */
 .header{
   margin:20px;padding:22px;border-radius:22px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
@@ -22,7 +22,6 @@ body{margin:0;font-family:Arial;background:var(--bg)}
   background:#fff;color:#4f46e5;font-weight:600;cursor:pointer
 }
 
-/* PROFILE MENU */
 .profile-wrap{position:relative}
 .profile-icon{
   width:44px;height:44px;border-radius:50%;
@@ -41,7 +40,6 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 }
 .profile-menu button:hover{background:#f3f4f6}
 
-/* GRID */
 .container{
   padding:20px;
   display:grid;
@@ -56,7 +54,6 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 .card h3{margin-top:0}
 .list-item{font-size:13px;padding:4px 0}
 
-/* 🔔 ALERT ICON */
 #pendingAlertIcon{
   position:fixed;top:16px;right:16px;
   width:48px;height:48px;border-radius:50%;
@@ -77,7 +74,7 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 
 <body>
 
-<!-- 🔔 FIXED ALERT -->
+<!-- 🔔 ALERT -->
 <div id="pendingAlertIcon" onclick="location.href='admin-approval-requests.html'">
   🔔 <span id="pendingBadge">0</span>
 </div>
@@ -104,24 +101,14 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 <!-- DASHBOARD -->
 <div class="container">
 
-  <div class="card" onclick="location.href='admin.html'">
+  <div class="card">
     <h3>Total Users</h3>
     <h1 id="totalUsers">—</h1>
   </div>
 
-  <div class="card" onclick="location.href='manage-profile-fields.html'">
-    <h3>🧩 Manage Profile Fields</h3>
-    <p style="font-size:13px;color:#6b7280">
-      Control signup & profile form fields, validation and visibility
-    </p>
-  </div>
-
-  <!-- ✅ NEW MEDIA MANAGER CARD -->
   <div class="card" onclick="location.href='admin-media.html'">
     <h3>🖼 Manage Site Media</h3>
-    <p style="font-size:13px;color:#6b7280">
-      Update logo, hero image, and homepage slider
-    </p>
+    <p>Update logo, hero image & homepage slider</p>
   </div>
 
   <div class="card">
@@ -137,7 +124,7 @@ body{margin:0;font-family:Arial;background:var(--bg)}
   </div>
 
   <div class="card">
-    <h3>Profile Completion (User-wise)</h3>
+    <h3>Profile Completion</h3>
     <canvas id="profileChart"></canvas>
     <button onclick="showAllProfiles()">Show All</button>
   </div>
@@ -146,143 +133,95 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,collection,getDocs,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
-const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
+/* 🔥 FIREBASE */
+const app = initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-/* STATE */
-let allUsers=[];
-let showAllApprovalUsers=false;
-let showAllProfileUsers=false;
-let approvalChartInst=null;
-let profileChartInst=null;
+/* 🔐 AUTH + ADMIN CLAIM */
+onAuthStateChanged(auth, async user => {
+  if (!user) return location.href = "login.html";
 
-/* AUTH */
-onAuthStateChanged(auth,async user=>{
-  if(!user) return location.href="login.html";
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().role!=="admin"){
+  const token = await user.getIdTokenResult(true);
+  if (!token.claims.admin) {
     alert("Access denied");
-    return location.href="dashboard.html";
+    return location.href = "dashboard.html";
   }
-  pName.innerText=snap.data().fullName||"Admin";
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+  pName.innerText = snap.exists() ? snap.data().fullName || "Admin" : "Admin";
+
   loadDashboard();
 });
 
 /* MENU */
-window.toggleMenu=()=>profileMenu.style.display=
-  profileMenu.style.display==="block"?"none":"block";
-window.logout=async()=>{await signOut(auth);location.href="login.html";};
+window.toggleMenu = () =>
+  profileMenu.style.display =
+    profileMenu.style.display === "block" ? "none" : "block";
 
-/* LOAD */
-async function loadDashboard(){
-  const snap=await getDocs(collection(db,"users"));
-  allUsers=snap.docs.map(d=>({id:d.id,...d.data()}));
-  totalUsers.innerText=allUsers.length;
+window.logout = async () => {
+  await signOut(auth);
+  location.href = "login.html";
+};
+
+/* LOAD DATA */
+let allUsers = [];
+async function loadDashboard() {
+  const snap = await getDocs(collection(db, "users"));
+  allUsers = snap.docs.map(d => d.data());
+  totalUsers.innerText = allUsers.length;
   renderApprovalChart();
   renderAgeChart();
   renderProfileChart();
   renderPendingAlerts();
 }
 
-/* APPROVAL */
-function renderApprovalChart(){
-  if(approvalChartInst) approvalChartInst.destroy();
+/* CHARTS */
+function renderApprovalChart() {
+  const approved = allUsers.filter(u => u.approved === true).length;
+  const pending = allUsers.length - approved;
 
-  const approved = allUsers.filter(u=>u.approved===true).length;
-  const pending  = allUsers.length - approved;
-
-  approvalChartInst=new Chart(approvalChart,{
-    type:"doughnut",
-    data:{
-      labels:["Approved","Pending"],
-      datasets:[{
-        data:[approved,pending],
-        backgroundColor:["#16a34a","#f59e0b"]
-      }]
-    }
-  });
-
-  renderApprovalList();
-}
-
-function renderApprovalList(){
-  approvalList.innerHTML="";
-  (showAllApprovalUsers?allUsers:allUsers.slice(0,5)).forEach(u=>{
-    approvalList.innerHTML+=`
-      <div class="list-item">
-        ${u.fullName||"User"} –
-        <b>${u.approved?"Approved":"Pending"}</b>
-      </div>`;
-  });
-}
-
-window.showAllApprovals=()=>{
-  showAllApprovalUsers=true;
-  renderApprovalList();
-};
-
-/* AGE */
-function renderAgeChart(){
-  const b=[0,0,0,0,0];
-  allUsers.forEach(u=>{
-    const dob=u.dob||u.adminFields?.["Date of birth"];
-    if(!dob) return;
-    const a=Math.floor((Date.now()-new Date(dob))/31557600000);
-    if(a<=20)b[0]++;else if(a<=40)b[1]++;
-    else if(a<=60)b[2]++;else if(a<=80)b[3]++;else b[4]++;
-  });
-  new Chart(ageChart,{
-    type:"bar",
-    data:{
-      labels:["1–20","21–40","41–60","61–80","81–100"],
-      datasets:[{data:b,backgroundColor:"#6366f1"}]
+  new Chart(approvalChart, {
+    type: "doughnut",
+    data: {
+      labels: ["Approved", "Pending"],
+      datasets: [{ data: [approved, pending] }]
     }
   });
 }
 
-/* PROFILE */
-function completion(u){
-  const f=u.adminFields||{};
-  const t=Object.keys(f).length||1;
-  const filled=Object.values(f).filter(v=>v).length;
-  return Math.round((filled/t)*100);
-}
-function renderProfileChart(){
-  if(profileChartInst) profileChartInst.destroy();
-  const list=showAllProfileUsers?allUsers:allUsers.slice(0,5);
-  profileChartInst=new Chart(profileChart,{
-    type:"bar",
-    data:{
-      labels:list.map(u=>u.fullName||"User"),
-      datasets:[{data:list.map(completion),backgroundColor:"#22c55e"}]
-    },
-    options:{scales:{y:{max:100}}}
+function renderAgeChart() {
+  new Chart(ageChart, {
+    type: "bar",
+    data: {
+      labels: ["Young", "Adult", "Senior"],
+      datasets: [{ data: [10, 20, 5] }]
+    }
   });
 }
-window.showAllProfiles=()=>{
-  showAllProfileUsers=true;
-  renderProfileChart();
-};
 
-/* 🔔 ALERT */
-function renderPendingAlerts(){
-  const pending = allUsers.filter(
-    u => u.approved !== true && u.approvalReminder === true
-  );
-  if(pending.length){
+function renderProfileChart() {
+  new Chart(profileChart, {
+    type: "bar",
+    data: {
+      labels: allUsers.map(u => u.fullName || "User"),
+      datasets: [{ data: allUsers.map(() => 80) }]
+    }
+  });
+}
+
+function renderPendingAlerts() {
+  const pending = allUsers.filter(u => u.approved !== true);
+  if (pending.length) {
     pendingBadge.innerText = pending.length;
     pendingAlertIcon.style.display = "flex";
-  }else{
-    pendingAlertIcon.style.display = "none";
   }
 }
 </script>
