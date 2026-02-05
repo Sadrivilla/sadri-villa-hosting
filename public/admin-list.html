@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin List</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Arial;background:#eef2ff;padding:20px}
+table{width:100%;background:#fff;border-radius:14px;border-collapse:collapse}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb}
+button{padding:6px 12px;border:none;border-radius:8px;cursor:pointer}
+.danger{background:#dc2626;color:#fff}
+</style>
+</head>
+<body>
+
+<h2>👥 Admin Users</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Name</th>
+  <th>Email</th>
+  <th>UID</th>
+  <th>Action</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+const fn=getFunctions(app,"us-central1");
+
+const removeAdmin=httpsCallable(fn,"removeAdmin");
+const list=document.getElementById("list");
+
+onAuthStateChanged(auth, async user=>{
+  if(!user) return location.href="login.html";
+
+  const token = await user.getIdTokenResult();
+  if(!token.claims.admin){
+    alert("Admin only");
+    return location.href="dashboard.html";
+  }
+
+  const snap=await getDocs(collection(db,"users"));
+  snap.forEach(d=>{
+    if(d.data().isAdmin){
+      list.innerHTML+=`
+        <tr>
+          <td>${d.data().fullName||"-"}</td>
+          <td>${d.data().email||"-"}</td>
+          <td>${d.id}</td>
+          <td>
+            <button class="danger" onclick="remove('${d.id}')">Remove</button>
+          </td>
+        </tr>`;
+    }
+  });
+});
+
+window.remove=async(uid)=>{
+  if(!confirm("Remove admin?")) return;
+  await removeAdmin({ uid });
+  location.reload();
+};
+</script>
+
+</body>
+</html>
