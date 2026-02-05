@@ -6,7 +6,8 @@ admin.initializeApp();
 exports.addAdmin = onCall(
   { region: "us-central1" },
   async (request) => {
-    // 🔐 Caller must be logged in
+
+    // 🔐 Must be logged in
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Login required");
     }
@@ -17,20 +18,23 @@ exports.addAdmin = onCall(
     }
 
     const { uid } = request.data;
-
     if (!uid) {
       throw new HttpsError("invalid-argument", "UID is required");
     }
 
     // ✅ Ensure user exists
+    let user;
     try {
-      await admin.auth().getUser(uid);
-    } catch (e) {
+      user = await admin.auth().getUser(uid);
+    } catch {
       throw new HttpsError("not-found", "User does not exist");
     }
 
-    // ✅ Set custom claim
-    await admin.auth().setCustomUserClaims(uid, { admin: true });
+    // ✅ Preserve existing claims + add admin
+    await admin.auth().setCustomUserClaims(uid, {
+      ...(user.customClaims || {}),
+      admin: true
+    });
 
     return {
       success: true,
