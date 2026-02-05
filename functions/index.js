@@ -4,19 +4,9 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 /**
- * Call once to make a user admin
- * Use UID as input
+ * TEMPORARY – Run ONCE to create first admin
  */
-exports.makeAdmin = functions.https.onCall(async (data, context) => {
-
-  // 🔐 Only existing admins can make another admin
-  if (!context.auth || context.auth.token.admin !== true) {
-    throw new functions.https.HttpsError(
-      "permission-denied",
-      "Only admins can assign admin role"
-    );
-  }
-
+exports.bootstrapAdmin = functions.https.onCall(async (data, context) => {
   const uid = data.uid;
 
   if (!uid) {
@@ -28,5 +18,9 @@ exports.makeAdmin = functions.https.onCall(async (data, context) => {
 
   await admin.auth().setCustomUserClaims(uid, { admin: true });
 
-  return { success: true, message: "Admin claim added" };
+  return {
+    success: true,
+    message: "Admin claim added"
+  };
 });
+
