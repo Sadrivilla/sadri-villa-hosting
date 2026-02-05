@@ -1,44 +1,134 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const admin = require("firebase-admin");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Admin | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-admin.initializeApp();
+<style>
+body{
+  font-family: Arial;
+  background:#eef2ff;
+  margin:0;
+  padding:0;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 20px;
+  background:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+.topbar img{height:38px}
+.container{
+  max-width:520px;
+  margin:60px auto;
+  background:#fff;
+  padding:28px;
+  border-radius:18px;
+  box-shadow:0 18px 40px rgba(0,0,0,.15);
+}
+h2{margin-top:0}
+input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #c7d2fe;
+  font-size:15px;
+}
+button{
+  margin-top:14px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#16a34a;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{opacity:.6}
+.msg{
+  margin-top:14px;
+  padding:12px;
+  border-radius:12px;
+  display:none;
+}
+.success{background:#dcfce7;color:#166534}
+.error{background:#fee2e2;color:#991b1b}
+.back{
+  margin-left:auto;
+  cursor:pointer;
+  font-weight:bold;
+  color:#4f46e5;
+}
+</style>
+</head>
 
-exports.addAdmin = onCall(
-  { region: "us-central1" },
-  async (request) => {
+<body>
 
-    // 🔐 Must be logged in
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "Login required");
-    }
+<div class="topbar">
+  <img src="images/logo.png" alt="Sadri Villa">
+  <div class="back" onclick="location.href='admin.html'">← Back</div>
+</div>
 
-    // 🔐 Caller must already be admin
-    if (request.auth.token.admin !== true) {
-      throw new HttpsError("permission-denied", "Admin only");
-    }
+<div class="container">
+  <h2>➕ Make New Admin</h2>
+  <input id="uid" placeholder="Paste User UID here">
+  <button id="btn" onclick="makeAdmin()">Make Admin</button>
+  <div id="msg" class="msg"></div>
+</div>
 
-    const { uid } = request.data;
-    if (!uid) {
-      throw new HttpsError("invalid-argument", "UID is required");
-    }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 
-    // ✅ Ensure user exists
-    let user;
-    try {
-      user = await admin.auth().getUser(uid);
-    } catch {
-      throw new HttpsError("not-found", "User does not exist");
-    }
+/* Firebase */
+const app = initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
+});
+const auth = getAuth(app);
+const functions = getFunctions(app, "us-central1");
+const addAdmin = httpsCallable(functions, "addAdmin");
 
-    // ✅ Preserve existing claims + add admin
-    await admin.auth().setCustomUserClaims(uid, {
-      ...(user.customClaims || {}),
-      admin: true
-    });
+/* Guard */
+onAuthStateChanged(auth, async user => {
+  if (!user) return location.href = "login.html";
+  const token = await user.getIdTokenResult();
+  if (!token.claims.admin) location.href = "dashboard.html";
+});
 
-    return {
-      success: true,
-      message: "Admin role assigned successfully"
-    };
+window.makeAdmin = async () => {
+  const uid = document.getElementById("uid").value.trim();
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("btn");
+
+  if (!uid) {
+    msg.className = "msg error";
+    msg.innerText = "UID is required";
+    msg.style.display = "block";
+    return;
   }
-);
+
+  try {
+    btn.disabled = true;
+    await addAdmin({ uid });
+    msg.className = "msg success";
+    msg.innerText = "✅ Admin added successfully";
+  } catch (e) {
+    msg.className = "msg error";
+    msg.innerText = "❌ " + (e.message || "Failed to add admin");
+  } finally {
+    btn.disabled = false;
+    msg.style.display = "block";
+  }
+};
+</script>
+
+</body>
+</html>
