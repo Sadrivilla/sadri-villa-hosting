@@ -185,64 +185,74 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* LOGO */
-(async()=>{
-  const s = await getDoc(doc(db,"siteSettings","home"));
-  if(s.exists() && s.data().logo?.url){
-    siteLogo.src = s.data().logo.url;
-  }
-})();
+/* INPUT REFERENCES (FIX) */
+const nameInput = document.getElementById("name");
+const phoneInput = document.getElementById("phone");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const confirmInput = document.getElementById("confirm");
 
-/* STATE */
-const steps=[...document.querySelectorAll(".step")];
-const bar=document.getElementById("bar");
-const stepCount=document.getElementById("stepCount");
-const msg=document.getElementById("msg");
+/* UI */
+const steps = [...document.querySelectorAll(".step")];
+const bar = document.getElementById("bar");
+const stepCount = document.getElementById("stepCount");
+const msg = document.getElementById("msg");
 
-let i = Number(localStorage.getItem("signupStep")) || 0;
+let step = Number(localStorage.getItem("signupStep")) || 0;
 
-/* SHOW */
-function show(){
+/* SHOW STEP */
+function showStep(){
   steps.forEach(s=>s.classList.remove("active"));
-  steps[i].classList.add("active");
-  bar.style.width=((i+1)/steps.length*100)+"%";
-  stepCount.textContent=`Step ${i+1} of ${steps.length}`;
-  localStorage.setItem("signupStep",i);
+  steps[step].classList.add("active");
+  bar.style.width = ((step+1)/steps.length*100)+"%";
+  stepCount.textContent = `Step ${step+1} of ${steps.length}`;
+  localStorage.setItem("signupStep",step);
 }
-show();
+showStep();
 
 /* ERROR */
-function fail(text,el){
-  msg.className="msg error";
-  msg.textContent=text;
-  msg.style.display="block";
+function fail(text, el){
+  msg.className = "msg error";
+  msg.textContent = text;
+  msg.style.display = "block";
   el.classList.add("error");
   el.focus();
 }
 
-/* NAV */
-document.querySelectorAll(".step").forEach((step,idx)=>{
-  const next=step.querySelector(".next");
-  const back=step.querySelector(".back");
+/* NAV BUTTONS */
+document.querySelectorAll(".step").forEach((stepEl, index)=>{
+  const next = stepEl.querySelector(".next");
+  const back = stepEl.querySelector(".back");
 
-  if(next && idx<steps.length-1){
-    next.onclick=()=>{
+  if(next && index < steps.length-1){
+    next.onclick = () => {
       msg.style.display="none";
-      if(idx===0 && !name.value.trim()) return fail("Name required",name);
-      if(idx===1 && !/^[0-9]{10}$/.test(phone.value)) return fail("Invalid mobile",phone);
-      if(idx===2 && !email.value.includes("@")) return fail("Invalid email",email);
-      i++; show();
+
+      if(index===0 && !nameInput.value.trim())
+        return fail("Name required", nameInput);
+
+      if(index===1 && !/^[0-9]{10}$/.test(phoneInput.value))
+        return fail("Invalid mobile number", phoneInput);
+
+      if(index===2 && !emailInput.value.includes("@"))
+        return fail("Invalid email", emailInput);
+
+      step++;
+      showStep();
     };
   }
 
   if(back){
-    back.onclick=()=>{i--;show()};
+    back.onclick = ()=>{
+      step--;
+      showStep();
+    };
   }
 });
 
-/* PASSWORD */
-password.oninput=()=>{
-  let s=0,p=password.value;
+/* PASSWORD STRENGTH */
+passwordInput.oninput = ()=>{
+  let s=0,p=passwordInput.value;
   if(p.length>=6)s++;
   if(/[A-Z]/.test(p))s++;
   if(/[0-9]/.test(p))s++;
@@ -254,35 +264,44 @@ password.oninput=()=>{
   else{strengthBar.style.width="100%";strengthBar.classList.add("strong")}
 };
 
-eyePass.onclick=()=>toggle(password,eyePass);
-eyeConf.onclick=()=>toggle(confirm,eyeConf);
+/* EYES */
+eyePass.onclick=()=>toggle(passwordInput,eyePass);
+eyeConf.onclick=()=>toggle(confirmInput,eyeConf);
 
-function toggle(f,e){
-  const o=f.type==="password";
-  f.type=o?"text":"password";
-  e.classList.toggle("open",o);
+function toggle(input,eye){
+  const open=input.type==="password";
+  input.type=open?"text":"password";
+  eye.classList.toggle("open",open);
 }
 
-/* CREATE */
-createBtn.onclick=async()=>{
-  if(password.value!==confirm.value)
-    return fail("Passwords do not match",confirm);
+/* CREATE ACCOUNT */
+createBtn.onclick = async ()=>{
+  if(passwordInput.value !== confirmInput.value)
+    return fail("Passwords do not match", confirmInput);
 
   try{
-    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      emailInput.value.trim(),
+      passwordInput.value
+    );
+
     await setDoc(doc(db,"users",cred.user.uid),{
-      fullName:name.value.trim(),
-      phone:phone.value.trim(),
-      email:email.value.trim(),
+      fullName:nameInput.value.trim(),
+      phone:phoneInput.value.trim(),
+      email:emailInput.value.trim(),
       role:"user",
       approved:false,
       createdAt:new Date().toISOString()
     });
+
     localStorage.removeItem("signupStep");
     msg.className="msg success";
     msg.textContent="Account created. Pending admin approval.";
     msg.style.display="block";
+
     setTimeout(()=>location.href="pending.html",2500);
+
   }catch(e){
     msg.className="msg error";
     msg.textContent=e.message.replace("Firebase: ","");
@@ -290,6 +309,7 @@ createBtn.onclick=async()=>{
   }
 };
 </script>
+
 
 </body>
 </html>
