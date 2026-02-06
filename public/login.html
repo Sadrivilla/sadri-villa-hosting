@@ -58,23 +58,45 @@ button{
 .success{color:#16a34a}
 .error{color:#ef4444}
 .links{margin-top:18px;font-size:14px}
-.links a{color:#0ea5e9;font-weight:600;cursor:pointer;display:block;margin-top:6px}
-.remember{display:flex;align-items:center;gap:6px;font-size:13px;margin:8px 0 6px}
+.links a{
+  color:#0ea5e9;
+  font-weight:600;
+  cursor:pointer;
+  display:block;
+  margin-top:6px
+}
+.remember{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  margin:8px 0 6px
+}
 
-/* Forgot modal */
+/* Forgot password modal */
 #fpModal{
-  display:none;position:fixed;inset:0;
+  display:none;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,.35);
   backdrop-filter:blur(4px);
-  align-items:center;justify-content:center;
+  align-items:center;
+  justify-content:center;
 }
 #fpModal .box{
-  background:#fff;padding:28px;border-radius:22px;
-  width:100%;max-width:360px;text-align:center
+  background:#fff;
+  padding:28px;
+  border-radius:22px;
+  width:100%;
+  max-width:360px;
+  text-align:center
 }
 #fpModal input{
-  width:100%;height:52px;padding:0 16px;
-  border-radius:14px;border:1.5px solid #d1d5db
+  width:100%;
+  height:52px;
+  padding:0 16px;
+  border-radius:14px;
+  border:1.5px solid #d1d5db
 }
 #fpMsg{font-size:13px;margin:10px 0}
 </style>
@@ -109,14 +131,14 @@ button{
   </div>
 </div>
 
-<!-- Forgot password modal -->
+<!-- Forgot Password Modal -->
 <div id="fpModal">
   <div class="box">
     <h3>Reset Password</h3>
     <input id="fpEmail" placeholder="Registered email">
     <div id="fpMsg"></div>
     <button id="fpSendBtn">Send Reset Link</button>
-    <button onclick="closeFP()" style="background:none;color:#64748b">Cancel</button>
+    <button onclick="closeFP()" style="background:none;color:#64748b;margin-top:8px">Cancel</button>
   </div>
 </div>
 
@@ -143,48 +165,42 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
-const app=initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* 👁 Password toggle */
-eye.onclick=()=>password.type=
-  password.type==="password"?"text":"password";
+eye.onclick = () =>
+  password.type = password.type === "password" ? "text" : "password";
 
-/* ✅ AUTO-LOGIN REDIRECT */
+/* ✅ AUTO REDIRECT AFTER LOGIN / REFRESH */
 onAuthStateChanged(auth, async user=>{
   if(!user) return;
 
-  const ref=doc(db,"users",user.uid);
-  const snap=await getDoc(ref);
-  if(!snap.exists()) return;
+  const token = await user.getIdTokenResult(true);
+  const ref = doc(db,"users",user.uid);
+  const snap = await getDoc(ref);
 
-  if(snap.data().approved!==true){
+  if(snap.exists() && snap.data().approved !== true){
     location.href="pending.html";
     return;
   }
 
-const token = await cred.user.getIdTokenResult(true);
-
-location.href =
-  token.claims.admin === true
-    ? "admin-dashboard.html"
-    : "dashboard.html";
-
+  location.href =
+    token.claims.admin === true
+      ? "admin-dashboard.html"
+      : "dashboard.html";
 });
 
 /* LOGIN */
-loginBtn.onclick=async()=>{
+loginBtn.onclick = async () => {
   errorMsg.style.display="none";
   statusMsg.style.display="block";
   statusMsg.textContent="Logging in…";
-
-  const idVal=identifier.value.trim();
-  const pass=password.value;
 
   try{
     await setPersistence(
@@ -194,19 +210,21 @@ loginBtn.onclick=async()=>{
         : browserSessionPersistence
     );
 
-    let email=idVal;
-    if(!idVal.includes("@")){
-      const q=query(collection(db,"users"),where("phone","==",idVal));
-      const s=await getDocs(q);
+    let email = identifier.value.trim();
+
+    if(!email.includes("@")){
+      const q = query(collection(db,"users"), where("phone","==",email));
+      const s = await getDocs(q);
       if(s.empty) throw "no-record";
-      email=s.docs[0].data().email;
+      email = s.docs[0].data().email;
     }
 
-    const cred=await signInWithEmailAndPassword(auth,email,pass);
-    const ref=doc(db,"users",cred.user.uid);
-    const snap=await getDoc(ref);
+    const cred = await signInWithEmailAndPassword(auth,email,password.value);
 
-    if(snap.data().approved!==true){
+    const ref = doc(db,"users",cred.user.uid);
+    const snap = await getDoc(ref);
+
+    if(snap.exists() && snap.data().approved !== true){
       await updateDoc(ref,{approvalReminder:true});
       location.href="pending.html";
       return;
@@ -214,13 +232,7 @@ loginBtn.onclick=async()=>{
 
     await updateDoc(ref,{lastLogin:new Date().toISOString()});
 
-const token = await user.getIdTokenResult(true);
-
-location.href =
-  token.claims.admin === true
-    ? "admin-dashboard.html"
-    : "dashboard.html";
-
+    // 🚫 NO redirect here (handled by onAuthStateChanged)
 
   }catch{
     statusMsg.style.display="none";
@@ -230,11 +242,14 @@ location.href =
 };
 
 /* FORGOT PASSWORD */
-forgotLink.onclick=()=>fpModal.style.display="flex";
-window.closeFP=()=>{fpModal.style.display="none";fpMsg.textContent="";};
+forgotLink.onclick = () => fpModal.style.display="flex";
+window.closeFP = () => {
+  fpModal.style.display="none";
+  fpMsg.textContent="";
+};
 
-fpSendBtn.onclick=async()=>{
-  const email=fpEmail.value.trim();
+fpSendBtn.onclick = async () => {
+  const email = fpEmail.value.trim();
   if(!email){
     fpMsg.style.color="#ef4444";
     fpMsg.textContent="Email required";
