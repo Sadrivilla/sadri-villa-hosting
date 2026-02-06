@@ -21,7 +21,8 @@ body{
   background:rgba(255,255,255,.9);
   backdrop-filter:blur(8px);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;box-shadow:0 4px 12px rgba(0,0,0,.08);
+  padding:0 24px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
   z-index:1000
 }
 .brand img{height:38px}
@@ -29,12 +30,7 @@ body{
   height:40px;padding:0 18px;border-radius:12px;
   border:none;font-weight:600;cursor:pointer
 }
-.home-btn{
-  background:#fff;
-  color:#38bdf8;
-  border:1px solid #38bdf8;
-}
-.login-btn{
+.home-btn,.login-btn{
   background:#fff;
   color:#38bdf8;
   border:1px solid #38bdf8;
@@ -61,7 +57,8 @@ body{
 /* CARD */
 .card{
   background:rgba(255,255,255,.92);
-  border-radius:26px;padding:34px;
+  border-radius:26px;
+  padding:34px;
   box-shadow:0 25px 60px rgba(0,0,0,.15)
 }
 
@@ -83,17 +80,24 @@ body{
 .field input{
   width:100%;height:52px;border-radius:14px;
   border:1.5px solid #c7d2fe;
-  padding:0 44px 0 14px;font-size:15px
+  padding:0 46px 0 14px;font-size:15px
 }
 .field input.error{border-color:#ef4444}
 
 /* EYE ICON */
 .eye{
-  position:absolute;right:14px;top:40px;
-  cursor:pointer;font-size:18px;
-  transition:transform .2s ease
+  position:absolute;
+  right:14px;
+  top:40px;
+  cursor:pointer;
+  font-size:18px;
+  transition:transform .25s ease, opacity .25s ease;
+  opacity:.7
 }
-.eye.open{transform:scale(1.2)}
+.eye.open{
+  transform:scale(1.25);
+  opacity:1
+}
 
 /* PASSWORD STRENGTH */
 .strength{
@@ -117,7 +121,8 @@ body{
 .back{background:#e5e7eb}
 .next{
   background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  color:#fff;box-shadow:0 10px 25px rgba(56,189,248,.4)
+  color:#fff;
+  box-shadow:0 10px 25px rgba(56,189,248,.4)
 }
 
 /* MESSAGE */
@@ -140,7 +145,7 @@ body{
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img src="images/logo.png">
+    <img id="siteLogo" src="images/logo.png">
   </div>
   <div class="nav-right">
     <button class="home-btn" onclick="location.href='index.html'">Home</button>
@@ -208,13 +213,14 @@ body{
     <div class="field">
       <label>Password</label>
       <input id="password" type="password" oninput="checkStrength()">
-      <span class="eye" id="eye" onclick="toggleEye()">👁</span>
+      <span class="eye" id="eye1" onclick="toggleEye()">👁</span>
       <div class="strength"><span id="strengthBar"></span></div>
     </div>
 
     <div class="field">
       <label>Confirm Password</label>
       <input id="confirm" type="password">
+      <span class="eye" id="eye2" onclick="toggleEye()">👁</span>
     </div>
 
     <div class="actions">
@@ -232,8 +238,9 @@ body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -242,6 +249,15 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
+/* 🔵 LOAD LOGO FROM FIRESTORE (same as index.html) */
+(async()=>{
+  const snap=await getDoc(doc(db,"siteSettings","home"));
+  if(snap.exists() && snap.data().logo?.url){
+    siteLogo.src=snap.data().logo.url;
+  }
+})();
+
+/* STEPS */
 const steps=[...document.querySelectorAll(".step")];
 const bar=document.getElementById("bar");
 const msg=document.getElementById("msg");
@@ -276,25 +292,27 @@ function fail(text,el){
   el.focus();
 }
 
+/* PASSWORD STRENGTH */
 window.checkStrength=()=>{
   const p=password.value;
-  const bar=strengthBar;
   let s=0;
   if(p.length>=6) s++;
   if(/[A-Z]/.test(p)) s++;
   if(/[0-9]/.test(p)) s++;
   if(/[^A-Za-z0-9]/.test(p)) s++;
 
-  bar.className="";
-  if(s<=1){bar.style.width="25%";bar.classList.add("weak")}
-  else if(s<=3){bar.style.width="60%";bar.classList.add("medium")}
-  else{bar.style.width="100%";bar.classList.add("strong")}
+  strengthBar.className="";
+  if(s<=1){strengthBar.style.width="25%";strengthBar.classList.add("weak")}
+  else if(s<=3){strengthBar.style.width="60%";strengthBar.classList.add("medium")}
+  else{strengthBar.style.width="100%";strengthBar.classList.add("strong")}
 };
 
+/* 👁 EYE TOGGLE FOR BOTH FIELDS */
 window.toggleEye=()=>{
   const open=password.type==="password";
   password.type=confirm.type=open?"text":"password";
-  eye.classList.toggle("open",open);
+  eye1.classList.toggle("open",open);
+  eye2.classList.toggle("open",open);
 };
 
 window.register=async()=>{
