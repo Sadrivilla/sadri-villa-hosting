@@ -6,8 +6,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
 body{font-family:Arial;background:#f3f6f9;padding:30px}
@@ -37,15 +35,10 @@ button{padding:10px 18px;border:none;border-radius:10px;background:#2563eb;color
 firebase.initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06",
-  storageBucket: "sadri-villa-14c06.appspot.com"
+  projectId: "sadri-villa-14c06"
 });
 
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-/* ================= AUTH STATE WAIT ================= */
-let currentUser = null;
+/* ================= AUTH STATE ================= */
 let authReady = false;
 
 firebase.auth().onAuthStateChanged(user => {
@@ -56,11 +49,10 @@ firebase.auth().onAuthStateChanged(user => {
   }
 
   console.log("✅ Admin session restored:", user.uid);
-  currentUser = user;
   authReady = true;
 });
 
-/* ================= UPLOAD LOGO ================= */
+/* ================= UPLOAD VIA CLOUD FUNCTION ================= */
 async function uploadLogo() {
   const msg = document.getElementById("logoMsg");
   const file = document.getElementById("logoInput").files[0];
@@ -81,18 +73,27 @@ async function uploadLogo() {
   msg.innerText = "Uploading logo…";
 
   try {
-    const ref = storage.ref(`images/site/logo-${Date.now()}`);
-    await ref.put(file);
-    const url = await ref.getDownloadURL();
+    const user = firebase.auth().currentUser;
+    const token = await user.getIdToken(true);
 
-    await db.collection("siteSettings").doc("home").set({
-      logo: {
-        url,
-        alt: "Sadri Villa Logo",
-        width: 180,
-        height: 60
+    const formData = new FormData();
+    formData.append("logo", file);
+
+    const res = await fetch(
+      "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadSiteImage",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
       }
-    }, { merge: true });
+    );
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
 
     msg.className = "msg success";
     msg.innerText = "Logo uploaded successfully ✅";
@@ -100,7 +101,7 @@ async function uploadLogo() {
   } catch (err) {
     console.error(err);
     msg.className = "msg error";
-    msg.innerText = err.message;
+    msg.innerText = "Upload failed";
   }
 }
 </script>
