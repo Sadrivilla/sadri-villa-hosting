@@ -8,10 +8,31 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
-body{font-family:Arial;background:#f3f6f9;padding:30px}
-.card{background:#fff;padding:22px;border-radius:18px;max-width:800px;box-shadow:0 12px 30px rgba(0,0,0,.08)}
-button{padding:10px 18px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
-.msg{margin-top:10px;font-size:14px}
+body{
+  font-family:Arial;
+  background:#f3f6f9;
+  padding:30px
+}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:18px;
+  max-width:800px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08)
+}
+button{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer
+}
+.msg{
+  margin-top:10px;
+  font-size:14px
+}
 .msg.error{color:#991b1b}
 .msg.success{color:#065f46}
 .msg.loading{color:#1d4ed8}
@@ -38,7 +59,7 @@ firebase.initializeApp({
   projectId: "sadri-villa-14c06"
 });
 
-/* ================= AUTH STATE ================= */
+/* ================= AUTH CHECK ================= */
 let authReady = false;
 
 firebase.auth().onAuthStateChanged(user => {
@@ -47,12 +68,11 @@ firebase.auth().onAuthStateChanged(user => {
     location.href = "/login.html";
     return;
   }
-
   console.log("✅ Admin session restored:", user.uid);
   authReady = true;
 });
 
-/* ================= UPLOAD VIA CLOUD FUNCTION ================= */
+/* ================= UPLOAD LOGO ================= */
 async function uploadLogo() {
   const msg = document.getElementById("logoMsg");
   const file = document.getElementById("logoInput").files[0];
@@ -80,7 +100,7 @@ async function uploadLogo() {
     formData.append("logo", file);
 
     const res = await fetch(
-      "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadSiteImage",
+      "https://uploadsiteimage-jgzkr3mifq-uc.a.run.app",
       {
         method: "POST",
         headers: {
