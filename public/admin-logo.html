@@ -95,7 +95,7 @@ async function uploadLogo() {
   try {
     const token = await firebase.auth().currentUser.getIdToken(true);
 
-    // Convert file to Base64
+    // Convert image to Base64
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result.split(",")[1]);
@@ -104,7 +104,7 @@ async function uploadLogo() {
     });
 
     const res = await fetch(
-      "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadLogo",
+      "https://uploadlogo-jgzkr3mifq-uc.a.run.app",
       {
         method: "POST",
         headers: {
@@ -122,7 +122,7 @@ async function uploadLogo() {
     if (!res.ok) throw new Error(text);
 
     msg.className = "msg success";
-    msg.innerText = "Logo uploaded & Firestore updated ✅";
+    msg.innerText = "✅ Logo uploaded & Firestore updated";
 
   } catch (err) {
     console.error(err);
