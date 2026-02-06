@@ -29,8 +29,20 @@ body{
   height:40px;padding:0 18px;border-radius:12px;
   border:none;font-weight:600;cursor:pointer
 }
-.login-btn{background:#fff;color:#38bdf8;border:1px solid #38bdf8}
-.signup-btn{background:#38bdf8;color:#fff}
+.home-btn{
+  background:#fff;
+  color:#38bdf8;
+  border:1px solid #38bdf8;
+}
+.login-btn{
+  background:#fff;
+  color:#38bdf8;
+  border:1px solid #38bdf8;
+}
+.signup-btn{
+  background:#38bdf8;
+  color:#fff;
+}
 
 /* PAGE */
 .page{padding:120px 24px 40px;display:flex;justify-content:center}
@@ -125,9 +137,13 @@ body{
 
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
-  <div class="brand"><img src="images/logo.png"></div>
+  <div class="brand">
+    <img src="images/logo.png">
+  </div>
   <div class="nav-right">
+    <button class="home-btn" onclick="location.href='index.html'">Home</button>
     <button class="login-btn" onclick="location.href='login.html'">Login</button>
     <button class="signup-btn">Sign Up</button>
   </div>
@@ -187,7 +203,7 @@ body{
     </div>
   </div>
 
-  <!-- STEP 4 (PASSWORDS TOGETHER) -->
+  <!-- STEP 4 -->
   <div class="step">
     <div class="field">
       <label>Password</label>
@@ -253,11 +269,13 @@ window.next=()=>{
 window.prev=()=>{i--;show()};
 
 function fail(text,el){
-  msg.className="msg error";msg.textContent=text;msg.style.display="block";
-  el.classList.add("error");el.focus();
+  msg.className="msg error";
+  msg.textContent=text;
+  msg.style.display="block";
+  el.classList.add("error");
+  el.focus();
 }
 
-/* PASSWORD STRENGTH */
 window.checkStrength=()=>{
   const p=password.value;
   const bar=strengthBar;
@@ -273,7 +291,6 @@ window.checkStrength=()=>{
   else{bar.style.width="100%";bar.classList.add("strong")}
 };
 
-/* EYE TOGGLE (BOTH FIELDS) */
 window.toggleEye=()=>{
   const open=password.type==="password";
   password.type=confirm.type=open?"text":"password";
