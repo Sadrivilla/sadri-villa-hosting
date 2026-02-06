@@ -178,23 +178,21 @@ eye.onclick = () =>
   password.type = password.type === "password" ? "text" : "password";
 
 /* ✅ AUTO REDIRECT AFTER LOGIN / REFRESH */
-onAuthStateChanged(auth, async user=>{
-  if(!user) return;
+const cred = await signInWithEmailAndPassword(auth, email, password);
 
-  const token = await user.getIdTokenResult(true);
-  const ref = doc(db,"users",user.uid);
-  const snap = await getDoc(ref);
+const ref = doc(db, "users", cred.user.uid);
+const snap = await getDoc(ref);
 
-  if(snap.exists() && snap.data().approved !== true){
-    location.href="pending.html";
-    return;
-  }
+if (snap.data().approved !== true) {
+  location.href = "pending.html";
+  return;
+}
 
-  location.href =
-    token.claims.admin === true
-      ? "admin-dashboard.html"
-      : "dashboard.html";
-});
+location.href =
+  snap.data().role === "admin"
+    ? "admin-dashboard.html"
+    : "dashboard.html";
+
 
 /* LOGIN */
 loginBtn.onclick = async () => {
