@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Upload Logo</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+
+<body>
+<h2>Upload Logo</h2>
+
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
+<p id="msg"></p>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
+});
+
+async function upload() {
+  const file = document.getElementById("file").files[0];
+  if (!file) return alert("Select file");
+
+  const token = await firebase.auth().currentUser.getIdToken(true);
+  const reader = new FileReader();
+
+  reader.onload = async () => {
+    const base64 = reader.result.split(",")[1];
+
+    const res = await fetch(
+      "PASTE_FUNCTION_URL_HERE",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fileBase64: base64,
+          mimeType: file.type
+        })
+      }
+    );
+
+    document.getElementById("msg").innerText =
+      res.ok ? "Uploaded ✅" : "Failed ❌";
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
