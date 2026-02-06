@@ -93,11 +93,10 @@ async function uploadLogo() {
   msg.innerText = "Uploading logo…";
 
   try {
-    const user = firebase.auth().currentUser;
-    const token = await user.getIdToken(true);
+    const token = await firebase.auth().currentUser.getIdToken(true);
 
     const formData = new FormData();
-    formData.append("logo", file);
+    formData.append("logo", file); // 👈 MUST be "logo"
 
     const res = await fetch(
       "https://uploadsiteimage-jgzkr3mifq-uc.a.run.app",
@@ -110,18 +109,20 @@ async function uploadLogo() {
       }
     );
 
+    const text = await res.text();
+    console.log("SERVER RESPONSE:", res.status, text);
+
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(err);
+      throw new Error(text || "Upload failed");
     }
 
     msg.className = "msg success";
     msg.innerText = "Logo uploaded successfully ✅";
 
   } catch (err) {
-    console.error(err);
+    console.error("UPLOAD ERROR:", err);
     msg.className = "msg error";
-    msg.innerText = "Upload failed";
+    msg.innerText = err.message || "Upload failed";
   }
 }
 </script>
