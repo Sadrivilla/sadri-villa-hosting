@@ -168,10 +168,13 @@ onAuthStateChanged(auth, async user=>{
     return;
   }
 
-  location.href =
-    snap.data().role==="admin"
-      ? "admin-dashboard.html"
-      : "dashboard.html";
+const token = await cred.user.getIdTokenResult(true);
+
+location.href =
+  token.claims.admin === true
+    ? "admin-dashboard.html"
+    : "dashboard.html";
+
 });
 
 /* LOGIN */
@@ -211,10 +214,13 @@ loginBtn.onclick=async()=>{
 
     await updateDoc(ref,{lastLogin:new Date().toISOString()});
 
-    location.href =
-      snap.data().role==="admin"
-        ? "admin-dashboard.html"
-        : "dashboard.html";
+const token = await user.getIdTokenResult(true);
+
+location.href =
+  token.claims.admin === true
+    ? "admin-dashboard.html"
+    : "dashboard.html";
+
 
   }catch{
     statusMsg.style.display="none";
