@@ -7,45 +7,28 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#eef2ff;
-  color:#0f172a;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 
-/* ================= NAVBAR ================= */
+/* NAVBAR */
 .navbar{
   position:fixed;top:0;left:0;right:0;height:64px;
-  background:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.95);
   backdrop-filter:blur(10px);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  padding:0 24px;box-shadow:0 4px 12px rgba(0,0,0,.08);
   z-index:1000
 }
 .brand img{height:38px}
 .nav-right button{
-  height:40px;
-  padding:0 18px;
-  border-radius:12px;
-  border:1px solid #38bdf8;
-  background:#fff;
-  color:#38bdf8;
-  font-weight:600;
-  cursor:pointer;
-  margin-left:8px
+  height:40px;padding:0 18px;border-radius:12px;
+  border:1px solid #38bdf8;background:#fff;color:#38bdf8;
+  font-weight:600;cursor:pointer;margin-left:8px
 }
 .signup-btn{background:#38bdf8;color:#fff}
 
-/* ================= PAGE ================= */
+/* PAGE */
 .page{padding:120px 24px 40px;display:flex;justify-content:center}
-.grid{
-  max-width:1200px;width:100%;
-  display:grid;
-  grid-template-columns:1fr 460px;
-  gap:60px
-}
+.grid{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 460px;gap:60px}
 
 /* LEFT */
 .left h1{font-size:42px}
@@ -59,45 +42,18 @@ body{
 
 /* CARD */
 .card{
-  background:rgba(255,255,255,.95);
-  border-radius:26px;
-  padding:34px;
-  box-shadow:0 25px 60px rgba(0,0,0,.15);
-  position:relative
+  background:#fff;border-radius:26px;padding:34px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15)
 }
 
 /* PROGRESS */
-.progress{
-  height:6px;
-  background:#e5e7eb;
-  border-radius:6px;
-  margin:16px 0 6px
-}
-.progress span{
-  display:block;height:100%;width:0%;
-  background:#38bdf8;
-  border-radius:6px;
-  transition:width .4s ease
-}
-.step-count{
-  text-align:center;
-  font-size:13px;
-  color:#475569;
-  margin-bottom:18px
-}
+.progress{height:6px;background:#e5e7eb;border-radius:6px;margin:16px 0 6px}
+.progress span{display:block;height:100%;width:0%;background:#38bdf8;border-radius:6px;transition:.4s}
+.step-count{text-align:center;font-size:13px;color:#475569;margin-bottom:18px}
 
-/* STEP SLIDE */
-.step{
-  display:none;
-  opacity:0;
-  transform:translateX(30px);
-  transition:.4s ease
-}
-.step.active{
-  display:block;
-  opacity:1;
-  transform:translateX(0)
-}
+/* STEP */
+.step{display:none;opacity:0;transform:translateX(30px);transition:.35s}
+.step.active{display:block;opacity:1;transform:none}
 
 /* FIELD */
 .field{margin-bottom:18px;position:relative}
@@ -105,39 +61,20 @@ body{
 .field input{
   width:100%;height:52px;border-radius:14px;
   border:1.5px solid #c7d2fe;
-  padding:0 46px 0 14px;
-  font-size:15px
+  padding:0 46px 0 14px;font-size:15px
 }
 .field input.error{border-color:#ef4444}
 
-/* STEP DONE TICK */
-.step-done{
-  position:absolute;
-  right:16px;top:42px;
-  width:22px;height:22px;
-  border-radius:50%;
-  background:#22c55e;
-  color:#fff;font-size:14px;
-  display:flex;align-items:center;justify-content:center;
-  animation:pop .35s ease
-}
-@keyframes pop{
-  0%{transform:scale(.4);opacity:0}
-  70%{transform:scale(1.2)}
-  100%{transform:scale(1);opacity:1}
-}
-
-/* PASSWORD */
+/* EYE */
 .eye{
   position:absolute;right:14px;top:40px;
   cursor:pointer;font-size:18px;
-  transition:.25s ease
+  transition:.25s
 }
 .eye.open{transform:scale(1.25)}
-.strength{
-  height:6px;background:#e5e7eb;
-  border-radius:6px;margin-top:8px;overflow:hidden
-}
+
+/* STRENGTH */
+.strength{height:6px;background:#e5e7eb;border-radius:6px;margin-top:8px}
 .strength span{display:block;height:100%;width:0%;transition:.3s}
 .weak{background:#ef4444}
 .medium{background:#f59e0b}
@@ -146,45 +83,19 @@ body{
 /* ACTIONS */
 .actions{display:flex;gap:12px}
 .actions button{
-  flex:1;height:48px;
-  border:none;border-radius:16px;
+  flex:1;height:48px;border:none;border-radius:16px;
   font-weight:600;cursor:pointer
 }
 .back{background:#e5e7eb}
 .next{
   background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  color:#fff;
-  box-shadow:0 10px 25px rgba(56,189,248,.4)
+  color:#fff;box-shadow:0 10px 25px rgba(56,189,248,.4)
 }
 
 /* MESSAGE */
-.msg{
-  display:none;margin-top:14px;
-  padding:14px;border-radius:14px;
-  font-weight:600;text-align:center
-}
+.msg{display:none;margin-top:14px;padding:14px;border-radius:14px;font-weight:600;text-align:center}
 .error-msg{background:#fee2e2;color:#991b1b}
 .success-msg{background:#dcfce7;color:#166534}
-
-/* SHAKE */
-@keyframes shake{
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-6px)}
-  50%{transform:translateX(6px)}
-  75%{transform:translateX(-4px)}
-}
-.shake{animation:shake .35s}
-
-/* SUCCESS ANIMATION */
-.success-burst{
-  position:absolute;inset:0;
-  background:rgba(255,255,255,.9);
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;font-weight:700;
-  color:#16a34a;
-  animation:fade .6s ease forwards
-}
-@keyframes fade{from{opacity:0}to{opacity:1}}
 
 @media(max-width:900px){
   .grid{grid-template-columns:1fr}
@@ -196,7 +107,7 @@ body{
 <body>
 
 <div class="navbar">
-  <div class="brand"><img id="siteLogo"></div>
+  <div class="brand"><img id="siteLogo" src="images/logo.png"></div>
   <div class="nav-right">
     <button onclick="location.href='index.html'">Home</button>
     <button onclick="location.href='login.html'">Login</button>
@@ -215,65 +126,46 @@ body{
   <div class="benefit"><div class="icon">✓</div>Community support</div>
 </div>
 
-<div class="card" id="card">
-
+<div class="card">
 <h2>Create Account</h2>
+
 <div class="progress"><span id="bar"></span></div>
 <div class="step-count" id="stepCount"></div>
 
 <div class="step">
-  <div class="field">
-    <label>Full Name</label>
-    <input id="name">
-  </div>
-  <div class="actions">
-    <span></span>
-    <button class="next" onclick="nextStep()">Continue</button>
-  </div>
+  <div class="field"><label>Full Name</label><input id="name"></div>
+  <div class="actions"><span></span><button class="next" onclick="next()">Continue</button></div>
 </div>
 
 <div class="step">
-  <div class="field">
-    <label>Mobile Number</label>
-    <input id="phone">
-  </div>
-  <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
-    <button class="next" onclick="nextStep()">Continue</button>
-  </div>
+  <div class="field"><label>Mobile Number</label><input id="phone"></div>
+  <div class="actions"><button class="back" onclick="prev()">Back</button><button class="next" onclick="next()">Continue</button></div>
 </div>
 
 <div class="step">
-  <div class="field">
-    <label>Email</label>
-    <input id="email" type="email">
-  </div>
-  <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
-    <button class="next" onclick="nextStep()">Continue</button>
-  </div>
+  <div class="field"><label>Email</label><input id="email" type="email"></div>
+  <div class="actions"><button class="back" onclick="prev()">Back</button><button class="next" onclick="next()">Continue</button></div>
 </div>
 
 <div class="step">
   <div class="field">
     <label>Password</label>
-    <input id="password" type="password" oninput="checkStrength()">
-    <span class="eye" onclick="toggleEye('password',this)">👁</span>
+    <input id="password" type="password" oninput="strength()">
+    <span class="eye" onclick="toggle('password',this)">👁</span>
     <div class="strength"><span id="strengthBar"></span></div>
   </div>
   <div class="field">
     <label>Confirm Password</label>
     <input id="confirm" type="password">
-    <span class="eye" onclick="toggleEye('confirm',this)">👁</span>
+    <span class="eye" onclick="toggle('confirm',this)">👁</span>
   </div>
   <div class="actions">
-    <button class="back" onclick="prevStep()">Back</button>
+    <button class="back" onclick="prev()">Back</button>
     <button class="next" onclick="register()">Create Account</button>
   </div>
 </div>
 
 <div id="msg" class="msg"></div>
-
 </div>
 </div>
 </div>
@@ -283,6 +175,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* Firebase */
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -291,21 +184,21 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* LOGO */
-const logoSnap=await getDoc(doc(db,"siteSettings","home"));
-if(logoSnap.exists() && logoSnap.data().logo?.url){
-  siteLogo.src=logoSnap.data().logo.url;
-}
+/* Load logo NON-BLOCKING */
+getDoc(doc(db,"siteSettings","home")).then(s=>{
+  if(s.exists() && s.data().logo?.url){
+    siteLogo.src=s.data().logo.url;
+  }
+});
 
-/* STEPS */
+/* Steps */
 const steps=[...document.querySelectorAll(".step")];
 const bar=document.getElementById("bar");
 const stepCount=document.getElementById("stepCount");
 const msg=document.getElementById("msg");
-const card=document.getElementById("card");
 
-let savedStep=Number(localStorage.getItem("signupStep"));
-let i=(savedStep>=0 && savedStep<steps.length)?savedStep:0;
+let i=Number(localStorage.getItem("signupStep"))||0;
+show();
 
 function show(){
   steps.forEach(s=>s.classList.remove("active"));
@@ -313,51 +206,35 @@ function show(){
   bar.style.width=((i+1)/steps.length*100)+"%";
   stepCount.textContent=`Step ${i+1} of ${steps.length}`;
 }
-show();
 
-function markDone(index){
-  const f=steps[index].querySelector(".field");
-  if(!f || f.querySelector(".step-done")) return;
-  const t=document.createElement("div");
-  t.className="step-done";t.textContent="✓";
-  f.appendChild(t);
-}
-
-function error(text,input){
-  msg.textContent=text;
-  msg.className="msg error-msg";
-  msg.style.display="block";
-  input.classList.add("error","shake");
-  card.classList.add("shake");
-  setTimeout(()=>{input.classList.remove("shake");card.classList.remove("shake")},400);
-}
-
-window.nextStep=()=>{
-  msg.style.display="none";
+window.next=()=>{
   const ids=["name","phone","email","password"];
   const el=document.getElementById(ids[i]);
   el.classList.remove("error");
 
-  if(!el.value.trim()) return error("Field required",el);
-  if(el.id==="phone" && !/^[0-9]{10}$/.test(el.value)) return error("Invalid mobile",el);
-  if(el.id==="email" && !el.value.includes("@")) return error("Invalid email",el);
+  if(!el.value.trim()) return fail("Field required",el);
+  if(el.id==="phone" && !/^[0-9]{10}$/.test(el.value)) return fail("Invalid mobile",el);
+  if(el.id==="email" && !el.value.includes("@")) return fail("Invalid email",el);
 
-  markDone(i);
-  i++;
-  localStorage.setItem("signupStep",i);
-  show();
+  i++; localStorage.setItem("signupStep",i); show();
 };
+window.prev=()=>{i--;localStorage.setItem("signupStep",i);show()};
 
-window.prevStep=()=>{i--;localStorage.setItem("signupStep",i);show()};
+function fail(t,e){
+  msg.textContent=t;
+  msg.className="msg error-msg";
+  msg.style.display="block";
+  e.classList.add("error");
+}
 
-/* PASSWORD */
-window.toggleEye=(id,eye)=>{
+/* Password */
+window.toggle=(id,eye)=>{
   const f=document.getElementById(id);
   f.type=f.type==="password"?"text":"password";
   eye.classList.toggle("open");
 };
 
-window.checkStrength=()=>{
+window.strength=()=>{
   let s=0,p=password.value;
   if(p.length>=6)s++;
   if(/[A-Z]/.test(p))s++;
@@ -370,9 +247,12 @@ window.checkStrength=()=>{
 };
 
 window.register=async()=>{
-  if(password.value!==confirm.value) return error("Passwords do not match",confirm);
+  const p1=password.value.trim();
+  const p2=confirm.value.trim();
+  if(p1!==p2) return fail("Passwords do not match",confirm);
+
   try{
-    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
+    const cred=await createUserWithEmailAndPassword(auth,email.value.trim(),p1);
     await setDoc(doc(db,"users",cred.user.uid),{
       fullName:name.value.trim(),
       phone:phone.value.trim(),
@@ -382,10 +262,12 @@ window.register=async()=>{
       createdAt:new Date().toISOString()
     });
     localStorage.removeItem("signupStep");
-    card.innerHTML=`<div class="success-burst">🎉 Account Created Successfully</div>`;
+    msg.className="msg success-msg";
+    msg.textContent="🎉 Account created! Pending admin approval.";
+    msg.style.display="block";
     setTimeout(()=>location.href="pending.html",2500);
   }catch(e){
-    error(e.message.replace("Firebase: ",""),email);
+    fail(e.message.replace("Firebase: ",""),email);
   }
 };
 </script>
