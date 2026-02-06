@@ -12,68 +12,19 @@
 <style>
 body{font-family:Arial;background:#f3f6f9;padding:30px}
 h2{margin-bottom:20px}
-.card{
-  background:#fff;
-  padding:22px;
-  border-radius:20px;
-  max-width:900px;
-  margin-bottom:26px;
-  box-shadow:0 14px 35px rgba(0,0,0,.08)
-}
-button{
-  padding:10px 18px;
-  border-radius:10px;
-  border:none;
-  background:#2563eb;
-  color:#fff;
-  cursor:pointer;
-  font-weight:600
-}
+.card{background:#fff;padding:22px;border-radius:20px;max-width:900px;margin-bottom:26px;box-shadow:0 14px 35px rgba(0,0,0,.08)}
+button{padding:10px 18px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-weight:600}
 button.danger{background:#dc2626}
 .row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
-.thumb{
-  width:160px;
-  background:#fff;
-  border-radius:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.15);
-  padding:8px;
-  text-align:center
-}
+.thumb{width:160px;background:#fff;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.15);padding:8px;text-align:center}
 .thumb img{width:100%;border-radius:10px}
 .progress{height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:6px}
 .progress span{height:100%;display:block;background:#2563eb;width:0%}
-.drop{
-  border:2px dashed #94a3b8;
-  padding:28px;
-  border-radius:18px;
-  text-align:center;
-  background:#f8fafc;
-  cursor:pointer
-}
-.drop.drag{border-color:#2563eb;background:#e0f2fe}
 .msg{margin-top:10px;font-size:14px}
 .msg.success{color:#065f46}
 .msg.error{color:#991b1b}
 .msg.loading{color:#1d4ed8}
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);
-  display:none;align-items:center;justify-content:center
-}
-.modal.show{display:flex}
-.modal .box{
-  background:#fff;padding:20px;border-radius:14px;width:320px;text-align:center
-}
-.back-btn{
-  backdrop-filter:blur(10px);
-  background:rgba(255,255,255,.6);
-  border:1px solid rgba(255,255,255,.4);
-  border-radius:14px;
-  padding:10px 18px;
-  font-weight:600;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,.15);
-  margin-bottom:20px
-}
+.back-btn{background:#fff;border-radius:12px;padding:10px 18px;border:none;cursor:pointer;margin-bottom:20px}
 </style>
 </head>
 
@@ -85,216 +36,84 @@ button.danger{background:#dc2626}
 <!-- LOGO -->
 <div class="card">
   <h3>Logo</h3>
-  <input type="file" id="logoInput" accept="image/*"
-    onchange="previewSingle(this,'logoView')">
+  <input type="file" id="logoInput" accept="image/*" onchange="previewSingle(this,'logoView')">
   <div class="row" id="logoView"></div>
   <button onclick="uploadSingle('logo')">Upload Logo</button>
-  <button class="danger" onclick="deleteSingle('logo')">Delete Logo</button>
   <div class="msg" id="logoMsg"></div>
 </div>
 
 <!-- HERO -->
 <div class="card">
   <h3>Hero Image</h3>
-  <input type="file" id="heroInput" accept="image/*"
-    onchange="previewSingle(this,'heroView')">
+  <input type="file" id="heroInput" accept="image/*" onchange="previewSingle(this,'heroView')">
   <div class="row" id="heroView"></div>
   <button onclick="uploadSingle('hero')">Upload Hero</button>
-  <button class="danger" onclick="deleteSingle('hero')">Delete Hero</button>
   <div class="msg" id="heroMsg"></div>
 </div>
 
-<!-- SLIDER UPLOAD -->
-<div class="card">
-  <h3>Upload Slider Images</h3>
-  <div class="drop" id="drop">
-    Drag & drop images here or click to select
-    <input type="file" id="sliderInput" multiple hidden>
-  </div>
-  <div class="row" id="sliderPreview"></div>
-  <button onclick="uploadAllSlider()">Upload All</button>
-  <div class="msg" id="sliderMsg"></div>
-</div>
-
-<!-- EXISTING SLIDER -->
-<div class="card">
-  <h3>Existing Slider Images</h3>
-  <div class="row" id="existingSlider"></div>
-</div>
-
-<!-- CONFIRM MODAL -->
-<div class="modal" id="confirmModal">
-  <div class="box">
-    <h4>Delete image?</h4>
-    <p>This cannot be undone.</p>
-    <button class="danger" onclick="confirmDelete()">Delete</button>
-    <button onclick="closeModal()">Cancel</button>
-  </div>
-</div>
-
 <script>
-/* FIREBASE INIT */
+/* ================= FIREBASE INIT ================= */
 firebase.initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.firebasestorage.app"
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.appspot.com"
 });
-const db=firebase.firestore();
-const storage=firebase.storage();
 
-/* STATE */
-let sliderFiles=[];
-let deleteTarget=null;
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-/* PREVIEW SINGLE */
+/* ================= AUTH ================= */
+firebase.auth().signInAnonymously()
+  .then(() => console.log("Firebase auth OK"))
+  .catch(err => console.error("Auth error:", err));
+
+/* ================= PREVIEW ================= */
 function previewSingle(input,target){
   const box=document.getElementById(target);
   box.innerHTML="";
   if(!input.files[0]) return;
   const img=document.createElement("img");
   img.src=URL.createObjectURL(input.files[0]);
+  img.style.width="160px";
   box.appendChild(img);
 }
 
-/* LOAD EXISTING */
-async function loadSingles(){
-  const snap=await db.collection("siteSettings").doc("home").get();
-  const d=snap.data()||{};
-  if(d.logo) logoView.innerHTML=`<div class="thumb"><img src="${d.logo.url}"></div>`;
-  if(d.hero) heroView.innerHTML=`<div class="thumb"><img src="${d.hero.url}"></div>`;
-}
-async function loadSlider(){
-  const snap=await db.collection("siteSettings").doc("home").get();
-  existingSlider.innerHTML="";
-  (snap.data()?.sliderImages||[]).forEach(img=>{
-    existingSlider.innerHTML+=`
-      <div class="thumb">
-        <img src="${img.url}">
-        <button class="danger" onclick='askDelete(${JSON.stringify(img)})'>Delete</button>
-      </div>`;
-  });
-}
-
-/* UPLOAD SINGLE */
+/* ================= UPLOAD ================= */
 async function uploadSingle(type){
   const file=document.getElementById(type+"Input").files[0];
   const msg=document.getElementById(type+"Msg");
+
   if(!file){
     msg.className="msg error";
-    msg.innerText="Please select an image first";
+    msg.innerText="Select an image first";
     return;
   }
+
   msg.className="msg loading";
   msg.innerText="Uploading...";
+
   try{
     const ref=storage.ref(`images/site/${type}-${Date.now()}`);
     await ref.put(file);
     const url=await ref.getDownloadURL();
+
     await db.collection("siteSettings").doc("home").set({
-      [type]:{url,alt:`Sadri Villa ${type}`}
+      [type]:{
+        url:url,
+        alt:`Sadri Villa ${type}`,
+        width: type==="logo" ? 180 : 1600,
+        height: type==="logo" ? 60 : 900
+      }
     },{merge:true});
+
     msg.className="msg success";
-    msg.innerText="Uploaded successfully";
-    loadSingles();
+    msg.innerText="Upload successful";
   }catch(e){
     msg.className="msg error";
     msg.innerText=e.message;
   }
 }
-
-/* DELETE SINGLE */
-function deleteSingle(type){
-  deleteTarget={type};
-  confirmModal.classList.add("show");
-}
-
-/* SLIDER DRAG */
-drop.onclick=()=>sliderInput.click();
-drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};
-drop.ondragleave=()=>drop.classList.remove("drag");
-drop.ondrop=e=>{
-  e.preventDefault();drop.classList.remove("drag");
-  sliderFiles=[...e.dataTransfer.files].map(f=>({file:f,progress:0}));
-  renderPreview();
-};
-sliderInput.onchange=e=>{
-  sliderFiles=[...e.target.files].map(f=>({file:f,progress:0}));
-  renderPreview();
-};
-
-function renderPreview(){
-  sliderPreview.innerHTML="";
-  sliderFiles.forEach(f=>{
-    sliderPreview.innerHTML+=`
-      <div class="thumb">
-        <img src="${URL.createObjectURL(f.file)}">
-        <div class="progress"><span style="width:${f.progress}%"></span></div>
-      </div>`;
-  });
-}
-
-/* UPLOAD ALL SLIDER */
-async function uploadAllSlider(){
-  const msg=document.getElementById("sliderMsg");
-  if(!sliderFiles.length){
-    msg.className="msg error";
-    msg.innerText="No images selected";
-    return;
-  }
-  for(const f of sliderFiles){
-    const ref=storage.ref(`images/site/slider/${Date.now()}-${f.file.name}`);
-    const task=ref.put(f.file);
-    await new Promise(res=>{
-      task.on("state_changed",s=>{
-        f.progress=Math.round(s.bytesTransferred/s.totalBytes*100);
-        renderPreview();
-      },console.error,async()=>{
-        const url=await ref.getDownloadURL();
-        await db.collection("siteSettings").doc("home").set({
-          sliderImages:firebase.firestore.FieldValue.arrayUnion({
-            url,alt:"Sadri Villa Gallery",order:Date.now()
-          })
-        },{merge:true});
-        res();
-      });
-    });
-  }
-  msg.className="msg success";
-  msg.innerText="Slider images uploaded successfully";
-  sliderFiles=[];
-  renderPreview();
-  loadSlider();
-}
-
-/* DELETE SLIDER */
-function askDelete(data){
-  deleteTarget=data;
-  confirmModal.classList.add("show");
-}
-async function confirmDelete(){
-  if(deleteTarget.type){
-    await db.collection("siteSettings").doc("home").update({
-      [deleteTarget.type]:firebase.firestore.FieldValue.delete()
-    });
-    loadSingles();
-  }else{
-    await storage.refFromURL(deleteTarget.url).delete();
-    await db.collection("siteSettings").doc("home").update({
-      sliderImages:firebase.firestore.FieldValue.arrayRemove(deleteTarget)
-    });
-    loadSlider();
-  }
-  closeModal();
-}
-function closeModal(){
-  deleteTarget=null;
-  confirmModal.classList.remove("show");
-}
-
-/* INIT */
-loadSingles();
-loadSlider();
 </script>
 
 </body>
