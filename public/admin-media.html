@@ -11,44 +11,25 @@
 
 <style>
 body{font-family:Arial;background:#f3f6f9;padding:30px}
-h2{margin-bottom:20px}
-.card{background:#fff;padding:22px;border-radius:20px;max-width:900px;margin-bottom:26px;box-shadow:0 14px 35px rgba(0,0,0,.08)}
-button{padding:10px 18px;border-radius:10px;border:none;background:#2563eb;color:#fff;cursor:pointer;font-weight:600}
-button.danger{background:#dc2626}
-.row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
-.thumb{width:160px;background:#fff;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.15);padding:8px;text-align:center}
-.thumb img{width:100%;border-radius:10px}
-.progress{height:6px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:6px}
-.progress span{height:100%;display:block;background:#2563eb;width:0%}
+.card{background:#fff;padding:22px;border-radius:18px;max-width:800px;box-shadow:0 12px 30px rgba(0,0,0,.08)}
+button{padding:10px 18px;border:none;border-radius:10px;background:#2563eb;color:#fff;font-weight:600;cursor:pointer}
 .msg{margin-top:10px;font-size:14px}
-.msg.success{color:#065f46}
 .msg.error{color:#991b1b}
+.msg.success{color:#065f46}
 .msg.loading{color:#1d4ed8}
-.back-btn{background:#fff;border-radius:12px;padding:10px 18px;border:none;cursor:pointer;margin-bottom:20px}
 </style>
 </head>
 
 <body>
 
-<button class="back-btn" onclick="history.back()">← Back</button>
 <h2>Admin Media Manager – Sadri Villa</h2>
 
-<!-- LOGO -->
 <div class="card">
   <h3>Logo</h3>
-  <input type="file" id="logoInput" accept="image/*" onchange="previewSingle(this,'logoView')">
-  <div class="row" id="logoView"></div>
-  <button onclick="uploadSingle('logo')">Upload Logo</button>
+  <input type="file" id="logoInput" accept="image/*">
+  <br><br>
+  <button onclick="uploadLogo()">Upload Logo</button>
   <div class="msg" id="logoMsg"></div>
-</div>
-
-<!-- HERO -->
-<div class="card">
-  <h3>Hero Image</h3>
-  <input type="file" id="heroInput" accept="image/*" onchange="previewSingle(this,'heroView')">
-  <div class="row" id="heroView"></div>
-  <button onclick="uploadSingle('hero')">Upload Hero</button>
-  <div class="msg" id="heroMsg"></div>
 </div>
 
 <script>
@@ -63,55 +44,63 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-/* ================= AUTH ================= */
-firebase.auth().signInAnonymously()
-  .then(() => console.log("Firebase auth OK"))
-  .catch(err => console.error("Auth error:", err));
+/* ================= AUTH STATE WAIT ================= */
+let currentUser = null;
+let authReady = false;
 
-/* ================= PREVIEW ================= */
-function previewSingle(input,target){
-  const box=document.getElementById(target);
-  box.innerHTML="";
-  if(!input.files[0]) return;
-  const img=document.createElement("img");
-  img.src=URL.createObjectURL(input.files[0]);
-  img.style.width="160px";
-  box.appendChild(img);
-}
-
-/* ================= UPLOAD ================= */
-async function uploadSingle(type){
-  const file=document.getElementById(type+"Input").files[0];
-  const msg=document.getElementById(type+"Msg");
-
-  if(!file){
-    msg.className="msg error";
-    msg.innerText="Select an image first";
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    alert("Admin login required");
+    location.href = "/login.html";
     return;
   }
 
-  msg.className="msg loading";
-  msg.innerText="Uploading...";
+  console.log("✅ Admin session restored:", user.uid);
+  currentUser = user;
+  authReady = true;
+});
 
-  try{
-    const ref=storage.ref(`images/site/${type}-${Date.now()}`);
+/* ================= UPLOAD LOGO ================= */
+async function uploadLogo() {
+  const msg = document.getElementById("logoMsg");
+  const file = document.getElementById("logoInput").files[0];
+
+  if (!authReady) {
+    msg.className = "msg error";
+    msg.innerText = "Please wait… admin session loading";
+    return;
+  }
+
+  if (!file) {
+    msg.className = "msg error";
+    msg.innerText = "Please select a logo first";
+    return;
+  }
+
+  msg.className = "msg loading";
+  msg.innerText = "Uploading logo…";
+
+  try {
+    const ref = storage.ref(`images/site/logo-${Date.now()}`);
     await ref.put(file);
-    const url=await ref.getDownloadURL();
+    const url = await ref.getDownloadURL();
 
     await db.collection("siteSettings").doc("home").set({
-      [type]:{
-        url:url,
-        alt:`Sadri Villa ${type}`,
-        width: type==="logo" ? 180 : 1600,
-        height: type==="logo" ? 60 : 900
+      logo: {
+        url,
+        alt: "Sadri Villa Logo",
+        width: 180,
+        height: 60
       }
-    },{merge:true});
+    }, { merge: true });
 
-    msg.className="msg success";
-    msg.innerText="Upload successful";
-  }catch(e){
-    msg.className="msg error";
-    msg.innerText=e.message;
+    msg.className = "msg success";
+    msg.innerText = "Logo uploaded successfully ✅";
+
+  } catch (err) {
+    console.error(err);
+    msg.className = "msg error";
+    msg.innerText = err.message;
   }
 }
 </script>
