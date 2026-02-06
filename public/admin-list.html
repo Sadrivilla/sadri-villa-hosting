@@ -98,7 +98,9 @@ async function loadAdmins(){
     if(u.role === "admin"){
       list.innerHTML += `
         <tr>
-          <td>${u.fullName || "-"}</td>
+          window.viewProfile = uid => {
+  location.href = `profile.html?uid=${uid}`;
+};
           <td>${u.email || "-"}</td>
           <td>${u.phone || "-"}</td>
           <td class="uid" onclick="copy('${d.id}')">${d.id}</td>
