@@ -1,27 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin List</title>
+<meta charset="UTF-8">
+<title>Admin List – Sadri Villa</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <style>
-body{font-family:Arial;background:#eef2ff;padding:20px}
-table{width:100%;background:#fff;border-radius:14px;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #e5e7eb}
-button{padding:6px 12px;border:none;border-radius:8px;cursor:pointer}
-.danger{background:#dc2626;color:#fff}
+body{
+  font-family:Arial;
+  background:#eef2ff;
+  padding:20px
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px
+}
+.btn{
+  padding:10px 18px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+  background:rgba(56,189,248,.85);
+  color:#fff;
+  backdrop-filter:blur(10px);
+  box-shadow:0 10px 25px rgba(56,189,248,.35)
+}
+h2{margin:0}
+
+table{
+  width:100%;
+  background:#fff;
+  border-radius:18px;
+  border-collapse:collapse;
+  overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.12)
+}
+th,td{
+  padding:14px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px
+}
+th{background:#f8fafc;text-align:left}
+tr:hover{
+  background:#f1f5ff;
+  cursor:pointer
+}
+.uid{
+  font-family:monospace;
+  font-size:12px;
+  color:#475569
+}
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  background:#16a34a;
+  color:#fff;
+  font-size:12px
+}
+.copy{
+  font-size:12px;
+  color:#0ea5e9;
+  cursor:pointer;
+  margin-left:6px
+}
 </style>
 </head>
+
 <body>
 
-<h2>👥 Admin Users</h2>
+<div class="topbar">
+  <button class="btn" onclick="history.back()">← Back</button>
+  <h2>👥 Admin Users</h2>
+</div>
 
 <table>
 <thead>
 <tr>
   <th>Name</th>
   <th>Email</th>
+  <th>Phone</th>
   <th>UID</th>
-  <th>Action</th>
+  <th>Status</th>
 </tr>
 </thead>
 <tbody id="list"></tbody>
@@ -30,9 +92,9 @@ button{padding:6px 12px;border:none;border-radius:8px;cursor:pointer}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+import { getFirestore,collection,getDocs,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
@@ -40,42 +102,55 @@ const app=initializeApp({
 });
 const auth=getAuth(app);
 const db=getFirestore(app);
-const fn=getFunctions(app,"us-central1");
-
-const removeAdmin=httpsCallable(fn,"removeAdmin");
 const list=document.getElementById("list");
 
+/* AUTH GUARD */
 onAuthStateChanged(auth, async user=>{
   if(!user) return location.href="login.html";
 
-  const token = await user.getIdTokenResult();
+  const token=await user.getIdTokenResult(true);
   if(!token.claims.admin){
     alert("Admin only");
     return location.href="dashboard.html";
   }
-
-  const snap=await getDocs(collection(db,"users"));
-  snap.forEach(d=>{
-    if(d.data().isAdmin){
-      list.innerHTML+=`
-        <tr>
-          <td>${d.data().fullName||"-"}</td>
-          <td>${d.data().email||"-"}</td>
-          <td>${d.id}</td>
-          <td>
-            <button class="danger" onclick="remove('${d.id}')">Remove</button>
-          </td>
-        </tr>`;
-    }
-  });
+  loadAdmins();
 });
 
-window.remove=async(uid)=>{
-  if(!confirm("Remove admin?")) return;
-  await removeAdmin({ uid });
-  location.reload();
+/* LOAD ADMINS */
+async function loadAdmins(){
+  const snap=await getDocs(collection(db,"admins"));
+
+  for(const a of snap.docs){
+    const uSnap=await getDoc(doc(db,"users",a.id));
+    const u=uSnap.exists()?uSnap.data():{};
+
+    list.innerHTML+=`
+      <tr onclick="openProfile('${a.id}')">
+        <td>${u.fullName||"-"}</td>
+        <td>${u.email||"-"}</td>
+        <td>${u.phone||"-"}</td>
+        <td class="uid">
+          ${a.id}
+          <span class="copy" onclick="copy(event,'${a.id}')">copy</span>
+        </td>
+        <td><span class="badge">Admin</span></td>
+      </tr>`;
+  }
+}
+
+/* COPY UID */
+window.copy=(e,uid)=>{
+  e.stopPropagation();
+  navigator.clipboard.writeText(uid);
+  alert("UID copied");
+};
+
+/* OPEN PROFILE */
+window.openProfile=uid=>{
+  location.href=`admin-profile.html?uid=${uid}`;
 };
 </script>
 
 </body>
 </html>
+
