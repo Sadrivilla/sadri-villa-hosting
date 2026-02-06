@@ -52,14 +52,14 @@ button {
 </div>
 
 <script>
-/* ================= FIREBASE INIT ================= */
+/* ---------- FIREBASE INIT ---------- */
 firebase.initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
   projectId: "sadri-villa-14c06"
 });
 
-/* ================= AUTH CHECK ================= */
+/* ---------- AUTH CHECK ---------- */
 let authReady = false;
 
 firebase.auth().onAuthStateChanged(user => {
@@ -68,24 +68,23 @@ firebase.auth().onAuthStateChanged(user => {
     location.href = "/login.html";
     return;
   }
-  console.log("✅ Admin session restored:", user.uid);
   authReady = true;
 });
 
-/* ================= UPLOAD LOGO ================= */
+/* ---------- UPLOAD LOGO ---------- */
 async function uploadLogo() {
   const msg = document.getElementById("logoMsg");
   const file = document.getElementById("logoInput").files[0];
 
   if (!authReady) {
     msg.className = "msg error";
-    msg.innerText = "Please wait… admin session loading";
+    msg.innerText = "Please wait…";
     return;
   }
 
   if (!file) {
     msg.className = "msg error";
-    msg.innerText = "Please select a logo image";
+    msg.innerText = "Please select an image";
     return;
   }
 
@@ -95,7 +94,6 @@ async function uploadLogo() {
   try {
     const token = await firebase.auth().currentUser.getIdToken(true);
 
-    // Convert image to Base64
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result.split(",")[1]);
@@ -122,7 +120,7 @@ async function uploadLogo() {
     if (!res.ok) throw new Error(text);
 
     msg.className = "msg success";
-    msg.innerText = "✅ Logo uploaded & Firestore updated";
+    msg.innerText = "✅ Logo uploaded successfully";
 
   } catch (err) {
     console.error(err);
