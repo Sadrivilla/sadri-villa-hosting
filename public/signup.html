@@ -7,21 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#eef2ff;
-  color:#0f172a;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 
 /* NAVBAR */
 .navbar{
   position:fixed;top:0;left:0;right:0;height:64px;
-  background:#fff;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(8px);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  z-index:1000
+  padding:0 24px;box-shadow:0 4px 12px rgba(0,0,0,.08);z-index:1000
 }
 .brand img{height:38px}
 .nav-right button{
@@ -47,9 +40,7 @@ body{
 
 /* CARD */
 .card{
-  background:#fff;
-  border-radius:26px;
-  padding:34px;
+  background:#fff;border-radius:26px;padding:34px;
   box-shadow:0 25px 60px rgba(0,0,0,.15)
 }
 
@@ -66,30 +57,22 @@ body{
 .field{margin-bottom:18px;position:relative}
 .field label{font-size:14px;margin-bottom:6px;display:block}
 .field input{
-  width:100%;
-  height:52px;
-  border-radius:14px;
+  width:100%;height:52px;border-radius:14px;
   border:1.5px solid #c7d2fe;
-  padding:0 46px 0 14px;
-  font-size:15px
+  padding:0 46px 0 14px;font-size:15px
 }
 .field input.error{border-color:#ef4444}
 
 /* EYE */
 .eye{
-  position:absolute;
-  right:14px;
-  top:40px;
-  cursor:pointer;
-  font-size:18px;
-  transition:transform .2s ease
+  position:absolute;right:14px;top:40px;
+  cursor:pointer;font-size:18px;opacity:.7;
+  transition:transform .25s ease,opacity .25s ease
 }
-.eye.open{transform:scale(1.2)}
+.eye.open{transform:scale(1.25);opacity:1}
 
 /* PASSWORD STRENGTH */
-.strength{
-  height:6px;background:#e5e7eb;border-radius:6px;margin-top:8px;overflow:hidden
-}
+.strength{height:6px;background:#e5e7eb;border-radius:6px;margin-top:8px;overflow:hidden}
 .strength span{display:block;height:100%;width:0%;transition:width .3s ease}
 .weak{background:#ef4444}
 .medium{background:#f59e0b}
@@ -104,18 +87,11 @@ body{
 .back{background:#e5e7eb}
 .next{
   background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  color:#fff
+  color:#fff;box-shadow:0 10px 25px rgba(56,189,248,.4)
 }
 
 /* MESSAGE */
-.msg{
-  display:none;
-  margin-top:14px;
-  padding:14px;
-  border-radius:14px;
-  font-weight:600;
-  text-align:center
-}
+.msg{display:none;margin-top:14px;padding:14px;border-radius:14px;font-weight:600;text-align:center}
 .error{background:#fee2e2;color:#991b1b}
 .success{background:#dcfce7;color:#166534}
 
@@ -128,7 +104,6 @@ body{
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
   <div class="brand"><img id="siteLogo" src="images/logo.png"></div>
   <div class="nav-right">
@@ -141,7 +116,6 @@ body{
 <div class="page">
 <div class="grid">
 
-<!-- LEFT -->
 <div class="left">
   <h1>Sadri Villa – A Living Heritage</h1>
   <p>Preserving tradition while serving humanity.</p>
@@ -150,50 +124,27 @@ body{
   <div class="benefit"><div class="icon">✓</div>Community support</div>
 </div>
 
-<!-- RIGHT -->
 <div class="card">
   <h2>Create Account</h2>
 
   <div class="progress"><span id="bar"></span></div>
   <div class="step-count" id="stepCount"></div>
 
-  <!-- STEP 1 -->
-  <div class="step">
-    <div class="field">
-      <label>Full Name</label>
-      <input id="name">
-    </div>
-    <div class="actions">
-      <span></span>
-      <button class="next">Continue</button>
-    </div>
+  <div class="step active">
+    <div class="field"><label>Full Name</label><input id="name"></div>
+    <div class="actions"><span></span><button class="next">Continue</button></div>
   </div>
 
-  <!-- STEP 2 -->
   <div class="step">
-    <div class="field">
-      <label>Mobile Number</label>
-      <input id="phone">
-    </div>
-    <div class="actions">
-      <button class="back">Back</button>
-      <button class="next">Continue</button>
-    </div>
+    <div class="field"><label>Mobile Number</label><input id="phone"></div>
+    <div class="actions"><button class="back">Back</button><button class="next">Continue</button></div>
   </div>
 
-  <!-- STEP 3 -->
   <div class="step">
-    <div class="field">
-      <label>Email</label>
-      <input id="email" type="email">
-    </div>
-    <div class="actions">
-      <button class="back">Back</button>
-      <button class="next">Continue</button>
-    </div>
+    <div class="field"><label>Email</label><input id="email" type="email"></div>
+    <div class="actions"><button class="back">Back</button><button class="next">Continue</button></div>
   </div>
 
-  <!-- STEP 4 -->
   <div class="step">
     <div class="field">
       <label>Password</label>
@@ -234,85 +185,91 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* LOGO FROM FIRESTORE */
+/* LOGO */
 (async()=>{
   const s = await getDoc(doc(db,"siteSettings","home"));
   if(s.exists() && s.data().logo?.url){
-    document.getElementById("siteLogo").src = s.data().logo.url;
+    siteLogo.src = s.data().logo.url;
   }
 })();
 
-/* STEPS */
-const steps = [...document.querySelectorAll(".step")];
-const bar = document.getElementById("bar");
-const stepCount = document.getElementById("stepCount");
-const msg = document.getElementById("msg");
+/* STATE */
+const steps=[...document.querySelectorAll(".step")];
+const bar=document.getElementById("bar");
+const stepCount=document.getElementById("stepCount");
+const msg=document.getElementById("msg");
 
-let saved = Number(localStorage.getItem("signupStep"));
-let i = Number.isInteger(saved) && saved >= 0 && saved < steps.length ? saved : 0;
+let i = Number(localStorage.getItem("signupStep")) || 0;
 
+/* SHOW */
 function show(){
   steps.forEach(s=>s.classList.remove("active"));
   steps[i].classList.add("active");
-  bar.style.width = ((i+1)/steps.length*100)+"%";
-  stepCount.textContent = `Step ${i+1} of ${steps.length}`;
-  localStorage.setItem("signupStep", i);
+  bar.style.width=((i+1)/steps.length*100)+"%";
+  stepCount.textContent=`Step ${i+1} of ${steps.length}`;
+  localStorage.setItem("signupStep",i);
 }
 show();
 
-/* NAV */
-document.querySelectorAll(".next").forEach(btn=>{
-  btn.onclick=()=>{
-    msg.style.display="none";
-    if(i===0 && !name.value.trim()) return error("Name required",name);
-    if(i===1 && !/^[0-9]{10}$/.test(phone.value)) return error("Invalid mobile",phone);
-    if(i===2 && !email.value.includes("@")) return error("Invalid email",email);
-    if(i<steps.length-1){i++;show()}
-  }
-});
-document.querySelectorAll(".back").forEach(btn=>{
-  btn.onclick=()=>{if(i>0){i--;show()}}
-});
-
-function error(t,el){
+/* ERROR */
+function fail(text,el){
   msg.className="msg error";
-  msg.textContent=t;
+  msg.textContent=text;
   msg.style.display="block";
   el.classList.add("error");
   el.focus();
 }
 
-/* PASSWORD STRENGTH */
+/* NAV */
+document.querySelectorAll(".step").forEach((step,idx)=>{
+  const next=step.querySelector(".next");
+  const back=step.querySelector(".back");
+
+  if(next && idx<steps.length-1){
+    next.onclick=()=>{
+      msg.style.display="none";
+      if(idx===0 && !name.value.trim()) return fail("Name required",name);
+      if(idx===1 && !/^[0-9]{10}$/.test(phone.value)) return fail("Invalid mobile",phone);
+      if(idx===2 && !email.value.includes("@")) return fail("Invalid email",email);
+      i++; show();
+    };
+  }
+
+  if(back){
+    back.onclick=()=>{i--;show()};
+  }
+});
+
+/* PASSWORD */
 password.oninput=()=>{
   let s=0,p=password.value;
   if(p.length>=6)s++;
   if(/[A-Z]/.test(p))s++;
   if(/[0-9]/.test(p))s++;
   if(/[^A-Za-z0-9]/.test(p))s++;
+
   strengthBar.className="";
   if(s<=1){strengthBar.style.width="25%";strengthBar.classList.add("weak")}
   else if(s<=3){strengthBar.style.width="60%";strengthBar.classList.add("medium")}
   else{strengthBar.style.width="100%";strengthBar.classList.add("strong")}
 };
 
-/* EYE TOGGLE */
 eyePass.onclick=()=>toggle(password,eyePass);
 eyeConf.onclick=()=>toggle(confirm,eyeConf);
+
 function toggle(f,e){
   const o=f.type==="password";
   f.type=o?"text":"password";
   e.classList.toggle("open",o);
 }
 
-/* REGISTER */
+/* CREATE */
 createBtn.onclick=async()=>{
-  msg.style.display="none";
-  const pass=password.value.trim();
-  const conf=confirm.value.trim();
-  if(pass!==conf) return error("Passwords do not match",confirm);
+  if(password.value!==confirm.value)
+    return fail("Passwords do not match",confirm);
 
   try{
-    const cred=await createUserWithEmailAndPassword(auth,email.value.trim(),pass);
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{
       fullName:name.value.trim(),
       phone:phone.value.trim(),
