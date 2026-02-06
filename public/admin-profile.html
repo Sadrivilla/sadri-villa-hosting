@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Profile</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+body{
+  font-family:Arial;
+  background:#eef2ff;
+  padding:20px
+}
+.card{
+  max-width:520px;
+  margin:auto;
+  background:rgba(255,255,255,.95);
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15)
+}
+.btn{
+  padding:10px 18px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+  background:rgba(56,189,248,.85);
+  color:#fff;
+  backdrop-filter:blur(10px);
+  box-shadow:0 10px 25px rgba(56,189,248,.35)
+}
+.row{
+  margin:14px 0;
+  font-size:15px
+}
+.label{
+  font-size:12px;
+  color:#64748b
+}
+.uid{
+  font-family:monospace;
+  font-size:13px
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <button class="btn" onclick="history.back()">← Back</button>
+
+  <h2>👤 Admin Profile</h2>
+
+  <div class="row">
+    <div class="label">Full Name</div>
+    <div id="name">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Email</div>
+    <div id="email">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">Phone</div>
+    <div id="phone">—</div>
+  </div>
+
+  <div class="row">
+    <div class="label">UID</div>
+    <div id="uid" class="uid">—</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const uid=new URLSearchParams(location.search).get("uid");
+
+/* AUTH */
+onAuthStateChanged(auth, async user=>{
+  if(!user) return location.href="login.html";
+
+  const token=await user.getIdTokenResult(true);
+  if(!token.claims.admin){
+    alert("Admin only");
+    return location.href="dashboard.html";
+  }
+
+  loadProfile();
+});
+
+async function loadProfile(){
+  const snap=await getDoc(doc(db,"users",uid));
+  if(!snap.exists()) return alert("User not found");
+
+  const u=snap.data();
+  name.innerText=u.fullName||"-";
+  email.innerText=u.email||"-";
+  phone.innerText=u.phone||"-";
+  uidEl.innerText=uid;
+}
+
+const uidEl=document.getElementById("uid");
+</script>
+
+</body>
+</html>
