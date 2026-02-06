@@ -1,137 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign Up | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef2ff;
+  color:#0f172a;
+}
+
+/* ================= NAVBAR ================= */
+.navbar{
+  position:fixed;top:0;left:0;right:0;height:64px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  z-index:1000
+}
+.brand img{height:38px}
+.nav-right button{
+  height:40px;
+  padding:0 18px;
+  border-radius:12px;
+  border:1px solid #38bdf8;
+  background:#fff;
+  color:#38bdf8;
+  font-weight:600;
+  cursor:pointer;
+  margin-left:8px
+}
+.signup-btn{background:#38bdf8;color:#fff}
+
+/* ================= PAGE ================= */
+.page{padding:120px 24px 40px;display:flex;justify-content:center}
+.grid{
+  max-width:1200px;width:100%;
+  display:grid;
+  grid-template-columns:1fr 460px;
+  gap:60px
+}
+
+/* LEFT */
+.left h1{font-size:42px}
+.left p{color:#475569}
+.benefit{display:flex;gap:12px;margin-top:16px}
+.icon{
+  width:36px;height:36px;border-radius:50%;
+  background:#38bdf8;color:#fff;font-weight:700;
+  display:flex;align-items:center;justify-content:center
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,.95);
+  border-radius:26px;
+  padding:34px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15);
+  position:relative
+}
+
+/* PROGRESS */
+.progress{
+  height:6px;
+  background:#e5e7eb;
+  border-radius:6px;
+  margin:16px 0 6px
+}
+.progress span{
+  display:block;height:100%;width:0%;
+  background:#38bdf8;
+  border-radius:6px;
+  transition:width .4s ease
+}
+.step-count{
+  text-align:center;
+  font-size:13px;
+  color:#475569;
+  margin-bottom:18px
+}
+
+/* STEP SLIDE */
+.step{
+  display:none;
+  opacity:0;
+  transform:translateX(30px);
+  transition:.4s ease
+}
+.step.active{
+  display:block;
+  opacity:1;
+  transform:translateX(0)
+}
+
+/* FIELD */
+.field{margin-bottom:18px;position:relative}
+.field label{font-size:14px;margin-bottom:6px;display:block}
+.field input{
+  width:100%;height:52px;border-radius:14px;
+  border:1.5px solid #c7d2fe;
+  padding:0 46px 0 14px;
+  font-size:15px
+}
+.field input.error{border-color:#ef4444}
+
+/* STEP DONE TICK */
+.step-done{
+  position:absolute;
+  right:16px;top:42px;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:#22c55e;
+  color:#fff;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  animation:pop .35s ease
+}
+@keyframes pop{
+  0%{transform:scale(.4);opacity:0}
+  70%{transform:scale(1.2)}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* PASSWORD */
+.eye{
+  position:absolute;right:14px;top:40px;
+  cursor:pointer;font-size:18px;
+  transition:.25s ease
+}
+.eye.open{transform:scale(1.25)}
+.strength{
+  height:6px;background:#e5e7eb;
+  border-radius:6px;margin-top:8px;overflow:hidden
+}
+.strength span{display:block;height:100%;width:0%;transition:.3s}
+.weak{background:#ef4444}
+.medium{background:#f59e0b}
+.strong{background:#22c55e}
+
+/* ACTIONS */
+.actions{display:flex;gap:12px}
+.actions button{
+  flex:1;height:48px;
+  border:none;border-radius:16px;
+  font-weight:600;cursor:pointer
+}
+.back{background:#e5e7eb}
+.next{
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
+  color:#fff;
+  box-shadow:0 10px 25px rgba(56,189,248,.4)
+}
+
+/* MESSAGE */
+.msg{
+  display:none;margin-top:14px;
+  padding:14px;border-radius:14px;
+  font-weight:600;text-align:center
+}
+.error-msg{background:#fee2e2;color:#991b1b}
+.success-msg{background:#dcfce7;color:#166534}
+
+/* SHAKE */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  50%{transform:translateX(6px)}
+  75%{transform:translateX(-4px)}
+}
+.shake{animation:shake .35s}
+
+/* SUCCESS ANIMATION */
+.success-burst{
+  position:absolute;inset:0;
+  background:rgba(255,255,255,.9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;
+  color:#16a34a;
+  animation:fade .6s ease forwards
+}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .left h1{font-size:30px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <div class="brand"><img id="siteLogo"></div>
+  <div class="nav-right">
+    <button onclick="location.href='index.html'">Home</button>
+    <button onclick="location.href='login.html'">Login</button>
+    <button class="signup-btn">Sign Up</button>
+  </div>
+</div>
+
+<div class="page">
+<div class="grid">
+
+<div class="left">
+  <h1>Sadri Villa – A Living Heritage</h1>
+  <p>Preserving tradition while serving humanity.</p>
+  <div class="benefit"><div class="icon">✓</div>150+ years legacy</div>
+  <div class="benefit"><div class="icon">✓</div>Free shelter</div>
+  <div class="benefit"><div class="icon">✓</div>Community support</div>
+</div>
+
+<div class="card" id="card">
+
+<h2>Create Account</h2>
+<div class="progress"><span id="bar"></span></div>
+<div class="step-count" id="stepCount"></div>
+
+<div class="step">
+  <div class="field">
+    <label>Full Name</label>
+    <input id="name">
+  </div>
+  <div class="actions">
+    <span></span>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<div class="step">
+  <div class="field">
+    <label>Mobile Number</label>
+    <input id="phone">
+  </div>
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<div class="step">
+  <div class="field">
+    <label>Email</label>
+    <input id="email" type="email">
+  </div>
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" onclick="nextStep()">Continue</button>
+  </div>
+</div>
+
+<div class="step">
+  <div class="field">
+    <label>Password</label>
+    <input id="password" type="password" oninput="checkStrength()">
+    <span class="eye" onclick="toggleEye('password',this)">👁</span>
+    <div class="strength"><span id="strengthBar"></span></div>
+  </div>
+  <div class="field">
+    <label>Confirm Password</label>
+    <input id="confirm" type="password">
+    <span class="eye" onclick="toggleEye('confirm',this)">👁</span>
+  </div>
+  <div class="actions">
+    <button class="back" onclick="prevStep()">Back</button>
+    <button class="next" onclick="register()">Create Account</button>
+  </div>
+</div>
+
+<div id="msg" class="msg"></div>
+
+</div>
+</div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
-const app = initializeApp({
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
 });
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-/* LOGO FROM FIRESTORE */
-(async()=>{
-  const s = await getDoc(doc(db,"siteSettings","home"));
-  if(s.exists() && s.data().logo?.url){
-    siteLogo.src = s.data().logo.url;
-  }
-})();
+/* LOGO */
+const logoSnap=await getDoc(doc(db,"siteSettings","home"));
+if(logoSnap.exists() && logoSnap.data().logo?.url){
+  siteLogo.src=logoSnap.data().logo.url;
+}
 
-/* ELEMENTS */
-const nameEl = document.getElementById("name");
-const phoneEl = document.getElementById("phone");
-const emailEl = document.getElementById("email");
-const passwordEl = document.getElementById("password");
-const confirmPassEl = document.getElementById("confirm");
-const msg = document.getElementById("msg");
+/* STEPS */
+const steps=[...document.querySelectorAll(".step")];
+const bar=document.getElementById("bar");
+const stepCount=document.getElementById("stepCount");
+const msg=document.getElementById("msg");
+const card=document.getElementById("card");
 
-const steps = [...document.querySelectorAll(".step")];
-const bar = document.getElementById("bar");
-const stepCount = document.getElementById("stepCount");
+let savedStep=Number(localStorage.getItem("signupStep"));
+let i=(savedStep>=0 && savedStep<steps.length)?savedStep:0;
 
-let i = 0;
-
-/* STEP CONTROL */
 function show(){
   steps.forEach(s=>s.classList.remove("active"));
   steps[i].classList.add("active");
-  bar.style.width = ((i+1)/steps.length*100)+"%";
-  stepCount.textContent = `Step ${i+1} of ${steps.length}`;
+  bar.style.width=((i+1)/steps.length*100)+"%";
+  stepCount.textContent=`Step ${i+1} of ${steps.length}`;
 }
 show();
 
-window.next = () => {
-  msg.style.display="none";
-  const map = [nameEl, phoneEl, emailEl, passwordEl];
-  const el = map[i];
-  el.classList.remove("error");
-
-  if(!el.value.trim()) return fail("Field required", el);
-  if(el === phoneEl && !/^[0-9]{10}$/.test(el.value)) return fail("Invalid mobile", el);
-  if(el === emailEl && !el.value.includes("@")) return fail("Invalid email", el);
-
-  i++; show();
-};
-
-window.prev = () => { i--; show(); };
-
-function fail(text, el){
-  msg.className = "msg error";
-  msg.textContent = text;
-  msg.style.display = "block";
-  el.classList.add("error");
-  el.focus();
+function markDone(index){
+  const f=steps[index].querySelector(".field");
+  if(!f || f.querySelector(".step-done")) return;
+  const t=document.createElement("div");
+  t.className="step-done";t.textContent="✓";
+  f.appendChild(t);
 }
 
-/* PASSWORD STRENGTH */
-window.checkStrength = () => {
-  const p = passwordEl.value;
-  let s = 0;
-  if(p.length >= 6) s++;
-  if(/[A-Z]/.test(p)) s++;
-  if(/[0-9]/.test(p)) s++;
-  if(/[^A-Za-z0-9]/.test(p)) s++;
+function error(text,input){
+  msg.textContent=text;
+  msg.className="msg error-msg";
+  msg.style.display="block";
+  input.classList.add("error","shake");
+  card.classList.add("shake");
+  setTimeout(()=>{input.classList.remove("shake");card.classList.remove("shake")},400);
+}
 
+window.nextStep=()=>{
+  msg.style.display="none";
+  const ids=["name","phone","email","password"];
+  const el=document.getElementById(ids[i]);
+  el.classList.remove("error");
+
+  if(!el.value.trim()) return error("Field required",el);
+  if(el.id==="phone" && !/^[0-9]{10}$/.test(el.value)) return error("Invalid mobile",el);
+  if(el.id==="email" && !el.value.includes("@")) return error("Invalid email",el);
+
+  markDone(i);
+  i++;
+  localStorage.setItem("signupStep",i);
+  show();
+};
+
+window.prevStep=()=>{i--;localStorage.setItem("signupStep",i);show()};
+
+/* PASSWORD */
+window.toggleEye=(id,eye)=>{
+  const f=document.getElementById(id);
+  f.type=f.type==="password"?"text":"password";
+  eye.classList.toggle("open");
+};
+
+window.checkStrength=()=>{
+  let s=0,p=password.value;
+  if(p.length>=6)s++;
+  if(/[A-Z]/.test(p))s++;
+  if(/[0-9]/.test(p))s++;
+  if(/[^A-Za-z0-9]/.test(p))s++;
   strengthBar.className="";
-  if(s <= 1){
-    strengthBar.style.width="25%";
-    strengthBar.classList.add("weak");
-  }else if(s <= 3){
-    strengthBar.style.width="60%";
-    strengthBar.classList.add("medium");
-  }else{
-    strengthBar.style.width="100%";
-    strengthBar.classList.add("strong");
-  }
+  if(s<=1){strengthBar.style.width="25%";strengthBar.classList.add("weak")}
+  else if(s<=3){strengthBar.style.width="60%";strengthBar.classList.add("medium")}
+  else{strengthBar.style.width="100%";strengthBar.classList.add("strong")}
 };
 
-/* 👁 EYE TOGGLES (FIXED & INDEPENDENT) */
-window.togglePass = () => {
-  const open = passwordEl.type === "password";
-  passwordEl.type = open ? "text" : "password";
-  eyePass.classList.toggle("open", open);
-};
-
-window.toggleConf = () => {
-  const open = confirmPassEl.type === "password";
-  confirmPassEl.type = open ? "text" : "password";
-  eyeConf.classList.toggle("open", open);
-};
-
-/* REGISTER */
-window.register = async () => {
-  if(passwordEl.value !== confirmPassEl.value){
-    return fail("Passwords do not match", confirmPassEl);
-  }
-
+window.register=async()=>{
+  if(password.value!==confirm.value) return error("Passwords do not match",confirm);
   try{
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      emailEl.value.trim(),
-      passwordEl.value
-    );
-
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{
-      fullName: nameEl.value.trim(),
-      phone: phoneEl.value.trim(),
-      email: emailEl.value.trim(),
-      role: "user",
-      approved: false,
-      createdAt: new Date().toISOString()
+      fullName:name.value.trim(),
+      phone:phone.value.trim(),
+      email:email.value.trim(),
+      role:"user",
+      approved:false,
+      createdAt:new Date().toISOString()
     });
-
-    msg.className="msg success";
-    msg.textContent="Account created. Pending admin approval.";
-    msg.style.display="block";
+    localStorage.removeItem("signupStep");
+    card.innerHTML=`<div class="success-burst">🎉 Account Created Successfully</div>`;
     setTimeout(()=>location.href="pending.html",2500);
-
   }catch(e){
-    msg.className="msg error";
-    msg.textContent = e.message.replace("Firebase: ","");
-    msg.style.display="block";
+    error(e.message.replace("Firebase: ",""),email);
   }
 };
 </script>
+
+</body>
+</html>
