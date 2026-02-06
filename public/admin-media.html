@@ -8,34 +8,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
-body{
-  font-family:Arial;
-  background:#f3f6f9;
-  padding:30px
-}
-.card{
-  background:#fff;
-  padding:22px;
-  border-radius:18px;
-  max-width:800px;
-  box-shadow:0 12px 30px rgba(0,0,0,.08)
-}
-button{
-  padding:10px 18px;
-  border:none;
-  border-radius:10px;
-  background:#2563eb;
-  color:#fff;
-  font-weight:600;
-  cursor:pointer
-}
-.msg{
-  margin-top:10px;
-  font-size:14px
-}
+body{font-family:Arial;background:#f3f6f9;padding:30px}
+.card{background:#fff;padding:22px;border-radius:18px;max-width:800px}
+button{padding:10px 18px;border:none;border-radius:10px;background:#2563eb;color:#fff}
+.msg{margin-top:10px;font-size:14px}
 .msg.error{color:#991b1b}
 .msg.success{color:#065f46}
-.msg.loading{color:#1d4ed8}
 </style>
 </head>
 
@@ -44,7 +22,6 @@ button{
 <h2>Admin Media Manager – Sadri Villa</h2>
 
 <div class="card">
-  <h3>Logo</h3>
   <input type="file" id="logoInput" accept="image/*">
   <br><br>
   <button onclick="uploadLogo()">Upload Logo</button>
@@ -52,78 +29,54 @@ button{
 </div>
 
 <script>
-/* ================= FIREBASE INIT ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
   projectId: "sadri-villa-14c06"
 });
 
-/* ================= AUTH CHECK ================= */
-let authReady = false;
-
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    alert("Admin login required");
-    location.href = "/login.html";
-    return;
-  }
-  console.log("✅ Admin session restored:", user.uid);
-  authReady = true;
-});
-
-/* ================= UPLOAD LOGO ================= */
 async function uploadLogo() {
   const msg = document.getElementById("logoMsg");
   const file = document.getElementById("logoInput").files[0];
+  if (!file) return;
 
-  if (!authReady) {
-    msg.className = "msg error";
-    msg.innerText = "Please wait… admin session loading";
-    return;
-  }
+  msg.textContent = "Uploading...";
 
-  if (!file) {
-    msg.className = "msg error";
-    msg.innerText = "Please select a logo first";
-    return;
-  }
+  const user = firebase.auth().currentUser;
+  const token = await user.getIdToken(true);
 
-  msg.className = "msg loading";
-  msg.innerText = "Uploading logo…";
-
-  try {
-    const token = await firebase.auth().currentUser.getIdToken(true);
-
-    const formData = new FormData();
-    formData.append("logo", file); // 👈 MUST be "logo"
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(",")[1];
 
     const res = await fetch(
       "https://uploadsiteimage-jgzkr3mifq-uc.a.run.app",
       {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: formData
+        body: JSON.stringify({
+          fieldName: "logo",
+          fileName: file.name,
+          mimeType: file.type,
+          fileBase64: base64
+        })
       }
     );
 
-    const text = await res.text();
-    console.log("SERVER RESPONSE:", res.status, text);
-
     if (!res.ok) {
-      throw new Error(text || "Upload failed");
+      msg.className = "msg error";
+      msg.textContent = "Upload failed";
+      return;
     }
 
     msg.className = "msg success";
-    msg.innerText = "Logo uploaded successfully ✅";
+    msg.textContent = "Logo updated successfully ✅";
+  };
 
-  } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-    msg.className = "msg error";
-    msg.innerText = err.message || "Upload failed";
-  }
+  reader.readAsDataURL(file);
 }
 </script>
 
