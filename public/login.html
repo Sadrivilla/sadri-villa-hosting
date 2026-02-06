@@ -164,6 +164,20 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* DOM */
+const eye = document.getElementById("eye");
+const password = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const identifier = document.getElementById("identifier");
+const rememberMe = document.getElementById("rememberMe");
+const errorMsg = document.getElementById("errorMsg");
+const statusMsg = document.getElementById("statusMsg");
+const forgotLink = document.getElementById("forgotLink");
+const fpModal = document.getElementById("fpModal");
+const fpEmail = document.getElementById("fpEmail");
+const fpMsg = document.getElementById("fpMsg");
+const fpSendBtn = document.getElementById("fpSendBtn");
+
 /* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -174,25 +188,28 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 /* 👁 Password toggle */
-eye.onclick = () =>
+eye.onclick = () => {
   password.type = password.type === "password" ? "text" : "password";
+};
 
-/* ✅ AUTO REDIRECT AFTER LOGIN / REFRESH */
-const cred = await signInWithEmailAndPassword(auth, email, password);
+/* AUTO REDIRECT ON REFRESH */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
 
-const ref = doc(db, "users", cred.user.uid);
-const snap = await getDoc(ref);
+  const ref = doc(db,"users",user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
 
-if (snap.data().approved !== true) {
-  location.href = "pending.html";
-  return;
-}
+  if (snap.data().approved !== true) {
+    location.href = "pending.html";
+    return;
+  }
 
-location.href =
-  snap.data().role === "admin"
-    ? "admin-dashboard.html"
-    : "dashboard.html";
-
+  location.href =
+    snap.data().role === "admin"
+      ? "admin-dashboard.html"
+      : "dashboard.html";
+});
 
 /* LOGIN */
 loginBtn.onclick = async () => {
@@ -217,20 +234,22 @@ loginBtn.onclick = async () => {
       email = s.docs[0].data().email;
     }
 
-    const cred = await signInWithEmailAndPassword(auth,email,password.value);
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password.value
+    );
 
     const ref = doc(db,"users",cred.user.uid);
     const snap = await getDoc(ref);
 
-    if(snap.exists() && snap.data().approved !== true){
+    if(snap.data().approved !== true){
       await updateDoc(ref,{approvalReminder:true});
       location.href="pending.html";
       return;
     }
 
     await updateDoc(ref,{lastLogin:new Date().toISOString()});
-
-    // 🚫 NO redirect here (handled by onAuthStateChanged)
 
   }catch{
     statusMsg.style.display="none";
@@ -253,6 +272,7 @@ fpSendBtn.onclick = async () => {
     fpMsg.textContent="Email required";
     return;
   }
+
   fpMsg.style.color="#0284c7";
   fpMsg.textContent="Sending reset link…";
 
