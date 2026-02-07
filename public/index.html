@@ -11,16 +11,21 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 
-/* ===== NAVBAR ===== */
+/* ===== NAVBAR (LOGO FIX ONLY) ===== */
 .navbar{
   position:fixed;top:0;left:0;right:0;
+  height:72px; /* ✅ ADDED */
   background:rgba(8,22,52,.75);
   backdrop-filter:blur(14px);
   display:flex;justify-content:space-between;align-items:center;
   z-index:1000;
 }
 .brand{height:100%;display:flex;align-items:center}
-.brand img{height:100%;width:auto;object-fit:contain}
+.brand img{
+  height:48px; /* ✅ ADDED */
+  width:auto;
+  object-fit:contain;
+}
 
 .nav-actions{
   display:flex;align-items:center;gap:22px;padding-right:20px;
@@ -68,21 +73,43 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 .card h3{margin:16px 0 12px}
 .card p{color:#c7d2fe}
 
-/* ===== SLIDER ===== */
+/* ===== SLIDER (ONLY SPEED + HOVER FIX) ===== */
 .slider-full{width:100%;overflow:hidden;padding:60px 0}
-.slide-track{display:flex;gap:24px;animation:scroll 35s linear infinite}
+.slide-track{
+  display:flex;
+  gap:24px;
+  animation:scroll 35s linear infinite; /* original desktop speed */
+  will-change:transform;
+}
+
+/* ✅ PAUSE ON HOVER */
+.slider-full:hover .slide-track{
+  animation-play-state:paused;
+}
+
 .carousel-item{
   height:260px;
   min-width:420px;
   object-fit:cover;
   border-radius:22px;
 }
+
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
 
-/* ===== FOOTER ===== */
+/* ✅ MOBILE FASTER */
+@media(max-width:768px){
+  .navbar{height:64px}
+  .brand img{height:40px}
+
+  .slide-track{
+    animation-duration:12s; /* faster on mobile */
+  }
+}
+
+/* ===== FOOTER (UNCHANGED) ===== */
 footer{background:#081634;margin-top:80px}
 .footer-container{
   max-width:1200px;margin:auto;padding:60px 20px;
@@ -217,7 +244,7 @@ const obs=new IntersectionObserver(e=>{
 },{threshold:.15});
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 
-/* LANGUAGE */
+/* LANGUAGE (UNCHANGED) */
 const content={
   en:{
     hero:"Preserving heritage, sheltering humanity, strengthening families.",
@@ -241,7 +268,7 @@ function setLanguage(lang){
 setLanguage("en");
 </script>
 
-<!-- 🔥 FIREBASE – SLIDER UPDATED ONLY -->
+<!-- FIREBASE (UNCHANGED) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -265,12 +292,9 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const d=snap.data();
 
-  /* 🔥 SLIDER (UPDATED) */
   if(Array.isArray(d.sliderImages) && d.sliderImages.length){
     sliderTrack.innerHTML="";
-    const imgs=[...d.sliderImages]
-      .sort((a,b)=>(a.order||0)-(b.order||0));
-
+    const imgs=[...d.sliderImages].sort((a,b)=>(a.order||0)-(b.order||0));
     [...imgs,...imgs].forEach(i=>{
       const img=document.createElement("img");
       img.src=i.url;
