@@ -7,16 +7,22 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2ff}
+
+/* NAV */
 .navbar{
   padding:14px 24px;background:#eaf2ff;
   display:flex;justify-content:space-between;align-items:center;
   box-shadow:0 4px 12px rgba(0,0,0,.08)
 }
+
+/* CONTAINER */
 .container{
   max-width:1000px;margin:30px auto;
   background:#fff;border-radius:18px;
   padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.12)
 }
+
+/* UPLOAD */
 .upload-box{
   border:2px dashed #94a3b8;border-radius:16px;
   padding:24px;text-align:center
@@ -27,8 +33,12 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   border-radius:12px;cursor:pointer;font-weight:600
 }
 .preview{display:none;margin-top:16px}
-.preview img{max-width:100%;height:220px;object-fit:cover;border-radius:14px}
+.preview img{
+  max-width:100%;height:220px;
+  object-fit:cover;border-radius:14px
+}
 
+/* BUTTONS */
 button{
   padding:8px 14px;border:none;border-radius:10px;
   cursor:pointer;font-weight:600
@@ -37,12 +47,39 @@ button{
 .danger{background:#dc2626;color:#fff}
 .gray{background:#64748b;color:#fff}
 
+/* LIST */
 .item{
   display:flex;align-items:center;gap:12px;
   padding:12px;border-bottom:1px solid #e5e7eb
 }
-.item img{width:120px;height:70px;object-fit:cover;border-radius:10px}
+.item img{
+  width:120px;height:70px;
+  object-fit:cover;border-radius:10px
+}
 .item small{color:#475569}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  padding:14px 18px;
+  border-radius:14px;
+  color:#fff;
+  font-weight:600;
+  box-shadow:0 15px 35px rgba(0,0,0,.25);
+  opacity:0;
+  transform:translateY(20px);
+  transition:.35s;
+  z-index:9999
+}
+.toast.show{
+  opacity:1;
+  transform:translateY(0)
+}
+.toast.success{background:#16a34a}
+.toast.error{background:#dc2626}
+.toast.info{background:#2563eb}
 </style>
 </head>
 
@@ -73,13 +110,16 @@ button{
 
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage,ref,uploadBytes,getDownloadURL,deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const app = initializeApp({
+/* FIREBASE */
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06",
@@ -89,13 +129,22 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
 
+/* DOM */
 const fileInput=document.getElementById("fileInput");
 const previewBox=document.getElementById("previewBox");
 const previewImg=document.getElementById("previewImg");
 const sliderList=document.getElementById("sliderList");
+const toast=document.getElementById("toast");
 
 let selectedFile=null;
 let sliderImages=[];
+
+/* TOAST */
+function showToast(msg,type="info"){
+  toast.textContent=msg;
+  toast.className=`toast ${type} show`;
+  setTimeout(()=>toast.classList.remove("show"),2500);
+}
 
 /* AUTH */
 onAuthStateChanged(auth,async u=>{
@@ -140,14 +189,14 @@ function render(){
         <button class="gray" onclick="toggle(${i})">
           ${img.enabled===false?"Enable":"Disable"}
         </button>
-        <button class="danger" onclick="remove('${img.url}')">Delete</button>
+        <button class="danger" onclick="removeImg('${img.url}')">Delete</button>
       </div>`;
     });
 }
 
 /* UPLOAD */
 window.upload=async()=>{
-  if(!selectedFile) return alert("No file selected");
+  if(!selectedFile) return;
 
   const order=sliderImages.length
     ? Math.max(...sliderImages.map(i=>i.order))+1
@@ -172,6 +221,9 @@ window.upload=async()=>{
 
   previewBox.style.display="none";
   fileInput.value="";
+  selectedFile=null;
+
+  showToast("Slider image uploaded successfully","success");
 };
 
 /* MOVE */
@@ -181,23 +233,32 @@ window.move=async(i,dir)=>{
   [sliderImages[i].order,sliderImages[j].order]=
   [sliderImages[j].order,sliderImages[i].order];
   await updateDoc(doc(db,"siteSettings","home"),{ sliderImages });
+  showToast("Slider order updated","info");
 };
 
 /* TOGGLE */
 window.toggle=async(i)=>{
-  sliderImages[i].enabled = sliderImages[i].enabled === false ? true : false;
+  sliderImages[i].enabled = sliderImages[i].enabled===false?true:false;
   await updateDoc(doc(db,"siteSettings","home"),{ sliderImages });
+  showToast(
+    sliderImages[i].enabled?"Image enabled":"Image disabled",
+    "info"
+  );
 };
 
 /* DELETE */
-window.remove=async(url)=>{
-  if(!confirm("Delete image permanently?")) return;
+window.removeImg=async(url)=>{
+  if(!confirm("Delete this slider image?")) return;
+
   sliderImages=sliderImages.filter(i=>i.url!==url);
   await updateDoc(doc(db,"siteSettings","home"),{ sliderImages });
+
   try{
     const path=decodeURIComponent(url.split("/o/")[1].split("?")[0]);
     await deleteObject(ref(storage,path));
   }catch{}
+
+  showToast("Slider image deleted","error");
 };
 </script>
 
