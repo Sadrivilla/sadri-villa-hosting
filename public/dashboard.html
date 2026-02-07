@@ -22,9 +22,20 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 }
 
 /* ===== LOGO ===== */
-.logo-wrap{display:flex;align-items:center;gap:14px}
-.logo-wrap img{width:80px;height:80px;object-fit:contain}
-.logo-text{font-size:26px;font-weight:700}
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.logo-wrap img{
+  width:80px;
+  height:80px;
+  object-fit:contain;
+}
+.logo-text{
+  font-size:26px;
+  font-weight:700;
+}
 
 /* ===== ACTIONS ===== */
 .actions{display:flex;gap:10px}
@@ -38,22 +49,31 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 
 /* ===== MOBILE MENU ===== */
 .mobile-menu{
-  max-height:0;overflow:hidden;margin:0 20px;
-  background:#fff;border-radius:18px;
-  transition:max-height .35s ease,padding .35s ease
+  max-height:0;
+  overflow:hidden;
+  margin:0 20px;
+  background:#fff;
+  border-radius:18px;
+  transition:max-height .35s ease,padding .35s ease;
 }
 .mobile-menu.open{max-height:300px;padding:14px}
 .mobile-menu button{
-  width:100%;margin-bottom:10px;
-  background:#4f46e5;color:#fff;
-  border:none;padding:10px;border-radius:12px;font-weight:bold
+  width:100%;
+  margin-bottom:10px;
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  font-weight:bold;
 }
 
 /* ===== GRID ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:20px;padding:20px
+  gap:20px;
+  padding:20px
 }
 .card{background:#fff;padding:22px;border-radius:20px;cursor:pointer}
 
@@ -67,13 +87,18 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .full-gallery h2{text-align:center;font-size:32px;margin-bottom:30px}
 .gallery-slider{overflow:hidden}
 .gallery-track{
-  display:flex;gap:24px;padding-left:24px;
-  animation:scrollGallery 18s linear infinite
+  display:flex;
+  gap:24px;
+  padding-left:24px;
+  animation:scrollGallery 18s linear infinite; /* DESKTOP SPEED */
 }
 .gallery-slider:hover .gallery-track{animation-play-state:paused}
 .gallery-track img{
-  width:340px;height:210px;object-fit:cover;
-  border-radius:24px;box-shadow:0 12px 30px rgba(0,0,0,.15);
+  width:340px;
+  height:210px;
+  object-fit:cover;
+  border-radius:24px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
   cursor:pointer
 }
 @keyframes scrollGallery{
@@ -84,46 +109,54 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 /* ===== IMAGE MODAL ===== */
 .image-modal{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
-  z-index:9999;align-items:center;justify-content:center
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);
+  z-index:9999;
+  align-items:center;
+  justify-content:center
 }
 .image-box{
-  background:#fff;padding:16px;border-radius:20px;
-  max-width:90%;text-align:center
+  background:#fff;
+  padding:16px;
+  border-radius:20px;
+  max-width:90%;
+  text-align:center
 }
-.image-box img{max-width:100%;max-height:70vh;border-radius:14px}
-.modal-actions{margin-top:14px;display:flex;gap:12px;justify-content:center}
+.image-box img{
+  max-width:100%;
+  max-height:70vh;
+  border-radius:14px
+}
+.modal-actions{
+  margin-top:14px;
+  display:flex;
+  gap:12px;
+  justify-content:center
+}
 .modal-actions button{
-  background:#4f46e5;color:#fff;border:none;
-  padding:10px 18px;border-radius:12px;font-weight:bold
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  padding:10px 18px;
+  border-radius:12px;
+  font-weight:bold
 }
 .modal-actions .close-btn{background:#ef4444}
 
-/* ===== RESET MODAL ===== */
-#resetModal{
-  display:none;position:fixed;inset:0;
-  background:rgba(79,70,229,.35);
-  backdrop-filter:blur(6px);
-  align-items:center;justify-content:center;
-  z-index:9999
-}
-#resetBox{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
-  color:#fff;padding:30px;
-  max-width:420px;width:90%;
-  border-radius:24px;text-align:center
-}
-#resetBox button{
-  border:none;border-radius:14px;
-  padding:10px 18px;font-weight:bold;cursor:pointer
-}
-#okBtn{background:#fff;color:#4f46e5}
-#resendBtn{margin-top:10px;background:transparent;color:#fff;border:2px solid #fff}
-
+/* ===== MOBILE ONLY CHANGES ===== */
 @media(max-width:768px){
   .actions{display:none}
   .menu-btn{display:block}
-  .gallery-track img{width:280px;height:180px}
+
+  /* 🔥 FASTER SLIDER ON MOBILE */
+  .gallery-track{
+    animation-duration:8s; /* MOBILE SPEED */
+  }
+
+  .gallery-track img{
+    width:280px;
+    height:180px;
+  }
 }
 </style>
 </head>
@@ -133,7 +166,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="logo-wrap">
-    <img id="siteLogo">
+    <img src="images/logo.png" alt="Sadri Villa Logo">
     <div>
       <div class="logo-text">SadriVilla</div>
       <div id="userName" style="font-size:13px;opacity:.9">Loading...</div>
@@ -151,6 +184,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   </div>
 </div>
 
+<!-- MOBILE MENU -->
 <div id="mobileMenu" class="mobile-menu">
   <button onclick="openMap();closeMenu()">📍 Map</button>
   <button onclick="changePassword();closeMenu()">🔒 Change Password</button>
@@ -158,6 +192,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <button onclick="logout()">🚪 Logout</button>
 </div>
 
+<!-- DASHBOARD GRID -->
 <div class="grid">
   <div class="card" onclick="location.href='profile.html'">
     <h3>Profile Completion</h3>
@@ -173,146 +208,24 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   </div>
 </div>
 
-<!-- 🔥 FIRESTORE SLIDER -->
-<section class="full-gallery" id="gallerySection">
+<!-- FULL WIDTH GALLERY -->
+<section class="full-gallery">
   <h2>Photo Gallery</h2>
   <div class="gallery-slider">
-    <div class="gallery-track" id="galleryTrack"></div>
-  </div>
-</section>
-
-<!-- IMAGE MODAL -->
-<div id="imageModal" class="image-modal" onclick="closeImage()">
-  <div class="image-box" onclick="event.stopPropagation()">
-    <img id="modalImg">
-    <div class="modal-actions">
-      <button onclick="downloadImage()">⬇ Download</button>
-      <button class="close-btn" onclick="closeImage()">✖ Close</button>
+    <div class="gallery-track">
+      <img src="images/gallery1.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery2.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery3.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery4.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery5.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery1.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery2.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery3.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery4.jpg" onclick="openImage(this.src)">
+      <img src="images/gallery5.jpg" onclick="openImage(this.src)">
     </div>
   </div>
-</div>
-
-<!-- RESET MODAL -->
-<div id="resetModal">
-  <div id="resetBox">
-    <div style="font-size:52px">📧</div>
-    <h2>Password Reset Link Sent</h2>
-    <p>Reset link sent to<br><b id="maskedEmail"></b></p>
-    <button id="okBtn" onclick="closeResetModal()">OK</button><br>
-    <button id="resendBtn" onclick="resendEmail()" disabled>Resend in 30s</button>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* FIREBASE */
-const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const auth=getAuth(app);
-const db=getFirestore(app);
-
-/* FALLBACK LOGO */
-const FALLBACK_LOGO="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
-siteLogo.src=FALLBACK_LOGO;
-
-/* LIVE LOGO + SLIDER */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists()) return;
-  const d=snap.data();
-
-  if(d.logo?.url){
-    siteLogo.src=d.logo.url;
-  }
-
-  const images=(d.sliderImages||[])
-    .filter(i=>i.enabled!==false)
-    .sort((a,b)=>a.order-b.order);
-
-  galleryTrack.innerHTML="";
-  if(images.length<2){
-    gallerySection.style.display="none";
-    return;
-  }
-
-  [...images,...images].forEach(i=>{
-    const img=document.createElement("img");
-    img.src=i.url;
-    img.onclick=()=>openImage(i.url);
-    galleryTrack.appendChild(img);
-  });
-});
-
-/* EXISTING LOGIC BELOW – UNCHANGED */
-const maskEmail=e=>e[0]+"***@"+e.split("@")[1];
-window.toggleMenu=()=>mobileMenu.classList.toggle("open");
-window.closeMenu=()=>mobileMenu.classList.remove("open");
-window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
-window.logout=async()=>{await signOut(auth);location.href="login.html"};
-
-let resendTimer,currentImage="";
-window.changePassword=async()=>{
-  maskedEmail.innerText=maskEmail(auth.currentUser.email);
-  await sendPasswordResetEmail(auth,auth.currentUser.email);
-  resetModal.style.display="flex";
-  startResendTimer();
-};
-function startResendTimer(){
-  let t=30;resendBtn.disabled=true;
-  resendBtn.innerText=`Resend in ${t}s`;
-  resendTimer=setInterval(()=>{
-    resendBtn.innerText=`Resend in ${--t}s`;
-    if(t<=0){
-      clearInterval(resendTimer);
-      resendBtn.disabled=false;
-      resendBtn.innerText="Resend Email";
-    }
-  },1000);
-}
-window.closeResetModal=()=>resetModal.style.display="none";
-window.openImage=src=>{currentImage=src;modalImg.src=src;imageModal.style.display="flex"};
-window.closeImage=()=>imageModal.style.display="none";
-window.downloadImage=()=>{const a=document.createElement("a");a.href=currentImage;a.download="sadri-villa.jpg";a.click()};
-
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().approved!==true){
-    await signOut(auth);location.href="pending.html";return;
-  }
-  loadDashboard(snap.data());
-});
-
-function loadDashboard(data){
-  userName.innerText=data.adminFields?.Name||"User";
-  let total=0,filled=0;
-  custom.innerHTML="";
-  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
-  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-    total++;if(v.value)filled++;
-    if(v.showOnDashboard&&v.value){
-      custom.innerHTML+=`<p><b>${k}:</b> ${v.value}</p>`;
-    }
-  });
-  const p=Math.round((filled/total)*100)||0;
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
-  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-
-  new Chart(chart,{
-    type:"doughnut",
-    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
-  });
-
-  chart.onclick=()=>location.href="profile.html";
-}
-</script>
+</section>
 
 </body>
 </html>
