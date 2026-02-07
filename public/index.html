@@ -3,25 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>Sadri Villa Fazilpur | Heritage Villa</title>
-
-<meta name="description" content="Sadri Villa is a 150+ year old heritage villa in Fazilpur, Samastipur, Bihar serving humanity with dignity and compassion.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 
-/* ===== NAVBAR (BLUR FIXED – LOGO SAFE) ===== */
+/* ===== NAVBAR (LOGO PERFECT FIT – NO VERTICAL PADDING) ===== */
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
   height:72px;
+  padding:0 0px;              /* horizontal only */
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  padding:0 20px;
-  z-index:1000;
+  align-items:stretch;         /* IMPORTANT */
   background:rgba(8,22,52,.75);
+  z-index:1000;
 }
 
 /* blur layer */
@@ -39,20 +37,23 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   z-index:1;
 }
 
+/* LOGO */
 .brand{
-  display:flex;
-  align-items:center;
   height:100%;
+  display:flex;
+  align-items:stretch;         /* IMPORTANT */
 }
 .brand img{
-  height:48px;
+  height:100%;                 /* fills navbar */
   width:auto;
   display:block;
   object-fit:contain;
 }
 
+/* NAV LINKS */
 .nav-actions{
   display:flex;
+  align-items:center;
   gap:22px;
 }
 .nav-actions a{
@@ -92,10 +93,9 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   border-radius:28px;
   padding:46px 30px;
   text-align:center;
-  box-shadow:0 25px 60px rgba(0,0,0,.45);
   opacity:0;
   transform:translateY(40px);
-  transition:.8s ease;
+  transition:.8s;
 }
 .card.active{opacity:1;transform:none}
 .card p{color:#c7d2fe}
@@ -121,13 +121,6 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   to{transform:translateX(-50%)}
 }
 
-/* MOBILE */
-@media(max-width:768px){
-  .navbar{height:64px}
-  .brand img{height:40px}
-  .slide-track{animation-duration:12s}
-}
-
 /* ===== FOOTER ===== */
 footer{background:#081634;margin-top:80px}
 .footer-container{
@@ -138,10 +131,7 @@ footer{background:#081634;margin-top:80px}
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:40px;
 }
-.footer-logo{
-  max-width:140px;
-  margin-bottom:16px;
-}
+.footer-logo{max-width:140px;margin-bottom:16px}
 .footer-col p,a{
   color:#cbd5f5;
   font-size:14px;
@@ -154,6 +144,11 @@ footer{background:#081634;margin-top:80px}
   font-size:13px;
   color:#94a3b8;
 }
+
+/* MOBILE */
+@media(max-width:768px){
+  .navbar{height:64px}
+}
 </style>
 </head>
 
@@ -162,9 +157,7 @@ footer{background:#081634;margin-top:80px}
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img
-      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media"
-      alt="Sadri Villa Logo">
+    <img id="siteLogo" alt="Sadri Villa Logo">
   </div>
   <div class="nav-actions">
     <a href="#">Home</a>
@@ -174,7 +167,7 @@ footer{background:#081634;margin-top:80px}
 </div>
 
 <!-- HERO -->
-<section class="hero" id="heroSection">
+<section class="hero">
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p>Preserving heritage, sheltering humanity, strengthening families.</p>
@@ -184,12 +177,12 @@ footer{background:#081634;margin-top:80px}
 <!-- CARDS -->
 <section class="highlights">
   <div class="highlight-grid">
-    <div class="card"><h3>Heritage Legacy</h3><p>150+ years of cultural and family heritage.</p></div>
-    <div class="card"><h3>Social Welfare</h3><p>Free marriages and shelter for the needy.</p></div>
-    <div class="card"><h3>Community Service</h3><p>Serving people with dignity and respect.</p></div>
-    <div class="card"><h3>Free Shelter</h3><p>A safe place for those in need.</p></div>
-    <div class="card"><h3>Family Values</h3><p>Preserving traditions and unity.</p></div>
-    <div class="card"><h3>Future Vision</h3><p>Building hope for generations.</p></div>
+    <div class="card"><h3>Heritage Legacy</h3><p>150+ years of cultural heritage.</p></div>
+    <div class="card"><h3>Social Welfare</h3><p>Free marriages & shelter.</p></div>
+    <div class="card"><h3>Community Service</h3><p>Dignity & respect.</p></div>
+    <div class="card"><h3>Free Shelter</h3><p>Safe place for needy.</p></div>
+    <div class="card"><h3>Family Values</h3><p>Traditions preserved.</p></div>
+    <div class="card"><h3>Future Vision</h3><p>Hope for generations.</p></div>
   </div>
 </section>
 
@@ -202,12 +195,9 @@ footer{background:#081634;margin-top:80px}
 <footer>
   <div class="footer-container">
     <div class="footer-col">
-      <img class="footer-logo"
-        src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media"
-        alt="Sadri Villa Logo">
+      <img id="footerLogo" class="footer-logo">
       <p>150+ years of heritage, service, and compassion.</p>
     </div>
-
     <div class="footer-col">
       <h4>Quick Links</h4>
       <a href="#">Home</a><br>
@@ -215,14 +205,12 @@ footer{background:#081634;margin-top:80px}
       <a href="login.html">Login</a><br>
       <a href="signup.html">Sign Up</a>
     </div>
-
     <div class="footer-col">
       <h4>Contact</h4>
       <p>📍 Fazilpur, Samastipur, Bihar</p>
       <p>📞 +91 87088 68221</p>
     </div>
   </div>
-
   <div class="footer-bottom">© 2026 Sadri Villa Fazilpur</div>
 </footer>
 
@@ -239,7 +227,7 @@ const obs=new IntersectionObserver(e=>{
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 </script>
 
-<!-- FIREBASE SLIDER ONLY -->
+<!-- FIREBASE (LOGO + SLIDER) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -251,14 +239,36 @@ const app=initializeApp({
 });
 const db=getFirestore(app);
 
+/* FALLBACK LOGO */
+const FALLBACK_LOGO=
+"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
+siteLogo.src=footerLogo.src=FALLBACK_LOGO;
+
+/* LIVE DATA */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const d=snap.data();
+
+  /* LOGO */
+  if(d.logo?.url){
+    const v=d.logo.updatedAt?.seconds||Date.now();
+    siteLogo.src=footerLogo.src=`${d.logo.url}?v=${v}`;
+  }
+
+  /* SLIDER (ENABLE / DISABLE) */
   if(Array.isArray(d.sliderImages)){
     sliderTrack.innerHTML="";
-    [...d.sliderImages,...d.sliderImages].forEach(i=>{
+
+    const active=d.sliderImages
+      .filter(i=>i.enabled!==false)
+      .sort((a,b)=>a.order-b.order);
+
+    if(active.length<2) return;
+
+    [...active,...active].forEach(i=>{
       const img=document.createElement("img");
       img.src=i.url;
+      img.alt=i.alt||"Sadri Villa";
       img.className="carousel-item";
       sliderTrack.appendChild(img);
     });
