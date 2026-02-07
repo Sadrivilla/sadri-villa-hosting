@@ -47,7 +47,7 @@ body{
 
 .brand img{
   max-height:64px;
-  padding:0px 16px;
+  padding:10px 16px;
 }
 
 .nav-actions{
@@ -64,7 +64,6 @@ body{
   position:relative;
 }
 
-/* NAV BUTTON ANIMATION */
 .nav-actions a::after{
   content:"";
   position:absolute;
@@ -233,14 +232,15 @@ footer{
   color:#fff;
 }
 
-/* LANGUAGE SWITCH */
-.lang-switch{
+/* LANGUAGE SELECT */
+.lang-select{
   margin-top:16px;
-  padding:10px;
-  background:#132457;
+  width:100%;
+  padding:10px 12px;
   border-radius:10px;
-  cursor:pointer;
-  text-align:center;
+  background:#132457;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.25);
 }
 
 .footer-bottom{
@@ -280,18 +280,16 @@ footer{
 <!-- CARDS -->
 <section class="highlights">
   <div class="highlight-grid">
-    <div class="card"><h3>Heritage Legacy</h3><p>150+ years of cultural and family heritage.</p></div>
-    <div class="card"><h3>Social Welfare</h3><p>Free marriages and shelter for the needy.</p></div>
-    <div class="card"><h3>Community Service</h3><p>Serving people with dignity and respect.</p></div>
-    <div class="card"><h3>Free Shelter</h3><p>A safe place for those in need.</p></div>
-    <div class="card"><h3>Family Values</h3><p>Preserving traditions and unity.</p></div>
-    <div class="card"><h3>Future Vision</h3><p>Building hope for generations.</p></div>
-    <div class="card"><h3>Education Support</h3><p>Encouraging learning and growth.</p></div>
-    <div class="card"><h3>Women Empowerment</h3><p>Supporting dignity and independence.</p></div>
+    <div class="card"><h3 id="c1t"></h3><p id="c1d"></p></div>
+    <div class="card"><h3 id="c2t"></h3><p id="c2d"></p></div>
+    <div class="card"><h3 id="c3t"></h3><p id="c3d"></p></div>
+    <div class="card"><h3 id="c4t"></h3><p id="c4d"></p></div>
+    <div class="card"><h3 id="c5t"></h3><p id="c5d"></p></div>
+    <div class="card"><h3 id="c6t"></h3><p id="c6d"></p></div>
   </div>
 </section>
 
-<!-- SLIDER (FROM FIREBASE) -->
+<!-- SLIDER -->
 <div class="slider-full">
   <div class="slide-track" id="sliderTrack"></div>
 </div>
@@ -324,17 +322,19 @@ footer{
       <p>📞 +91 87088 68221</p>
 
       <div class="social-links">
-        <!-- Facebook -->
         <a href="#"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7Z"/></svg></a>
-        <!-- Instagram -->
-        <a href="#"><svg viewBox="0 0 24 24"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg></a>
-        <!-- YouTube -->
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7Z"/></svg></a>
         <a href="#"><svg viewBox="0 0 24 24"><path d="M21.8 8s-.2-1.4-.8-2a3 3 0 0 0-2.1-.9C16 5 12 5 12 5s-4 0-6.9.1a3 3 0 0 0-2.1.9c-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2a3 3 0 0 0 2.1.9c2.9.1 6.9.1 6.9.1s4 0 6.9-.1a3 3 0 0 0 2.1-.9c.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2ZM10 14.7V9.3l4.8 2.7L10 14.7Z"/></svg></a>
       </div>
 
       <a class="map-btn" target="_blank" href="https://www.google.com/maps?q=Fazilpur%20Samastipur%20Bihar">Open in Google Maps</a>
 
-      <div class="lang-switch" onclick="toggleLang()">Change Language</div>
+      <!-- LANGUAGE SELECT -->
+      <select class="lang-select" onchange="setLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ur">اردو</option>
+      </select>
     </div>
 
   </div>
@@ -366,21 +366,62 @@ const obs=new IntersectionObserver(e=>{
 },{threshold:.15});
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 
-/* LANGUAGE TOGGLE */
-const langs={
-  en:"Preserving heritage, sheltering humanity, strengthening families.",
-  hi:"विरासत को संजोते हुए, मानवता की सेवा।",
-  ur:"وراثت کا تحفظ، انسانیت کی خدمت۔"
+/* LANGUAGE CONTENT */
+const content={
+  en:{
+    hero:"Preserving heritage, sheltering humanity, strengthening families.",
+    join:"Join the Legacy",
+    about:"About Villa",
+    cards:[
+      ["Heritage Legacy","150+ years of cultural and family heritage."],
+      ["Social Welfare","Free marriages and shelter for the needy."],
+      ["Community Service","Serving people with dignity and respect."],
+      ["Free Shelter","A safe place for those in need."],
+      ["Family Values","Preserving traditions and unity."],
+      ["Future Vision","Building hope for generations."]
+    ]
+  },
+  hi:{
+    hero:"विरासत को संजोते हुए, मानवता की सेवा।",
+    join:"विरासत से जुड़ें",
+    about:"विला के बारे में",
+    cards:[
+      ["विरासत","150+ वर्षों की परंपरा।"],
+      ["सामाजिक सेवा","निःशुल्क विवाह और आश्रय।"],
+      ["समुदाय सेवा","सम्मान के साथ सेवा।"],
+      ["निःशुल्क आश्रय","जरूरतमंदों के लिए।"],
+      ["पारिवारिक मूल्य","संस्कृति का संरक्षण।"],
+      ["भविष्य की सोच","आने वाली पीढ़ियों के लिए।"]
+    ]
+  },
+  ur:{
+    hero:"وراثت کا تحفظ، انسانیت کی خدمت۔",
+    join:"وراثت میں شامل ہوں",
+    about:"ولا کے بارے میں",
+    cards:[
+      ["وراثت","150 سالہ تاریخ۔"],
+      ["سماجی خدمت","مفت شادی اور پناہ۔"],
+      ["خدمت خلق","وقار کے ساتھ خدمت۔"],
+      ["مفت پناہ","ضرورت مندوں کے لیے۔"],
+      ["خاندانی اقدار","روایات کا تحفظ۔"],
+      ["مستقبل","آنے والی نسلوں کے لیے۔"]
+    ]
+  }
 };
-let l="en";
-function toggleLang(){
-  l=l==="en"?"hi":l==="hi"?"ur":"en";
-  heroDesc.innerText=langs[l];
+
+function setLanguage(lang){
+  heroDesc.innerText=content[lang].hero;
+  joinBtn.innerText=content[lang].join;
+  aboutBtn.innerText=content[lang].about;
+  content[lang].cards.forEach((c,i)=>{
+    document.getElementById(`c${i+1}t`).innerText=c[0];
+    document.getElementById(`c${i+1}d`).innerText=c[1];
+  });
 }
-toggleLang();
+setLanguage("en");
 </script>
 
-<!-- FIREBASE SLIDER -->
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
