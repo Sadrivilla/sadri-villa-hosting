@@ -16,81 +16,55 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   position:fixed;top:0;left:0;right:0;
   background:rgba(8,22,52,.75);
   backdrop-filter:blur(14px);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  display:flex;justify-content:space-between;align-items:center;
   z-index:1000;
 }
 .brand{height:100%;display:flex;align-items:center}
 .brand img{height:100%;width:auto;object-fit:contain}
 
-/* NAV LINKS */
 .nav-actions{
-  display:flex;
-  align-items:center;
-  gap:22px;
-  padding-right:20px;
+  display:flex;align-items:center;gap:22px;padding-right:20px;
 }
 .nav-actions a{color:#fff;text-decoration:none;font-weight:600}
 
 /* ===== HERO ===== */
 .hero{
-  min-height:100vh;
-  padding-top:90px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  min-height:100vh;padding-top:90px;
+  display:flex;align-items:center;justify-content:center;
   text-align:center;
 }
 .hero h1{font-size:54px;font-weight:800}
 .hero p{font-size:20px;max-width:760px;margin:20px auto;color:#c7d2fe}
 
 .hero-buttons{
-  margin-top:28px;
-  display:flex;
-  gap:14px;
-  justify-content:center;
+  margin-top:28px;display:flex;gap:14px;justify-content:center;
 }
 .hero-buttons button{
-  padding:10px 20px;
-  border-radius:14px;
+  padding:10px 20px;border-radius:14px;
   border:1px solid rgba(255,255,255,.25);
-  background:transparent;
-  color:#fff;
-  cursor:pointer;
-  font-weight:600;
-  transition:.3s;
+  background:transparent;color:#fff;
+  cursor:pointer;font-weight:600;transition:.3s;
 }
 .hero-buttons button:hover{transform:translateY(-2px)}
 .hero-buttons button:active{transform:scale(.96)}
-.hero-buttons .primary{
-  background:#2563eb;
-  border:none;
-}
+.hero-buttons .primary{background:#2563eb;border:none}
 
 /* ===== CARDS ===== */
 .highlights{padding:90px 20px}
 .highlight-grid{
-  max-width:1200px;
-  margin:auto;
+  max-width:1200px;margin:auto;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:36px;
 }
 .card{
-  background:#1b2f63;
-  border-radius:28px;
-  padding:46px 30px;
-  text-align:center;
+  background:#1b2f63;border-radius:28px;
+  padding:46px 30px;text-align:center;
   box-shadow:0 25px 60px rgba(0,0,0,.45);
-  opacity:0;
-  transform:translateY(40px) scale(.96);
+  opacity:0;transform:translateY(40px) scale(.96);
   transition:.8s ease;
 }
-.card.active{
-  opacity:1;
-  transform:translateY(0) scale(1);
-}
+.card.active{opacity:1;transform:translateY(0) scale(1)}
 .card h3{margin:16px 0 12px}
 .card p{color:#c7d2fe}
 
@@ -111,9 +85,7 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 /* ===== FOOTER ===== */
 footer{background:#081634;margin-top:80px}
 .footer-container{
-  max-width:1200px;
-  margin:auto;
-  padding:60px 20px;
+  max-width:1200px;margin:auto;padding:60px 20px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:40px;
@@ -127,30 +99,22 @@ footer{background:#081634;margin-top:80px}
 .social-links svg{width:20px;height:20px;fill:#cbd5f5}
 
 .map-btn{
-  margin-top:14px;
-  display:inline-block;
-  padding:10px 16px;
-  background:#2563eb;
-  border-radius:12px;
-  color:#fff;
+  margin-top:14px;display:inline-block;
+  padding:10px 16px;background:#2563eb;
+  border-radius:12px;color:#fff;
 }
 
 .lang-select{
-  margin-top:16px;
-  width:100%;
-  padding:10px 12px;
-  border-radius:10px;
-  background:#132457;
-  color:#fff;
+  margin-top:16px;width:100%;
+  padding:10px 12px;border-radius:10px;
+  background:#132457;color:#fff;
   border:1px solid rgba(255,255,255,.25);
 }
 
 .footer-bottom{
   border-top:1px solid rgba(255,255,255,.1);
-  text-align:center;
-  padding:18px;
-  font-size:13px;
-  color:#94a3b8;
+  text-align:center;padding:18px;
+  font-size:13px;color:#94a3b8;
 }
 </style>
 </head>
@@ -174,8 +138,6 @@ footer{background:#081634;margin-top:80px}
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p id="heroDesc"></p>
-
-    <!-- ✅ HERO BUTTONS RESTORED -->
     <div class="hero-buttons">
       <button class="primary" onclick="location.href='signup.html'">Join the Legacy</button>
       <button onclick="location.href='about.html'">About Villa</button>
@@ -203,7 +165,6 @@ footer{background:#081634;margin-top:80px}
 <!-- FOOTER -->
 <footer>
   <div class="footer-container">
-
     <div class="footer-col">
       <img id="footerLogo" class="footer-logo">
       <p>150+ years of heritage, service, and compassion.</p>
@@ -215,11 +176,6 @@ footer{background:#081634;margin-top:80px}
       <a href="about.html">About</a><br>
       <a href="login.html">Login</a><br>
       <a href="signup.html">Sign Up</a>
-
-      <div class="footer-buttons">
-        <button onclick="location.href='login.html'">Login</button>
-        <button onclick="location.href='signup.html'">Join</button>
-      </div>
     </div>
 
     <div class="footer-col">
@@ -229,8 +185,6 @@ footer{background:#081634;margin-top:80px}
 
       <div class="social-links">
         <a href="#"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7Z"/></svg></a>
-        <a href="#"><svg viewBox="0 0 24 24"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7Z"/></svg></a>
-        <a href="#"><svg viewBox="0 0 24 24"><path d="M21.8 8s-.2-1.4-.8-2a3 3 0 0 0-2.1-.9C16 5 12 5 12 5s-4 0-6.9.1a3 3 0 0 0-2.1.9c-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2a3 3 0 0 0 2.1.9c2.9.1 6.9.1 6.9.1s4 0 6.9-.1a3 3 0 0 0 2.1-.9c.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2ZM10 14.7V9.3l4.8 2.7L10 14.7Z"/></svg></a>
       </div>
 
       <a class="map-btn" target="_blank"
@@ -244,7 +198,6 @@ footer{background:#081634;margin-top:80px}
         <option value="ur">اردو</option>
       </select>
     </div>
-
   </div>
 
   <div class="footer-bottom">© <span id="year"></span> Sadri Villa Fazilpur</div>
@@ -264,7 +217,7 @@ const obs=new IntersectionObserver(e=>{
 },{threshold:.15});
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 
-/* LANGUAGE CONTENT */
+/* LANGUAGE */
 const content={
   en:{
     hero:"Preserving heritage, sheltering humanity, strengthening families.",
@@ -276,31 +229,8 @@ const content={
       ["Family Values","Preserving traditions and unity."],
       ["Future Vision","Building hope for generations."]
     ]
-  },
-  hi:{
-    hero:"विरासत को संजोते हुए, मानवता की सेवा।",
-    cards:[
-      ["विरासत","150+ वर्षों की परंपरा।"],
-      ["सामाजिक सेवा","निःशुल्क विवाह और आश्रय।"],
-      ["समुदाय सेवा","सम्मान के साथ सेवा।"],
-      ["निःशुल्क आश्रय","जरूरतमंदों के लिए।"],
-      ["पारिवारिक मूल्य","संस्कृति का संरक्षण।"],
-      ["भविष्य","आने वाली पीढ़ियों के लिए।"]
-    ]
-  },
-  ur:{
-    hero:"وراثت کا تحفظ، انسانیت کی خدمت۔",
-    cards:[
-      ["وراثت","150 سالہ تاریخ۔"],
-      ["سماجی خدمت","مفت شادی اور پناہ۔"],
-      ["خدمت خلق","وقار کے ساتھ خدمت۔"],
-      ["مفت پناہ","ضرورت مندوں کے لیے۔"],
-      ["خاندانی اقدار","روایات کا تحفظ۔"],
-      ["مستقبل","آنے والی نسلوں کے لیے۔"]
-    ]
   }
 };
-
 function setLanguage(lang){
   heroDesc.innerText=content[lang].hero;
   content[lang].cards.forEach((c,i)=>{
@@ -311,7 +241,7 @@ function setLanguage(lang){
 setLanguage("en");
 </script>
 
-<!-- 🔥 FIREBASE – AUTO NAVBAR FIT + LIVE LOGO -->
+<!-- 🔥 FIREBASE – SLIDER UPDATED ONLY -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -335,23 +265,16 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const d=snap.data();
 
-  if(d.logo?.url){
-    const v=d.logo.updatedAt?.seconds||Date.now();
-    siteLogo.src=`${d.logo.url}?v=${v}`;
-    footerLogo.src=`${d.logo.url}?v=${v}`;
-    if(d.logo.height) navbar.style.height=d.logo.height+"px";
-  }
-
-  if(d.hero?.url){
-    heroSection.style.background=
-    `linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),url('${d.hero.url}') center/cover no-repeat`;
-  }
-
-  if(Array.isArray(d.sliderImages)){
+  /* 🔥 SLIDER (UPDATED) */
+  if(Array.isArray(d.sliderImages) && d.sliderImages.length){
     sliderTrack.innerHTML="";
-    [...d.sliderImages,...d.sliderImages].forEach(i=>{
+    const imgs=[...d.sliderImages]
+      .sort((a,b)=>(a.order||0)-(b.order||0));
+
+    [...imgs,...imgs].forEach(i=>{
       const img=document.createElement("img");
       img.src=i.url;
+      img.alt=i.alt||"Sadri Villa";
       img.className="carousel-item";
       sliderTrack.appendChild(img);
     });
