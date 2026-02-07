@@ -36,7 +36,7 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 /* ===== HERO ===== */
 .hero{
   min-height:100vh;
-  padding-top:80px;
+  padding-top:90px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -45,7 +45,30 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 .hero h1{font-size:54px;font-weight:800}
 .hero p{font-size:20px;max-width:760px;margin:20px auto;color:#c7d2fe}
 
-/* ===== CARDS (RESTORED) ===== */
+.hero-buttons{
+  margin-top:28px;
+  display:flex;
+  gap:14px;
+  justify-content:center;
+}
+.hero-buttons button{
+  padding:10px 20px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.25);
+  background:transparent;
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  transition:.3s;
+}
+.hero-buttons button:hover{transform:translateY(-2px)}
+.hero-buttons button:active{transform:scale(.96)}
+.hero-buttons .primary{
+  background:#2563eb;
+  border:none;
+}
+
+/* ===== CARDS ===== */
 .highlights{padding:90px 20px}
 .highlight-grid{
   max-width:1200px;
@@ -151,6 +174,12 @@ footer{background:#081634;margin-top:80px}
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p id="heroDesc"></p>
+
+    <!-- ✅ HERO BUTTONS RESTORED -->
+    <div class="hero-buttons">
+      <button class="primary" onclick="location.href='signup.html'">Join the Legacy</button>
+      <button onclick="location.href='about.html'">About Villa</button>
+    </div>
   </div>
 </section>
 
