@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin – Slider Images | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef2ff;
+}
+
+/* NAV */
+.navbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 24px;
+  background:#eaf2ff;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.navbar h3{margin:0}
+
+/* PAGE */
+.container{
+  max-width:1000px;
+  margin:30px auto;
+  background:#fff;
+  border-radius:18px;
+  padding:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.12);
+}
+
+/* UPLOAD */
+.upload-box{
+  border:2px dashed #94a3b8;
+  border-radius:16px;
+  padding:24px;
+  text-align:center;
+}
+.upload-box input{display:none}
+.upload-box label{
+  display:inline-block;
+  padding:12px 20px;
+  background:#2563eb;
+  color:#fff;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+/* PREVIEW */
+.preview{
+  margin-top:20px;
+  display:none;
+}
+.preview img{
+  max-width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:14px;
+}
+
+/* BUTTON */
+button{
+  margin-top:14px;
+  padding:12px 18px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:600;
+}
+.primary{background:#2563eb;color:#fff}
+.danger{background:#dc2626;color:#fff}
+
+/* LIST */
+.list{
+  margin-top:40px;
+}
+.list h4{margin-bottom:12px}
+.item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px;
+  border-bottom:1px solid #e5e7eb;
+}
+.item img{
+  width:120px;
+  height:70px;
+  object-fit:cover;
+  border-radius:10px;
+}
+.item span{
+  flex:1;
+  font-size:14px;
+  color:#334155;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <h3>🖼 Slider Images – Admin</h3>
+  <button onclick="location.href='admin-dashboard.html'">← Back</button>
+</div>
+
+<div class="container">
+
+  <!-- UPLOAD -->
+  <div class="upload-box">
+    <input type="file" id="fileInput" accept="image/*">
+    <label for="fileInput">Select Slider Image</label>
+
+    <div class="preview" id="previewBox">
+      <img id="previewImg">
+      <br>
+      <button class="primary" onclick="upload()">Upload</button>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <div class="list">
+    <h4>Existing Slider Images</h4>
+    <div id="sliderList"></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,doc,onSnapshot,updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getStorage,ref,uploadBytes,getDownloadURL,deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+/* FIREBASE */
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06",
+  storageBucket:"sadri-villa-14c06.firebasestorage.app"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const fileInput = document.getElementById("fileInput");
+const previewBox = document.getElementById("previewBox");
+const previewImg = document.getElementById("previewImg");
+const sliderList = document.getElementById("sliderList");
+
+let selectedFile = null;
+let sliderImages = [];
+
+/* AUTH CHECK */
+onAuthStateChanged(auth, async user=>{
+  if(!user) location.href="login.html";
+  const t = await user.getIdTokenResult(true);
+  if(!t.claims.admin){
+    alert("Admin only");
+    location.href="dashboard.html";
+  }
+});
+
+/* FILE PREVIEW */
+fileInput.onchange = e=>{
+  selectedFile = e.target.files[0];
+  if(!selectedFile) return;
+  previewImg.src = URL.createObjectURL(selectedFile);
+  previewBox.style.display="block";
+};
+
+/* LOAD SLIDERS */
+onSnapshot(doc(db,"siteSettings","home"), snap=>{
+  if(!snap.exists()) return;
+  sliderImages = snap.data().sliderImages || [];
+  render();
+});
+
+/* RENDER */
+function render(){
+  sliderList.innerHTML="";
+  sliderImages
+    .sort((a,b)=>(a.order||0)-(b.order||0))
+    .forEach(img=>{
+      sliderList.innerHTML+=`
+        <div class="item">
+          <img src="${img.url}">
+          <span>Order: ${img.order}</span>
+          <button class="danger" onclick="remove('${img.url}')">Delete</button>
+        </div>`;
+    });
+}
+
+/* UPLOAD */
+window.upload = async ()=>{
+  if(!selectedFile) return alert("No file selected");
+
+  const order =
+    sliderImages.length
+      ? Math.max(...sliderImages.map(i=>i.order||0)) + 1
+      : 1;
+
+  const fileRef = ref(
+    storage,
+    `images/site/slider/${Date.now()}-${selectedFile.name}`
+  );
+
+  await uploadBytes(fileRef, selectedFile);
+  const url = await getDownloadURL(fileRef);
+
+  sliderImages.push({
+    url,
+    alt: "Sadri Villa slider image",
+    order,
+    createdAt: new Date()
+  });
+
+  await updateDoc(doc(db,"siteSettings","home"),{
+    sliderImages
+  });
+
+  previewBox.style.display="none";
+  fileInput.value="";
+  selectedFile=null;
+};
+
+/* DELETE */
+window.remove = async (url)=>{
+  if(!confirm("Delete this slider image?")) return;
+
+  sliderImages = sliderImages.filter(i=>i.url!==url);
+  await updateDoc(doc(db,"siteSettings","home"),{ sliderImages });
+
+  try{
+    const path = decodeURIComponent(url.split("/o/")[1].split("?")[0]);
+    await deleteObject(ref(storage,path));
+  }catch{}
+};
+</script>
+
+</body>
+</html>
