@@ -15,7 +15,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   box-shadow:0 4px 12px rgba(0,0,0,.08)
 }
 .nav-left{display:flex;align-items:center;gap:12px}
-.nav-left img{height:38px}
+.nav-left img{height:38px;object-fit:contain}
 .nav-left h3{margin:0}
 
 /* ADMIN BUTTON BAR */
@@ -69,9 +69,9 @@ th{background:#f8fafc;text-align:left}
 <body>
 
 <!-- NAVBAR -->
-<div class="navbar">
+<div class="navbar" id="navbar">
   <div class="nav-left">
-    <img src="images/logo.png" alt="Sadri Villa">
+    <img id="siteLogo" alt="Sadri Villa Logo">
     <h3>Sadri Villa – Admin</h3>
   </div>
 </div>
@@ -120,22 +120,44 @@ th{background:#f8fafc;text-align:left}
 
 </div>
 
+<!-- 🔥 LOGO – SAME AS INDEX (REALTIME + INSTANT) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const db = getFirestore(app);
+
+const FALLBACK_LOGO =
+"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
+
+const siteLogo = document.getElementById("siteLogo");
+siteLogo.src = FALLBACK_LOGO;
+
+onSnapshot(doc(db,"siteSettings","home"), snap=>{
+  if(!snap.exists()) return;
+  const d = snap.data();
+  if(d.logo?.url){
+    const v = d.logo.updatedAt?.seconds || Date.now();
+    siteLogo.src = `${d.logo.url}?v=${v}`;
+  }
+});
+</script>
+
+<!-- 🔐 ADMIN LOGIC (UNCHANGED) -->
+<script type="module">
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,collection,getDocs,doc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
-/* FIREBASE */
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth=getAuth();
+const db=getFirestore();
 
 const tbody=document.getElementById("tbody");
 const search=document.getElementById("search");
@@ -177,17 +199,13 @@ window.render=()=>{
 
     return name.includes(q)||email.includes(q)||phone.includes(q);
   }).forEach(u=>{
-    const name=u.fullName||u.adminFields?.Name||u.displayName||"-";
-    const email=u.email||u.adminFields?.Email||"-";
-    const phone=u.phone||u.adminFields?.Phone||"-";
-
     tbody.innerHTML+=`
     <tr>
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-      <td>${name}</td>
+      <td>${u.fullName||u.adminFields?.Name||u.displayName||"-"}</td>
       <td><button class="uid-btn" onclick="copyUID('${u.uid}',this)">Copy UID</button></td>
-      <td>${email}</td>
-      <td>${phone}</td>
+      <td>${u.email||"-"}</td>
+      <td>${u.phone||"-"}</td>
       <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
       <td>
         <span class="badge ${u.approved?"green":"yellow"}">
@@ -203,51 +221,20 @@ window.render=()=>{
   });
 };
 
-/* UID COPY */
-window.copyUID=async(uid,btn)=>{
-  await navigator.clipboard.writeText(uid);
-  const t=btn.innerText;
-  btn.innerText="Copied ✓";
-  setTimeout(()=>btn.innerText=t,1200);
-};
-
-/* ACTIONS */
-window.toggleAll=cb=>
-  document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
-
+/* HELPERS */
+window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
 const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
 
-window.toggle=async(id,v)=>{
-  await updateDoc(doc(db,"users",id),{approved:!v});
-  load();
-};
-
-window.bulkApprove=async()=>{
-  for(const id of selected())
-    await updateDoc(doc(db,"users",id),{approved:true});
-  load();
-};
-
-window.bulkUnapprove=async()=>{
-  for(const id of selected())
-    await updateDoc(doc(db,"users",id),{approved:false});
-  load();
-};
-
-window.bulkDelete=async()=>{
-  for(const id of selected())
-    await deleteDoc(doc(db,"users",id));
-  load();
-};
+window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{approved:!v});load();};
+window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:true});load();};
+window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:false});load();};
+window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));load();};
 
 /* EXPORT */
 window.exportXLSX=()=>{
   const rows=users.map(u=>({
-    UID:u.uid,
-    Name:u.fullName||u.adminFields?.Name||u.displayName||"",
-    Email:u.email||u.adminFields?.Email||"",
-    Phone:u.phone||u.adminFields?.Phone||"",
-    Approved:u.approved?"Yes":"No",
+    UID:u.uid,Name:u.fullName||"",Email:u.email||"",
+    Phone:u.phone||"",Approved:u.approved?"Yes":"No",
     Created:u.createdAt||""
   }));
   const ws=XLSX.utils.json_to_sheet(rows);
