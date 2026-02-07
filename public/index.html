@@ -9,16 +9,11 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:Arial,sans-serif;
-  background:#0b1f4a;
-  color:#e5e7eb;
-}
+body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 
-/* NAVBAR */
+/* ===== NAVBAR ===== */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
+  position:fixed;top:0;left:0;right:0;
   background:rgba(8,22,52,.75);
   backdrop-filter:blur(14px);
   display:flex;
@@ -26,25 +21,22 @@ body{
   align-items:center;
   z-index:1000;
 }
-.brand img{
-  max-height:64px;
-  padding:10px 16px;
-}
+.brand{height:100%;display:flex;align-items:center}
+.brand img{height:100%;width:auto;object-fit:contain}
+
+/* NAV LINKS */
 .nav-actions{
   display:flex;
+  align-items:center;
   gap:22px;
   padding-right:20px;
 }
-.nav-actions a{
-  color:#fff;
-  text-decoration:none;
-  font-weight:600;
-}
+.nav-actions a{color:#fff;text-decoration:none;font-weight:600}
 
-/* HERO */
+/* ===== HERO ===== */
 .hero{
   min-height:100vh;
-  padding-top:90px;
+  padding-top:80px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -53,13 +45,13 @@ body{
 .hero h1{font-size:54px;font-weight:800}
 .hero p{font-size:20px;max-width:760px;margin:20px auto;color:#c7d2fe}
 
-/* CARDS */
+/* ===== CARDS (RESTORED) ===== */
 .highlights{padding:90px 20px}
 .highlight-grid{
   max-width:1200px;
   margin:auto;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:36px;
 }
 .card{
@@ -67,13 +59,19 @@ body{
   border-radius:28px;
   padding:46px 30px;
   text-align:center;
+  box-shadow:0 25px 60px rgba(0,0,0,.45);
   opacity:0;
-  transform:translateY(40px);
-  transition:.8s;
+  transform:translateY(40px) scale(.96);
+  transition:.8s ease;
 }
-.card.active{opacity:1;transform:translateY(0)}
+.card.active{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.card h3{margin:16px 0 12px}
+.card p{color:#c7d2fe}
 
-/* SLIDER */
+/* ===== SLIDER ===== */
 .slider-full{width:100%;overflow:hidden;padding:60px 0}
 .slide-track{display:flex;gap:24px;animation:scroll 35s linear infinite}
 .carousel-item{
@@ -87,7 +85,7 @@ body{
   to{transform:translateX(-50%)}
 }
 
-/* FOOTER */
+/* ===== FOOTER ===== */
 footer{background:#081634;margin-top:80px}
 .footer-container{
   max-width:1200px;
@@ -98,6 +96,32 @@ footer{background:#081634;margin-top:80px}
   gap:40px;
 }
 .footer-logo{max-width:140px;margin-bottom:16px}
+.footer-col h4{margin-bottom:14px}
+.footer-col p,a{color:#cbd5f5;font-size:14px;text-decoration:none}
+
+.footer-buttons{margin-top:16px;display:flex;gap:10px}
+.social-links{margin-top:16px;display:flex;gap:14px}
+.social-links svg{width:20px;height:20px;fill:#cbd5f5}
+
+.map-btn{
+  margin-top:14px;
+  display:inline-block;
+  padding:10px 16px;
+  background:#2563eb;
+  border-radius:12px;
+  color:#fff;
+}
+
+.lang-select{
+  margin-top:16px;
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#132457;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.25);
+}
+
 .footer-bottom{
   border-top:1px solid rgba(255,255,255,.1);
   text-align:center;
@@ -111,7 +135,7 @@ footer{background:#081634;margin-top:80px}
 <body>
 
 <!-- NAVBAR -->
-<div class="navbar">
+<div class="navbar" id="navbar">
   <div class="brand">
     <img id="siteLogo" alt="Sadri Villa Logo">
   </div>
@@ -125,7 +149,7 @@ footer{background:#081634;margin-top:80px}
 <!-- HERO -->
 <section class="hero" id="heroSection">
   <div>
-    <h1 id="heroTitle">Sadri Villa – A Living Heritage</h1>
+    <h1>Sadri Villa – A Living Heritage</h1>
     <p id="heroDesc"></p>
   </div>
 </section>
@@ -150,16 +174,55 @@ footer{background:#081634;margin-top:80px}
 <!-- FOOTER -->
 <footer>
   <div class="footer-container">
-    <div>
+
+    <div class="footer-col">
       <img id="footerLogo" class="footer-logo">
       <p>150+ years of heritage, service, and compassion.</p>
     </div>
+
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a href="#">Home</a><br>
+      <a href="about.html">About</a><br>
+      <a href="login.html">Login</a><br>
+      <a href="signup.html">Sign Up</a>
+
+      <div class="footer-buttons">
+        <button onclick="location.href='login.html'">Login</button>
+        <button onclick="location.href='signup.html'">Join</button>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <p>📍 Fazilpur, Samastipur, Bihar</p>
+      <p>📞 +91 87088 68221</p>
+
+      <div class="social-links">
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2V9.5c0-2 1.2-3.1 3-3.1.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2V12h2.6l-.4 3h-2.2v7Z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7Z"/></svg></a>
+        <a href="#"><svg viewBox="0 0 24 24"><path d="M21.8 8s-.2-1.4-.8-2a3 3 0 0 0-2.1-.9C16 5 12 5 12 5s-4 0-6.9.1a3 3 0 0 0-2.1.9c-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2a3 3 0 0 0 2.1.9c2.9.1 6.9.1 6.9.1s4 0 6.9-.1a3 3 0 0 0 2.1-.9c.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2ZM10 14.7V9.3l4.8 2.7L10 14.7Z"/></svg></a>
+      </div>
+
+      <a class="map-btn" target="_blank"
+         href="https://www.google.com/maps?q=Fazilpur%20Samastipur%20Bihar">
+         Open in Google Maps
+      </a>
+
+      <select class="lang-select" onchange="setLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ur">اردو</option>
+      </select>
+    </div>
+
   </div>
+
   <div class="footer-bottom">© <span id="year"></span> Sadri Villa Fazilpur</div>
 </footer>
 
 <script>
-document.getElementById("year").innerText = new Date().getFullYear();
+year.innerText=new Date().getFullYear();
 
 /* CARD ANIMATION */
 const obs=new IntersectionObserver(e=>{
@@ -172,47 +235,73 @@ const obs=new IntersectionObserver(e=>{
 },{threshold:.15});
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 
-/* CONTENT */
+/* LANGUAGE CONTENT */
 const content={
-  hero:"Preserving heritage, sheltering humanity, strengthening families.",
-  cards:[
-    ["Heritage Legacy","150+ years of cultural and family heritage."],
-    ["Social Welfare","Free marriages and shelter for the needy."],
-    ["Community Service","Serving people with dignity and respect."],
-    ["Free Shelter","A safe place for those in need."],
-    ["Family Values","Preserving traditions and unity."],
-    ["Future Vision","Building hope for generations."]
-  ]
+  en:{
+    hero:"Preserving heritage, sheltering humanity, strengthening families.",
+    cards:[
+      ["Heritage Legacy","150+ years of cultural and family heritage."],
+      ["Social Welfare","Free marriages and shelter for the needy."],
+      ["Community Service","Serving people with dignity and respect."],
+      ["Free Shelter","A safe place for those in need."],
+      ["Family Values","Preserving traditions and unity."],
+      ["Future Vision","Building hope for generations."]
+    ]
+  },
+  hi:{
+    hero:"विरासत को संजोते हुए, मानवता की सेवा।",
+    cards:[
+      ["विरासत","150+ वर्षों की परंपरा।"],
+      ["सामाजिक सेवा","निःशुल्क विवाह और आश्रय।"],
+      ["समुदाय सेवा","सम्मान के साथ सेवा।"],
+      ["निःशुल्क आश्रय","जरूरतमंदों के लिए।"],
+      ["पारिवारिक मूल्य","संस्कृति का संरक्षण।"],
+      ["भविष्य","आने वाली पीढ़ियों के लिए।"]
+    ]
+  },
+  ur:{
+    hero:"وراثت کا تحفظ، انسانیت کی خدمت۔",
+    cards:[
+      ["وراثت","150 سالہ تاریخ۔"],
+      ["سماجی خدمت","مفت شادی اور پناہ۔"],
+      ["خدمت خلق","وقار کے ساتھ خدمت۔"],
+      ["مفت پناہ","ضرورت مندوں کے لیے۔"],
+      ["خاندانی اقدار","روایات کا تحفظ۔"],
+      ["مستقبل","آنے والی نسلوں کے لیے۔"]
+    ]
+  }
 };
-heroDesc.innerText=content.hero;
-content.cards.forEach((c,i)=>{
-  document.getElementById(`c${i+1}t`).innerText=c[0];
-  document.getElementById(`c${i+1}d`).innerText=c[1];
-});
+
+function setLanguage(lang){
+  heroDesc.innerText=content[lang].hero;
+  content[lang].cards.forEach((c,i)=>{
+    document.getElementById(`c${i+1}t`).innerText=c[0];
+    document.getElementById(`c${i+1}d`).innerText=c[1];
+  });
+}
+setLanguage("en");
 </script>
 
-<!-- 🔥 FIREBASE – LIVE SITE SETTINGS + INSTANT LOGO UPDATE -->
+<!-- 🔥 FIREBASE – AUTO NAVBAR FIT + LIVE LOGO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const db = getFirestore(app);
+const db=getFirestore(app);
 
-/* FALLBACK */
-const FALLBACK_LOGO = "https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
-const FALLBACK_HERO = "https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Fhero.jpg?alt=media";
+const FALLBACK_LOGO="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
+const FALLBACK_HERO="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Fhero.jpg?alt=media";
 
-siteLogo.src = FALLBACK_LOGO;
-footerLogo.src = FALLBACK_LOGO;
-heroSection.style.background =
+siteLogo.src=FALLBACK_LOGO;
+footerLogo.src=FALLBACK_LOGO;
+heroSection.style.background=
 `linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),url('${FALLBACK_HERO}') center/cover no-repeat`;
 
-/* LIVE SETTINGS */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const d=snap.data();
@@ -221,6 +310,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     const v=d.logo.updatedAt?.seconds||Date.now();
     siteLogo.src=`${d.logo.url}?v=${v}`;
     footerLogo.src=`${d.logo.url}?v=${v}`;
+    if(d.logo.height) navbar.style.height=d.logo.height+"px";
   }
 
   if(d.hero?.url){
