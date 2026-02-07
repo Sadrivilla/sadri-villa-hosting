@@ -7,14 +7,56 @@
 
 <style>
 *{box-sizing:border-box}
+
+/* ===== PAGE BASE ===== */
 body{
   font-family:Arial,sans-serif;
   background:#eef2ff;
+  min-height:100vh;
+  margin:0;
+}
+
+/* ===== NAVBAR (SAME AS INDEX) ===== */
+.navbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  background:rgba(8,22,52,.75);
+  backdrop-filter:blur(14px);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+}
+.brand{
+  height:100%;
+  display:flex;
+  align-items:center;
+}
+.brand img{
+  height:100%;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  padding-right:20px;
+}
+.nav-actions a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+}
+
+/* ===== LOGIN CARD ===== */
+.page-wrap{
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:100vh;
-  margin:0;
+  padding-top:90px;
 }
 .card{
   background:rgba(255,255,255,.95);
@@ -73,7 +115,7 @@ button{
   margin:8px 0 6px
 }
 
-/* Forgot password modal */
+/* ===== FORGOT PASSWORD MODAL ===== */
 #fpModal{
   display:none;
   position:fixed;
@@ -104,34 +146,49 @@ button{
 
 <body>
 
-<div class="card">
-  <h2>🔐 Login</h2>
-
-  <div class="status success" id="statusMsg">Checking session…</div>
-  <div class="status error" id="errorMsg"></div>
-
-  <div class="field">
-    <input id="identifier" placeholder="Email or Phone number">
+<!-- NAVBAR -->
+<div class="navbar" id="navbar">
+  <div class="brand">
+    <img id="siteLogo" alt="Sadri Villa Logo">
   </div>
-
-  <div class="field password-wrap">
-    <input id="password" type="password" placeholder="Password">
-    <span class="eye" id="eye">👁</span>
-  </div>
-
-  <label class="remember">
-    <input type="checkbox" id="rememberMe" checked> Remember me
-  </label>
-
-  <button id="loginBtn">Login</button>
-
-  <div class="links">
+  <div class="nav-actions">
+    <a href="index.html">Home</a>
+    <a href="login.html">Login</a>
     <a href="signup.html">Sign Up</a>
-    <a id="forgotLink">Forgot Password?</a>
   </div>
 </div>
 
-<!-- Forgot Password Modal -->
+<!-- LOGIN CARD -->
+<div class="page-wrap">
+  <div class="card">
+    <h2>🔐 Login</h2>
+
+    <div class="status success" id="statusMsg">Checking session…</div>
+    <div class="status error" id="errorMsg"></div>
+
+    <div class="field">
+      <input id="identifier" placeholder="Email or Phone number">
+    </div>
+
+    <div class="field password-wrap">
+      <input id="password" type="password" placeholder="Password">
+      <span class="eye" id="eye">👁</span>
+    </div>
+
+    <label class="remember">
+      <input type="checkbox" id="rememberMe" checked> Remember me
+    </label>
+
+    <button id="loginBtn">Login</button>
+
+    <div class="links">
+      <a href="signup.html">Sign Up</a>
+      <a id="forgotLink">Forgot Password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
 <div id="fpModal">
   <div class="box">
     <h3>Reset Password</h3>
@@ -142,6 +199,37 @@ button{
   </div>
 </div>
 
+<!-- 🔥 FIREBASE LOGO (SAME AS INDEX – INSTANT) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+const db = getFirestore(app);
+
+const FALLBACK_LOGO =
+"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
+
+siteLogo.src = FALLBACK_LOGO;
+
+onSnapshot(doc(db,"siteSettings","home"), snap => {
+  if(!snap.exists()) return;
+  const d = snap.data();
+  if(d.logo?.url){
+    const v = d.logo.updatedAt?.seconds || Date.now();
+    siteLogo.src = `${d.logo.url}?v=${v}`;
+    if(d.logo.height){
+      navbar.style.height = d.logo.height + "px";
+    }
+  }
+});
+</script>
+
+<!-- 🔐 LOGIN LOGIC (UNCHANGED) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -164,6 +252,9 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const auth = getAuth();
+const db = getFirestore();
+
 /* DOM */
 const eye = document.getElementById("eye");
 const password = document.getElementById("password");
@@ -178,79 +269,44 @@ const fpEmail = document.getElementById("fpEmail");
 const fpMsg = document.getElementById("fpMsg");
 const fpSendBtn = document.getElementById("fpSendBtn");
 
-/* FIREBASE */
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const auth = getAuth(app);
-const db = getFirestore(app);
-
 /* 👁 Password toggle */
-eye.onclick = () => {
-  password.type = password.type === "password" ? "text" : "password";
-};
+eye.onclick=()=>password.type=password.type==="password"?"text":"password";
 
-/* AUTO REDIRECT ON REFRESH */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  const ref = doc(db,"users",user.uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return;
-
-  if (snap.data().approved !== true) {
-    location.href = "pending.html";
-    return;
+/* AUTO REDIRECT */
+onAuthStateChanged(auth, async user=>{
+  if(!user) return;
+  const ref=doc(db,"users",user.uid);
+  const snap=await getDoc(ref);
+  if(!snap.exists()) return;
+  if(snap.data().approved!==true){
+    location.href="pending.html";return;
   }
-
-  location.href =
-    snap.data().role === "admin"
-      ? "admin-dashboard.html"
-      : "dashboard.html";
+  location.href=snap.data().role==="admin"?"admin-dashboard.html":"dashboard.html";
 });
 
 /* LOGIN */
-loginBtn.onclick = async () => {
+loginBtn.onclick=async()=>{
   errorMsg.style.display="none";
   statusMsg.style.display="block";
   statusMsg.textContent="Logging in…";
-
   try{
-    await setPersistence(
-      auth,
-      rememberMe.checked
-        ? browserLocalPersistence
-        : browserSessionPersistence
-    );
-
-    let email = identifier.value.trim();
-
+    await setPersistence(auth,rememberMe.checked?browserLocalPersistence:browserSessionPersistence);
+    let email=identifier.value.trim();
     if(!email.includes("@")){
-      const q = query(collection(db,"users"), where("phone","==",email));
-      const s = await getDocs(q);
-      if(s.empty) throw "no-record";
-      email = s.docs[0].data().email;
+      const q=query(collection(db,"users"),where("phone","==",email));
+      const s=await getDocs(q);
+      if(s.empty) throw 0;
+      email=s.docs[0].data().email;
     }
-
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password.value
-    );
-
-    const ref = doc(db,"users",cred.user.uid);
-    const snap = await getDoc(ref);
-
-    if(snap.data().approved !== true){
+    const cred=await signInWithEmailAndPassword(auth,email,password.value);
+    const ref=doc(db,"users",cred.user.uid);
+    const snap=await getDoc(ref);
+    if(snap.data().approved!==true){
       await updateDoc(ref,{approvalReminder:true});
       location.href="pending.html";
       return;
     }
-
     await updateDoc(ref,{lastLogin:new Date().toISOString()});
-
   }catch{
     statusMsg.style.display="none";
     errorMsg.style.display="block";
@@ -259,30 +315,17 @@ loginBtn.onclick = async () => {
 };
 
 /* FORGOT PASSWORD */
-forgotLink.onclick = () => fpModal.style.display="flex";
-window.closeFP = () => {
-  fpModal.style.display="none";
-  fpMsg.textContent="";
-};
-
-fpSendBtn.onclick = async () => {
-  const email = fpEmail.value.trim();
-  if(!email){
-    fpMsg.style.color="#ef4444";
-    fpMsg.textContent="Email required";
-    return;
-  }
-
-  fpMsg.style.color="#0284c7";
-  fpMsg.textContent="Sending reset link…";
-
+forgotLink.onclick=()=>fpModal.style.display="flex";
+window.closeFP=()=>{fpModal.style.display="none";fpMsg.textContent="";};
+fpSendBtn.onclick=async()=>{
+  const email=fpEmail.value.trim();
+  if(!email){fpMsg.style.color="#ef4444";fpMsg.textContent="Email required";return;}
+  fpMsg.style.color="#0284c7";fpMsg.textContent="Sending reset link…";
   try{
     await sendPasswordResetEmail(auth,email);
-    fpMsg.style.color="#16a34a";
-    fpMsg.textContent="Reset link sent to email";
+    fpMsg.style.color="#16a34a";fpMsg.textContent="Reset link sent to email";
   }catch{
-    fpMsg.style.color="#ef4444";
-    fpMsg.textContent="Email not registered";
+    fpMsg.style.color="#ef4444";fpMsg.textContent="Email not registered";
   }
 };
 </script>
