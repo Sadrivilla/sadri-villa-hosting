@@ -30,7 +30,7 @@ html,body{
   transition:box-shadow .3s;
 }
 .navbar.scrolled{
-  box-shadow:0 10px 28px rgba(0,0,0,.18);
+  box-shadow:0 10px 28px rgba(0,0,0,.15);
 }
 
 /* LEFT */
@@ -41,7 +41,7 @@ html,body{
   height:100%;
 }
 .nav-left img{
-  max-height:100%;
+  height:100%;
   width:auto;
   display:none; /* shown only after Firestore loads */
 }
@@ -53,29 +53,24 @@ html,body{
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
-/* RIGHT WRAP */
+/* RIGHT DESKTOP */
 .nav-right-wrap{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  max-width:65vw;
+  position:relative;
+  max-width:70vw;
 }
-
-/* SCROLL AREA */
 .nav-right{
   display:flex;
   gap:10px;
   overflow-x:auto;
   scrollbar-width:none;
-  scroll-behavior:smooth;
 }
 .nav-right::-webkit-scrollbar{display:none}
 
 /* BUTTONS */
 .nav-btn{
   white-space:nowrap;
-  padding:10px 18px;
-  border-radius:20px;
+  padding:12px 20px;
+  border-radius:22px;
   border:none;
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;
@@ -89,20 +84,65 @@ html,body{
   box-shadow:0 12px 24px rgba(59,130,246,.35);
 }
 
-/* ARROW BUTTONS */
-.arrow-btn{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  border:none;
+/* SWIPE ARROW */
+.swipe-hint{
+  position:absolute;
+  right:-8px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:22px;
+  font-weight:900;
+  color:#dc2626;
+  pointer-events:none;
+  animation:pulse 1.4s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:.3}
+  50%{opacity:1}
+}
+
+/* ===== MOBILE MENU ===== */
+.menu-btn{
+  display:none;
   background:#2563eb;
   color:#fff;
-  font-size:20px;
-  font-weight:900;
-  cursor:pointer;
-  display:none;
+  border:none;
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  font-size:22px;
+  font-weight:bold;
 }
-.arrow-btn:active{transform:scale(.9)}
+.mobile-menu{
+  position:absolute;
+  top:72px;
+  right:12px;
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,.2);
+  padding:12px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  z-index:9999;
+}
+
+/* ===== FIRST LOGIN BANNER ===== */
+#welcomeBanner{
+  display:none;
+  position:fixed;
+  top:84px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(14px);
+  padding:16px 28px;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.18);
+  z-index:9999;
+  font-weight:800;
+  color:#1e40af;
+}
 
 /* ===== DASHBOARD ===== */
 .grid{
@@ -193,13 +233,21 @@ html,body{
 .download{background:#2563eb;color:#fff}
 .close{background:#ef4444;color:#fff}
 
+/* ===== RESPONSIVE ===== */
 @media(max-width:768px){
+  .nav-right-wrap{display:none}
+  .menu-btn{display:block}
   .track.animate{animation-duration:8s}
 }
 </style>
 </head>
 
 <body>
+
+<!-- FIRST LOGIN BANNER -->
+<div id="welcomeBanner">
+  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>
+</div>
 
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
@@ -211,18 +259,27 @@ html,body{
     </div>
   </div>
 
+  <!-- DESKTOP -->
   <div class="nav-right-wrap">
-    <button class="arrow-btn" id="prevBtn" onclick="scrollNav(-1)">‹</button>
-
     <div class="nav-right" id="navScroll">
       <button class="nav-btn" onclick="openMap()">📍 Map</button>
       <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
       <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
       <button class="nav-btn" onclick="logout()">🚪 Logout</button>
     </div>
-
-    <button class="arrow-btn" id="nextBtn" onclick="scrollNav(1)">›</button>
+    <div class="swipe-hint" id="swipeHint">››</div>
   </div>
+
+  <!-- MOBILE -->
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="nav-btn" onclick="openMap()">📍 Map</button>
+  <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
+  <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
+  <button class="nav-btn" onclick="logout()">🚪 Logout</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -237,7 +294,7 @@ html,body{
 
   <div class="card" onclick="location.href='profile.html'">
     <h3>🧩 Fields Filled</h3>
-    🧮 <span id="filledCount">0</span>/<span id="totalCount">0</span>
+    <h2><span id="filledCount">0</span>/<span id="totalCount">0</span></h2>
   </div>
 
   <div class="card">
@@ -253,7 +310,7 @@ html,body{
 
 <!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
-  <div class="track animate" id="galleryTrack"></div>
+  <div class="track" id="galleryTrack"></div>
 </section>
 
 <!-- IMAGE MODAL -->
@@ -272,7 +329,7 @@ html,body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -282,27 +339,21 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* SHADOW */
+/* NAV SHADOW */
 window.addEventListener("scroll",()=>{
   navbar.classList.toggle("scrolled",window.scrollY>6);
 });
 
-/* NAV ARROW LOGIC */
-function updateArrows(){
-  const max = navScroll.scrollWidth - navScroll.clientWidth;
-  prevBtn.style.display = navScroll.scrollLeft > 5 ? "block" : "none";
-  nextBtn.style.display = navScroll.scrollLeft < max-5 ? "block" : "none";
-}
-navScroll.addEventListener("scroll",updateArrows);
-window.scrollNav = dir => {
-  navScroll.scrollBy({left:dir*160,behavior:"smooth"});
+/* MOBILE MENU */
+window.toggleMenu=()=>{
+  mobileMenu.style.display =
+    mobileMenu.style.display==="flex" ? "none" : "flex";
 };
-setTimeout(updateArrows,300);
 
-/* LIVE LOGO (NO FLASH) */
+/* LIVE LOGO */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(snap.exists() && snap.data().logo?.url){
-    siteLogo.src = snap.data().logo.url;
+    siteLogo.src=snap.data().logo.url;
     siteLogo.style.display="block";
   }
 });
@@ -310,20 +361,24 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 /* SLIDER LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-  const imgs=(snap.data().sliderImages||[]).filter(i=>i.enabled!==false);
+  const imgs=(snap.data().sliderImages||[])
+    .filter(i=>i.enabled!==false)
+    .sort((a,b)=>(a.order||0)-(b.order||0));
+
   galleryTrack.innerHTML="";
   if(imgs.length===0){
     gallerySection.style.display="none";
     return;
   }
   gallerySection.style.display="block";
-  const list = imgs.length>1?[...imgs,...imgs]:imgs;
+  const list=imgs.length>1?[...imgs,...imgs]:imgs;
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
     img.onclick=()=>openImg(i.url);
     galleryTrack.appendChild(img);
   });
+  galleryTrack.classList.toggle("animate",imgs.length>1);
 });
 
 /* AUTH */
@@ -331,7 +386,19 @@ onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
   const data=snap.data();
-  welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
+
+  const name=(data.fullName||"Member").split(" ")[0];
+  welcomeName.innerText="Welcome "+name;
+
+  if(data.firstLogin!==false){
+    bannerName.innerText=name;
+    welcomeBanner.style.display="block";
+    setTimeout(()=>welcomeBanner.style.display="none",5000);
+    updateDoc(doc(db,"users",user.uid),{
+      firstLogin:false,
+      lastLogin:new Date().toISOString()
+    });
+  }
 });
 
 /* SLIDER MODAL */
