@@ -357,14 +357,20 @@ function loadDashboard(data){
   highlightList.innerHTML="";
   let hasHighlights=false;
 
-  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
-  Object.values(data.userCustomFields||{}).forEach(v=>{
-    total++; if(v?.value)filled++;
-    if(v?.showOnDashboard && v?.value){
-      hasHighlights=true;
-      highlightList.innerHTML+=`<p><b>•</b> ${v.value}</p>`;
-    }
-  });
+Object.entries(data.userCustomFields||{}).forEach(([key,v])=>{
+  total++;
+  if(v?.value) filled++;
+
+  if(v?.showOnDashboard && v?.value){
+    hasHighlights = true;
+    highlightList.innerHTML += `
+      <p>
+        <b>${key}:</b> ${v.value}
+      </p>
+    `;
+  }
+});
+
   highlightSection.style.display=hasHighlights?"block":"none";
 
   filledCount.innerText=filled;
