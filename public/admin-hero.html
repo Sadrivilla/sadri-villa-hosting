@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin | Hero Images</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+* { box-sizing: border-box }
+
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+  transition: 0.2s;
+}
+
+.back-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ===== CARD ===== */
+.hero-admin-card {
+  max-width: 720px;
+  margin: auto;
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.hero-admin-card h3 {
+  margin: 0 0 14px;
+}
+
+/* ===== UPLOAD UI ===== */
+.upload-box {
+  display: inline-block;
+  padding: 14px 20px;
+  border: 2px dashed #93c5fd;
+  border-radius: 12px;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.upload-box:hover {
+  background: #eff6ff;
+}
+
+.btn-gradient {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #60a5fa, #38bdf8);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(56,189,248,0.35);
+  transition: 0.2s;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(56,189,248,0.45);
+}
+
+.status-msg {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ===== IMAGE GRID ===== */
+.hero-images-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.hero-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  animation: fadeInUp 0.4s ease;
+}
+
+.hero-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* ===== ACTIONS ===== */
+.hero-card-actions {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ===== TOGGLE SWITCH ===== */
+.switch {
+  position: relative;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #cbd5f5;
+  border-radius: 999px;
+  transition: 0.3s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+  background: linear-gradient(135deg, #60a5fa, #38bdf8);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <!-- 🔁 CHANGE href IF NEEDED -->
+  <button class="back-btn" onclick="window.location.href='admin.html'">
+    ← Back
+  </button>
+</div>
+
+<div class="hero-admin-card">
+  <h3>🖼 Hero Images</h3>
+
+  <label class="upload-box">
+    <input type="file" id="heroImagesInput" accept="image/*" multiple hidden>
+    📤 Select Images
+  </label>
+
+  <button class="btn-gradient" onclick="uploadHeroImages()">
+    Upload Images
+  </button>
+
+  <p id="heroMsg" class="status-msg"></p>
+
+  <div id="heroImagesList" class="hero-images-list"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, updateDoc,
+  arrayUnion, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const homeRef = doc(db, "siteSettings", "home");
+const heroMsg = document.getElementById("heroMsg");
+const list = document.getElementById("heroImagesList");
+
+/* ===== LOAD HERO IMAGES ===== */
+async function loadHeroImages() {
+  list.innerHTML = "";
+  const snap = await getDoc(homeRef);
+  if (!snap.exists()) return;
+
+  (snap.data().heroImages || []).forEach((img, i) => {
+    const card = document.createElement("div");
+    card.className = "hero-card";
+    card.innerHTML = `
+      <img src="${img.url}">
+      <div class="hero-card-actions">
+        <label class="switch">
+          <input type="checkbox" ${img.enabled ? "checked" : ""}
+            onchange="toggleHero(${i})">
+          <span class="slider"></span>
+        </label>
+        <button class="delete-btn" onclick="deleteHero(${i})">Delete</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* ===== UPLOAD ===== */
+window.uploadHeroImages = async () => {
+  const files = heroImagesInput.files;
+  if (!files.length) {
+    heroMsg.textContent = "❌ Please select images";
+    return;
+  }
+
+  heroMsg.textContent = "Uploading...";
+
+  for (let file of files) {
+    const imgRef = ref(storage, `hero/${Date.now()}-${file.name}`);
+    await uploadBytes(imgRef, file);
+    const url = await getDownloadURL(imgRef);
+
+    await updateDoc(homeRef, {
+      heroImages: arrayUnion({
+        url,
+        enabled: true,
+        createdAt: serverTimestamp()
+      })
+    });
+  }
+
+  heroMsg.textContent = "✅ Images uploaded successfully";
+  heroImagesInput.value = "";
+  loadHeroImages();
+};
+
+/* ===== TOGGLE ENABLE ===== */
+window.toggleHero = async (index) => {
+  const snap = await getDoc(homeRef);
+  const imgs = snap.data().heroImages;
+  imgs[index].enabled = !imgs[index].enabled;
+  await updateDoc(homeRef, { heroImages: imgs });
+};
+
+/* ===== DELETE ===== */
+window.deleteHero = async (index) => {
+  if (!confirm("Delete this image?")) return;
+  const snap = await getDoc(homeRef);
+  const imgs = snap.data().heroImages;
+  imgs.splice(index, 1);
+  await updateDoc(homeRef, { heroImages: imgs });
+  heroMsg.textContent = "🗑 Image deleted";
+  loadHeroImages();
+};
+
+loadHeroImages();
+</script>
+
+</body>
+</html>
