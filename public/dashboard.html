@@ -43,7 +43,7 @@ html,body{
 .nav-left img{
   height:100%;
   width:auto;
-  display:none; /* shown only after Firestore loads */
+  display:none;
 }
 .nav-title{
   display:flex;
@@ -53,22 +53,12 @@ html,body{
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
-/* RIGHT DESKTOP */
-.nav-right-wrap{
-  position:relative;
-  max-width:70vw;
-}
+/* RIGHT (DESKTOP) */
 .nav-right{
   display:flex;
   gap:10px;
-  overflow-x:auto;
-  scrollbar-width:none;
 }
-.nav-right::-webkit-scrollbar{display:none}
-
-/* BUTTONS */
 .nav-btn{
-  white-space:nowrap;
   padding:12px 20px;
   border-radius:22px;
   border:none;
@@ -84,24 +74,7 @@ html,body{
   box-shadow:0 12px 24px rgba(59,130,246,.35);
 }
 
-/* SWIPE ARROW */
-.swipe-hint{
-  position:absolute;
-  right:-8px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:22px;
-  font-weight:900;
-  color:#dc2626;
-  pointer-events:none;
-  animation:pulse 1.4s infinite;
-}
-@keyframes pulse{
-  0%,100%{opacity:.3}
-  50%{opacity:1}
-}
-
-/* ===== MOBILE MENU ===== */
+/* MOBILE MENU */
 .menu-btn{
   display:none;
   background:#2563eb;
@@ -111,7 +84,6 @@ html,body{
   height:42px;
   border-radius:14px;
   font-size:22px;
-  font-weight:bold;
 }
 .mobile-menu{
   position:absolute;
@@ -125,23 +97,6 @@ html,body{
   flex-direction:column;
   gap:10px;
   z-index:9999;
-}
-
-/* ===== FIRST LOGIN BANNER ===== */
-#welcomeBanner{
-  display:none;
-  position:fixed;
-  top:84px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(14px);
-  padding:16px 28px;
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.18);
-  z-index:9999;
-  font-weight:800;
-  color:#1e40af;
 }
 
 /* ===== DASHBOARD ===== */
@@ -233,9 +188,9 @@ html,body{
 .download{background:#2563eb;color:#fff}
 .close{background:#ef4444;color:#fff}
 
-/* ===== RESPONSIVE ===== */
+/* RESPONSIVE */
 @media(max-width:768px){
-  .nav-right-wrap{display:none}
+  .nav-right{display:none}
   .menu-btn{display:block}
   .track.animate{animation-duration:8s}
 }
@@ -243,11 +198,6 @@ html,body{
 </head>
 
 <body>
-
-<!-- FIRST LOGIN BANNER -->
-<div id="welcomeBanner">
-  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>
-</div>
 
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
@@ -259,18 +209,13 @@ html,body{
     </div>
   </div>
 
-  <!-- DESKTOP -->
-  <div class="nav-right-wrap">
-    <div class="nav-right" id="navScroll">
-      <button class="nav-btn" onclick="openMap()">📍 Map</button>
-      <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
-      <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
-      <button class="nav-btn" onclick="logout()">🚪 Logout</button>
-    </div>
-    <div class="swipe-hint" id="swipeHint">››</div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="openMap()">📍 Map</button>
+    <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
+    <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
+    <button class="nav-btn" onclick="logout()">🚪 Logout</button>
   </div>
 
-  <!-- MOBILE -->
   <button class="menu-btn" onclick="toggleMenu()">☰</button>
 </div>
 
@@ -329,7 +274,7 @@ html,body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -358,7 +303,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   }
 });
 
-/* SLIDER LIVE */
+/* SLIDER */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const imgs=(snap.data().sliderImages||[])
@@ -381,7 +326,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   galleryTrack.classList.toggle("animate",imgs.length>1);
 });
 
-/* AUTH */
+/* AUTH + DASHBOARD DATA */
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
@@ -390,15 +335,32 @@ onAuthStateChanged(auth,async user=>{
   const name=(data.fullName||"Member").split(" ")[0];
   welcomeName.innerText="Welcome "+name;
 
-  if(data.firstLogin!==false){
-    bannerName.innerText=name;
-    welcomeBanner.style.display="block";
-    setTimeout(()=>welcomeBanner.style.display="none",5000);
-    updateDoc(doc(db,"users",user.uid),{
-      firstLogin:false,
-      lastLogin:new Date().toISOString()
-    });
+  let total=0,filled=0;
+  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
+  Object.values(data.userCustomFields||{}).forEach(v=>{total++;if(v?.value)filled++});
+
+  filledCount.innerText=filled;
+  totalCount.innerText=total;
+
+  const p=Math.round((filled/total)*100)||0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+
+  if(data.createdAt){
+    memberDays.innerText=
+      Math.floor((Date.now()-new Date(data.createdAt))/(1000*60*60*24))+" days";
   }
+  lastLogin.innerText=data.lastLogin
+    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+    : "First login";
+
+  new Chart(chart,{
+    type:"doughnut",
+    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]},
+    options:{plugins:{legend:{display:false}}}
+  });
 });
 
 /* SLIDER MODAL */
