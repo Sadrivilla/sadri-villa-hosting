@@ -9,45 +9,35 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 
-/* ===== NAVBAR (LOGO PERFECT FIT – NO VERTICAL PADDING) ===== */
+/* ===== NAVBAR ===== */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
+  position:fixed;top:0;left:0;right:0;
   height:72px;
-  padding:0 0px;              /* horizontal only */
   display:flex;
   justify-content:space-between;
-  align-items:stretch;         /* IMPORTANT */
+  align-items:stretch;
   background:rgba(8,22,52,.75);
   z-index:1000;
 }
-
-/* blur layer */
 .navbar::before{
   content:"";
-  position:absolute;
-  inset:0;
+  position:absolute;inset:0;
   backdrop-filter:blur(14px);
   z-index:0;
 }
-
-/* content above blur */
-.navbar > *{
-  position:relative;
-  z-index:1;
-}
+.navbar>*{position:relative;z-index:1}
 
 /* LOGO */
 .brand{
   height:100%;
   display:flex;
-  align-items:stretch;         /* IMPORTANT */
+  align-items:stretch;
 }
 .brand img{
-  height:100%;                 /* fills navbar */
+  height:100%;
   width:auto;
-  display:block;
   object-fit:contain;
+  display:none; /* prevent broken logo */
 }
 
 /* NAV LINKS */
@@ -55,6 +45,7 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   display:flex;
   align-items:center;
   gap:22px;
+  padding-right:18px;
 }
 .nav-actions a{
   color:#fff;
@@ -62,7 +53,7 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   font-weight:600;
 }
 
-/* ===== HERO ===== */
+/* HERO */
 .hero{
   min-height:100vh;
   padding-top:90px;
@@ -79,7 +70,7 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
   color:#c7d2fe;
 }
 
-/* ===== CARDS ===== */
+/* CARDS */
 .highlights{padding:90px 20px}
 .highlight-grid{
   max-width:1200px;
@@ -100,28 +91,40 @@ body{font-family:Arial,sans-serif;background:#0b1f4a;color:#e5e7eb}
 .card.active{opacity:1;transform:none}
 .card p{color:#c7d2fe}
 
-/* ===== SLIDER ===== */
-.slider-full{width:100%;overflow:hidden;padding:60px 0}
-.slide-track{
+/* ===== SLIDER (SAME AS DASHBOARD) ===== */
+.gallery{
+  background:#0b1f4a;
+  padding:60px 0;
+  overflow:hidden;
+}
+.track{
   display:flex;
   gap:24px;
-  animation:scroll 10s linear infinite;
+  padding-left:24px;
+  width:max-content;
 }
-.slider-full:hover .slide-track{
-  animation-play-state:paused;
+.track.animate{
+  animation:scroll 16s linear infinite;
 }
-.carousel-item{
+.track img{
+  width:420px;
   height:260px;
-  min-width:420px;
   object-fit:cover;
   border-radius:22px;
+}
+.gallery:hover .track{
+  animation-play-state:paused;
 }
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
+@media(max-width:768px){
+  .navbar{height:64px}
+  .track.animate{animation-duration:8s}
+}
 
-/* ===== FOOTER ===== */
+/* FOOTER */
 footer{background:#081634;margin-top:80px}
 .footer-container{
   max-width:1200px;
@@ -131,7 +134,10 @@ footer{background:#081634;margin-top:80px}
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:40px;
 }
-.footer-logo{max-width:140px;margin-bottom:16px}
+.footer-logo{
+  max-width:140px;
+  display:none; /* prevent broken logo */
+}
 .footer-col p,a{
   color:#cbd5f5;
   font-size:14px;
@@ -143,11 +149,6 @@ footer{background:#081634;margin-top:80px}
   padding:18px;
   font-size:13px;
   color:#94a3b8;
-}
-
-/* MOBILE */
-@media(max-width:768px){
-  .navbar{height:64px}
 }
 </style>
 </head>
@@ -187,9 +188,9 @@ footer{background:#081634;margin-top:80px}
 </section>
 
 <!-- SLIDER -->
-<div class="slider-full">
-  <div class="slide-track" id="sliderTrack"></div>
-</div>
+<section class="gallery" id="gallerySection" style="display:none">
+  <div class="track" id="galleryTrack"></div>
+</section>
 
 <!-- FOOTER -->
 <footer>
@@ -227,7 +228,7 @@ const obs=new IntersectionObserver(e=>{
 document.querySelectorAll(".card").forEach(c=>obs.observe(c));
 </script>
 
-<!-- FIREBASE (LOGO + SLIDER) -->
+<!-- FIREBASE (LOGO + SLIDER — SAME AS DASHBOARD) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -239,40 +240,45 @@ const app=initializeApp({
 });
 const db=getFirestore(app);
 
-/* FALLBACK LOGO */
-const FALLBACK_LOGO=
-"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
-siteLogo.src=footerLogo.src=FALLBACK_LOGO;
-
-/* LIVE DATA */
+/* LIVE LOGO – SAME EVERYWHERE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-  const d=snap.data();
+  const logo=snap.data().logo;
+  if(!logo?.url)return;
 
-  /* LOGO */
-  if(d.logo?.url){
-    const v=d.logo.updatedAt?.seconds||Date.now();
-    siteLogo.src=footerLogo.src=`${d.logo.url}?v=${v}`;
+  const v=logo.updatedAt?.seconds||Date.now();
+  siteLogo.onload=()=>siteLogo.style.display="block";
+  footerLogo.onload=()=>footerLogo.style.display="block";
+
+  siteLogo.src=logo.url+"?v="+v;
+  footerLogo.src=logo.url+"?v="+v;
+});
+
+/* SLIDER – IDENTICAL TO DASHBOARD */
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists())return;
+
+  const imgs=(snap.data().sliderImages||[])
+    .filter(i=>i.enabled!==false)
+    .sort((a,b)=>(a.order||0)-(b.order||0));
+
+  galleryTrack.innerHTML="";
+  if(imgs.length<2){
+    gallerySection.style.display="none";
+    return;
   }
 
-  /* SLIDER (ENABLE / DISABLE) */
-  if(Array.isArray(d.sliderImages)){
-    sliderTrack.innerHTML="";
+  gallerySection.style.display="block";
+  const list=[...imgs,...imgs];
 
-    const active=d.sliderImages
-      .filter(i=>i.enabled!==false)
-      .sort((a,b)=>a.order-b.order);
+  list.forEach(i=>{
+    const img=document.createElement("img");
+    img.src=i.url;
+    img.alt=i.alt||"Sadri Villa";
+    galleryTrack.appendChild(img);
+  });
 
-    if(active.length<2) return;
-
-    [...active,...active].forEach(i=>{
-      const img=document.createElement("img");
-      img.src=i.url;
-      img.alt=i.alt||"Sadri Villa";
-      img.className="carousel-item";
-      sliderTrack.appendChild(img);
-    });
-  }
+  galleryTrack.classList.add("animate");
 });
 </script>
 
