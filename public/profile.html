@@ -16,25 +16,26 @@ body{
   background:#eef6ff;
 }
 
-/* ===== GLASSY BUTTON ===== */
+/* ===== GLASSY LIGHT-BLUE BUTTON ===== */
 .btn{
-  background:rgba(255,255,255,.65);
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.6);
-  color:#1e40af;
-  padding:10px 16px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:#fff;
+  border:none;
+  padding:10px 18px;
   border-radius:14px;
   font-weight:bold;
   cursor:pointer;
   transition:.25s;
+  box-shadow:0 8px 20px rgba(56,189,248,.35);
 }
-.btn:hover{transform:translateY(-2px);background:#e0f2fe}
-.btn.primary{
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
-  border:none;
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px rgba(56,189,248,.5);
 }
-.btn.danger{background:#fee2e2;color:#991b1b}
+.btn.danger{
+  background:linear-gradient(135deg,#f87171,#ef4444);
+  box-shadow:0 8px 20px rgba(239,68,68,.35);
+}
 
 /* ===== TOP BAR ===== */
 .topbar{
@@ -42,7 +43,7 @@ body{
   gap:10px;
   flex-wrap:wrap;
   padding:14px 20px;
-  background:rgba(255,255,255,.6);
+  background:rgba(255,255,255,.65);
   backdrop-filter:blur(12px);
 }
 
@@ -173,7 +174,7 @@ input[readonly]{background:#e5e7eb}
 </div>
 
 <div class="actions">
-  <button class="btn primary" onclick="saveProfile()">💾 Save Profile</button>
+  <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
 </div>
 
 </div>
@@ -258,18 +259,12 @@ function drawUserCustom(k="",v="",s=false){
 }
 
 window.saveProfile=async()=>{
-  const fullNameEl=document.getElementById("fullName");
-  const phoneEl=document.getElementById("phone");
-
-  const fullName=fullNameEl.value.trim();
-  const phone=phoneEl.value.trim();
-
+  const fullName=document.getElementById("fullName").value.trim();
+  const phone=document.getElementById("phone").value.trim();
   if(fullName.length<3||!/^[0-9]{10}$/.test(phone)){popup("error");return;}
 
   adminValues={};
-  document.querySelectorAll("[data-admin]").forEach(i=>{
-    adminValues[i.dataset.admin]=i.value.trim();
-  });
+  document.querySelectorAll("[data-admin]").forEach(i=>adminValues[i.dataset.admin]=i.value.trim());
 
   userCustom={};
   [...userWrap.children].forEach(b=>{
@@ -288,7 +283,6 @@ window.saveProfile=async()=>{
   popup("success");
 };
 
-/* EXPORTS */
 window.exportPDF=()=>{
   const { jsPDF }=window.jspdf;
   const pdf=new jsPDF();
@@ -296,8 +290,7 @@ window.exportPDF=()=>{
   pdf.text("My Profile",105,y,{align:"center"});y+=10;
   pdf.text(`Name: ${fullName.value}`,10,y);y+=7;
   pdf.text(`Phone: ${phone.value}`,10,y);y+=7;
-  pdf.text(`Email: ${auth.currentUser.email}`,10,y);y+=10;
-  Object.entries(adminValues).forEach(([k,v])=>{pdf.text(`${k}: ${v}`,10,y);y+=7});
+  pdf.text(`Email: ${auth.currentUser.email}`,10,y);
   pdf.save("my-profile.pdf");
 };
 
