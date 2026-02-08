@@ -86,7 +86,7 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   box-shadow:0 14px 30px rgba(56,189,248,.35);
 }
 
-/* ================= HERO ================= */
+/* ================= HERO (UPDATED ONLY) ================= */
 .hero{
   min-height:100vh;
   padding-top:90px;
@@ -95,6 +95,20 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   justify-content:center;
   text-align:center;
   background:#081634;
+  background-size:cover;
+  background-position:center;
+  position:relative;
+  transition:background-image .4s ease;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(8,22,52,.55);
+}
+.hero > div{
+  position:relative;
+  z-index:1;
 }
 .hero h1{font-size:54px;font-weight:800}
 .hero p{
@@ -187,7 +201,7 @@ footer{background:#081634}
 </div>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="heroSection">
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p>Preserving heritage, sheltering humanity, strengthening families.</p>
@@ -197,27 +211,22 @@ footer{background:#081634}
 <!-- LIVE COUNT STATS -->
 <section class="villa-stats">
   <div class="stats-container">
-
     <div class="stat-box">
       <h2 class="green count" data-target="150">0+</h2>
       <p>Years of Heritage</p>
     </div>
-
     <div class="stat-box">
       <h2 class="blue count" data-target="20">0+</h2>
       <p>Rooms & Courtyards</p>
     </div>
-
     <div class="stat-box">
       <h2 class="purple count" data-target="100">0+</h2>
       <p>Family Members & Guests</p>
     </div>
-
     <div class="stat-box">
       <h2 class="orange count" data-target="24" data-suffix="/7">0</h2>
       <p>Care, Shelter & Support</p>
     </div>
-
   </div>
 </section>
 
@@ -233,7 +242,7 @@ footer{background:#081634}
   </div>
 </section>
 
-<!-- SLIDER -->
+<!-- SLIDER (UNCHANGED) -->
 <section class="gallery" id="gallerySection" style="display:none">
   <div class="track" id="galleryTrack"></div>
 </section>
@@ -273,11 +282,11 @@ const app=initializeApp({
 });
 const db=getFirestore(app);
 
+/* LOGO */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const logo=snap.data().logo;
   if(!logo?.url)return;
-
   const v=logo.updatedAt?.seconds || Date.now();
   siteLogo.onload=()=>siteLogo.style.display="block";
   footerLogo.onload=()=>footerLogo.style.display="block";
@@ -285,6 +294,29 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   footerLogo.src=logo.url+"?v="+v;
 });
 
+/* HERO IMAGES (NEW – SAFE, INSTANT) */
+const heroSection=document.getElementById("heroSection");
+
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists())return;
+
+  const heroes=(snap.data().heroimages || [])
+    .filter(h=>h.enabled===true);
+
+  if(!heroes.length){
+    heroSection.style.backgroundImage="";
+    return;
+  }
+
+  const url=heroes[0].url;
+  const preload=new Image();
+  preload.onload=()=>{
+    heroSection.style.backgroundImage=`url('${url}')`;
+  };
+  preload.src=url;
+});
+
+/* SLIDER IMAGES (UNCHANGED) */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const imgs=(snap.data().sliderImages||[])
@@ -320,7 +352,6 @@ function startCount(){
       const suffix=counter.dataset.suffix || '+';
       let value=0;
       const step=target/60;
-
       function update(){
         value+=step;
         if(value<target){
