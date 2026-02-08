@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ===== RESET ===== */
+/* ===== GLOBAL ===== */
 html,body{
   margin:0;
   font-family:Arial,sans-serif;
@@ -21,16 +21,16 @@ html,body{
   position:sticky;
   top:0;
   z-index:1000;
-  height:64px;               /* FIXED HEIGHT */
-  background:#f8fbff;
+  height:72px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 14px;            /* NO VERTICAL PADDING */
+  padding:0 14px;
+  background:#f8fbff;
   transition:box-shadow .3s;
 }
 .navbar.scrolled{
-  box-shadow:0 10px 28px rgba(0,0,0,.15);
+  box-shadow:0 12px 30px rgba(0,0,0,.18);
 }
 
 /* LEFT */
@@ -41,33 +41,34 @@ html,body{
   height:100%;
 }
 .nav-left img{
-  height:100%;               /* 🔥 LOGO FITS 100% */
+  height:100%;
   width:auto;
   object-fit:contain;
-  display:none;
+  display:block;
+}
+.nav-title{
+  display:flex;
+  flex-direction:column;
 }
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
-/* RIGHT DESKTOP */
+/* RIGHT */
 .nav-right{
   display:flex;
   gap:10px;
 }
-
-/* BUTTONS */
 .nav-btn{
   padding:10px 18px;
-  border-radius:22px;
   border:none;
+  border-radius:22px;
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;
   font-weight:700;
   cursor:pointer;
-  transition:.25s;
+  white-space:nowrap;
 }
 .nav-btn:hover{
-  transform:translateY(-2px);
   box-shadow:0 12px 24px rgba(59,130,246,.35);
 }
 
@@ -75,29 +76,39 @@ html,body{
 .menu-btn{
   display:none;
   font-size:26px;
-  cursor:pointer;
   background:none;
   border:none;
-  color:#2563eb;
+  cursor:pointer;
 }
 
-/* MOBILE MENU */
-.mobile-menu{
-  display:none;
-  background:#f8fbff;
-  box-shadow:0 12px 28px rgba(0,0,0,.15);
+/* MOBILE MENU CARD */
+.menu-card{
+  position:fixed;
+  top:78px;
+  right:14px;
+  width:240px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  box-shadow:0 20px 45px rgba(0,0,0,.2);
   padding:14px;
-}
-.mobile-menu button{
-  width:100%;
-  margin-bottom:10px;
+  display:none;
+  flex-direction:column;
+  gap:10px;
+  z-index:2000;
 }
 
-/* ===== FIRST LOGIN BANNER ===== */
+/* MOBILE */
+@media(max-width:768px){
+  .nav-right{display:none}
+  .menu-btn{display:block}
+}
+
+/* ===== WELCOME BANNER ===== */
 #welcomeBanner{
   display:none;
   position:fixed;
-  top:72px;
+  top:82px;
   left:50%;
   transform:translateX(-50%);
   background:rgba(255,255,255,.85);
@@ -105,7 +116,7 @@ html,body{
   padding:16px 28px;
   border-radius:20px;
   box-shadow:0 20px 40px rgba(0,0,0,.18);
-  z-index:9999;
+  z-index:3000;
   font-weight:800;
   color:#1e40af;
 }
@@ -160,6 +171,9 @@ html,body{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
+@media(max-width:768px){
+  .track.animate{animation-duration:8s}
+}
 
 /* ===== MODAL ===== */
 .modal{
@@ -168,7 +182,7 @@ html,body{
   inset:0;
   background:rgba(0,0,0,.75);
   backdrop-filter:blur(6px);
-  z-index:9999;
+  z-index:4000;
   align-items:center;
   justify-content:center;
 }
@@ -198,15 +212,6 @@ html,body{
 }
 .download{background:#2563eb;color:#fff}
 .close{background:#ef4444;color:#fff}
-
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-  .nav-right{display:none}
-  .menu-btn{display:block}
-  .mobile-menu{display:none}
-  .mobile-menu.show{display:block}
-  .track.animate{animation-duration:8s}
-}
 </style>
 </head>
 
@@ -237,8 +242,8 @@ html,body{
   <button class="menu-btn" onclick="toggleMenu()">☰</button>
 </div>
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
+<!-- MOBILE MENU CARD -->
+<div class="menu-card" id="menuCard">
   <button class="nav-btn" onclick="openMap()">📍 Map</button>
   <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
   <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
@@ -302,24 +307,29 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* SHADOW */
-window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",window.scrollY>8));
+/* NAV SHADOW */
+window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",window.scrollY>6));
 
-/* MOBILE MENU */
-window.toggleMenu=()=>mobileMenu.classList.toggle("show");
+/* HAMBURGER */
+window.toggleMenu=()=>menuCard.style.display=menuCard.style.display==="flex"?"none":"flex";
+document.addEventListener("click",e=>{
+  if(!menuCard.contains(e.target)&&!e.target.classList.contains("menu-btn"))
+    menuCard.style.display="none";
+});
 
-/* LIVE LOGO (CACHE SAFE) */
+/* LIVE LOGO (CACHE BUSTING) */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  const logo=snap.data()?.logo;
-  if(!logo?.url) return;
+  if(!snap.exists())return;
+  const logo=snap.data().logo;
+  if(!logo?.url)return;
   const v=logo.updatedAt?.seconds||Date.now();
-  siteLogo.src=logo.url+"?v="+v;
-  siteLogo.style.display="block";
+  siteLogo.src=`${logo.url}?v=${v}`;
 });
 
 /* SLIDER LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  const imgs=(snap.data()?.sliderImages||[])
+  if(!snap.exists())return;
+  const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
     .sort((a,b)=>(a.order||0)-(b.order||0));
 
@@ -342,7 +352,9 @@ onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
   if(!snap.exists()||!snap.data().approved){
-    await signOut(auth);location.href="pending.html";return;
+    await signOut(auth);
+    location.href="pending.html";
+    return;
   }
   loadDashboard(snap.data());
 });
@@ -377,9 +389,7 @@ function loadDashboard(data){
   if(data.createdAt){
     memberDays.innerText=Math.floor((Date.now()-new Date(data.createdAt))/(1000*60*60*24))+" days";
   }
-  lastLogin.innerText=data.lastLogin
-    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
-    : "First login";
+  lastLogin.innerText=data.lastLogin?new Date(data.lastLogin).toLocaleDateString("en-IN"):"First login";
 
   new Chart(chart,{
     type:"doughnut",
@@ -400,6 +410,7 @@ window.closeImg=()=>{
   galleryTrack.classList.add("animate");
 };
 
+/* ACTIONS */
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
