@@ -16,10 +16,8 @@ body {
   color: #0f172a;
 }
 
-/* ===== TOP BAR ===== */
+/* TOP BAR */
 .top-bar {
-  display: flex;
-  align-items: center;
   margin-bottom: 14px;
 }
 
@@ -31,15 +29,9 @@ body {
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(59,130,246,0.35);
-  transition: 0.2s;
 }
 
-.back-btn:hover {
-  transform: translateY(-1px);
-}
-
-/* ===== CARD ===== */
+/* CARD */
 .hero-admin-card {
   max-width: 720px;
   margin: auto;
@@ -49,11 +41,6 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-.hero-admin-card h3 {
-  margin: 0 0 14px;
-}
-
-/* ===== UPLOAD UI ===== */
 .upload-box {
   display: inline-block;
   padding: 14px 20px;
@@ -61,17 +48,11 @@ body {
   border-radius: 12px;
   color: #2563eb;
   cursor: pointer;
-  margin-bottom: 10px;
-  transition: 0.2s;
-}
-
-.upload-box:hover {
-  background: #eff6ff;
 }
 
 .btn-gradient {
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
   padding: 12px;
   border: none;
   border-radius: 12px;
@@ -79,21 +60,8 @@ body {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 15px rgba(56,189,248,0.35);
-  transition: 0.2s;
 }
 
-.btn-gradient:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(56,189,248,0.45);
-}
-
-.status-msg {
-  margin-top: 10px;
-  font-weight: 500;
-}
-
-/* ===== IMAGE GRID ===== */
 .hero-images-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -106,7 +74,6 @@ body {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  animation: fadeInUp 0.4s ease;
 }
 
 .hero-card img {
@@ -115,7 +82,6 @@ body {
   object-fit: cover;
 }
 
-/* ===== ACTIONS ===== */
 .hero-card-actions {
   padding: 10px;
   display: flex;
@@ -133,23 +99,20 @@ body {
   cursor: pointer;
 }
 
-/* ===== TOGGLE SWITCH ===== */
+/* TOGGLE */
 .switch {
   position: relative;
   width: 42px;
   height: 22px;
 }
 
-.switch input {
-  display: none;
-}
+.switch input { display: none }
 
 .slider {
   position: absolute;
   inset: 0;
   background: #cbd5f5;
   border-radius: 999px;
-  transition: 0.3s;
 }
 
 .slider::before {
@@ -161,7 +124,6 @@ body {
   bottom: 3px;
   background: #fff;
   border-radius: 50%;
-  transition: 0.3s;
 }
 
 .switch input:checked + .slider {
@@ -171,22 +133,13 @@ body {
 .switch input:checked + .slider::before {
   transform: translateX(20px);
 }
-
-/* ===== ANIMATION ===== */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 </style>
 </head>
 
 <body>
 
 <div class="top-bar">
-  <!-- 🔁 CHANGE href IF NEEDED -->
-  <button class="back-btn" onclick="window.location.href='admin.html'">
-    ← Back
-  </button>
+  <button class="back-btn" onclick="location.href='admin.html'">← Back</button>
 </div>
 
 <div class="hero-admin-card">
@@ -197,11 +150,9 @@ body {
     📤 Select Images
   </label>
 
-  <button class="btn-gradient" onclick="uploadHeroImages()">
-    Upload Images
-  </button>
+  <button class="btn-gradient" onclick="uploadHeroImages()">Upload Images</button>
 
-  <p id="heroMsg" class="status-msg"></p>
+  <p id="heroMsg"></p>
 
   <div id="heroImagesList" class="hero-images-list"></div>
 </div>
@@ -216,7 +167,7 @@ import {
   getStorage, ref, uploadBytes, getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
+/* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "YOUR_KEY",
   authDomain: "YOUR_DOMAIN",
@@ -231,19 +182,21 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const homeRef = doc(db, "siteSettings", "home");
-const heroMsg = document.getElementById("heroMsg");
 const list = document.getElementById("heroImagesList");
+const heroMsg = document.getElementById("heroMsg");
 
-/* ===== LOAD HERO IMAGES ===== */
+/* LOAD */
 async function loadHeroImages() {
   list.innerHTML = "";
   const snap = await getDoc(homeRef);
   if (!snap.exists()) return;
 
-  (snap.data().heroImages || []).forEach((img, i) => {
-    const card = document.createElement("div");
-    card.className = "hero-card";
-    card.innerHTML = `
+  const images = snap.data().heroimages || [];
+
+  images.forEach((img, i) => {
+    const div = document.createElement("div");
+    div.className = "hero-card";
+    div.innerHTML = `
       <img src="${img.url}">
       <div class="hero-card-actions">
         <label class="switch">
@@ -254,11 +207,11 @@ async function loadHeroImages() {
         <button class="delete-btn" onclick="deleteHero(${i})">Delete</button>
       </div>
     `;
-    list.appendChild(card);
+    list.appendChild(div);
   });
 }
 
-/* ===== UPLOAD ===== */
+/* UPLOAD */
 window.uploadHeroImages = async () => {
   const files = heroImagesInput.files;
   if (!files.length) {
@@ -269,12 +222,12 @@ window.uploadHeroImages = async () => {
   heroMsg.textContent = "Uploading...";
 
   for (let file of files) {
-    const imgRef = ref(storage, `hero/${Date.now()}-${file.name}`);
-    await uploadBytes(imgRef, file);
-    const url = await getDownloadURL(imgRef);
+    const refImg = ref(storage, `hero/${Date.now()}-${file.name}`);
+    await uploadBytes(refImg, file);
+    const url = await getDownloadURL(refImg);
 
     await updateDoc(homeRef, {
-      heroImages: arrayUnion({
+      heroimages: arrayUnion({
         url,
         enabled: true,
         createdAt: serverTimestamp()
@@ -282,27 +235,26 @@ window.uploadHeroImages = async () => {
     });
   }
 
-  heroMsg.textContent = "✅ Images uploaded successfully";
+  heroMsg.textContent = "✅ Images uploaded";
   heroImagesInput.value = "";
   loadHeroImages();
 };
 
-/* ===== TOGGLE ENABLE ===== */
+/* TOGGLE */
 window.toggleHero = async (index) => {
   const snap = await getDoc(homeRef);
-  const imgs = snap.data().heroImages;
+  const imgs = snap.data().heroimages;
   imgs[index].enabled = !imgs[index].enabled;
-  await updateDoc(homeRef, { heroImages: imgs });
+  await updateDoc(homeRef, { heroimages: imgs });
 };
 
-/* ===== DELETE ===== */
+/* DELETE */
 window.deleteHero = async (index) => {
   if (!confirm("Delete this image?")) return;
   const snap = await getDoc(homeRef);
-  const imgs = snap.data().heroImages;
+  const imgs = snap.data().heroimages;
   imgs.splice(index, 1);
-  await updateDoc(homeRef, { heroImages: imgs });
-  heroMsg.textContent = "🗑 Image deleted";
+  await updateDoc(homeRef, { heroimages: imgs });
   loadHeroImages();
 };
 
