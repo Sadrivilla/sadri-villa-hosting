@@ -9,31 +9,49 @@
 <style>
 body{margin:0;font-family:Arial;background:#eef2ff}
 
-/* ===== TOP BAR ===== */
+/* ===== TOP BAR (GLASS BLUR) ===== */
 .topbar{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
-  color:#fff;
-  padding:20px 24px;
+  background:rgba(255,255,255,.45);
+  backdrop-filter:blur(18px);
+  color:#0f172a;
+  padding:0;
   margin:20px;
   border-radius:22px;
   display:flex;
   justify-content:space-between;
-  align-items:center
+  align-items:center;
+  box-shadow:0 20px 45px rgba(0,0,0,.15)
 }
 
 /* ===== LOGO ===== */
-.logo-wrap{display:flex;align-items:center;gap:14px}
-.logo-wrap img{height:64px;width:auto;object-fit:contain}
-.logo-text{font-size:24px;font-weight:700}
-
-/* ===== ACTIONS ===== */
-.actions{display:flex;gap:10px}
-.actions button,.menu-btn{
-  background:#fff;color:#4f46e5;
-  border:none;padding:8px 14px;
-  border-radius:12px;font-weight:bold;
-  cursor:pointer
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 18px
 }
+.logo-wrap img{
+  height:64px;
+  width:auto;
+  object-fit:contain;
+  display:block
+}
+.logo-text{font-size:22px;font-weight:800}
+
+/* ===== ACTION BUTTONS (GREEN GLASS) ===== */
+.actions{display:flex;gap:10px;padding-right:18px}
+.actions button,.menu-btn{
+  background:rgba(236,253,245,.75);
+  backdrop-filter:blur(10px);
+  color:#065f46;
+  border:1px solid rgba(16,185,129,.35);
+  padding:8px 14px;
+  border-radius:14px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.25s
+}
+.actions button:hover{transform:translateY(-2px)}
 .menu-btn{display:none}
 
 /* ===== MOBILE MENU ===== */
@@ -45,21 +63,30 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 }
 .mobile-menu.open{max-height:300px;padding:14px}
 .mobile-menu button{
-  width:100%;margin-bottom:10px;
-  background:#4f46e5;color:#fff;
-  border:none;padding:10px;
-  border-radius:12px;font-weight:bold
+  width:100%;
+  margin-bottom:10px;
+  background:#10b981;
+  color:#fff;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  font-weight:bold
 }
 
 /* ===== GRID ===== */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:20px;padding:20px
 }
-.card{background:#fff;padding:22px;border-radius:20px}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:22px;
+  box-shadow:0 18px 40px rgba(0,0,0,.12)
+}
 
-/* ===== PROFILE ===== */
+/* ===== PROFILE STATS ===== */
 .progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
 .progress div{height:100%}
 .tip{font-size:13px;color:#6b7280}
@@ -69,7 +96,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .gallery-slider{overflow:hidden}
 .gallery-track{
   display:flex;gap:24px;padding-left:24px;
-  animation:scrollGallery 18s linear infinite
+  animation:scrollGallery 16s linear infinite
 }
 .gallery-slider:hover .gallery-track{animation-play-state:paused}
 .gallery-track img{
@@ -92,7 +119,8 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 }
 .image-box{
   background:#fff;padding:16px;
-  border-radius:20px;max-width:90%;
+  border-radius:20px;
+  max-width:90%;
   text-align:center
 }
 .image-box img{
@@ -105,7 +133,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   justify-content:center
 }
 .modal-actions button{
-  background:#4f46e5;color:#fff;
+  background:#10b981;color:#fff;
   border:none;padding:10px 18px;
   border-radius:12px;font-weight:bold;
   cursor:pointer
@@ -126,7 +154,9 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="logo-wrap">
-    <img id="siteLogo" alt="Sadri Villa Logo">
+    <img id="siteLogo"
+      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media"
+      alt="Sadri Villa Logo">
     <div>
       <div class="logo-text">Sadri Villa</div>
       <div id="userName" style="font-size:13px;opacity:.9">Loading...</div>
@@ -152,7 +182,7 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   <button onclick="logout()">🚪 Logout</button>
 </div>
 
-<!-- DASHBOARD -->
+<!-- DASHBOARD STATS -->
 <div class="grid">
   <div class="card">
     <h3>Profile Completion</h3>
@@ -189,11 +219,8 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 <div id="imageModal" class="image-modal" onclick="closeImage()">
   <div class="image-box" onclick="event.stopPropagation()">
     <img id="modalImg">
-
     <div class="modal-actions">
-      <a id="downloadBtn" download>
-        <button>⬇ Download</button>
-      </a>
+      <a id="downloadBtn" download><button>⬇ Download</button></a>
       <button class="close-btn" onclick="closeImage()">✖ Close</button>
     </div>
   </div>
@@ -212,10 +239,10 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* LOGO */
+/* LOGO – INSTANT + LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(snap.exists() && snap.data().logo?.url){
-    siteLogo.src=snap.data().logo.url;
+    siteLogo.src=snap.data().logo.url+"?v="+Date.now();
   }
 });
 
@@ -224,7 +251,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
-    .sort((a,b)=>a.order-b.order);
+    .sort((a,b)=>(a.order||0)-(b.order||0));
 
   galleryTrack.innerHTML="";
   [...imgs,...imgs].forEach(i=>{
@@ -263,17 +290,17 @@ function loadDashboard(data){
   bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
   tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
 
-  if(data.createdAt){
-    memberDays.innerText=
-      Math.floor((Date.now()-new Date(data.createdAt))/(1000*60*60*24))+" days";
-  }
+  memberDays.innerText=data.createdAt
+    ? Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days"
+    : "–";
+
   lastLogin.innerText=data.lastLogin
     ? new Date(data.lastLogin).toLocaleDateString("en-IN")
     : "First login";
 
   new Chart(chart,{
     type:"doughnut",
-    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#4f46e5","#e5e7eb"]}]},
+    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#10b981","#e5e7eb"]}]},
     options:{plugins:{legend:{display:false}}}
   });
 }
@@ -293,4 +320,3 @@ window.toggleMenu=()=>mobileMenu.classList.toggle("open");
 
 </body>
 </html>
-
