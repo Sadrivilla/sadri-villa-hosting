@@ -8,29 +8,31 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*{box-sizing:border-box}
-body{
+/* ================= GLOBAL LOCK ================= */
+html,body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#eef2ff;
   overflow-x:hidden;
+  max-width:100vw;
 }
 
-/* ===== NAVBAR ===== */
+/* ================= NAVBAR ================= */
 .navbar{
   position:sticky;
   top:0;
   z-index:1000;
-  background:#fff;
+  background:#f8fbff;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:10px 14px;
+  padding:12px 14px;
   transition:box-shadow .3s;
 }
 .navbar.scrolled{
-  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  box-shadow:0 10px 28px rgba(0,0,0,.12);
 }
+
 .nav-left{
   display:flex;
   align-items:center;
@@ -38,17 +40,20 @@ body{
 }
 .nav-left img{
   height:44px;
-  width:auto;
-  display:none; /* 🔒 hide until loaded */
+  display:none;
 }
 .nav-title{
   display:flex;
   flex-direction:column;
-  line-height:1.1;
 }
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
+/* ===== PROFILE STYLE BUTTONS (MATCHED) ===== */
+.nav-right-wrap{
+  position:relative;
+  max-width:70vw;
+}
 .nav-right{
   display:flex;
   gap:10px;
@@ -59,32 +64,43 @@ body{
 
 .nav-btn{
   white-space:nowrap;
-  padding:10px 16px;
-  border-radius:18px;
-  border:1px solid #bfdbfe;
-  background:rgba(219,234,254,.75);
-  backdrop-filter:blur(10px);
-  color:#1e40af;
-  font-weight:600;
+  padding:12px 20px;
+  border-radius:22px;
+  border:none;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
   cursor:pointer;
   transition:.25s;
 }
 .nav-btn:hover{
   transform:translateY(-2px);
-  background:#dbeafe;
+  box-shadow:0 12px 24px rgba(59,130,246,.35);
+}
+.nav-btn:active{
+  transform:scale(.97);
 }
 
-/* swipe hint */
-.hint{
+/* ===== SWIPE HINT ===== */
+.swipe-hint{
   position:absolute;
-  right:6px;
+  right:-6px;
   top:50%;
   transform:translateY(-50%);
-  font-size:12px;
-  opacity:.45;
+  display:flex;
+  gap:2px;
+  font-size:20px;
+  color:#2563eb;
+  pointer-events:none;
+  animation:hintPulse 1.4s infinite;
+}
+@keyframes hintPulse{
+  0%,100%{opacity:.3}
+  50%{opacity:1}
 }
 
-/* ===== DASHBOARD GRID ===== */
+/* ================= DASHBOARD ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -108,15 +124,17 @@ body{
 }
 .progress div{height:100%}
 
-/* ===== SLIDER ===== */
+/* ================= SLIDER ================= */
 .gallery{
   background:#fff;
   padding:40px 0;
+  overflow:hidden;
 }
 .track{
   display:flex;
   gap:24px;
   padding-left:24px;
+  width:max-content;
 }
 .track.animate{
   animation:scroll 16s linear infinite;
@@ -133,7 +151,7 @@ body{
   to{transform:translateX(-50%)}
 }
 
-/* ===== IMAGE MODAL ===== */
+/* ================= MODAL ================= */
 .modal{
   display:none;
   position:fixed;
@@ -189,14 +207,17 @@ body{
     </div>
   </div>
 
-  <div class="nav-right">
-    <button class="nav-btn" onclick="openMap()">📍 Map</button>
-    <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
-    <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
-    <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+  <div class="nav-right-wrap">
+    <div class="nav-right" id="navScroll">
+      <button class="nav-btn" onclick="openMap()">📍 Map</button>
+      <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
+      <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
+      <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+    <div class="swipe-hint" id="swipeHint">
+      <span>›</span><span>›</span>
+    </div>
   </div>
-
-  <div class="hint">⇆</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -230,7 +251,7 @@ body{
   <div class="track" id="galleryTrack"></div>
 </section>
 
-<!-- IMAGE MODAL -->
+<!-- MODAL -->
 <div class="modal" id="imgModal" onclick="closeImg()">
   <div class="modal-box" onclick="event.stopPropagation()">
     <img id="modalImg">
@@ -258,21 +279,28 @@ const db=getFirestore(app);
 
 /* NAV SHADOW */
 window.addEventListener("scroll",()=>{
-  navbar.classList.toggle("scrolled",window.scrollY>10);
+  navbar.classList.toggle("scrolled",window.scrollY>8);
 });
 
-/* LIVE LOGO – NO BROKEN ICON */
+/* SWIPE HINT LOGIC */
+navScroll.addEventListener("scroll",()=>{
+  swipeHint.style.display =
+    navScroll.scrollLeft + navScroll.clientWidth >= navScroll.scrollWidth - 5
+      ? "none"
+      : "flex";
+});
+
+/* LIVE LOGO */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(snap.exists() && snap.data().logo?.url){
-    siteLogo.src = snap.data().logo.url + "?v=" + (snap.data().logo.updatedAt?.seconds||Date.now());
+    siteLogo.src=snap.data().logo.url;
     siteLogo.style.display="block";
   }
 });
 
-/* LIVE SLIDER */
+/* SLIDER LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-
   const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
     .sort((a,b)=>(a.order||0)-(b.order||0));
@@ -285,14 +313,12 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 
   gallerySection.style.display="block";
   const list = imgs.length>1 ? [...imgs,...imgs] : imgs;
-
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
     img.onclick=()=>openImg(i.url);
     galleryTrack.appendChild(img);
   });
-
   galleryTrack.classList.toggle("animate", imgs.length>1);
 });
 
@@ -338,13 +364,18 @@ function loadDashboard(data){
   });
 }
 
-/* UTIL */
+/* SLIDER PAUSE / RESUME */
 window.openImg=src=>{
+  galleryTrack.classList.remove("animate");
   modalImg.src=src;
   downloadLink.href=src;
   imgModal.style.display="flex";
 };
-window.closeImg=()=>imgModal.style.display="none";
+window.closeImg=()=>{
+  imgModal.style.display="none";
+  galleryTrack.classList.add("animate");
+};
+
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
