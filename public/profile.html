@@ -1,143 +1,118 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Profile | Sadri Villa</title>
+<title>User Dashboard | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#eef6ff;
-}
+body{margin:0;font-family:Arial;background:#eef2ff}
 
 /* ===== GLASSY BUTTON ===== */
 .btn{
   background:rgba(255,255,255,.65);
-  backdrop-filter:blur(10px);
-  border:1px solid rgba(255,255,255,.6);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.7);
   color:#1e40af;
-  padding:10px 16px;
+  padding:8px 16px;
   border-radius:14px;
   font-weight:bold;
   cursor:pointer;
   transition:.25s;
 }
-.btn:hover{transform:translateY(-2px);background:#e0f2fe}
+.btn:hover{
+  transform:translateY(-2px);
+  background:#e0f2fe;
+}
 .btn.primary{
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;
   border:none;
 }
-.btn.danger{background:#fee2e2;color:#991b1b}
 
 /* ===== TOP BAR ===== */
 .topbar{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+  color:#fff;
+  padding:20px 24px;
+  margin:20px;
+  border-radius:22px;
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  padding:14px 20px;
-  background:rgba(255,255,255,.6);
-  backdrop-filter:blur(12px);
+  justify-content:space-between;
+  align-items:center
 }
 
-/* ===== LAYOUT ===== */
-.wrap{
-  max-width:1100px;
-  margin:auto;
-  padding:24px;
-}
-.card{
-  background:#fff;
-  border-radius:26px;
-  padding:28px;
-  box-shadow:0 20px 45px rgba(0,0,0,.12);
-}
-h2{text-align:center;margin:0 0 24px}
-.section{margin-bottom:28px}
-.section h3{color:#2563eb;margin-bottom:14px}
+.logo-wrap{display:flex;align-items:center;gap:14px}
+.logo-wrap img{width:64px;height:64px;object-fit:contain}
+.logo-text{font-size:22px;font-weight:700}
+
+/* ===== ACTIONS ===== */
+.actions{display:flex;gap:10px}
 
 /* ===== GRID ===== */
 .grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;
+  padding:20px
 }
-@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:22px;
+  box-shadow:0 18px 40px rgba(0,0,0,.12)
+}
 
-/* ===== INPUTS ===== */
-.block{
-  background:#f8fbff;
-  border:1px solid #c7d2fe;
-  padding:14px;
-  border-radius:14px;
-}
-label{font-size:13px;font-weight:bold}
-label span{color:#dc2626}
-input,select{
-  width:100%;
-  margin-top:6px;
-  padding:12px;
+/* ===== PROGRESS ===== */
+.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
+.progress div{height:100%}
+.tip{font-size:13px;color:#6b7280}
+
+/* ===== HIGHLIGHTS ===== */
+.highlight{
+  background:#f8fafc;
+  border-left:4px solid #38bdf8;
+  padding:12px 14px;
   border-radius:12px;
-  border:1.5px solid #d1d5db;
+  margin-bottom:10px;
+  font-size:14px
 }
-input[readonly]{background:#e5e7eb}
 
-/* ===== CUSTOM ===== */
-.row{
+/* ===== SLIDER ===== */
+.full-gallery{
+  background:#fff;
+  padding:50px 0;
+  margin:20px;
+  border-radius:22px
+}
+.gallery-slider{overflow:hidden}
+.gallery-track{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:8px;
+  gap:24px;
+  padding-left:24px;
+  animation:scrollGallery 18s linear infinite
+}
+.gallery-slider:hover .gallery-track{
+  animation-play-state:paused
+}
+.gallery-track img{
+  width:320px;
+  height:200px;
+  object-fit:cover;
+  border-radius:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  cursor:pointer
+}
+@keyframes scrollGallery{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
 }
 
-/* ===== ACTIONS ===== */
-.actions{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
+/* MOBILE SPEED */
+@media(max-width:768px){
+  .gallery-track{animation-duration:9s}
 }
-.actions .btn{flex:1}
-
-/* ===== LOADER ===== */
-.loader{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.4);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999
-}
-.loader div{
-  width:60px;height:60px;
-  border:6px solid #e5e7eb;
-  border-top:6px solid #38bdf8;
-  border-radius:50%;
-  animation:spin 1s linear infinite
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ===== POPUP ===== */
-.popup{
-  position:fixed;inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:10000
-}
-.popup .box{
-  padding:18px 34px;
-  border-radius:20px;
-  color:#fff;
-  font-weight:bold
-}
-.success{background:#22c55e}
-.error{background:#ef4444}
 </style>
 </head>
 
@@ -145,48 +120,55 @@ input[readonly]{background:#e5e7eb}
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <button class="btn" onclick="location.href='dashboard.html'">Dashboard</button>
-  <button class="btn" onclick="location.href='profile.html'">Profile</button>
-  <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
-  <button class="btn" onclick="exportExcel()">📊 Export Excel</button>
+  <div class="logo-wrap">
+    <img id="siteLogo">
+    <div>
+      <div class="logo-text">Sadri Villa</div>
+      <div id="userName" style="font-size:13px;opacity:.9">Loading…</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn">Dashboard</button>
+    <button class="btn" onclick="location.href='profile.html'">Profile</button>
+    <button class="btn" onclick="exportPDF()">📄 Export PDF</button>
+    <button class="btn" onclick="exportExcel()">📊 Export Excel</button>
+    <button class="btn primary" onclick="logout()">Logout</button>
+  </div>
 </div>
 
-<div class="wrap">
-<div class="card">
+<!-- GRID -->
+<div class="grid">
 
-<h2>👤 My Profile</h2>
+  <!-- PROFILE CARD -->
+  <div class="card">
+    <h3>Profile Completion</h3>
+    <h1 id="percent">0%</h1>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="tip" class="tip"></p>
+    <canvas id="chart" height="160"></canvas>
+  </div>
 
-<div class="section">
-  <h3>User Details</h3>
-  <div class="grid" id="staticWrap"></div>
-</div>
-
-<div class="section">
-  <h3>Admin Fields</h3>
-  <div class="grid" id="adminWrap"></div>
-</div>
-
-<div class="section">
-  <h3>Your Custom Fields</h3>
-  <div id="userWrap"></div>
-  <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
-</div>
-
-<div class="actions">
-  <button class="btn primary" onclick="saveProfile()">💾 Save Profile</button>
-</div>
+  <!-- HIGHLIGHTS -->
+  <div class="card">
+    <h3>Your Highlights</h3>
+    <div id="custom"></div>
+  </div>
 
 </div>
-</div>
 
-<div class="loader" id="loader"><div></div></div>
-<div class="popup" id="success"><div class="box success">✅ Profile saved</div></div>
-<div class="popup" id="error"><div class="box error">❌ Fill required fields</div></div>
+<!-- SLIDER -->
+<section class="full-gallery">
+  <h2 style="text-align:center">Photo Gallery</h2>
+  <div class="gallery-slider">
+    <div class="gallery-track" id="galleryTrack"></div>
+  </div>
+</section>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -196,126 +178,76 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-const staticWrap=document.getElementById("staticWrap");
-const adminWrap=document.getElementById("adminWrap");
-const userWrap=document.getElementById("userWrap");
-const loader=document.getElementById("loader");
+window.logout=async()=>{await signOut(auth);location.href="login.html"};
 
-let uid,profileFields=[],adminValues={},userCustom={},baseUser={};
-
-const popup=id=>{
-  const p=document.getElementById(id);
-  p.style.display="flex";
-  setTimeout(()=>p.style.display="none",2000);
-};
-
-onAuthStateChanged(auth,async u=>{
-  if(!u)return location.href="login.html";
-  uid=u.uid;
-
-  const snap=await getDoc(doc(db,"users",uid));
-  baseUser=snap.data()||{};
-
-  staticWrap.innerHTML=`
-    <div class="block"><label>Full Name <span>*</span></label><input id="fullName" value="${baseUser.fullName||""}"></div>
-    <div class="block"><label>Mobile <span>*</span></label><input id="phone" value="${baseUser.phone||""}"></div>
-    <div class="block"><label>Email</label><input value="${u.email}" readonly></div>
-    <div class="block"><label>Role</label><input value="${baseUser.role||'User'}" readonly></div>
-  `;
-
-  const fs=await getDocs(collection(db,"profileFields"));
-  fs.forEach(d=>profileFields.push({key:d.id,...d.data()}));
-
-  adminValues=baseUser.adminFields||{};
-  userCustom=baseUser.userCustomFields||{};
-
-  profileFields.forEach(f=>{
-    if(f.visible===false)return;
-    adminWrap.innerHTML+=`
-      <div class="block">
-        <label>${f.label||f.key} ${f.required?'<span>*</span>':''}</label>
-        <input data-admin="${f.key}" value="${adminValues[f.key]||""}">
-      </div>
-    `;
-  });
-
-  Object.entries(userCustom).forEach(([k,v])=>drawUserCustom(k,v.value,v.showOnDashboard));
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href="login.html";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().approved!==true){
+    await signOut(auth);
+    location.href="pending.html";
+    return;
+  }
+  renderDashboard(snap.data());
 });
 
-window.addUserCustom=()=>drawUserCustom();
+/* DASHBOARD RENDER */
+function renderDashboard(data){
+  userName.innerText=data.fullName||"User";
 
-function drawUserCustom(k="",v="",s=false){
-  userWrap.innerHTML+=`
-    <div class="block">
-      <input class="ckey" placeholder="Field name" value="${k}">
-      <input class="cval" placeholder="Value" value="${v}">
-      <div class="row">
-        <span><input type="checkbox" class="cshow" ${s?"checked":""}> Dashboard</span>
-        <button class="btn danger" onclick="this.closest('.block').remove()">🗑</button>
-      </div>
-    </div>
-  `;
+  let total=0,filled=0;
+  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
+  Object.values(data.userCustomFields||{}).forEach(v=>{total++;if(v.value)filled++});
+
+  const p=Math.round((filled/total)*100)||0;
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
+
+  new Chart(chart,{
+    type:"doughnut",
+    data:{labels:["Completed","Missing"],datasets:[{data:[filled,total-filled]}]}
+  });
+
+  /* HIGHLIGHTS */
+  custom.innerHTML="";
+  let has=false;
+  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+    if(v.showOnDashboard && v.value){
+      has=true;
+      custom.innerHTML+=`
+        <div class="highlight">
+          <b>${k}:</b> ${v.value}
+        </div>
+      `;
+    }
+  });
+  if(!has){
+    custom.innerHTML=`
+      <p style="font-size:13px;color:#6b7280">
+        No highlights yet.<br>
+        Add fields in <b>Profile → Custom Fields</b> and enable “Dashboard”.
+      </p>
+    `;
+  }
 }
 
-window.saveProfile=async()=>{
-  const fullNameEl=document.getElementById("fullName");
-  const phoneEl=document.getElementById("phone");
-
-  const fullName=fullNameEl.value.trim();
-  const phone=phoneEl.value.trim();
-
-  if(fullName.length<3||!/^[0-9]{10}$/.test(phone)){popup("error");return;}
-
-  adminValues={};
-  document.querySelectorAll("[data-admin]").forEach(i=>{
-    adminValues[i.dataset.admin]=i.value.trim();
-  });
-
-  userCustom={};
-  [...userWrap.children].forEach(b=>{
-    const k=b.querySelector(".ckey").value.trim();
-    if(k)userCustom[k]={value:b.querySelector(".cval").value,showOnDashboard:b.querySelector(".cshow").checked};
-  });
-
-  loader.style.display="flex";
-  await setDoc(doc(db,"users",uid),{
-    fullName,phone,
-    adminFields:adminValues,
-    userCustomFields:userCustom,
-    updatedAt:new Date().toISOString()
-  },{merge:true});
-  loader.style.display="none";
-  popup("success");
-};
-
-/* EXPORTS */
-window.exportPDF=()=>{
-  const { jsPDF }=window.jspdf;
-  const pdf=new jsPDF();
-  let y=15;
-  pdf.text("My Profile",105,y,{align:"center"});y+=10;
-  pdf.text(`Name: ${fullName.value}`,10,y);y+=7;
-  pdf.text(`Phone: ${phone.value}`,10,y);y+=7;
-  pdf.text(`Email: ${auth.currentUser.email}`,10,y);y+=10;
-  Object.entries(adminValues).forEach(([k,v])=>{pdf.text(`${k}: ${v}`,10,y);y+=7});
-  pdf.save("my-profile.pdf");
-};
-
-window.exportExcel=()=>{
-  const rows=[
-    ["Full Name",fullName.value],
-    ["Phone",phone.value],
-    ["Email",auth.currentUser.email]
-  ];
-  Object.entries(adminValues).forEach(([k,v])=>rows.push([k,v]));
-  Object.entries(userCustom).forEach(([k,v])=>rows.push([k,v.value]));
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Profile");
-  XLSX.writeFile(wb,"my-profile.xlsx");
-};
+/* SLIDER */
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists())return;
+  const d=snap.data();
+  if(!Array.isArray(d.sliderImages))return;
+  galleryTrack.innerHTML="";
+  [...d.sliderImages,...d.sliderImages]
+    .filter(i=>i.enabled!==false)
+    .forEach(i=>{
+      const img=document.createElement("img");
+      img.src=i.url;
+      galleryTrack.appendChild(img);
+    });
+});
 </script>
 
 </body>
 </html>
-
