@@ -8,112 +8,130 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#eef2ff}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef2ff;
+}
 
-/* ===== NAVBAR (INDEX STYLE) ===== */
+/* ===== NAVBAR ===== */
 .navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:72px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 18px;
+  position:sticky;
+  top:0;
   z-index:1000;
-  background:rgba(8,22,52,.75);
-}
-.navbar::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  backdrop-filter:blur(14px);
-  z-index:0;
-}
-.navbar > *{position:relative;z-index:1}
-
-.brand{
-  height:100%;
   display:flex;
   align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  height:72px;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(14px);
+  transition:box-shadow .3s ease;
+}
+.navbar.scrolled{
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+/* LOGO */
+.brand{
+  display:flex;
+  align-items:center;
+  height:100%;
 }
 .brand img{
   height:100%;
   width:auto;
   object-fit:contain;
+  opacity:0;
+  transition:opacity .25s ease;
 }
+.brand img.loaded{opacity:1}
 
-/* ===== NAV BUTTONS (LIGHT BLUE GLASSY) ===== */
-.nav-actions{display:flex;gap:10px}
+/* NAV ACTIONS */
+.nav-actions{
+  display:flex;
+  gap:10px;
+}
 .nav-btn{
-  background:rgba(219,234,254,.55);
+  background:rgba(255,255,255,.7);
   backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,.6);
-  color:#1e40af;
   padding:8px 14px;
   border-radius:14px;
-  font-weight:700;
+  font-weight:bold;
+  color:#2563eb;
   cursor:pointer;
   transition:.25s;
 }
 .nav-btn:hover{
   transform:translateY(-2px);
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
+  background:#e0f2fe;
 }
 
-/* ===== PAGE OFFSET ===== */
-.page{padding-top:90px}
+/* MOBILE NAV */
+@media(max-width:768px){
+  .navbar{padding:0 10px}
+  .nav-actions{
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .nav-actions::-webkit-scrollbar{display:none}
+  .nav-btn{
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+}
 
 /* ===== GRID ===== */
 .grid{
+  padding:20px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:20px;
-  padding:20px
 }
 .card{
   background:#fff;
   padding:22px;
   border-radius:22px;
-  box-shadow:0 12px 35px rgba(0,0,0,.15)
+  box-shadow:0 18px 40px rgba(0,0,0,.12);
 }
 
-/* ===== PROGRESS ===== */
-.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
+/* ===== PROFILE ===== */
+.progress{
+  height:14px;
+  background:#e5e7eb;
+  border-radius:20px;
+  overflow:hidden;
+}
 .progress div{height:100%}
-.tip{font-size:13px;color:#6b7280}
+.tip{font-size:13px;color:#64748b}
 
 /* ===== SLIDER ===== */
-.full-gallery{background:#fff;padding:50px 0}
-.gallery-slider{overflow:hidden}
+.gallery{
+  background:#fff;
+  padding:40px 0;
+}
 .gallery-track{
   display:flex;
   gap:24px;
   padding-left:24px;
-  animation:scrollGallery 18s linear infinite
+  animation:scroll 18s linear infinite;
 }
-.gallery-slider:hover .gallery-track{animation-play-state:paused}
+.gallery:hover .gallery-track{animation-play-state:paused}
 .gallery-track img{
   width:320px;
   height:200px;
   object-fit:cover;
   border-radius:22px;
   cursor:pointer;
-  box-shadow:0 12px 30px rgba(0,0,0,.25)
 }
-@keyframes scrollGallery{
+@keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
 
-/* MOBILE SPEED */
-@media(max-width:768px){
-  .gallery-track{animation-duration:8s}
-  .navbar{height:64px}
-}
-
 /* ===== IMAGE MODAL ===== */
-.image-modal{
+.modal{
   display:none;
   position:fixed;
   inset:0;
@@ -121,46 +139,46 @@ body{margin:0;font-family:Arial;background:#eef2ff}
   backdrop-filter:blur(6px);
   z-index:9999;
   align-items:center;
-  justify-content:center
+  justify-content:center;
 }
-.image-box{
+.modal-box{
   background:#fff;
   padding:16px;
-  border-radius:20px;
+  border-radius:22px;
   max-width:90%;
-  text-align:center
+  text-align:center;
 }
-.image-box img{
+.modal-box img{
   max-width:100%;
   max-height:70vh;
-  border-radius:14px
+  border-radius:14px;
 }
 .modal-actions{
   margin-top:14px;
   display:flex;
   gap:12px;
-  justify-content:center
+  justify-content:center;
 }
 .modal-actions button{
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
-  border:none;
   padding:10px 18px;
-  border-radius:14px;
+  border-radius:12px;
+  border:none;
   font-weight:bold;
-  cursor:pointer
+  cursor:pointer;
 }
-.close-btn{background:#ef4444}
+.download{background:#2563eb;color:#fff}
+.close{background:#ef4444;color:#fff}
 </style>
 </head>
 
 <body>
 
 <!-- NAVBAR -->
-<div class="navbar">
+<div class="navbar" id="navbar">
   <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Logo">
+    <img id="siteLogo" src="images/logo-fallback.png" alt="Sadri Villa Logo">
   </div>
+
   <div class="nav-actions">
     <button class="nav-btn" onclick="openMap()">📍 Map</button>
     <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
@@ -168,8 +186,6 @@ body{margin:0;font-family:Arial;background:#eef2ff}
     <button class="nav-btn" onclick="logout()">🚪 Logout</button>
   </div>
 </div>
-
-<div class="page">
 
 <!-- DASHBOARD -->
 <div class="grid">
@@ -198,26 +214,21 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 </div>
 
 <!-- SLIDER -->
-<section class="full-gallery">
-  <div class="gallery-slider">
-    <div class="gallery-track" id="galleryTrack"></div>
-  </div>
+<section class="gallery">
+  <div class="gallery-track" id="galleryTrack"></div>
 </section>
 
-</div>
-
 <!-- IMAGE MODAL -->
-<div id="imageModal" class="image-modal" onclick="closeImage()">
-  <div class="image-box" onclick="event.stopPropagation()">
+<div class="modal" id="imgModal" onclick="closeImg()">
+  <div class="modal-box" onclick="event.stopPropagation()">
     <img id="modalImg">
     <div class="modal-actions">
-      <a id="downloadBtn" download><button>⬇ Download</button></a>
-      <button class="close-btn" onclick="closeImage()">✖ Close</button>
+      <a id="downloadBtn" download><button class="download">⬇ Download</button></a>
+      <button class="close" onclick="closeImg()">✖ Close</button>
     </div>
   </div>
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -231,40 +242,46 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* 🔴 LIVE LOGO */
+/* STICKY SHADOW */
+window.addEventListener("scroll",()=>{
+  navbar.classList.toggle("scrolled",window.scrollY>10);
+});
+
+/* LIVE LOGO */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const logo=snap.data().logo;
   if(!logo?.url)return;
 
-  const safe=logo.url
-    .replace("firebasestorage.googleapis.com/v0/b/","storage.googleapis.com/")
-    .split("?")[0];
-
-  siteLogo.src=`${safe}?v=${logo.updatedAt?.seconds||Date.now()}`;
+  const clean=logo.url.replace("firebasestorage.googleapis.com/v0/b/","storage.googleapis.com/").split("?")[0];
+  const img=new Image();
+  img.onload=()=>{
+    siteLogo.src=clean+"?v="+(logo.updatedAt?.seconds||Date.now());
+    siteLogo.classList.add("loaded");
+  };
+  img.src=clean;
 });
 
-/* 🔴 LIVE SLIDER */
+/* LIVE SLIDER */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-
   const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
-    .sort((a,b)=>(a.order||0)-(b.order||0));
+    .sort((a,b)=>a.order-b.order);
 
   galleryTrack.innerHTML="";
   [...imgs,...imgs].forEach(i=>{
-    const img=document.createElement("img");
-    img.src=i.url;
-    img.onclick=()=>openImage(i.url);
-    galleryTrack.appendChild(img);
+    const im=document.createElement("img");
+    im.src=i.url;
+    im.onclick=()=>openImg(i.url);
+    galleryTrack.appendChild(im);
   });
 });
 
-/* AUTH + DASHBOARD */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
+/* AUTH */
+onAuthStateChanged(auth,async u=>{
+  if(!u)return location.href="login.html";
+  const snap=await getDoc(doc(db,"users",u.uid));
   if(!snap.exists()||!snap.data().approved){
     await signOut(auth);
     location.href="pending.html";
@@ -273,10 +290,10 @@ onAuthStateChanged(auth,async user=>{
   loadDashboard(snap.data());
 });
 
-function loadDashboard(data){
+function loadDashboard(d){
   let total=0,filled=0;
-  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
-  Object.values(data.userCustomFields||{}).forEach(v=>{total++;if(v?.value)filled++});
+  Object.values(d.adminFields||{}).forEach(v=>{total++;if(v)filled++});
+  Object.values(d.userCustomFields||{}).forEach(v=>{total++;if(v?.value)filled++});
 
   filledCount.innerText=filled;
   totalCount.innerText=total;
@@ -284,31 +301,30 @@ function loadDashboard(data){
   const p=Math.round((filled/total)*100)||0;
   percent.innerText=p+"%";
   bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#22c55e";
   tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
 
-  if(data.createdAt){
-    memberDays.innerText=
-      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
-  }
-  lastLogin.innerText=data.lastLogin
-    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+  memberDays.innerText=d.createdAt
+    ? Math.floor((Date.now()-new Date(d.createdAt))/(1000*60*60*24))+" days"
+    : "–";
+  lastLogin.innerText=d.lastLogin
+    ? new Date(d.lastLogin).toLocaleDateString("en-IN")
     : "First login";
 
   new Chart(chart,{
     type:"doughnut",
-    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#38bdf8","#e5e7eb"]}]},
+    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]},
     options:{plugins:{legend:{display:false}}}
   });
 }
 
 /* UTIL */
-window.openImage=src=>{
+window.openImg=src=>{
   modalImg.src=src;
   downloadBtn.href=src;
-  imageModal.style.display="flex";
+  imgModal.style.display="flex";
 };
-window.closeImage=()=>imageModal.style.display="none";
+window.closeImg=()=>imgModal.style.display="none";
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
