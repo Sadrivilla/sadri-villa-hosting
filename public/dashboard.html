@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>User Dashboard | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -15,201 +14,91 @@ html,body{
   overflow-x:hidden;
 }
 
-/* ================= NAVBAR ================= */
+/* NAVBAR */
 .navbar{
-  position:sticky;
-  top:0;
-  z-index:1000;
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 14px;
-  background:#f8fbff;
-  transition:box-shadow .3s;
+  position:sticky;top:0;z-index:1000;
+  height:72px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 14px;
+  background:#f8fbff;transition:.3s;
 }
 .navbar.scrolled{box-shadow:0 12px 30px rgba(0,0,0,.18)}
-
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  height:100%;
-}
-.nav-left img{
-  height:100%;
-  width:auto;
-  object-fit:contain;
-  display:none; /* prevent broken image */
-}
+.nav-left{display:flex;align-items:center;gap:10px;height:100%}
+.nav-left img{height:100%;display:none}
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
 .nav-right{display:flex;gap:10px}
 .nav-btn{
-  padding:10px 18px;
-  border:none;
-  border-radius:22px;
+  padding:10px 18px;border:none;border-radius:22px;
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
+  color:#fff;font-weight:700;cursor:pointer
 }
-.nav-btn:hover{box-shadow:0 12px 24px rgba(59,130,246,.35)}
 
-.menu-btn{
-  display:none;
-  font-size:26px;
-  background:none;
-  border:none;
-  cursor:pointer;
-}
+.menu-btn{display:none;font-size:26px;border:none;background:none}
 .menu-card{
-  position:fixed;
-  top:78px;
-  right:14px;
-  width:240px;
-  background:rgba(255,255,255,.92);
+  position:fixed;top:78px;right:14px;width:240px;
+  background:rgba(255,255,255,.9);
   backdrop-filter:blur(18px);
-  border-radius:22px;
-  box-shadow:0 20px 45px rgba(0,0,0,.2);
-  padding:14px;
-  display:none;
-  flex-direction:column;
-  gap:10px;
-  z-index:2000;
+  border-radius:22px;box-shadow:0 20px 45px rgba(0,0,0,.2);
+  padding:14px;display:none;flex-direction:column;gap:10px;z-index:2000
 }
+
 @media(max-width:768px){
   .nav-right{display:none}
   .menu-btn{display:block}
 }
 
-/* ================= WELCOME BANNER ================= */
-#welcomeBanner{
-  display:none;
-  position:fixed;
-  top:82px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.88);
-  backdrop-filter:blur(14px);
-  padding:16px 28px;
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.18);
-  z-index:3000;
-  font-weight:800;
-  color:#1e40af;
-}
-
-/* ================= DASHBOARD ================= */
+/* DASHBOARD */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;
-  padding:24px;
+  gap:20px;padding:24px
 }
 .card{
-  background:#fff;
-  border-radius:26px;
-  padding:24px;
-  box-shadow:0 20px 45px rgba(0,0,0,.12);
-  cursor:pointer;
+  background:#fff;border-radius:26px;
+  padding:24px;box-shadow:0 20px 45px rgba(0,0,0,.12);
+  cursor:pointer
 }
-
-.progress{
-  height:14px;
-  background:#e5e7eb;
-  border-radius:20px;
-  overflow:hidden;
-}
+.progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
 .progress div{height:100%}
 
-/* ================= HIGHLIGHTS ================= */
-#highlightSection{padding:0 24px 24px}
-#highlightList p{
-  margin:8px 0;
-  font-size:15px;
-}
-#highlightList b{color:#2563eb}
-
-/* ================= SLIDER ================= */
-.gallery{
-  background:#fff;
-  padding:40px 0;
-  overflow:hidden;
-}
-.track{
-  display:flex;
-  gap:24px;
-  padding-left:24px;
-  width:max-content;
-}
+/* SLIDER */
+.gallery{background:#fff;padding:40px 0;overflow:hidden}
+.track{display:flex;gap:24px;padding-left:24px;width:max-content}
 .track.animate{animation:scroll 16s linear infinite}
 .track img{
-  width:320px;
-  height:200px;
-  object-fit:cover;
-  border-radius:22px;
-  cursor:pointer;
+  width:320px;height:200px;object-fit:cover;
+  border-radius:22px;cursor:pointer
 }
-@keyframes scroll{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
-}
-@media(max-width:768px){
-  .track.animate{animation-duration:8s}
-}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:768px){.track.animate{animation-duration:8s}}
 
-/* ================= MODAL ================= */
+/* MODAL */
 .modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  backdrop-filter:blur(6px);
-  z-index:4000;
-  align-items:center;
-  justify-content:center;
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  z-index:4000;align-items:center;justify-content:center
 }
 .modal-box{
-  background:#fff;
-  padding:16px;
-  border-radius:20px;
-  text-align:center;
+  background:#fff;padding:16px;border-radius:20px;text-align:center
 }
-.modal-box img{
-  max-width:90vw;
-  max-height:70vh;
-  border-radius:14px;
-}
-.modal-actions{
-  margin-top:14px;
-  display:flex;
-  gap:12px;
-  justify-content:center;
+.modal-box img{max-width:90vw;max-height:70vh;border-radius:14px}
+.modal-actions{margin-top:14px;display:flex;gap:12px;justify-content:center}
+.modal-actions button{
+  padding:10px 18px;border:none;border-radius:12px;
+  font-weight:bold;cursor:pointer
 }
 .download{background:#2563eb;color:#fff}
 .close{background:#ef4444;color:#fff}
-.modal-actions button{
-  padding:10px 18px;
-  border:none;
-  border-radius:12px;
-  font-weight:bold;
-  cursor:pointer;
-}
 </style>
 </head>
 
 <body>
 
-<div id="welcomeBanner">
-  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>
-</div>
-
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
   <div class="nav-left">
-    <img id="siteLogo" alt="Sadri Villa Logo">
+    <img id="siteLogo">
     <div class="nav-title">
       <b>Sadri Villa</b>
       <span id="welcomeName">Welcome</span>
@@ -239,13 +128,8 @@ html,body{
     <h3>Profile Completion</h3>
     <h1 id="percent">0%</h1>
     <div class="progress"><div id="bar"></div></div>
-    <p id="tip"></p>
+    <p id="groupInfo"></p>
     <canvas id="chart" height="160"></canvas>
-  </div>
-
-  <div class="card" onclick="location.href='profile.html'">
-    <h3>🧩 Fields Filled</h3>
-    <h2><span id="filledCount">0</span>/<span id="totalCount">0</span></h2>
   </div>
 
   <div class="card">
@@ -259,14 +143,6 @@ html,body{
   </div>
 </div>
 
-<!-- HIGHLIGHTS -->
-<section id="highlightSection" style="display:none">
-  <div class="card">
-    <h3>✨ Your Highlights</h3>
-    <div id="highlightList"></div>
-  </div>
-</section>
-
 <!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
   <div class="track" id="galleryTrack"></div>
@@ -277,7 +153,9 @@ html,body{
   <div class="modal-box" onclick="event.stopPropagation()">
     <img id="modalImg">
     <div class="modal-actions">
-      <a id="downloadLink" download><button class="download">⬇ Download</button></a>
+      <a id="downloadLink" download>
+        <button class="download">⬇ Download</button>
+      </a>
       <button class="close" onclick="closeImg()">✖ Close</button>
     </div>
   </div>
@@ -286,7 +164,7 @@ html,body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -296,22 +174,23 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",window.scrollY>6));
+/* NAV */
+window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",scrollY>6));
 window.toggleMenu=()=>menuCard.style.display=menuCard.style.display==="flex"?"none":"flex";
 
-/* LIVE LOGO – no broken image + instant update */
+/* LOGO – LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   const logo=snap.data()?.logo;
   if(!logo?.url)return;
   siteLogo.onload=()=>siteLogo.style.display="block";
-  siteLogo.src = logo.url + "?v=" + (logo.updatedAt?.seconds||Date.now());
+  siteLogo.src=logo.url+"?v="+Date.now();
 });
 
-/* SLIDER */
+/* SLIDER – SAME LOGIC */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   const imgs=(snap.data()?.sliderImages||[])
     .filter(i=>i.enabled!==false)
-    .sort((a,b)=>(a.order??0)-(b.order??0));
+    .sort((a,b)=>(a.order||0)-(b.order||0));
 
   galleryTrack.innerHTML="";
   if(!imgs.length){gallerySection.style.display="none";return;}
@@ -332,68 +211,66 @@ onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
   if(!snap.exists()||!snap.data().approved){
-    await signOut(auth);
-    location.href="pending.html";
-    return;
+    await signOut(auth);location.href="pending.html";return;
   }
   loadDashboard(snap.data());
 });
 
+/* DASHBOARD LOGIC – GROUP WISE */
 function loadDashboard(data){
-  const name=(data.fullName||"Member").split(" ")[0];
-  welcomeName.innerText="Welcome "+name;
+  welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
 
-  if(data.firstLogin!==false){
-    bannerName.innerText=name;
-    welcomeBanner.style.display="block";
-    setTimeout(()=>welcomeBanner.style.display="none",5000);
-    updateDoc(doc(db,"users",auth.currentUser.uid),{
-      firstLogin:false,
-      lastLogin:new Date().toISOString()
-    });
-  }
+  /* USER DETAILS */
+  let userTotal=2,userFilled=0;
+  if(data.fullName)userFilled++;
+  if(data.phone)userFilled++;
 
-  let total=0,filled=0;
-  highlightList.innerHTML="";
-  let hasHighlights=false;
+  /* ADMIN */
+  let adminTotal=0,adminFilled=0;
+  Object.values(data.adminFields||{}).forEach(v=>{
+    adminTotal++; if(v)adminFilled++;
+  });
 
-Object.entries(data.userCustomFields||{}).forEach(([key,v])=>{
-  total++;
-  if(v?.value) filled++;
+  /* CUSTOM */
+  let customTotal=0,customFilled=0;
+  Object.values(data.userCustomFields||{}).forEach(v=>{
+    customTotal++; if(v?.value)customFilled++;
+  });
 
-  if(v?.showOnDashboard && v?.value){
-    hasHighlights = true;
-    highlightList.innerHTML += `
-      <p>
-        <b>${key}:</b> ${v.value}
-      </p>
-    `;
-  }
-});
+  const total=userTotal+adminTotal+customTotal;
+  const filled=userFilled+adminFilled+customFilled;
 
-  highlightSection.style.display=hasHighlights?"block":"none";
+  const percent=Math.round((filled/total)*100)||0;
+  percentEl(percent);
 
-  filledCount.innerText=filled;
-  totalCount.innerText=total;
-
-  const p=Math.round((filled/total)*100)||0;
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
-  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-
-  if(data.createdAt){
-    memberDays.innerText=Math.floor((Date.now()-new Date(data.createdAt))/(1000*60*60*24))+" days";
-  }
-  lastLogin.innerText=data.lastLogin?new Date(data.lastLogin).toLocaleDateString("en-IN"):"First login";
+  groupInfo.innerText=
+    `User ${userFilled}/${userTotal} • Admin ${adminFilled}/${adminTotal} • Custom ${customFilled}/${customTotal}`;
 
   new Chart(chart,{
     type:"doughnut",
-    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]},
+    data:{
+      labels:["Completed","Pending"],
+      datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]
+    },
     options:{plugins:{legend:{display:false}}}
   });
+
+  if(data.createdAt){
+    memberDays.innerText=
+      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+  }
+  lastLogin.innerText=data.lastLogin
+    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+    : "First login";
 }
 
+function percentEl(p){
+  percent.innerText=p+"%";
+  bar.style.width=p+"%";
+  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+}
+
+/* MODAL */
 window.openImg=src=>{
   galleryTrack.classList.remove("animate");
   modalImg.src=src;
@@ -405,6 +282,7 @@ window.closeImg=()=>{
   galleryTrack.classList.add("animate");
 };
 
+/* ACTIONS */
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
