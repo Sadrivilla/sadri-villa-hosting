@@ -8,16 +8,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ================= GLOBAL LOCK ================= */
+/* ===== GLOBAL ===== */
 html,body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#eef2ff;
   overflow-x:hidden;
-  max-width:100vw;
 }
 
-/* ================= NAVBAR ================= */
+/* ===== NAVBAR ===== */
 .navbar{
   position:sticky;
   top:0;
@@ -26,13 +25,14 @@ html,body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:12px 14px;
+  padding:10px 14px;
   transition:box-shadow .3s;
 }
 .navbar.scrolled{
-  box-shadow:0 10px 28px rgba(0,0,0,.12);
+  box-shadow:0 10px 28px rgba(0,0,0,.15);
 }
 
+/* LEFT */
 .nav-left{
   display:flex;
   align-items:center;
@@ -49,7 +49,7 @@ html,body{
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
-/* ===== PROFILE STYLE BUTTONS (MATCHED) ===== */
+/* RIGHT */
 .nav-right-wrap{
   position:relative;
   max-width:70vw;
@@ -62,6 +62,7 @@ html,body{
 }
 .nav-right::-webkit-scrollbar{display:none}
 
+/* BUTTONS (PROFILE STYLE) */
 .nav-btn{
   white-space:nowrap;
   padding:12px 20px;
@@ -78,29 +79,44 @@ html,body{
   transform:translateY(-2px);
   box-shadow:0 12px 24px rgba(59,130,246,.35);
 }
-.nav-btn:active{
-  transform:scale(.97);
-}
 
-/* ===== SWIPE HINT ===== */
+/* ===== RED SWIPE ARROW ===== */
 .swipe-hint{
   position:absolute;
-  right:-6px;
+  right:-8px;
   top:50%;
   transform:translateY(-50%);
   display:flex;
-  gap:2px;
-  font-size:20px;
-  color:#2563eb;
+  gap:4px;
+  font-size:22px;
+  font-weight:900;
+  color:#dc2626; /* RED */
   pointer-events:none;
-  animation:hintPulse 1.4s infinite;
+  animation:pulse 1.4s infinite;
 }
-@keyframes hintPulse{
+@keyframes pulse{
   0%,100%{opacity:.3}
   50%{opacity:1}
 }
 
-/* ================= DASHBOARD ================= */
+/* ===== FIRST LOGIN BANNER ===== */
+#welcomeBanner{
+  display:none;
+  position:fixed;
+  top:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(14px);
+  padding:16px 28px;
+  border-radius:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.18);
+  z-index:9999;
+  font-weight:800;
+  color:#1e40af;
+}
+
+/* ===== DASHBOARD ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -115,7 +131,7 @@ html,body{
   cursor:pointer;
 }
 
-/* ===== PROGRESS ===== */
+/* PROGRESS */
 .progress{
   height:14px;
   background:#e5e7eb;
@@ -124,7 +140,7 @@ html,body{
 }
 .progress div{height:100%}
 
-/* ================= SLIDER ================= */
+/* ===== SLIDER ===== */
 .gallery{
   background:#fff;
   padding:40px 0;
@@ -151,7 +167,7 @@ html,body{
   to{transform:translateX(-50%)}
 }
 
-/* ================= MODAL ================= */
+/* ===== MODAL ===== */
 .modal{
   display:none;
   position:fixed;
@@ -196,6 +212,11 @@ html,body{
 </head>
 
 <body>
+
+<!-- FIRST LOGIN BANNER -->
+<div id="welcomeBanner">
+  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>
+</div>
 
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
@@ -251,7 +272,7 @@ html,body{
   <div class="track" id="galleryTrack"></div>
 </section>
 
-<!-- MODAL -->
+<!-- IMAGE MODAL -->
 <div class="modal" id="imgModal" onclick="closeImg()">
   <div class="modal-box" onclick="event.stopPropagation()">
     <img id="modalImg">
@@ -267,7 +288,7 @@ html,body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -277,12 +298,12 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* NAV SHADOW */
+/* SHADOW */
 window.addEventListener("scroll",()=>{
   navbar.classList.toggle("scrolled",window.scrollY>8);
 });
 
-/* SWIPE HINT LOGIC */
+/* SWIPE HINT */
 navScroll.addEventListener("scroll",()=>{
   swipeHint.style.display =
     navScroll.scrollLeft + navScroll.clientWidth >= navScroll.scrollWidth - 5
@@ -310,8 +331,8 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     gallerySection.style.display="none";
     return;
   }
-
   gallerySection.style.display="block";
+
   const list = imgs.length>1 ? [...imgs,...imgs] : imgs;
   list.forEach(i=>{
     const img=document.createElement("img");
@@ -335,7 +356,19 @@ onAuthStateChanged(auth,async user=>{
 });
 
 function loadDashboard(data){
-  welcomeName.innerText="Welcome "+(data.fullName||"Member");
+  const name=(data.fullName||"Member").split(" ")[0];
+  welcomeName.innerText="Welcome "+name;
+
+  /* FIRST LOGIN BANNER */
+  if(data.firstLogin !== false){
+    bannerName.innerText=name;
+    welcomeBanner.style.display="block";
+    setTimeout(()=>welcomeBanner.style.display="none",5000);
+    updateDoc(doc(db,"users",auth.currentUser.uid),{
+      firstLogin:false,
+      lastLogin:new Date().toISOString()
+    });
+  }
 
   let total=0,filled=0;
   Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
@@ -364,7 +397,7 @@ function loadDashboard(data){
   });
 }
 
-/* SLIDER PAUSE / RESUME */
+/* SLIDER PAUSE */
 window.openImg=src=>{
   galleryTrack.classList.remove("animate");
   modalImg.src=src;
