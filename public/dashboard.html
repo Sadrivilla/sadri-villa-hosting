@@ -39,8 +39,16 @@ body{
 .nav-left img{
   height:44px;
   width:auto;
-  display:block;
+  display:none; /* 🔒 hide until loaded */
 }
+.nav-title{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+}
+.nav-title b{font-size:16px}
+.nav-title span{font-size:13px;color:#475569}
+
 .nav-right{
   display:flex;
   gap:10px;
@@ -73,24 +81,7 @@ body{
   top:50%;
   transform:translateY(-50%);
   font-size:12px;
-  opacity:.5;
-}
-
-/* ===== WELCOME BANNER ===== */
-#welcomeBanner{
-  display:none;
-  position:fixed;
-  top:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(14px);
-  padding:16px 26px;
-  border-radius:18px;
-  box-shadow:0 20px 40px rgba(0,0,0,.18);
-  z-index:9999;
-  font-weight:700;
-  color:#1e40af;
+  opacity:.45;
 }
 
 /* ===== DASHBOARD GRID ===== */
@@ -105,6 +96,7 @@ body{
   border-radius:26px;
   padding:24px;
   box-shadow:0 20px 45px rgba(0,0,0,.12);
+  cursor:pointer;
 }
 
 /* ===== PROGRESS ===== */
@@ -125,6 +117,8 @@ body{
   display:flex;
   gap:24px;
   padding-left:24px;
+}
+.track.animate{
   animation:scroll 16s linear infinite;
 }
 .track img{
@@ -138,25 +132,61 @@ body{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
 }
+
+/* ===== IMAGE MODAL ===== */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);
+  z-index:9999;
+  align-items:center;
+  justify-content:center;
+}
+.modal-box{
+  background:#fff;
+  padding:16px;
+  border-radius:20px;
+  text-align:center;
+}
+.modal-box img{
+  max-width:90vw;
+  max-height:70vh;
+  border-radius:14px;
+}
+.modal-actions{
+  margin-top:14px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+.modal-actions button{
+  padding:10px 18px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.download{background:#2563eb;color:#fff}
+.close{background:#ef4444;color:#fff}
+
 @media(max-width:768px){
-  .track{animation-duration:8s}
-  #welcomeBanner{top:68px;font-size:14px}
+  .track.animate{animation-duration:8s}
 }
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME BANNER -->
-<div id="welcomeBanner">
-  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>!
-</div>
-
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
   <div class="nav-left">
     <img id="siteLogo" alt="Sadri Villa Logo">
-    <strong>Sadri Villa</strong>
+    <div class="nav-title">
+      <b>Sadri Villa</b>
+      <span id="welcomeName">Welcome</span>
+    </div>
   </div>
 
   <div class="nav-right">
@@ -171,12 +201,17 @@ body{
 
 <!-- DASHBOARD -->
 <div class="grid">
-  <div class="card">
+  <div class="card" onclick="location.href='profile.html'">
     <h3>Profile Completion</h3>
     <h1 id="percent">0%</h1>
     <div class="progress"><div id="bar"></div></div>
     <p id="tip"></p>
     <canvas id="chart" height="160"></canvas>
+  </div>
+
+  <div class="card" onclick="location.href='profile.html'">
+    <h3>🧩 Fields Filled</h3>
+    <h2><span id="filledCount">0</span>/<span id="totalCount">0</span></h2>
   </div>
 
   <div class="card">
@@ -188,22 +223,30 @@ body{
     <h3>⏰ Last Login</h3>
     <h2 id="lastLogin">–</h2>
   </div>
-
-  <div class="card">
-    <h3>🧩 Fields Filled</h3>
-    <h2><span id="filledCount">0</span>/<span id="totalCount">0</span></h2>
-  </div>
 </div>
 
 <!-- SLIDER -->
-<section class="gallery">
+<section class="gallery" id="gallerySection" style="display:none">
   <div class="track" id="galleryTrack"></div>
 </section>
+
+<!-- IMAGE MODAL -->
+<div class="modal" id="imgModal" onclick="closeImg()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <img id="modalImg">
+    <div class="modal-actions">
+      <a id="downloadLink" download>
+        <button class="download">⬇ Download</button>
+      </a>
+      <button class="close" onclick="closeImg()">✖ Close</button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -213,32 +256,44 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* NAVBAR SHADOW */
+/* NAV SHADOW */
 window.addEventListener("scroll",()=>{
   navbar.classList.toggle("scrolled",window.scrollY>10);
 });
 
-/* LIVE LOGO */
+/* LIVE LOGO – NO BROKEN ICON */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(snap.exists() && snap.data().logo?.url){
     siteLogo.src = snap.data().logo.url + "?v=" + (snap.data().logo.updatedAt?.seconds||Date.now());
+    siteLogo.style.display="block";
   }
 });
 
 /* LIVE SLIDER */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
+
   const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
     .sort((a,b)=>(a.order||0)-(b.order||0));
 
   galleryTrack.innerHTML="";
-  [...imgs,...imgs].forEach(i=>{
+  if(imgs.length===0){
+    gallerySection.style.display="none";
+    return;
+  }
+
+  gallerySection.style.display="block";
+  const list = imgs.length>1 ? [...imgs,...imgs] : imgs;
+
+  list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
-    img.onclick=()=>window.open(i.url,"_blank");
+    img.onclick=()=>openImg(i.url);
     galleryTrack.appendChild(img);
   });
+
+  galleryTrack.classList.toggle("animate", imgs.length>1);
 });
 
 /* AUTH */
@@ -254,16 +309,7 @@ onAuthStateChanged(auth,async user=>{
 });
 
 function loadDashboard(data){
-  /* FIRST LOGIN BANNER */
-  if(data.firstLogin !== false){
-    bannerName.innerText=(data.fullName||"Member").split(" ")[0];
-    welcomeBanner.style.display="block";
-    setTimeout(()=>welcomeBanner.style.display="none",5000);
-    updateDoc(doc(db,"users",auth.currentUser.uid),{
-      firstLogin:false,
-      lastLogin:new Date().toISOString()
-    });
-  }
+  welcomeName.innerText="Welcome "+(data.fullName||"Member");
 
   let total=0,filled=0;
   Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
@@ -292,7 +338,13 @@ function loadDashboard(data){
   });
 }
 
-/* ACTIONS */
+/* UTIL */
+window.openImg=src=>{
+  modalImg.src=src;
+  downloadLink.href=src;
+  imgModal.style.display="flex";
+};
+window.closeImg=()=>imgModal.style.display="none";
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
