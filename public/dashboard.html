@@ -21,15 +21,16 @@ html,body{
   position:sticky;
   top:0;
   z-index:1000;
+  height:68px;
   background:#f8fbff;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0px 14px;
-  transition:box-shadow .10s;
+  padding:0 12px;
+  transition:box-shadow .3s;
 }
 .navbar.scrolled{
-  box-shadow:0 10px 28px rgba(0,0,0,.15);
+  box-shadow:0 10px 28px rgba(0,0,0,.18);
 }
 
 /* LEFT */
@@ -37,36 +38,44 @@ html,body{
   display:flex;
   align-items:center;
   gap:10px;
+  height:100%;
 }
 .nav-left img{
-  height:44px;
-  display:none;
+  max-height:100%;
+  width:auto;
+  display:none; /* shown only after Firestore loads */
 }
 .nav-title{
   display:flex;
   flex-direction:column;
+  line-height:1.1;
 }
 .nav-title b{font-size:16px}
 .nav-title span{font-size:13px;color:#475569}
 
-/* RIGHT */
+/* RIGHT WRAP */
 .nav-right-wrap{
-  position:relative;
-  max-width:70vw;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  max-width:65vw;
 }
+
+/* SCROLL AREA */
 .nav-right{
   display:flex;
   gap:10px;
   overflow-x:auto;
   scrollbar-width:none;
+  scroll-behavior:smooth;
 }
 .nav-right::-webkit-scrollbar{display:none}
 
-/* BUTTONS (PROFILE STYLE) */
+/* BUTTONS */
 .nav-btn{
   white-space:nowrap;
-  padding:12px 20px;
-  border-radius:22px;
+  padding:10px 18px;
+  border-radius:20px;
   border:none;
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;
@@ -80,41 +89,20 @@ html,body{
   box-shadow:0 12px 24px rgba(59,130,246,.35);
 }
 
-/* ===== RED SWIPE ARROW ===== */
-.swipe-hint{
-  position:absolute;
-  right:-8px;
-  top:50%;
-  transform:translateY(-50%);
-  display:flex;
-  gap:4px;
-  font-size:22px;
+/* ARROW BUTTONS */
+.arrow-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  font-size:20px;
   font-weight:900;
-  color:#dc2626; /* RED */
-  pointer-events:none;
-  animation:pulse 1.4s infinite;
-}
-@keyframes pulse{
-  0%,100%{opacity:.3}
-  50%{opacity:1}
-}
-
-/* ===== FIRST LOGIN BANNER ===== */
-#welcomeBanner{
+  cursor:pointer;
   display:none;
-  position:fixed;
-  top:80px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(14px);
-  padding:16px 28px;
-  border-radius:20px;
-  box-shadow:0 20px 40px rgba(0,0,0,.18);
-  z-index:9999;
-  font-weight:800;
-  color:#1e40af;
 }
+.arrow-btn:active{transform:scale(.9)}
 
 /* ===== DASHBOARD ===== */
 .grid{
@@ -213,11 +201,6 @@ html,body{
 
 <body>
 
-<!-- FIRST LOGIN BANNER -->
-<div id="welcomeBanner">
-  🎉 Welcome to Sadri Villa, <span id="bannerName"></span>
-</div>
-
 <!-- NAVBAR -->
 <div class="navbar" id="navbar">
   <div class="nav-left">
@@ -229,15 +212,16 @@ html,body{
   </div>
 
   <div class="nav-right-wrap">
+    <button class="arrow-btn" id="prevBtn" onclick="scrollNav(-1)">‹</button>
+
     <div class="nav-right" id="navScroll">
       <button class="nav-btn" onclick="openMap()">📍 Map</button>
       <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
       <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
       <button class="nav-btn" onclick="logout()">🚪 Logout</button>
     </div>
-    <div class="swipe-hint" id="swipeHint">
-      <span>›</span><span>›</span>
-    </div>
+
+    <button class="arrow-btn" id="nextBtn" onclick="scrollNav(1)">›</button>
   </div>
 </div>
 
@@ -253,7 +237,7 @@ html,body{
 
   <div class="card" onclick="location.href='profile.html'">
     <h3>🧩 Fields Filled</h3>
-    <h2><span id="filledCount">0</span>/<span id="totalCount">0</span></h2>
+    🧮 <span id="filledCount">0</span>/<span id="totalCount">0</span>
   </div>
 
   <div class="card">
@@ -269,7 +253,7 @@ html,body{
 
 <!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
-  <div class="track" id="galleryTrack"></div>
+  <div class="track animate" id="galleryTrack"></div>
 </section>
 
 <!-- IMAGE MODAL -->
@@ -288,7 +272,7 @@ html,body{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot,updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -300,21 +284,25 @@ const db=getFirestore(app);
 
 /* SHADOW */
 window.addEventListener("scroll",()=>{
-  navbar.classList.toggle("scrolled",window.scrollY>8);
+  navbar.classList.toggle("scrolled",window.scrollY>6);
 });
 
-/* SWIPE HINT */
-navScroll.addEventListener("scroll",()=>{
-  swipeHint.style.display =
-    navScroll.scrollLeft + navScroll.clientWidth >= navScroll.scrollWidth - 5
-      ? "none"
-      : "flex";
-});
+/* NAV ARROW LOGIC */
+function updateArrows(){
+  const max = navScroll.scrollWidth - navScroll.clientWidth;
+  prevBtn.style.display = navScroll.scrollLeft > 5 ? "block" : "none";
+  nextBtn.style.display = navScroll.scrollLeft < max-5 ? "block" : "none";
+}
+navScroll.addEventListener("scroll",updateArrows);
+window.scrollNav = dir => {
+  navScroll.scrollBy({left:dir*160,behavior:"smooth"});
+};
+setTimeout(updateArrows,300);
 
-/* LIVE LOGO */
+/* LIVE LOGO (NO FLASH) */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(snap.exists() && snap.data().logo?.url){
-    siteLogo.src=snap.data().logo.url;
+    siteLogo.src = snap.data().logo.url;
     siteLogo.style.display="block";
   }
 });
@@ -322,82 +310,31 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 /* SLIDER LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-  const imgs=(snap.data().sliderImages||[])
-    .filter(i=>i.enabled!==false)
-    .sort((a,b)=>(a.order||0)-(b.order||0));
-
+  const imgs=(snap.data().sliderImages||[]).filter(i=>i.enabled!==false);
   galleryTrack.innerHTML="";
   if(imgs.length===0){
     gallerySection.style.display="none";
     return;
   }
   gallerySection.style.display="block";
-
-  const list = imgs.length>1 ? [...imgs,...imgs] : imgs;
+  const list = imgs.length>1?[...imgs,...imgs]:imgs;
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
     img.onclick=()=>openImg(i.url);
     galleryTrack.appendChild(img);
   });
-  galleryTrack.classList.toggle("animate", imgs.length>1);
 });
 
 /* AUTH */
 onAuthStateChanged(auth,async user=>{
   if(!user){location.href="login.html";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||!snap.data().approved){
-    await signOut(auth);
-    location.href="pending.html";
-    return;
-  }
-  loadDashboard(snap.data());
+  const data=snap.data();
+  welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
 });
 
-function loadDashboard(data){
-  const name=(data.fullName||"Member").split(" ")[0];
-  welcomeName.innerText="Welcome "+name;
-
-  /* FIRST LOGIN BANNER */
-  if(data.firstLogin !== false){
-    bannerName.innerText=name;
-    welcomeBanner.style.display="block";
-    setTimeout(()=>welcomeBanner.style.display="none",5000);
-    updateDoc(doc(db,"users",auth.currentUser.uid),{
-      firstLogin:false,
-      lastLogin:new Date().toISOString()
-    });
-  }
-
-  let total=0,filled=0;
-  Object.values(data.adminFields||{}).forEach(v=>{total++;if(v)filled++});
-  Object.values(data.userCustomFields||{}).forEach(v=>{total++;if(v?.value)filled++});
-
-  filledCount.innerText=filled;
-  totalCount.innerText=total;
-
-  const p=Math.round((filled/total)*100)||0;
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
-  tip.innerText=p<100?"Complete your profile":"Profile complete 🎉";
-
-  if(data.createdAt){
-    memberDays.innerText=Math.floor((Date.now()-new Date(data.createdAt))/(1000*60*60*24))+" days";
-  }
-  lastLogin.innerText=data.lastLogin
-    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
-    : "First login";
-
-  new Chart(chart,{
-    type:"doughnut",
-    data:{datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]},
-    options:{plugins:{legend:{display:false}}}
-  });
-}
-
-/* SLIDER PAUSE */
+/* SLIDER MODAL */
 window.openImg=src=>{
   galleryTrack.classList.remove("animate");
   modalImg.src=src;
