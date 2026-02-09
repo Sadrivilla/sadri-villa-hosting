@@ -20,14 +20,12 @@ body {
 .top-bar {
   margin-bottom: 14px;
 }
-
 .back-btn {
   background: linear-gradient(135deg, #93c5fd, #60a5fa);
   color: #fff;
   border: none;
   padding: 8px 14px;
   border-radius: 10px;
-  font-size: 14px;
   cursor: pointer;
 }
 
@@ -105,16 +103,13 @@ body {
   width: 42px;
   height: 22px;
 }
-
 .switch input { display: none }
-
 .slider {
   position: absolute;
   inset: 0;
   background: #cbd5f5;
   border-radius: 999px;
 }
-
 .slider::before {
   content: "";
   position: absolute;
@@ -124,12 +119,11 @@ body {
   bottom: 3px;
   background: #fff;
   border-radius: 50%;
+  transition: .2s;
 }
-
 .switch input:checked + .slider {
   background: linear-gradient(135deg, #60a5fa, #38bdf8);
 }
-
 .switch input:checked + .slider::before {
   transform: translateX(20px);
 }
@@ -158,37 +152,38 @@ body {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, updateDoc,
-  arrayUnion, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* 🔥 YOUR FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+/* FIREBASE INIT */
+const app = initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
+});
 
-const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-const homeRef = doc(db, "siteSettings", "home");
-const list = document.getElementById("heroImagesList");
+const heroImagesInput = document.getElementById("heroImagesInput");
 const heroMsg = document.getElementById("heroMsg");
+const list = document.getElementById("heroImagesList");
+const homeRef = doc(db, "siteSettings", "home");
 
-/* LOAD */
-async function loadHeroImages() {
+/* AUTH CHECK */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) location.href = "login.html";
+  const token = await user.getIdTokenResult(true);
+  if (!token.claims.admin) {
+    alert("Admin only");
+    location.href = "dashboard.html";
+  }
+});
+
+/* LIVE LOAD */
+onSnapshot(homeRef, (snap) => {
   list.innerHTML = "";
-  const snap = await getDoc(homeRef);
   if (!snap.exists()) return;
 
   const images = snap.data().heroimages || [];
@@ -209,9 +204,9 @@ async function loadHeroImages() {
     `;
     list.appendChild(div);
   });
-}
+});
 
-/* UPLOAD */
+/* UPLOAD VIA CLOUD FUNCTION */
 window.uploadHeroImages = async () => {
   const files = heroImagesInput.files;
   if (!files.length) {
@@ -221,44 +216,71 @@ window.uploadHeroImages = async () => {
 
   heroMsg.textContent = "Uploading...";
 
-  for (let file of files) {
-    const refImg = ref(storage, `hero/${Date.now()}-${file.name}`);
-    await uploadBytes(refImg, file);
-    const url = await getDownloadURL(refImg);
+  const user = auth.currentUser;
+  const token = await user.getIdToken(true);
 
-    await updateDoc(homeRef, {
-      heroimages: arrayUnion({
-        url,
-        enabled: true,
-        createdAt: serverTimestamp()
-      })
+  for (let file of files) {
+    const base64 = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(",")[1]);
+      r.readAsDataURL(file);
     });
+
+    const res = await fetch(
+      "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadHeroImage",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fileBase64: base64,
+          mimeType: file.type
+        })
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
   }
 
-  heroMsg.textContent = "✅ Images uploaded";
+  heroMsg.textContent = "✅ Images uploaded successfully";
   heroImagesInput.value = "";
-  loadHeroImages();
 };
 
 /* TOGGLE */
 window.toggleHero = async (index) => {
-  const snap = await getDoc(homeRef);
-  const imgs = snap.data().heroimages;
-  imgs[index].enabled = !imgs[index].enabled;
-  await updateDoc(homeRef, { heroimages: imgs });
+  const snap = await (await fetchDoc()).data();
 };
 
 /* DELETE */
 window.deleteHero = async (index) => {
   if (!confirm("Delete this image?")) return;
-  const snap = await getDoc(homeRef);
+  const snap = await (await fetchDoc()).data();
+};
+
+/* HELPERS */
+async function fetchDoc() {
+  const s = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  return await s.getDoc(homeRef);
+}
+
+window.toggleHero = async (index) => {
+  const snap = await fetchDoc();
+  const imgs = snap.data().heroimages;
+  imgs[index].enabled = !imgs[index].enabled;
+  await updateDoc(homeRef, { heroimages: imgs });
+};
+
+window.deleteHero = async (index) => {
+  if (!confirm("Delete this image?")) return;
+  const snap = await fetchDoc();
   const imgs = snap.data().heroimages;
   imgs.splice(index, 1);
   await updateDoc(homeRef, { heroimages: imgs });
-  loadHeroImages();
 };
-
-loadHeroImages();
 </script>
 
 </body>
