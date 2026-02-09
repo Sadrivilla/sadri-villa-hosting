@@ -331,7 +331,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     galleryTrack.classList.add("animate");
     requestAnimationFrame(()=>{
       const width=galleryTrack.scrollWidth/2;
-      const speed=80; // px per second
+      const speed = window.innerWidth < 768 ? 50 : 80;
       galleryTrack.style.animationDuration=(width/speed)+"s";
     });
   }else{
