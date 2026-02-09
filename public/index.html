@@ -86,7 +86,7 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   box-shadow:0 14px 30px rgba(56,189,248,.35);
 }
 
-/* ================= HERO (UPDATED ONLY) ================= */
+/* ================= HERO ================= */
 .hero{
   min-height:100vh;
   padding-top:90px;
@@ -142,21 +142,36 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   box-shadow:0 30px 60px rgba(56,189,248,.35);
 }
 
-/* ================= SLIDER ================= */
-.gallery{background:white;padding:60px 0;overflow:hidden}
-.track{display:flex;gap:24px;padding-left:24px;width:max-content}
-.track.animate{animation:scroll 16s linear infinite}
-.track img{
-  width:420px;height:260px;
-  object-fit:cover;border-radius:22px;
+/* ================= SLIDER (CONSTANT SPEED) ================= */
+.gallery{
+  background:white;
+  padding:60px 0;
+  overflow:hidden;
 }
-.gallery:hover .track{animation-play-state:paused}
+.track{
+  display:flex;
+  gap:24px;
+  padding-left:24px;
+  width:max-content;
+  will-change:transform;
+}
+.track.animate{
+  animation-name:scroll;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+}
+.track img{
+  width:380px;
+  height:260px;
+  object-fit:cover;
+  border-radius:22px;
+}
+.gallery:hover .track{
+  animation-play-state:paused;
+}
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
-}
-@media(max-width:768px){
-  .track.animate{animation-duration:8s}
 }
 
 /* ================= FOOTER ================= */
@@ -208,25 +223,13 @@ footer{background:#081634}
   </div>
 </section>
 
-<!-- LIVE COUNT STATS -->
+<!-- STATS -->
 <section class="villa-stats">
   <div class="stats-container">
-    <div class="stat-box">
-      <h2 class="green count" data-target="150">0+</h2>
-      <p>Years of Heritage</p>
-    </div>
-    <div class="stat-box">
-      <h2 class="blue count" data-target="20">0+</h2>
-      <p>Rooms & Courtyards</p>
-    </div>
-    <div class="stat-box">
-      <h2 class="purple count" data-target="100">0+</h2>
-      <p>Family Members & Guests</p>
-    </div>
-    <div class="stat-box">
-      <h2 class="orange count" data-target="24" data-suffix="/7">0</h2>
-      <p>Care, Shelter & Support</p>
-    </div>
+    <div class="stat-box"><h2 class="green count" data-target="150">0+</h2><p>Years of Heritage</p></div>
+    <div class="stat-box"><h2 class="blue count" data-target="20">0+</h2><p>Rooms & Courtyards</p></div>
+    <div class="stat-box"><h2 class="purple count" data-target="100">0+</h2><p>Family Members & Guests</p></div>
+    <div class="stat-box"><h2 class="orange count" data-target="24" data-suffix="/7">0</h2><p>Care, Shelter & Support</p></div>
   </div>
 </section>
 
@@ -242,7 +245,7 @@ footer{background:#081634}
   </div>
 </section>
 
-<!-- SLIDER (UNCHANGED) -->
+<!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
   <div class="track" id="galleryTrack"></div>
 </section>
@@ -294,31 +297,21 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   footerLogo.src=logo.url+"?v="+v;
 });
 
-/* HERO IMAGES (NEW – SAFE, INSTANT) */
+/* HERO IMAGE */
 const heroSection=document.getElementById("heroSection");
-
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
-
-  const heroes=(snap.data().heroimages || [])
-    .filter(h=>h.enabled===true);
-
-  if(!heroes.length){
-    heroSection.style.backgroundImage="";
-    return;
-  }
-
-  const url=heroes[0].url;
-  const preload=new Image();
-  preload.onload=()=>{
-    heroSection.style.backgroundImage=`url('${url}')`;
-  };
-  preload.src=url;
+  const heroes=(snap.data().heroimages||[]).filter(h=>h.enabled===true);
+  if(!heroes.length){heroSection.style.backgroundImage="";return;}
+  const img=new Image();
+  img.onload=()=>heroSection.style.backgroundImage=`url('${heroes[0].url}')`;
+  img.src=heroes[0].url;
 });
 
-/* SLIDER IMAGES (UNCHANGED) */
+/* SLIDER – CONSTANT SPEED */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
+
   const imgs=(snap.data().sliderImages||[])
     .filter(i=>i.enabled!==false)
     .sort((a,b)=>(a.order||0)-(b.order||0));
@@ -333,35 +326,38 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     img.src=i.url;
     galleryTrack.appendChild(img);
   });
-  galleryTrack.classList.toggle("animate",imgs.length>1);
+
+  if(imgs.length>1){
+    galleryTrack.classList.add("animate");
+    requestAnimationFrame(()=>{
+      const width=galleryTrack.scrollWidth/2;
+      const speed=80; // px per second
+      galleryTrack.style.animationDuration=(width/speed)+"s";
+    });
+  }else{
+    galleryTrack.classList.remove("animate");
+  }
 });
 </script>
 
-<!-- LIVE COUNT SCRIPT -->
+<!-- LIVE COUNT -->
 <script>
 const counters=document.querySelectorAll('.count');
 let started=false;
-
 function startCount(){
-  if(started) return;
+  if(started)return;
   const section=document.querySelector('.villa-stats');
-  if(section.getBoundingClientRect().top < window.innerHeight-100){
+  if(section.getBoundingClientRect().top<window.innerHeight-100){
     started=true;
-    counters.forEach(counter=>{
-      const target=+counter.dataset.target;
-      const suffix=counter.dataset.suffix || '+';
-      let value=0;
-      const step=target/60;
-      function update(){
-        value+=step;
-        if(value<target){
-          counter.textContent=Math.floor(value)+suffix;
-          requestAnimationFrame(update);
-        }else{
-          counter.textContent=target+suffix;
-        }
-      }
-      update();
+    counters.forEach(c=>{
+      const target=+c.dataset.target;
+      const suffix=c.dataset.suffix||'+';
+      let v=0,step=target/60;
+      (function anim(){
+        v+=step;
+        if(v<target){c.textContent=Math.floor(v)+suffix;requestAnimationFrame(anim);}
+        else c.textContent=target+suffix;
+      })();
     });
   }
 }
