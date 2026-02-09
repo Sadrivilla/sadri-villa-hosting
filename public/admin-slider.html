@@ -174,49 +174,161 @@ button:hover{opacity:.9}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+/* FIREBASE INIT */
 const app = initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.firebasestorage.app"
 });
 
 const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-async function uploadHero(file) {
-  const user = auth.currentUser;
-  if (!user) return alert("Not logged in");
+/* DOM */
+const fileInput = document.getElementById("fileInput");
+const previewBox = document.getElementById("previewBox");
+const previewImg = document.getElementById("previewImg");
+const sliderList = document.getElementById("sliderList");
+const toast = document.getElementById("toast");
 
-  const token = await user.getIdToken(true);
+let selectedFile = null;
+let sliderImages = [];
 
-  const base64 = await new Promise((res) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(",")[1]);
-    r.readAsDataURL(file);
-  });
+/* TOAST */
+function showToast(msg, type = "info") {
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
 
-  const response = await fetch(
-    "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadHeroImage",
-    {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        fileBase64: base64,
-        mimeType: file.type
-      })
-    }
-  );
+/* AUTH */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) location.href = "login.html";
+  const token = await user.getIdTokenResult(true);
+  if (!token.claims.admin) {
+    alert("Admin only");
+    location.href = "dashboard.html";
+  }
+});
 
-  if (!response.ok) {
-    throw new Error(await response.text());
+/* PREVIEW */
+fileInput.onchange = (e) => {
+  selectedFile = e.target.files[0];
+  if (!selectedFile) return;
+  previewImg.src = URL.createObjectURL(selectedFile);
+  previewBox.style.display = "block";
+};
+
+/* LOAD SLIDER IMAGES */
+onSnapshot(doc(db, "siteSettings", "home"), (snap) => {
+  sliderImages = snap.data()?.sliderImages || [];
+  render();
+});
+
+/* RENDER */
+function render() {
+  sliderList.innerHTML = "";
+
+  if (!sliderImages.length) {
+    sliderList.innerHTML =
+      `<div class="empty">No slider images uploaded yet</div>`;
+    return;
   }
 
-  alert("Hero image uploaded successfully");
+  sliderImages
+    .sort((a, b) => a.order - b.order)
+    .forEach((img, i) => {
+      sliderList.innerHTML += `
+        <div class="item ${img.enabled !== false ? "enabled" : ""}">
+          <img src="${img.url}">
+          <div style="flex:1">
+            <small>Order: ${img.order}</small><br>
+            <small>Status: ${img.enabled === false ? "Disabled" : "Enabled"}</small>
+          </div>
+          <button onclick="move(${i},-1)">↑</button>
+          <button onclick="move(${i},1)">↓</button>
+          <button onclick="toggle(${i})">
+            ${img.enabled === false ? "Enable" : "Disable"}
+          </button>
+          <button onclick="removeImg('${img.url}')">Delete</button>
+        </div>`;
+    });
 }
+
+/* UPLOAD SLIDER IMAGE */
+window.upload = async () => {
+  if (!selectedFile) return;
+
+  const order = sliderImages.length
+    ? Math.max(...sliderImages.map(i => i.order)) + 1
+    : 1;
+
+  const fileRef = ref(
+    storage,
+    `images/site/slider/${Date.now()}-${selectedFile.name}`
+  );
+
+  await uploadBytes(fileRef, selectedFile);
+  const url = await getDownloadURL(fileRef);
+
+  sliderImages.push({
+    url,
+    order,
+    enabled: true,
+    createdAt: new Date()
+  });
+
+  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+
+  previewBox.style.display = "none";
+  fileInput.value = "";
+  selectedFile = null;
+
+  showToast("Slider image uploaded", "success");
+};
+
+/* MOVE */
+window.move = async (i, dir) => {
+  const j = i + dir;
+  if (j < 0 || j >= sliderImages.length) return;
+
+  [sliderImages[i].order, sliderImages[j].order] =
+    [sliderImages[j].order, sliderImages[i].order];
+
+  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+  showToast("Order updated", "info");
+};
+
+/* TOGGLE */
+window.toggle = async (i) => {
+  sliderImages[i].enabled = !sliderImages[i].enabled;
+  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+  showToast(
+    sliderImages[i].enabled ? "Image enabled" : "Image disabled",
+    "info"
+  );
+};
+
+/* DELETE */
+window.removeImg = async (url) => {
+  if (!confirm("Delete this slider image?")) return;
+
+  sliderImages = sliderImages.filter(i => i.url !== url);
+  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+
+  try {
+    const path = decodeURIComponent(url.split("/o/")[1].split("?")[0]);
+    await deleteObject(ref(storage, path));
+  } catch {}
+
+  showToast("Slider image deleted", "error");
+};
 </script>
 
 
