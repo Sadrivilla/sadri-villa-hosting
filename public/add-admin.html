@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel | Sadri Villa</title>
+<title>Add Admin | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -13,7 +13,7 @@ body{
   color:#0f172a;
 }
 
-/* ================= NAVBAR (SAME AS index.html) ================= */
+/* ===== NAVBAR (SAME AS index.html) ===== */
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
@@ -26,12 +26,11 @@ body{
   border-bottom:1px solid rgba(255,255,255,0.15);
   box-shadow:0 8px 24px rgba(0,0,0,0.25);
 }
-
 .brand{
   height:100%;
   display:flex;
   align-items:stretch;
-  padding-left:0px;
+  padding-left:18px;
 }
 .brand img{
   height:100%;
@@ -40,95 +39,115 @@ body{
   display:none;
 }
 
-/* ================= ADMIN BUTTON BAR ================= */
-.admin-bar{
-  margin-top:92px;
-  display:flex;
-  justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-  padding:30px 20px;
+/* ===== FORM CARD ===== */
+.container{
+  max-width:460px;
+  margin:130px auto 60px;
+  padding:34px 30px;
+  border-radius:28px;
+  background:#f8fbff;
+  box-shadow:0 25px 55px rgba(0,0,0,.15);
 }
-
-/* BUTTON STYLE – SAME AS IMAGE */
-.admin-btn{
-  padding:14px 26px;
-  border-radius:999px;
-  font-weight:700;
-  font-size:15px;
-  color:#ffffff;
-  text-decoration:none;
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  box-shadow:0 12px 26px rgba(56,189,248,.45);
-  transition:.25s ease;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-/* HOVER */
-.admin-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 18px 40px rgba(56,189,248,.6);
-}
-
-/* ACTIVE BUTTON */
-.admin-btn.active{
-  background:linear-gradient(135deg,#2563eb,#1d4ed8);
-  box-shadow:0 18px 40px rgba(37,99,235,.65);
-}
-
-/* OPTIONAL CONTENT */
-.admin-content{
+h2{
   text-align:center;
-  padding:40px 20px;
-  color:#475569;
+  margin-bottom:26px;
+  font-size:24px;
 }
+
+label{
+  display:block;
+  margin-top:16px;
+  font-weight:600;
+  font-size:14px;
+}
+input{
+  width:100%;
+  padding:14px 16px;
+  margin-top:6px;
+  border-radius:14px;
+  border:1px solid #cbd5e1;
+  font-size:15px;
+}
+input:focus{
+  outline:none;
+  border-color:#38bdf8;
+}
+
+button{
+  width:100%;
+  margin-top:26px;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  color:#fff;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  box-shadow:0 14px 30px rgba(56,189,248,.45);
+  transition:.25s;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 20px 44px rgba(56,189,248,.6);
+}
+
+.msg{
+  margin-top:18px;
+  text-align:center;
+  font-size:14px;
+}
+.success{color:#16a34a}
+.error{color:#dc2626}
 </style>
 </head>
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
+<!-- ===== NAVBAR ===== -->
 <div class="navbar">
   <div class="brand">
     <img id="siteLogo" alt="Sadri Villa Logo">
   </div>
 </div>
 
-<!-- ================= ADMIN BUTTONS ================= -->
-<div class="admin-bar">
+<!-- ===== FORM ===== -->
+<div class="container">
+  <h2>➕ Add New Admin</h2>
 
-  <a href="admin.html" class="admin-btn">🏠 Dashboard</a>
-  <a href="admin-profile.html" class="admin-btn">👤 Profile</a>
+  <label>Full Name</label>
+  <input id="name" placeholder="Admin name">
 
-  <a href="admin-logo.html" class="admin-btn">🖼 Logo</a>
-  <a href="admin-hero.html" class="admin-btn">🎞 Hero</a>
-  <a href="admin-slider.html" class="admin-btn">🧩 Slider</a>
+  <label>Email</label>
+  <input id="email" type="email" placeholder="admin@email.com">
 
-  <a href="admin-list.html" class="admin-btn">👥 Admin List</a>
-  <a href="admin-add.html" class="admin-btn">➕ Add Admin</a>
-  <a href="admin-logs.html" class="admin-btn">📜 Admin Logs</a>
+  <label>Temporary Password</label>
+  <input id="password" type="password" placeholder="Min 6 characters">
 
+  <button onclick="createAdmin()">Create Admin</button>
+
+  <div id="msg" class="msg"></div>
 </div>
 
-<div class="admin-content">
-  Select an option above to manage the website.
-</div>
-
-<!-- ================= FIREBASE (LOGO ONLY) ================= -->
+<!-- ===== FIREBASE ===== -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp, onSnapshot } from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app=initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const db=getFirestore(app);
 
-/* LOGO CONDITION (SAME AS index.html) */
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* LOGO (SAME CONDITION AS index.html) */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   if(!snap.exists())return;
   const logo=snap.data().logo;
@@ -136,16 +155,43 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   siteLogo.onload=()=>siteLogo.style.display="block";
   siteLogo.src=logo.url+"?v="+(logo.updatedAt?.seconds||Date.now());
 });
-</script>
 
-<!-- ================= ACTIVE BUTTON SCRIPT ================= -->
-<script>
-const current = location.pathname.split("/").pop();
-document.querySelectorAll(".admin-btn").forEach(btn=>{
-  if(btn.getAttribute("href")===current){
-    btn.classList.add("active");
+/* CREATE ADMIN */
+window.createAdmin = async () => {
+  msg.textContent="";
+  msg.className="msg";
+
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  if(!name || !email || password.length < 6){
+    msg.textContent="Please fill all fields correctly";
+    msg.classList.add("error");
+    return;
   }
-});
+
+  try{
+    const cred = await createUserWithEmailAndPassword(auth,email,password);
+
+    await setDoc(doc(db,"admins",cred.user.uid),{
+      name,
+      email,
+      role:"admin",
+      approved:false,
+      createdAt: serverTimestamp()
+    });
+
+    msg.textContent="Admin created. Awaiting approval.";
+    msg.classList.add("success");
+
+    name.value=email.value=password.value="";
+  }
+  catch(err){
+    msg.textContent=err.message;
+    msg.classList.add("error");
+  }
+};
 </script>
 
 </body>
