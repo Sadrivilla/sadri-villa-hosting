@@ -6,33 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#eef2ff;
-}
+body{margin:0;font-family:Arial;background:#eef2ff}
 
-/* ===== NAVBAR (SAME AS INDEX) ===== */
+/* ===== NAVBAR ===== */
 .navbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 24px;
-  background:#eaf2ff;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;background:#eaf2ff;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)
 }
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.nav-left img{
-  height:38px;
-  object-fit:contain;
-}
-.nav-left h3{
-  margin:0;
-}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-left img{height:38px;object-fit:contain}
+.nav-left h3{margin:0}
 
 /* ===== ADMIN TOP GLASS BAR ===== */
 .admin-topbar{
@@ -42,7 +26,6 @@ body{
   background:linear-gradient(180deg,#eef6ff,#f8fbff);
   box-shadow:0 10px 30px rgba(0,0,0,.08);
   overflow-x:auto;
-  scrollbar-width:none;
 }
 .admin-topbar::-webkit-scrollbar{display:none}
 
@@ -65,90 +48,54 @@ body{
     0 12px 28px rgba(56,189,248,.45);
   transition:.25s ease;
 }
+.admin-btn:hover{transform:translateY(-2px)}
 
-.admin-btn:hover{
-  transform:translateY(-2px);
-}
-
-/* secondary buttons */
 .admin-btn.secondary{
   background:linear-gradient(135deg,#60a5fa,#93c5fd);
 }
-
-/* back button */
 .admin-btn.dark{
   background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
-
-/* ===== ACTIVE BUTTON ===== */
 .admin-btn.active{
   background:linear-gradient(135deg,#2563eb,#1e40af);
   box-shadow:
     inset 0 2px 6px rgba(0,0,0,.35),
     0 18px 40px rgba(37,99,235,.7);
-  transform:translateY(-2px) scale(1.03);
 }
 
-/* ===== PAGE CONTENT ===== */
-.container{
-  padding:20px;
-}
+/* ===== PAGE ===== */
+.container{padding:20px}
 
 .controls{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:14px;
+  display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px
 }
-.controls select,
-.controls input,
-.controls button{
-  padding:8px 12px;
-  border-radius:10px;
-  border:none;
+.controls select,.controls input,.controls button{
+  padding:8px 12px;border-radius:10px;border:none
 }
-.controls select,
-.controls input{
-  border:1px solid #c7d2fe;
-}
+.controls select,.controls input{border:1px solid #c7d2fe}
 .success{background:#16a34a;color:#fff}
 .secondary{background:#64748b;color:#fff}
 .danger{background:#dc2626;color:#fff}
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 18px 40px rgba(0,0,0,.1);
+  width:100%;border-collapse:collapse;background:#fff;
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.1)
 }
-th,td{
-  padding:12px;
-  border-bottom:1px solid #e5e7eb;
-  font-size:14px;
-}
-th{
-  background:#f8fafc;
-  text-align:left;
-}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb;font-size:14px}
+th{background:#f8fafc;text-align:left}
 
 .badge{
-  padding:4px 10px;
-  border-radius:999px;
-  color:#fff;
-  font-size:12px;
+  padding:4px 10px;border-radius:999px;
+  color:#fff;font-size:12px
 }
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
 
 .uid-btn{
-  background:#eef2ff;
-  border:1px solid #c7d2fe;
-  padding:4px 8px;
-  border-radius:8px;
-  font-size:12px;
-  cursor:pointer;
+  background:#eef2ff;border:1px solid #c7d2fe;
+  padding:4px 8px;border-radius:8px;
+  font-size:12px;cursor:pointer
 }
 </style>
 </head>
@@ -192,11 +139,39 @@ th{
 
 </div>
 
-<!-- ===== CONTENT ===== -->
+<!-- ===== CONTENT (UNCHANGED) ===== -->
 <div class="container">
 
-  <!-- YOUR EXISTING CONTENT CONTINUES HERE -->
-  <!-- NOTHING BELOW THIS WAS CHANGED -->
+<div class="controls">
+  <select id="statusFilter" onchange="render()">
+    <option value="all">All Status</option>
+    <option value="approved">Approved</option>
+    <option value="pending">Pending</option>
+  </select>
+
+  <input id="search" placeholder="Search by Name / Email / Phone" oninput="render()">
+
+  <button class="success" onclick="bulkApprove()">Approve</button>
+  <button class="secondary" onclick="bulkUnapprove()">Unapprove</button>
+  <button class="danger" onclick="bulkDelete()">Delete</button>
+  <button onclick="exportXLSX()">Export XLSX</button>
+</div>
+
+<table>
+<thead>
+<tr>
+  <th><input type="checkbox" onclick="toggleAll(this)"></th>
+  <th>Name</th>
+  <th>UID</th>
+  <th>Email</th>
+  <th>Phone</th>
+  <th>Created</th>
+  <th>Status</th>
+  <th>Action</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
 
 </div>
 
@@ -206,7 +181,7 @@ const page = location.pathname.split("/").pop();
 document.querySelectorAll(".admin-btn").forEach(btn=>{
   if(btn.dataset.page === page){
     btn.classList.add("active");
-    btn.scrollIntoView({inline:"center",behavior:"smooth"});
+    btn.scrollIntoView({inline:"center"});
   }
 });
 </script>
@@ -236,6 +211,102 @@ onSnapshot(doc(db,"siteSettings","home"), snap=>{
     siteLogo.src = d.logo.url + "?v=" + Date.now();
   }
 });
+</script>
+
+<!-- ===== ADMIN LOGIC (UNCHANGED, FULL) ===== -->
+<script type="module">
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,collection,getDocs,doc,updateDoc,deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+
+const auth=getAuth();
+const db=getFirestore();
+
+const tbody=document.getElementById("tbody");
+const search=document.getElementById("search");
+const statusFilter=document.getElementById("statusFilter");
+
+let users=[];
+
+/* AUTH */
+onAuthStateChanged(auth, async user=>{
+  if(!user) return location.href="login.html";
+  const token=await user.getIdTokenResult(true);
+  if(!token.claims.admin){
+    alert("Admin only");
+    return location.href="dashboard.html";
+  }
+  load();
+});
+
+/* LOAD USERS */
+async function load(){
+  users=[];
+  const snap=await getDocs(collection(db,"users"));
+  snap.forEach(d=>users.push({uid:d.id,...d.data()}));
+  render();
+}
+
+/* RENDER */
+window.render=()=>{
+  tbody.innerHTML="";
+  const q=search.value.toLowerCase();
+
+  users.filter(u=>{
+    if(statusFilter.value==="approved"&&!u.approved) return false;
+    if(statusFilter.value==="pending"&&u.approved) return false;
+
+    const name=(u.fullName||u.adminFields?.Name||u.displayName||"").toLowerCase();
+    const email=(u.email||u.adminFields?.Email||"").toLowerCase();
+    const phone=(u.phone||u.adminFields?.Phone||"");
+
+    return name.includes(q)||email.includes(q)||phone.includes(q);
+  }).forEach(u=>{
+    tbody.innerHTML+=`
+    <tr>
+      <td><input type="checkbox" class="sel" value="${u.uid}"></td>
+      <td>${u.fullName||u.adminFields?.Name||u.displayName||"-"}</td>
+      <td><button class="uid-btn" onclick="copyUID('${u.uid}',this)">Copy UID</button></td>
+      <td>${u.email||"-"}</td>
+      <td>${u.phone||"-"}</td>
+      <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
+      <td>
+        <span class="badge ${u.approved?"green":"yellow"}">
+          ${u.approved?"Approved":"Pending"}
+        </span>
+      </td>
+      <td>
+        <button onclick="toggle('${u.uid}',${u.approved})">
+          ${u.approved?"Unapprove":"Approve"}
+        </button>
+      </td>
+    </tr>`;
+  });
+};
+
+/* HELPERS */
+window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
+const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
+
+window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{approved:!v});load();};
+window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:true});load();};
+window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:false});load();};
+window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));load();};
+
+/* EXPORT */
+window.exportXLSX=()=>{
+  const rows=users.map(u=>({
+    UID:u.uid,Name:u.fullName||"",Email:u.email||"",
+    Phone:u.phone||"",Approved:u.approved?"Yes":"No",
+    Created:u.createdAt||""
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Users");
+  XLSX.writeFile(wb,"users_export.xlsx");
+};
 </script>
 
 </body>
