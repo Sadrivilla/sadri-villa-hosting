@@ -2,132 +2,150 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Add Admin | Sadri Villa</title>
+<title>Admin Panel | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family: Arial;
-  background:#eef2ff;
-  margin:0;
-  padding:0;
+  font-family:Arial,sans-serif;
+  background:#ffffff;
+  color:#0f172a;
 }
-.topbar{
+
+/* ================= NAVBAR (SAME AS index.html) ================= */
+.navbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:72px;
   display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px 20px;
-  background:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.1);
+  align-items:stretch;
+  background:rgba(8,22,52,.35);
+  backdrop-filter:blur(14px);
+  z-index:1000;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);
 }
-.topbar img{height:38px}
-.container{
-  max-width:520px;
-  margin:60px auto;
-  background:#fff;
-  padding:28px;
-  border-radius:18px;
-  box-shadow:0 18px 40px rgba(0,0,0,.15);
+
+.brand{
+  height:100%;
+  display:flex;
+  align-items:stretch;
+  padding-left:0px;
 }
-h2{margin-top:0}
-input{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #c7d2fe;
-  font-size:15px;
-}
-button{
-  margin-top:14px;
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:#16a34a;
-  color:#fff;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:disabled{opacity:.6}
-.msg{
-  margin-top:14px;
-  padding:12px;
-  border-radius:12px;
+.brand img{
+  height:100%;
+  width:auto;
+  object-fit:contain;
   display:none;
 }
-.success{background:#dcfce7;color:#166534}
-.error{background:#fee2e2;color:#991b1b}
-.back{
-  margin-left:auto;
-  cursor:pointer;
-  font-weight:bold;
-  color:#4f46e5;
+
+/* ================= ADMIN BUTTON BAR ================= */
+.admin-bar{
+  margin-top:92px;
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  padding:30px 20px;
+}
+
+/* BUTTON STYLE – SAME AS IMAGE */
+.admin-btn{
+  padding:14px 26px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:15px;
+  color:#ffffff;
+  text-decoration:none;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  box-shadow:0 12px 26px rgba(56,189,248,.45);
+  transition:.25s ease;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* HOVER */
+.admin-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 18px 40px rgba(56,189,248,.6);
+}
+
+/* ACTIVE BUTTON */
+.admin-btn.active{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  box-shadow:0 18px 40px rgba(37,99,235,.65);
+}
+
+/* OPTIONAL CONTENT */
+.admin-content{
+  text-align:center;
+  padding:40px 20px;
+  color:#475569;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-  <img src="images/logo.png" alt="Sadri Villa">
-  <div class="back" onclick="location.href='admin.html'">← Back</div>
+<!-- ================= NAVBAR ================= -->
+<div class="navbar">
+  <div class="brand">
+    <img id="siteLogo" alt="Sadri Villa Logo">
+  </div>
 </div>
 
-<div class="container">
-  <h2>➕ Make New Admin</h2>
-  <input id="uid" placeholder="Paste User UID here">
-  <button id="btn" onclick="makeAdmin()">Make Admin</button>
-  <div id="msg" class="msg"></div>
+<!-- ================= ADMIN BUTTONS ================= -->
+<div class="admin-bar">
+
+  <a href="admin.html" class="admin-btn">🏠 Dashboard</a>
+  <a href="admin-profile.html" class="admin-btn">👤 Profile</a>
+
+  <a href="admin-logo.html" class="admin-btn">🖼 Logo</a>
+  <a href="admin-hero.html" class="admin-btn">🎞 Hero</a>
+  <a href="admin-slider.html" class="admin-btn">🧩 Slider</a>
+
+  <a href="admin-list.html" class="admin-btn">👥 Admin List</a>
+  <a href="admin-add.html" class="admin-btn">➕ Add Admin</a>
+  <a href="admin-logs.html" class="admin-btn">📜 Admin Logs</a>
+
 </div>
 
+<div class="admin-content">
+  Select an option above to manage the website.
+</div>
+
+<!-- ================= FIREBASE (LOGO ONLY) ================= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* Firebase */
-const app = initializeApp({
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+const app=initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
 });
-const auth = getAuth(app);
-const functions = getFunctions(app, "us-central1");
-const addAdmin = httpsCallable(functions, "addAdmin");
+const db=getFirestore(app);
 
-/* Guard */
-onAuthStateChanged(auth, async user => {
-  if (!user) return location.href = "login.html";
-  const token = await user.getIdTokenResult();
-  if (!token.claims.admin) location.href = "dashboard.html";
+/* LOGO CONDITION (SAME AS index.html) */
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists())return;
+  const logo=snap.data().logo;
+  if(!logo?.url)return;
+  siteLogo.onload=()=>siteLogo.style.display="block";
+  siteLogo.src=logo.url+"?v="+(logo.updatedAt?.seconds||Date.now());
 });
+</script>
 
-window.makeAdmin = async () => {
-  const uid = document.getElementById("uid").value.trim();
-  const msg = document.getElementById("msg");
-  const btn = document.getElementById("btn");
-
-  if (!uid) {
-    msg.className = "msg error";
-    msg.innerText = "UID is required";
-    msg.style.display = "block";
-    return;
+<!-- ================= ACTIVE BUTTON SCRIPT ================= -->
+<script>
+const current = location.pathname.split("/").pop();
+document.querySelectorAll(".admin-btn").forEach(btn=>{
+  if(btn.getAttribute("href")===current){
+    btn.classList.add("active");
   }
-
-  try {
-    btn.disabled = true;
-    await addAdmin({ uid });
-    msg.className = "msg success";
-    msg.innerText = "✅ Admin added successfully";
-  } catch (e) {
-    msg.className = "msg error";
-    msg.innerText = "❌ " + (e.message || "Failed to add admin");
-  } finally {
-    btn.disabled = false;
-    msg.style.display = "block";
-  }
-};
+});
 </script>
 
 </body>
