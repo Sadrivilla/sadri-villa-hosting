@@ -149,22 +149,27 @@ const db = getFirestore(app);
 
 /* 🔐 AUTH + ADMIN CLAIM */
 onAuthStateChanged(auth, async user => {
-  if (!user) return location.href = "login.html";
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
 
-const snap = await getDoc(doc(db, "users", user.uid));
+  try {
+    const snap = await getDoc(doc(db, "users", user.uid));
 
-if (!snap.exists() || snap.data().role !== "admin") {
-  alert("Access denied");
-  return location.href = "dashboard.html";
-}
+    if (!snap.exists() || snap.data().role !== "admin") {
+      alert("Access denied");
+      location.href = "dashboard.html";
+      return;
+    }
 
-pName.innerText = snap.data().fullName || "Admin";
+    pName.innerText = snap.data().fullName || "Admin";
 
+    loadDashboard();
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-  pName.innerText = snap.exists() ? snap.data().fullName || "Admin" : "Admin";
-
-  loadDashboard();
+  } catch (error) {
+    console.error("Error loading admin:", error);
+  }
 });
 
 /* MENU */
