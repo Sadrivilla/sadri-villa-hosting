@@ -8,7 +8,7 @@
 <style>
 body{margin:0;font-family:Arial;background:#eef2ff}
 
-/* NAVBAR SAME AS INDEX */
+/* NAVBAR */
 .navbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 24px;background:#eaf2ff;
@@ -16,6 +16,18 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 }
 .nav-left{display:flex;align-items:center;gap:10px}
 .nav-left img{height:40px}
+
+/* TOP ADMIN BUTTONS (RECOVERED) */
+.admin-topbar{
+  display:flex;gap:12px;padding:15px 24px;
+  background:linear-gradient(180deg,#eef6ff,#f8fbff);
+  overflow-x:auto
+}
+.admin-btn{
+  padding:10px 18px;border:none;border-radius:999px;
+  cursor:pointer;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,#4facfe,#38bdf8)
+}
 
 /* CONTROLS */
 .container{padding:20px}
@@ -47,6 +59,16 @@ th{background:#f8fafc;text-align:left}
 }
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
+
+.uid-btn{
+  background:#eef2ff;border:1px solid #c7d2fe;
+  padding:4px 8px;border-radius:8px;
+  font-size:12px;cursor:pointer
+}
+
+.role-select{
+  padding:6px;border-radius:6px;border:1px solid #c7d2fe
+}
 
 /* MODAL */
 .modal-overlay{
@@ -100,6 +122,18 @@ th{background:#f8fafc;text-align:left}
   </div>
 </div>
 
+<!-- RECOVERED BUTTON BAR -->
+<div class="admin-topbar">
+  <button class="admin-btn" onclick="location.href='admin-dashboard.html'">⬅ Back</button>
+  <button class="admin-btn" onclick="location.href='admin-profile.html'">👤 Profile</button>
+  <button class="admin-btn" onclick="location.href='admin-logo.html'">🏷 Logo</button>
+  <button class="admin-btn" onclick="location.href='admin-hero.html'">✏ Hero</button>
+  <button class="admin-btn" onclick="location.href='admin-slider.html'">🧩 Slider</button>
+  <button class="admin-btn" onclick="location.href='admin-list.html'">👥 Admin List</button>
+  <button class="admin-btn" onclick="location.href='add-admin.html'">➕ Add Admin</button>
+  <button class="admin-btn" onclick="location.href='admin-logs.html'">📜 Admin Logs</button>
+</div>
+
 <div class="container">
 
 <div class="controls">
@@ -125,6 +159,7 @@ th{background:#f8fafc;text-align:left}
   <th><input type="checkbox" onclick="toggleAll(this)"></th>
   <th>#</th>
   <th>Name</th>
+  <th>UID</th>
   <th>Email</th>
   <th>Role</th>
   <th>Created</th>
@@ -172,23 +207,6 @@ const db=getFirestore();
 let users=[];
 let pendingAction=null;
 
-/* NAVBAR REALTIME LOGO */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists())return;
-  const d=snap.data();
-  if(d.logo?.url)
-    document.getElementById("siteLogo").src=d.logo.url+"?v="+Date.now();
-});
-
-/* AUTH CHECK */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().role!=="admin"){
-    location.href="dashboard.html";return;
-  }
-});
-
 /* REALTIME USERS */
 onSnapshot(collection(db,"users"),snap=>{
   users=[];
@@ -196,12 +214,6 @@ onSnapshot(collection(db,"users"),snap=>{
   users.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   render();
 });
-
-function formatDate(v){
-  if(!v)return "-";
-  if(v.seconds)return new Date(v.seconds*1000).toLocaleDateString("en-IN");
-  return "-";
-}
 
 /* RENDER */
 window.render=()=>{
@@ -225,9 +237,16 @@ window.render=()=>{
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
       <td>${i+1}</td>
       <td>${u.fullName||"-"}</td>
+      <td><button class="uid-btn" onclick="copyUID('${u.uid}')">Copy UID</button></td>
       <td>${u.email||"-"}</td>
-      <td>${u.role||"user"}</td>
-      <td>${formatDate(u.createdAt)}</td>
+      <td>
+        <select class="role-select"
+          onchange="confirmRoleChange('${u.uid}','${u.role}',this)">
+          <option value="user" ${u.role!=="admin"?"selected":""}>User</option>
+          <option value="admin" ${u.role==="admin"?"selected":""}>Admin</option>
+        </select>
+      </td>
+      <td>${u.createdAt?.seconds?new Date(u.createdAt.seconds*1000).toLocaleDateString("en-IN"):"-"}</td>
       <td>
         <span class="badge ${u.approved?"green":"yellow"}">
           ${u.approved?"Approved":"Pending"}
@@ -242,74 +261,25 @@ window.render=()=>{
   });
 };
 
-/* LOADER */
-function showLoader(){document.getElementById("loader").style.display="flex";}
-function hideLoader(){document.getElementById("loader").style.display="none";}
+/* COPY UID */
+window.copyUID=(uid)=>{
+  navigator.clipboard.writeText(uid);
+  showToast("UID copied");
+};
 
-/* TOAST */
-function showToast(msg,type="success"){
-  const t=document.getElementById("toast");
-  t.innerText=msg;
-  t.className="toast "+type+" show";
-  setTimeout(()=>t.classList.remove("show"),3000);
-}
-
-/* CONFIRMATIONS */
-window.confirmSingle=(id,isApproved)=>{
-  pendingAction={type:"single",id,isApproved};
+/* ROLE CHANGE CONFIRM */
+window.confirmRoleChange=(uid,oldRole,selectEl)=>{
+  const newRole=selectEl.value;
+  if(newRole===oldRole)return;
+  pendingAction={type:"role",uid,newRole};
   document.getElementById("modalText").innerText=
-    isApproved?"Unapprove this user?":"Approve this user?";
+    `Change role to ${newRole.toUpperCase()} ?`;
   document.getElementById("modal").classList.add("active");
 };
 
-window.confirmBulk=(action)=>{
-  const ids=[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
-  if(ids.length===0){showToast("Select users first","error");return;}
-  pendingAction={type:"bulk",action,ids};
-  document.getElementById("modalText").innerText=
-    `Confirm ${action.toUpperCase()} for selected users?`;
-  document.getElementById("modal").classList.add("active");
-};
-
-window.closeModal=()=>{
-  pendingAction=null;
-  document.getElementById("modal").classList.remove("active");
-};
-
-window.confirmAction=async()=>{
-  showLoader();
-  try{
-    if(pendingAction.type==="single"){
-      await updateDoc(doc(db,"users",pendingAction.id),
-        {approved:!pendingAction.isApproved});
-    }else{
-      for(const id of pendingAction.ids){
-        if(pendingAction.action==="approve")
-          await updateDoc(doc(db,"users",id),{approved:true});
-        if(pendingAction.action==="unapprove")
-          await updateDoc(doc(db,"users",id),{approved:false});
-        if(pendingAction.action==="delete")
-          await deleteDoc(doc(db,"users",id));
-      }
-    }
-    showToast("Action completed successfully");
-  }catch(e){
-    showToast("Something went wrong","error");
-  }
-  hideLoader();
-  closeModal();
-};
-
-/* EXPORT */
+/* EXPORT ALL FIELDS */
 window.exportXLSX=()=>{
-  const rows=users.map(u=>({
-    Name:u.fullName||"",
-    Email:u.email||"",
-    Role:u.role||"",
-    Approved:u.approved?"Yes":"No",
-    Created:formatDate(u.createdAt)
-  }));
-  const ws=XLSX.utils.json_to_sheet(rows);
+  const ws=XLSX.utils.json_to_sheet(users);
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"Users");
   XLSX.writeFile(wb,"users_export.xlsx");
