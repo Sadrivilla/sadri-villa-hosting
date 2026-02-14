@@ -13,6 +13,11 @@
 :root{--bg:#eef2ff}
 body{margin:0;font-family:Arial;background:var(--bg)}
 
+canvas {
+  max-height: 260px;
+}
+
+
 .header{
   margin:20px;padding:22px;border-radius:22px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
@@ -162,6 +167,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let approvalChartInstance = null;
+let ageChartInstance = null;
+let profileChartInstance = null;
+let cachedUsers = [];
 
 /* ADMIN CHECK */
 onAuthStateChanged(auth, async user => {
@@ -180,36 +188,94 @@ onAuthStateChanged(auth, async user => {
 
   pName.innerText = snap.data().fullName || "Admin";
 
-  loadDashboardOnce();
+  loadDashboard();
   listenPendingRealtime();
 });
 
-/* LOAD DASHBOARD ONCE (No infinite reflow) */
-async function loadDashboardOnce(){
+/* LOAD DASHBOARD */
+async function loadDashboard(){
+
   const snap = await getDocs(collection(db,"users"));
-  const users = snap.docs.map(d=>d.data());
+  cachedUsers = snap.docs.map(d=>d.data());
 
-  totalUsers.innerText = users.length;
+  totalUsers.innerText = cachedUsers.length;
 
-  const approved = users.filter(u=>u.approved===true).length;
-  const pending = users.length - approved;
-
-  approvalChartInstance = new Chart(approvalChart,{
-    type:"doughnut",
-    data:{
-      labels:["Approved","Pending"],
-      datasets:[{
-        data:[approved,pending]
-      }]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:false
-    }
-  });
+  renderApprovalChart();
+  renderAgeChart();
+  renderProfileChart();
 }
 
-/* REALTIME ONLY FOR BELL (Lightweight) */
+/* APPROVAL CHART */
+function renderApprovalChart(){
+
+  const approved = cachedUsers.filter(u=>u.approved===true).length;
+  const pending = cachedUsers.length - approved;
+
+  if(approvalChartInstance){
+    approvalChartInstance.destroy();
+  }
+
+  approvalChartInstance = new Chart(
+    document.getElementById("approvalChart"),
+    {
+      type:"doughnut",
+      data:{
+        labels:["Approved","Pending"],
+        datasets:[{ data:[approved,pending] }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false }
+    }
+  );
+}
+
+/* AGE CHART */
+function renderAgeChart(){
+
+  const young = cachedUsers.filter(u=>u.age && u.age<30).length;
+  const adult = cachedUsers.filter(u=>u.age>=30 && u.age<50).length;
+  const senior = cachedUsers.filter(u=>u.age>=50).length;
+
+  if(ageChartInstance){
+    ageChartInstance.destroy();
+  }
+
+  ageChartInstance = new Chart(
+    document.getElementById("ageChart"),
+    {
+      type:"bar",
+      data:{
+        labels:["Young","Adult","Senior"],
+        datasets:[{ data:[young,adult,senior] }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false }
+    }
+  );
+}
+
+/* PROFILE CHART */
+function renderProfileChart(){
+
+  const completed = cachedUsers.filter(u=>u.phone && u.email).length;
+  const incomplete = cachedUsers.length - completed;
+
+  if(profileChartInstance){
+    profileChartInstance.destroy();
+  }
+
+  profileChartInstance = new Chart(
+    document.getElementById("profileChart"),
+    {
+      type:"bar",
+      data:{
+        labels:["Completed","Incomplete"],
+        datasets:[{ data:[completed,incomplete] }]
+      },
+      options:{ responsive:true, maintainAspectRatio:false }
+    }
+  );
+}
+
+/* REALTIME BELL */
 function listenPendingRealtime(){
 
   const q = query(
@@ -228,9 +294,17 @@ function listenPendingRealtime(){
     } else {
       pendingAlertIcon.style.display = "none";
     }
-
   });
 }
+
+/* BUTTONS */
+window.showAllApprovals = () => {
+  location.href="admin-approval-requests.html";
+};
+
+window.showAllProfiles = () => {
+  alert("Profile list feature coming soon");
+};
 
 /* MENU */
 window.toggleMenu = () =>
@@ -242,6 +316,8 @@ window.logout = async()=>{
   location.href="login.html";
 };
 </script>
+
+
 
 
 </body>
