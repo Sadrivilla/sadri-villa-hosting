@@ -149,6 +149,20 @@ body {
   <button class="btn-gradient" onclick="uploadHeroImages()">Upload Images</button>
 
   <p id="heroMsg"></p>
+  <div id="progressContainer" style="display:none; margin-top:10px;">
+  <div style="background:#e2e8f0; border-radius:8px; overflow:hidden;">
+    <div id="progressBar" style="
+      width:0%;
+      height:12px;
+      background:linear-gradient(135deg,#60a5fa,#38bdf8);
+      transition:width .3s;">
+    </div>
+  </div>
+  <small id="progressText">0%</small>
+</div>
+
+  <div id="previewList" class="hero-images-list"></div>
+
 
   <div id="heroImagesList" class="hero-images-list"></div>
 </div>
@@ -181,26 +195,68 @@ const db = getFirestore(app);
 const heroImagesInput = document.getElementById("heroImagesInput");
 const heroMsg = document.getElementById("heroMsg");
 const list = document.getElementById("heroImagesList");
+const previewList = document.getElementById("previewList");
 const homeRef = doc(db, "siteSettings", "home");
 
 /* AUTH + ROLE CHECK */
 onAuthStateChanged(auth, async (user) => {
+  if (!user) return location.href="login.html";
 
-  if (!user) {
-    location.href = "login.html";
-    return;
-  }
-
-  const snap = await getDoc(doc(db, "users", user.uid));
-
+  const snap = await getDoc(doc(db,"users",user.uid));
   if (!snap.exists() || snap.data().role !== "admin") {
     alert("Admin only");
-    location.href = "dashboard.html";
-    return;
+    location.href="dashboard.html";
   }
 });
 
-/* LIVE LOAD */
+/* IMAGE PREVIEW BEFORE UPLOAD */
+heroImagesInput.addEventListener("change", () => {
+
+  previewList.innerHTML = "";
+
+  const files = heroImagesInput.files;
+  if (!files.length) return;
+
+  Array.from(files).forEach((file, index) => {
+
+    const reader = new FileReader();
+    reader.onload = e => {
+
+      const div = document.createElement("div");
+      div.className = "hero-card";
+
+      div.innerHTML = `
+        <img src="${e.target.result}">
+        <div class="hero-card-actions">
+          <span style="font-size:12px;">Preview</span>
+          <button class="delete-btn" onclick="removePreview(${index})">
+            Remove
+          </button>
+        </div>
+      `;
+
+      previewList.appendChild(div);
+    };
+
+    reader.readAsDataURL(file);
+  });
+});
+
+/* REMOVE PREVIEW */
+window.removePreview = (index) => {
+
+  const dt = new DataTransfer();
+  const files = heroImagesInput.files;
+
+  Array.from(files).forEach((file, i) => {
+    if (i !== index) dt.items.add(file);
+  });
+
+  heroImagesInput.files = dt.files;
+  heroImagesInput.dispatchEvent(new Event("change"));
+};
+
+/* LIVE LOAD EXISTING IMAGES */
 onSnapshot(homeRef, (snap) => {
 
   list.innerHTML = "";
@@ -241,10 +297,20 @@ window.uploadHeroImages = async () => {
     return;
   }
 
+  const progressContainer = document.getElementById("progressContainer");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+
+  progressContainer.style.display = "block";
+  progressBar.style.width = "0%";
+  progressText.textContent = "0%";
+
   heroMsg.textContent = "Uploading...";
 
   const user = auth.currentUser;
   const token = await user.getIdToken(true);
+
+  let uploaded = 0;
 
   for (let file of files) {
 
@@ -271,13 +337,29 @@ window.uploadHeroImages = async () => {
 
     if (!response.ok) {
       heroMsg.textContent = "❌ Upload failed";
+      progressContainer.style.display = "none";
       return;
     }
+
+    uploaded++;
+
+    const percent = Math.round((uploaded / files.length) * 100);
+    progressBar.style.width = percent + "%";
+    progressText.textContent = percent + "%";
   }
 
   heroMsg.textContent = "✅ Images uploaded successfully";
+
+  setTimeout(() => {
+    progressContainer.style.display = "none";
+    progressBar.style.width = "0%";
+    progressText.textContent = "0%";
+  }, 1000);
+
   heroImagesInput.value = "";
+  previewList.innerHTML = "";
 };
+
 
 /* TOGGLE */
 window.toggleHero = async (index) => {
