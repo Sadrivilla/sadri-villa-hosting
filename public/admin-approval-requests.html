@@ -118,12 +118,16 @@ import {
   getAuth,
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   getFirestore,
   collection,
-  getDocs,
+  query,
+  where,
+  onSnapshot,
   doc,
-  updateDoc
+  updateDoc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
@@ -135,51 +139,62 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* AUTH */
-onAuthStateChanged(auth, user=>{
-  if(!user) location.href="login.html";
-  loadRequests();
-});
-
-/* LOAD REQUESTS */
-async function loadRequests(){
-  const snap = await getDocs(collection(db,"users"));
-  const users = snap.docs
-    .map(d=>({id:d.id,...d.data()}))
-    .filter(u=>u.approved!==true && u.approvalReminder===true);
-
-  list.innerHTML = "";
-
-  if(!users.length){
-    list.innerHTML = "<p>No pending approval requests 🎉</p>";
+/* ADMIN CHECK */
+onAuthStateChanged(auth, async user=>{
+  if(!user){
+    location.href="login.html";
     return;
   }
 
-  users.forEach(u=>{
-    const name   = u.fullName || u.name || "User";
-    const email  = u.email || "—";
-    const phone  = u.phone || u.mobile || u.adminFields?.Phone || "—";
-    const date   = u.approvalRequestedAt || "—";
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role!=="admin"){
+    alert("Access denied");
+    location.href="dashboard.html";
+    return;
+  }
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>${name}</h3>
-      <p><b>Email:</b> ${email}</p>
-      <p><b>Mobile:</b> ${phone}</p>
-      <p><b>Requested:</b> <small>${date}</small></p>
-      <span class="badge pending">Pending</span><br>
-      <button class="approve-btn" onclick="approveUser('${u.id}','${name}',this)">
-        Approve
-      </button>
-    `;
-    list.appendChild(card);
+  initRealtimeRequests();
+});
+
+/* REALTIME REQUESTS */
+function initRealtimeRequests(){
+
+  const q = query(
+    collection(db,"users"),
+    where("approved","!=",true),
+    where("approvalReminder","==",true)
+  );
+
+  onSnapshot(q, snapshot=>{
+    list.innerHTML="";
+
+    if(snapshot.empty){
+      list.innerHTML="<p>No pending approval requests 🎉</p>";
+      return;
+    }
+
+    snapshot.forEach(docSnap=>{
+      const u = {id:docSnap.id,...docSnap.data()};
+
+      const card = document.createElement("div");
+      card.className="card";
+      card.innerHTML=`
+        <h3>${u.fullName || "User"}</h3>
+        <p><b>Email:</b> ${u.email || "—"}</p>
+        <p><b>Mobile:</b> ${u.phone || "—"}</p>
+        <span class="badge pending">Pending</span><br>
+        <button class="approve-btn" onclick="approveUser('${u.id}','${u.fullName || "User"}',this)">
+          Approve
+        </button>
+      `;
+      list.appendChild(card);
+    });
   });
 }
 
 /* APPROVE */
 window.approveUser = async (uid,name,btn)=>{
-  btn.disabled = true;
+  btn.disabled=true;
 
   await updateDoc(doc(db,"users",uid),{
     approved:true,
@@ -187,15 +202,14 @@ window.approveUser = async (uid,name,btn)=>{
     approvedAt:new Date().toISOString()
   });
 
-  showMessage(`✅ User <b>${name}</b> has been approved successfully`);
-  loadRequests();
+  showMessage(`✅ User <b>${name}</b> approved successfully`);
 };
 
 /* MESSAGE */
 function showMessage(text){
-  message.innerHTML = text;
-  message.className = "msg success";
-  message.style.display = "block";
+  message.innerHTML=text;
+  message.className="msg success";
+  message.style.display="block";
 
   setTimeout(()=>{
     message.style.display="none";
