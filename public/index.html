@@ -217,13 +217,26 @@ button{
   box-shadow:0 20px 45px rgba(0,0,0,.08);
   transition:.35s;
 }
+/* SCROLL ANIMATION */
+.animate{
+  opacity:0;
+  transform:translateY(40px);
+  transition:all .7s ease;
+}
+
+.animate.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
 .card h3{color:#0f172a;margin-bottom:10px}
 .card p{color:#475569}
 .card:hover{
   transform:translateY(-8px);
-  box-shadow:0 30px 60px rgba(0,0,0,.12);
+  box-shadow:
+    0 0 0 1px #38bdf8,
+    0 28px 55px rgba(56,189,248,.35);
 }
-
 /* ================= SLIDER ================= */
 .gallery{
   background:#f1f5f9;
@@ -236,9 +249,10 @@ button{
   width:max-content;
 }
 
-.track.animate{
+.track.scrolling{
   animation:scroll linear infinite;
 }
+
 
 .track:hover{
   animation-play-state:paused;
@@ -351,18 +365,53 @@ footer{
 </section>
 
 <!-- CARDS -->
+<!-- CARDS -->
 <section class="highlights">
   <div class="highlight-grid">
-    <div class="card"><h3>Heritage Legacy</h3><p>150+ years of cultural heritage.</p></div>
-    <div class="card"><h3>Social Welfare</h3><p>Free marriages & shelter support.</p></div>
-    <div class="card"><h3>Community Service</h3><p>Dignity & respect for all families.</p></div>
-    <div class="card"><h3>Free Shelter</h3><p>Temporary night shelter for helpless people.</p></div>
-    <div class="card"><h3>Marriage Support</h3><p>100+ poor marriages completed free of cost.</p></div>
-    <div class="card"><h3>Future Vision</h3><p>Hope and support for next generations.</p></div>
-     <div class="card"><h3>Future Vision</h3><p>Hope and support for next generations.</p></div>
-      <div class="card"><h3>Future Vision</h3><p>Hope and support for next generations.</p></div>
+
+    <div class="card animate">
+      <h3>Heritage Legacy</h3>
+      <p>150+ years of cultural heritage.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Social Welfare</h3>
+      <p>Free marriages & shelter support.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Community Service</h3>
+      <p>Dignity & respect for all families.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Free Shelter</h3>
+      <p>Temporary night shelter for helpless people.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Marriage Support</h3>
+      <p>100+ poor marriages completed free of cost.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Future Vision</h3>
+      <p>Hope and support for next generations.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Future Vision</h3>
+      <p>Hope and support for next generations.</p>
+    </div>
+
+    <div class="card animate">
+      <h3>Future Vision</h3>
+      <p>Hope and support for next generations.</p>
+    </div>
+
   </div>
 </section>
+
 
 <!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
@@ -487,7 +536,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   });
 
   if(imgs.length>1){
-    galleryTrack.classList.add("animate");
+    galleryTrack.classList.add("scrolling");
     requestAnimationFrame(()=>{
       const width=galleryTrack.scrollWidth/2;
       galleryTrack.style.animationDuration=(width/80)+"s";
@@ -509,6 +558,21 @@ function scrollFooter(){
   document.getElementById("mobileMenu").classList.remove("active");
 }
 </script>
+<script>
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add("show");
+      observer.unobserve(entry.target);
+    }
+  });
+},{ threshold:0.15 });
+
+document.querySelectorAll(".animate").forEach(el=>{
+  observer.observe(el);
+});
+</script>
+
 
 </body>
 </html>
