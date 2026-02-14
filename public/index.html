@@ -11,43 +11,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
 
-/* ================= VILLA STATS ================= */
-.villa-stats {
-  background: #ffffff;
-  padding: 70px 20px;
-}
-.stats-container {
-  max-width: 1200px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 40px;
-  text-align: center;
-}
-.stat-box h2 {
-  font-size: 44px;
-  margin: 0;
-  font-weight: 700;
-  line-height: 1;
-}
-.stat-box p {
-  margin-top: 12px;
-  font-size: 16px;
-  color: #475569;
-}
-.green { color: #16a34a; }
-.blue { color: #0f4c81; }
-.purple { color: #9333ea; }
-.orange { color: #f97316; }
-
-@media (max-width: 900px) {
-  .stats-container { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-  .stats-container { grid-template-columns: 1fr; }
-  .stat-box h2 { font-size: 36px; }
-}
-
 /* ================= NAVBAR ================= */
 .navbar{
   position:fixed;top:0;left:0;right:0;
@@ -61,8 +24,9 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   border-bottom:1px solid rgba(255,255,255,0.15);
   box-shadow:0 8px 24px rgba(0,0,0,0.25);
 }
-.brand{height:100%;display:flex;align-items:stretch}
-.brand img{height:100%;width:auto;object-fit:contain;display:none}
+.brand{height:100%;display:flex;align-items:center;padding-left:20px}
+.brand img{height:52px;width:auto;object-fit:contain;display:none}
+
 .nav-actions{
   display:flex;
   align-items:center;
@@ -91,7 +55,7 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
 /* ================= HERO ================= */
 .hero{
   min-height:100vh;
-  padding-top:90px;
+  padding-top:72px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -111,6 +75,7 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
 .hero > div{
   position:relative;
   z-index:1;
+  padding:0 20px;
 }
 .hero h1{font-size:54px;font-weight:800}
 .hero p{
@@ -118,6 +83,69 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   max-width:760px;
   margin:20px auto;
   color:#cbd5f5;
+}
+
+/* HERO BUTTONS */
+.hero-buttons{
+  margin-top:30px;
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.hero-btn{
+  padding:14px 28px;
+  font-size:16px;
+  font-weight:700;
+  border-radius:30px;
+  cursor:pointer;
+  transition:.3s;
+  border:none;
+}
+.hero-btn.primary{
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:#fff;
+}
+.hero-btn.outline{
+  background:transparent;
+  border:2px solid #60a5fa;
+  color:#60a5fa;
+}
+.hero-btn.glow{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  color:white;
+  box-shadow:0 0 20px rgba(34,197,94,.5);
+}
+.hero-btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 15px 35px rgba(56,189,248,.35);
+}
+
+/* ================= STATS ================= */
+.villa-stats {
+  background:#ffffff;
+  padding:70px 20px;
+}
+.stats-container {
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:40px;
+  text-align:center;
+}
+.stat-box h2 {font-size:44px;font-weight:700}
+.stat-box p {margin-top:12px;font-size:16px;color:#475569}
+.green{color:#16a34a}
+.blue{color:#0f4c81}
+.purple{color:#9333ea}
+.orange{color:#f97316}
+
+@media(max-width:900px){
+  .stats-container{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .stats-container{grid-template-columns:1fr}
 }
 
 /* ================= CARDS ================= */
@@ -144,7 +172,7 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   box-shadow:0 30px 60px rgba(56,189,248,.35);
 }
 
-/* ================= SLIDER (CONSTANT SPEED) ================= */
+/* ================= SLIDER ================= */
 .gallery{
   background:white;
   padding:60px 0;
@@ -188,11 +216,7 @@ footer{background:#081634}
 }
 .footer-logo{max-width:140px;margin-bottom:16px;display:none}
 .footer-col h4{color:#fff;margin-bottom:10px}
-.footer-col p,a{
-  color:#cbd5f5;
-  font-size:14px;
-  text-decoration:none;
-}
+.footer-col p,a{color:#cbd5f5;font-size:14px;text-decoration:none}
 .footer-bottom{
   border-top:1px solid rgba(255,255,255,.1);
   text-align:center;
@@ -222,6 +246,12 @@ footer{background:#081634}
   <div>
     <h1>Sadri Villa – A Living Heritage</h1>
     <p>Preserving heritage, sheltering humanity, strengthening families.</p>
+
+    <div class="hero-buttons">
+      <button class="hero-btn primary" onclick="location.href='about.html'">Learn More</button>
+      <button class="hero-btn outline" onclick="document.querySelector('footer').scrollIntoView({behavior:'smooth'})">Contact Us</button>
+      <button class="hero-btn glow" onclick="location.href='signup.html'">Join Us</button>
+    </div>
   </div>
 </section>
 
@@ -275,54 +305,59 @@ footer{background:#081634}
   <div class="footer-bottom">© 2026 Sadri Villa Fazilpur</div>
 </footer>
 
-<!-- FIREBASE -->
+<!-- FIREBASE REALTIME -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app=initializeApp({
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const db=getFirestore(app);
 
-/* LOGO */
+const db = getFirestore(app);
+const heroSection = document.getElementById("heroSection");
+const galleryTrack = document.getElementById("galleryTrack");
+const gallerySection = document.getElementById("gallerySection");
+const siteLogo = document.getElementById("siteLogo");
+const footerLogo = document.getElementById("footerLogo");
+
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists())return;
-  const logo=snap.data().logo;
-  if(!logo?.url)return;
-  const v=logo.updatedAt?.seconds || Date.now();
-  siteLogo.onload=()=>siteLogo.style.display="block";
-  footerLogo.onload=()=>footerLogo.style.display="block";
-  siteLogo.src=logo.url+"?v="+v;
-  footerLogo.src=logo.url+"?v="+v;
-});
+  if(!snap.exists()) return;
+  const data = snap.data();
 
-/* HERO IMAGE */
-const heroSection=document.getElementById("heroSection");
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists())return;
-  const heroes=(snap.data().heroimages||[]).filter(h=>h.enabled===true);
-  if(!heroes.length){heroSection.style.backgroundImage="";return;}
-  const img=new Image();
-  img.onload=()=>heroSection.style.backgroundImage=`url('${heroes[0].url}')`;
-  img.src=heroes[0].url;
-});
+  /* LOGO LIVE */
+  if(data.logo?.url){
+    const v = data.logo.updatedAt?.seconds || Date.now();
+    siteLogo.onload=()=>siteLogo.style.display="block";
+    footerLogo.onload=()=>footerLogo.style.display="block";
+    siteLogo.src=data.logo.url+"?v="+v;
+    footerLogo.src=data.logo.url+"?v="+v;
+  }
 
-/* SLIDER – CONSTANT SPEED */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists())return;
+  /* HERO LIVE */
+  const heroes=(data.heroimages||[]).filter(h=>h.enabled===true);
+  if(heroes.length){
+    heroSection.style.backgroundImage=`url('${heroes[0].url}')`;
+  }else{
+    heroSection.style.backgroundImage="";
+  }
 
-  const imgs=(snap.data().sliderImages||[])
+  /* SLIDER LIVE */
+  const imgs=(data.sliderImages||[])
     .filter(i=>i.enabled!==false)
     .sort((a,b)=>(a.order||0)-(b.order||0));
 
   galleryTrack.innerHTML="";
-  if(!imgs.length){gallerySection.style.display="none";return;}
-  gallerySection.style.display="block";
+  if(!imgs.length){
+    gallerySection.style.display="none";
+    return;
+  }
 
+  gallerySection.style.display="block";
   const list=imgs.length>1?[...imgs,...imgs]:imgs;
+
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
@@ -333,7 +368,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     galleryTrack.classList.add("animate");
     requestAnimationFrame(()=>{
       const width=galleryTrack.scrollWidth/2;
-      const speed = window.innerWidth < 768 ? 70 : 80;
+      const speed=window.innerWidth<768?70:80;
       galleryTrack.style.animationDuration=(width/speed)+"s";
     });
   }else{
@@ -342,7 +377,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 });
 </script>
 
-<!-- LIVE COUNT -->
+<!-- COUNTER -->
 <script>
 const counters=document.querySelectorAll('.count');
 let started=false;
@@ -357,8 +392,12 @@ function startCount(){
       let v=0,step=target/60;
       (function anim(){
         v+=step;
-        if(v<target){c.textContent=Math.floor(v)+suffix;requestAnimationFrame(anim);}
-        else c.textContent=target+suffix;
+        if(v<target){
+          c.textContent=Math.floor(v)+suffix;
+          requestAnimationFrame(anim);
+        }else{
+          c.textContent=target+suffix;
+        }
       })();
     });
   }
