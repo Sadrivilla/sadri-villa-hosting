@@ -144,7 +144,9 @@ import {
 import {
   getFirestore,
   collection,
+  getDocs,
   query,
+  where,
   onSnapshot,
   doc,
   getDoc
@@ -159,7 +161,6 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let allUsers = [];
 let approvalChartInstance = null;
 
 /* ADMIN CHECK */
@@ -179,33 +180,19 @@ onAuthStateChanged(auth, async user => {
 
   pName.innerText = snap.data().fullName || "Admin";
 
-  initRealtimeDashboard();
+  loadDashboardOnce();
+  listenPendingRealtime();
 });
 
-/* REALTIME DASHBOARD */
-function initRealtimeDashboard(){
+/* LOAD DASHBOARD ONCE (No infinite reflow) */
+async function loadDashboardOnce(){
+  const snap = await getDocs(collection(db,"users"));
+  const users = snap.docs.map(d=>d.data());
 
-  const q = query(collection(db,"users"));
+  totalUsers.innerText = users.length;
 
-  onSnapshot(q, snapshot => {
-    allUsers = snapshot.docs.map(d => ({id:d.id,...d.data()}));
-    totalUsers.innerText = allUsers.length;
-
-    updateApprovalChart();
-    updatePendingBell();
-  });
-}
-
-/* UPDATE CHART SAFELY */
-function updateApprovalChart(){
-  const approved = allUsers.filter(u=>u.approved===true).length;
-  const pending = allUsers.length - approved;
-
-  if(approvalChartInstance){
-    approvalChartInstance.data.datasets[0].data = [approved,pending];
-    approvalChartInstance.update();
-    return;
-  }
+  const approved = users.filter(u=>u.approved===true).length;
+  const pending = users.length - approved;
 
   approvalChartInstance = new Chart(approvalChart,{
     type:"doughnut",
@@ -222,18 +209,27 @@ function updateApprovalChart(){
   });
 }
 
-/* REALTIME BELL */
-function updatePendingBell(){
-  const pending = allUsers.filter(
-    u=>u.approved!==true && u.approvalReminder===true
+/* REALTIME ONLY FOR BELL (Lightweight) */
+function listenPendingRealtime(){
+
+  const q = query(
+    collection(db,"users"),
+    where("approved","!=",true),
+    where("approvalReminder","==",true)
   );
 
-  if(pending.length){
-    pendingBadge.innerText = pending.length;
-    pendingAlertIcon.style.display = "flex";
-  }else{
-    pendingAlertIcon.style.display = "none";
-  }
+  onSnapshot(q, snapshot => {
+
+    const pendingCount = snapshot.size;
+
+    if(pendingCount > 0){
+      pendingBadge.innerText = pendingCount;
+      pendingAlertIcon.style.display = "flex";
+    } else {
+      pendingAlertIcon.style.display = "none";
+    }
+
+  });
 }
 
 /* MENU */
@@ -246,6 +242,7 @@ window.logout = async()=>{
   location.href="login.html";
 };
 </script>
+
 
 </body>
 </html>
