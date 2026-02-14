@@ -86,16 +86,17 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
+/* FIREBASE CONFIG */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* AUTH CHECK */
+/* AUTH + ROLE CHECK */
 onAuthStateChanged(auth, async user => {
 
   if(!user){
@@ -103,27 +104,39 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  const snap = await getDoc(doc(db,"users",user.uid));
+  try {
 
-  if(!snap.exists() || snap.data().role !== "admin"){
-    alert("Admin only");
-    location.href="dashboard.html";
-    return;
+    const snap = await getDoc(doc(db,"users",user.uid));
+
+    if(!snap.exists() || snap.data().role !== "admin"){
+      alert("Admin only");
+      location.href="dashboard.html";
+      return;
+    }
+
+    loadProfile(user.uid, snap.data());
+
+  } catch(error){
+    console.error("Profile load error:", error);
+    alert("Something went wrong");
   }
-
-  loadProfile(user.uid, snap.data());
 });
 
 /* LOAD ADMIN PROFILE */
 function loadProfile(uid, data){
 
-  name.innerText = data.fullName || "-";
-  email.innerText = data.email || auth.currentUser.email || "-";
-  phone.innerText = data.phone || "-";
+  document.getElementById("name").innerText =
+    data.fullName || "-";
+
+  document.getElementById("email").innerText =
+    data.email || auth.currentUser.email || "-";
+
+  document.getElementById("phone").innerText =
+    data.phone || "-";
+
   document.getElementById("uid").innerText = uid;
 }
 </script>
-
 
 </body>
 </html>
