@@ -6,30 +6,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{margin:0;font-family:Arial;background:#eef2ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial;background:#eef2ff}
 
-/* NAVBAR */
+/* ===== NAVBAR SAME AS INDEX (NO BUTTONS) ===== */
 .navbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;background:#eaf2ff;
-  box-shadow:0 4px 12px rgba(0,0,0,.08)
+  position:fixed;
+  top:0;left:0;right:0;
+  height:50px;
+  display:flex;
+  align-items:center;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(2px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  z-index:1000;
 }
-.nav-left{display:flex;align-items:center;gap:10px}
-.nav-left img{height:40px}
+.brand{
+  height:50px;
+  display:flex;
+  align-items:center;
+  padding-left:10px;
+}
+.brand img{
+  height:50px;
+  object-fit:contain;
+}
 
-/* TOP ADMIN BUTTONS (RECOVERED) */
+/* ===== ADMIN TOP BUTTONS ===== */
 .admin-topbar{
-  display:flex;gap:12px;padding:15px 24px;
+  margin-top:50px;
+  display:flex;
+  gap:12px;
+  padding:15px 20px;
   background:linear-gradient(180deg,#eef6ff,#f8fbff);
-  overflow-x:auto
+  overflow-x:auto;
 }
 .admin-btn{
-  padding:10px 18px;border:none;border-radius:999px;
-  cursor:pointer;font-weight:600;color:#fff;
-  background:linear-gradient(135deg,#4facfe,#38bdf8)
+  padding:10px 18px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(135deg,#4facfe,#38bdf8);
 }
 
-/* CONTROLS */
+/* ===== CONTENT ===== */
 .container{padding:20px}
 .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
 .controls select,.controls input{
@@ -44,69 +66,119 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .danger{background:#dc2626}
 .export{background:#2563eb}
 
-/* TABLE */
+/* ===== TABLE ===== */
 table{
-  width:100%;border-collapse:collapse;background:#fff;
-  border-radius:18px;overflow:hidden;
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
   box-shadow:0 18px 40px rgba(0,0,0,.1)
 }
-th,td{padding:10px;border-bottom:1px solid #e5e7eb;font-size:14px}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px
+}
 th{background:#f8fafc;text-align:left}
 
 .badge{
-  padding:4px 10px;border-radius:999px;
-  color:#fff;font-size:12px
+  padding:4px 10px;
+  border-radius:999px;
+  color:#fff;
+  font-size:12px
 }
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
 
 .uid-btn{
-  background:#eef2ff;border:1px solid #c7d2fe;
-  padding:4px 8px;border-radius:8px;
-  font-size:12px;cursor:pointer
+  background:#eef2ff;
+  border:1px solid #c7d2fe;
+  padding:4px 8px;
+  border-radius:8px;
+  font-size:12px;
+  cursor:pointer
 }
 
 .role-select{
-  padding:6px;border-radius:6px;border:1px solid #c7d2fe
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #c7d2fe
 }
 
-/* MODAL */
+/* ===== MODAL ===== */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
   backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;transition:.3s;z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:9999;
 }
-.modal-overlay.active{opacity:1;pointer-events:auto}
+.modal-overlay.active{
+  opacity:1;
+  pointer-events:auto
+}
 .modal-box{
-  background:#fff;padding:25px;border-radius:18px;
-  width:320px;text-align:center
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  width:320px;
+  text-align:center
 }
-.modal-buttons{margin-top:20px;display:flex;gap:15px;justify-content:center}
+.modal-buttons{
+  margin-top:20px;
+  display:flex;
+  gap:15px;
+  justify-content:center
+}
 .modal-buttons button{
-  padding:8px 16px;border:none;border-radius:999px;
-  cursor:pointer;font-weight:600
+  padding:8px 16px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:600
 }
 .btn-cancel{background:#64748b;color:#fff}
 .btn-confirm{background:#2563eb;color:#fff}
 
-/* LOADER */
+/* ===== LOADER ===== */
 .loader{
-  position:fixed;inset:0;background:rgba(255,255,255,.6);
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;font-weight:700;z-index:9998;
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:700;
+  z-index:9998;
   display:none
 }
 
-/* TOAST */
+/* ===== TOAST ===== */
 .toast{
-  position:fixed;bottom:30px;right:30px;
-  padding:14px 20px;border-radius:12px;
-  color:#fff;font-weight:600;
-  opacity:0;transform:translateY(20px);
-  transition:.3s;z-index:9999
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  padding:14px 20px;
+  border-radius:12px;
+  color:#fff;
+  font-weight:600;
+  opacity:0;
+  transform:translateY(20px);
+  transition:.3s;
+  z-index:9999
 }
-.toast.show{opacity:1;transform:translateY(0)}
+.toast.show{
+  opacity:1;
+  transform:translateY(0)
+}
 .toast.success{background:#16a34a}
 .toast.error{background:#dc2626}
 </style>
@@ -116,13 +188,12 @@ th{background:#f8fafc;text-align:left}
 
 <!-- NAVBAR -->
 <div class="navbar">
-  <div class="nav-left">
+  <div class="brand">
     <img id="siteLogo">
-    <h3>Sadri Villa – Admin</h3>
   </div>
 </div>
 
-<!-- RECOVERED BUTTON BAR -->
+<!-- ADMIN BUTTON BAR -->
 <div class="admin-topbar">
   <button class="admin-btn" onclick="location.href='admin-dashboard.html'">⬅ Back</button>
   <button class="admin-btn" onclick="location.href='admin-profile.html'">👤 Profile</button>
@@ -207,6 +278,15 @@ const db=getFirestore();
 let users=[];
 let pendingAction=null;
 
+/* AUTH CHECK */
+onAuthStateChanged(auth,async user=>{
+  if(!user){location.href="login.html";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().role!=="admin"){
+    location.href="dashboard.html";return;
+  }
+});
+
 /* REALTIME USERS */
 onSnapshot(collection(db,"users"),snap=>{
   users=[];
@@ -215,7 +295,12 @@ onSnapshot(collection(db,"users"),snap=>{
   render();
 });
 
-/* RENDER */
+function formatDate(v){
+  if(!v)return "-";
+  if(v.seconds)return new Date(v.seconds*1000).toLocaleDateString("en-IN");
+  return "-";
+}
+
 window.render=()=>{
   const tbody=document.getElementById("tbody");
   const q=document.getElementById("search").value.toLowerCase();
@@ -246,7 +331,7 @@ window.render=()=>{
           <option value="admin" ${u.role==="admin"?"selected":""}>Admin</option>
         </select>
       </td>
-      <td>${u.createdAt?.seconds?new Date(u.createdAt.seconds*1000).toLocaleDateString("en-IN"):"-"}</td>
+      <td>${formatDate(u.createdAt)}</td>
       <td>
         <span class="badge ${u.approved?"green":"yellow"}">
           ${u.approved?"Approved":"Pending"}
@@ -261,13 +346,11 @@ window.render=()=>{
   });
 };
 
-/* COPY UID */
 window.copyUID=(uid)=>{
   navigator.clipboard.writeText(uid);
   showToast("UID copied");
 };
 
-/* ROLE CHANGE CONFIRM */
 window.confirmRoleChange=(uid,oldRole,selectEl)=>{
   const newRole=selectEl.value;
   if(newRole===oldRole)return;
@@ -277,7 +360,74 @@ window.confirmRoleChange=(uid,oldRole,selectEl)=>{
   document.getElementById("modal").classList.add("active");
 };
 
-/* EXPORT ALL FIELDS */
+window.toggleAll=(cb)=>{
+  document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
+};
+
+window.confirmSingle=(id,isApproved)=>{
+  pendingAction={type:"single",id,isApproved};
+  document.getElementById("modalText").innerText=
+    isApproved?"Unapprove this user?":"Approve this user?";
+  document.getElementById("modal").classList.add("active");
+};
+
+window.confirmBulk=(action)=>{
+  const ids=[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
+  if(ids.length===0){showToast("Select users first","error");return;}
+  pendingAction={type:"bulk",action,ids};
+  document.getElementById("modalText").innerText=
+    `Confirm ${action.toUpperCase()} for selected users?`;
+  document.getElementById("modal").classList.add("active");
+};
+
+window.closeModal=()=>{
+  pendingAction=null;
+  document.getElementById("modal").classList.remove("active");
+};
+
+window.confirmAction=async()=>{
+  showLoader();
+  try{
+    if(pendingAction.type==="single"){
+      await updateDoc(doc(db,"users",pendingAction.id),
+        {approved:!pendingAction.isApproved});
+    }
+    else if(pendingAction.type==="bulk"){
+      for(const id of pendingAction.ids){
+        if(pendingAction.action==="approve")
+          await updateDoc(doc(db,"users",id),{approved:true});
+        if(pendingAction.action==="unapprove")
+          await updateDoc(doc(db,"users",id),{approved:false});
+        if(pendingAction.action==="delete")
+          await deleteDoc(doc(db,"users",id));
+      }
+    }
+    else if(pendingAction.type==="role"){
+      await updateDoc(doc(db,"users",pendingAction.uid),
+        {role:pendingAction.newRole});
+    }
+    showToast("Action completed successfully");
+  }
+  catch(e){
+    showToast("Something went wrong","error");
+  }
+  hideLoader();
+  closeModal();
+};
+
+function showLoader(){
+  document.getElementById("loader").style.display="flex";
+}
+function hideLoader(){
+  document.getElementById("loader").style.display="none";
+}
+function showToast(msg,type="success"){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.className="toast "+type+" show";
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
 window.exportXLSX=()=>{
   const ws=XLSX.utils.json_to_sheet(users);
   const wb=XLSX.utils.book_new();
