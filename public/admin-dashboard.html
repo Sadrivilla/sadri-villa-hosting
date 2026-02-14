@@ -151,11 +151,15 @@ const db = getFirestore(app);
 onAuthStateChanged(auth, async user => {
   if (!user) return location.href = "login.html";
 
-  const token = await user.getIdTokenResult(true);
-  if (!token.claims.admin) {
-    alert("Access denied");
-    return location.href = "dashboard.html";
-  }
+const snap = await getDoc(doc(db, "users", user.uid));
+
+if (!snap.exists() || snap.data().role !== "admin") {
+  alert("Access denied");
+  return location.href = "dashboard.html";
+}
+
+pName.innerText = snap.data().fullName || "Admin";
+
 
   const snap = await getDoc(doc(db, "users", user.uid));
   pName.innerText = snap.exists() ? snap.data().fullName || "Admin" : "Admin";
