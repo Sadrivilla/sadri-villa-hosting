@@ -14,23 +14,26 @@ body{font-family:Arial,sans-serif;background:#ffffff}
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
-  height:40px;
+  height:50px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background:rgba(8,22,52,.92);
-  backdrop-filter:blur(0px);
+   background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(12px);
+
+  border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
   padding:0;
 }
 
 .brand{
-  height:40px;
+  height:50px;
   display:flex;
   align-items:center;
 }
 .brand img{
-  height:40px;
+  height:50px;
   width:auto;
   object-fit:contain;
   display:none;
@@ -43,10 +46,39 @@ body{font-family:Arial,sans-serif;background:#ffffff}
   align-items:center;
   padding-right:20px;
 }
-.nav-links a{
+/* REMOVE old .nav-links a style completely */
+
+/* SAME STYLE FOR ALL NAV BUTTONS */
+.nav-links a,
+.nav-btn{
+  padding:8px 18px;
+  border-radius:25px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:white;
+  font-weight:700;
   text-decoration:none;
-  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:none;                 /* 🔥 Important */
+  outline:none;                /* 🔥 Important */
+  cursor:pointer;
+  transition:all .3s ease;
+}
+
+/* Hover effect */
+.nav-links a:hover,
+.nav-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+/* Remove button default styles completely */
+button{
+  border:none;
+  background:none;
+}
+
 }
 .nav-btn{
   padding:8px 16px;
@@ -69,14 +101,14 @@ body{font-family:Arial,sans-serif;background:#ffffff}
 .hamburger span{
   width:25px;
   height:3px;
-  background:white;
+  background:#081634;
   border-radius:3px;
 }
 
 /* MOBILE MENU */
 .mobile-menu{
   position:fixed;
-  top:72px;
+  top:40px;
   right:-100%;
   width:260px;
   height:100%;
@@ -132,6 +164,38 @@ body{font-family:Arial,sans-serif;background:#ffffff}
   line-height:1.6;
   min-height:200px;
 }
+/* HERO BUTTONS */
+.hero-buttons{
+  margin-top:30px;
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.hero-btn{
+  padding:10px 22px;
+  border-radius:25px;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1.5px solid rgba(255,255,255,0.6);
+  color:white;
+  font-weight:700;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .3s ease;
+  cursor:pointer;
+}
+
+.hero-btn:hover{
+  background:rgba(255,255,255,0.25);
+  transform:translateY(-3px);
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
 
 /* ================= CARDS ================= */
 .highlights{
@@ -162,7 +226,7 @@ body{font-family:Arial,sans-serif;background:#ffffff}
 
 /* ================= SLIDER ================= */
 .gallery{
-  background:#a1bbd6;
+  background:#f1f5f9;
   padding:60px 0;
   overflow:hidden;
 }
@@ -171,17 +235,29 @@ body{font-family:Arial,sans-serif;background:#ffffff}
   gap:20px;
   width:max-content;
 }
+
+.track.animate{
+  animation:scroll linear infinite;
+}
+
+.track:hover{
+  animation-play-state:paused;
+}
+
 .track img{
   width:350px;
   height:240px;
   object-fit:cover;
   border-radius:20px;
+  border:1.5px solid rgba(255,255,255,0.6);
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  transition:all .3s ease;
 }
-.track.animate{
-  animation:scroll linear infinite;
-}
-.track:hover{
-  animation-play-state:paused;
+
+.track img:hover{
+  transform:scale(1.03);
+  box-shadow:0 15px 35px rgba(0,0,0,0.25);
+
 }
 @keyframes scroll{
   from{transform:translateX(0)}
@@ -262,10 +338,16 @@ footer{
 
 <!-- HERO -->
 <section class="hero" id="heroSection">
-  <div class="hero-content">
-    <h1>Sadri Villa – A Living Heritage</h1>
-    <p id="animatedText"></p>
+<div class="hero-content">
+  <h1>Sadri Villa – A Living Heritage</h1>
+  <p id="animatedText"></p>
+
+  <div class="hero-buttons">
+    <a href="about.html" class="hero-btn">About Us</a>
+    <a href="signup.html" class="hero-btn">Join Us</a>
   </div>
+</div>
+
 </section>
 
 <!-- CARDS -->
