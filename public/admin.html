@@ -8,75 +8,45 @@
 <style>
 body{margin:0;font-family:Arial;background:#eef2ff}
 
-/* ===== NAVBAR ===== */
+/* NAVBAR */
 .navbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 24px;background:#eaf2ff;
   box-shadow:0 4px 12px rgba(0,0,0,.08)
 }
 .nav-left{display:flex;align-items:center;gap:12px}
-.nav-left img{height:38px;object-fit:contain}
+.nav-left img{height:38px}
 .nav-left h3{margin:0}
 
-/* ===== ADMIN TOP GLASS BAR ===== */
+/* TOP BAR */
 .admin-topbar{
-  display:flex;
-  gap:14px;
-  padding:18px 24px;
+  display:flex;gap:14px;padding:18px 24px;
   background:linear-gradient(180deg,#eef6ff,#f8fbff);
   box-shadow:0 10px 30px rgba(0,0,0,.08);
   overflow-x:auto;
 }
 .admin-topbar::-webkit-scrollbar{display:none}
 
-/* ===== BUTTON STYLE ===== */
+/* BUTTONS */
 .admin-btn{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:12px 20px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-  font-size:15px;
-  color:#fff;
-  white-space:nowrap;
+  padding:12px 20px;border-radius:999px;border:none;
+  cursor:pointer;font-weight:600;font-size:15px;color:#fff;
   background:linear-gradient(135deg,#4facfe,#38bdf8);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.35),
-    0 12px 28px rgba(56,189,248,.45);
-  transition:.25s ease;
 }
-.admin-btn:hover{transform:translateY(-2px)}
+.admin-btn.dark{background:linear-gradient(135deg,#3b82f6,#2563eb);}
+.admin-btn.secondary{background:linear-gradient(135deg,#60a5fa,#93c5fd);}
 
-.admin-btn.secondary{
-  background:linear-gradient(135deg,#60a5fa,#93c5fd);
-}
-.admin-btn.dark{
-  background:linear-gradient(135deg,#3b82f6,#2563eb);
-}
-.admin-btn.active{
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-  box-shadow:
-    inset 0 2px 6px rgba(0,0,0,.35),
-    0 18px 40px rgba(37,99,235,.7);
-}
-
-/* ===== PAGE ===== */
+/* PAGE */
 .container{padding:20px}
-
-.controls{
-  display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px
-}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .controls select,.controls input,.controls button{
-  padding:8px 12px;border-radius:10px;border:none
+  padding:8px 12px;border-radius:10px;border:1px solid #c7d2fe
 }
-.controls select,.controls input{border:1px solid #c7d2fe}
-.success{background:#16a34a;color:#fff}
-.secondary{background:#64748b;color:#fff}
-.danger{background:#dc2626;color:#fff}
+.success{background:#16a34a;color:#fff;border:none}
+.secondary{background:#64748b;color:#fff;border:none}
+.danger{background:#dc2626;color:#fff;border:none}
 
+/* TABLE */
 table{
   width:100%;border-collapse:collapse;background:#fff;
   border-radius:18px;overflow:hidden;
@@ -91,80 +61,50 @@ th{background:#f8fafc;text-align:left}
 }
 .green{background:#16a34a}
 .yellow{background:#f59e0b}
+.blue{background:#2563eb}
 
-.uid-btn{
-  background:#eef2ff;border:1px solid #c7d2fe;
-  padding:4px 8px;border-radius:8px;
-  font-size:12px;cursor:pointer
+.role-select{
+  padding:6px 10px;
+  border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== NAVBAR ===== -->
 <div class="navbar">
   <div class="nav-left">
-    <img id="siteLogo" alt="Sadri Villa Logo">
     <h3>Sadri Villa – Admin</h3>
   </div>
 </div>
 
-<!-- ===== ADMIN BUTTON BAR ===== -->
-<div class="admin-topbar">
-
-  <button class="admin-btn dark" data-page="admin-dashboard.html"
-    onclick="location.href='admin-dashboard.html'">⬅ Back</button>
-
-  <button class="admin-btn" data-page="admin-profile.html"
-    onclick="location.href='admin-profile.html'">👤 Profile</button>
-
-  <button class="admin-btn" data-page="admin-logo.html"
-    onclick="location.href='admin-logo.html'">🏷 Logo</button>
-
-  <button class="admin-btn" data-page="admin-hero.html"
-    onclick="location.href='admin-hero.html'">✏ Hero</button>
-
-  <button class="admin-btn" data-page="admin-slider.html"
-    onclick="location.href='admin-slider.html'">🧩 Slider</button>
-
-  <button class="admin-btn secondary" data-page="admin-list.html"
-    onclick="location.href='admin-list.html'">👥 Admin List</button>
-
-  <button class="admin-btn secondary" data-page="add-admin.html"
-    onclick="location.href='add-admin.html'">➕ Add Admin</button>
-
-  <button class="admin-btn secondary" data-page="admin-logs.html"
-    onclick="location.href='admin-logs.html'">📜 Admin Logs</button>
-
-</div>
-
-<!-- ===== CONTENT (UNCHANGED) ===== -->
 <div class="container">
 
 <div class="controls">
   <select id="statusFilter" onchange="render()">
-    <option value="all">All Status</option>
+    <option value="all">All Users</option>
     <option value="approved">Approved</option>
     <option value="pending">Pending</option>
+    <option value="admin">Admins Only</option>
+    <option value="user">Users Only</option>
   </select>
 
-  <input id="search" placeholder="Search by Name / Email / Phone" oninput="render()">
+  <input id="search" placeholder="Search..." oninput="render()">
 
   <button class="success" onclick="bulkApprove()">Approve</button>
   <button class="secondary" onclick="bulkUnapprove()">Unapprove</button>
   <button class="danger" onclick="bulkDelete()">Delete</button>
-  <button onclick="exportXLSX()">Export XLSX</button>
 </div>
 
 <table>
 <thead>
 <tr>
   <th><input type="checkbox" onclick="toggleAll(this)"></th>
+  <th>#</th>
   <th>Name</th>
-  <th>UID</th>
   <th>Email</th>
   <th>Phone</th>
+  <th>Role</th>
   <th>Created</th>
   <th>Status</th>
   <th>Action</th>
@@ -175,47 +115,9 @@ th{background:#f8fafc;text-align:left}
 
 </div>
 
-<!-- ===== ACTIVE BUTTON SCRIPT ===== -->
-<script>
-const page = location.pathname.split("/").pop();
-document.querySelectorAll(".admin-btn").forEach(btn=>{
-  if(btn.dataset.page === page){
-    btn.classList.add("active");
-    btn.scrollIntoView({inline:"center"});
-  }
-});
-</script>
-
-<!-- ===== LOGO REALTIME (UNCHANGED) ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const db = getFirestore(app);
-
-const FALLBACK_LOGO =
-"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
-
-const siteLogo = document.getElementById("siteLogo");
-siteLogo.src = FALLBACK_LOGO;
-
-onSnapshot(doc(db,"siteSettings","home"), snap=>{
-  if(!snap.exists()) return;
-  const d = snap.data();
-  if(d.logo?.url){
-    siteLogo.src = d.logo.url + "?v=" + Date.now();
-  }
-});
-</script>
-
-<!-- ===== ADMIN LOGIC (UNCHANGED, FULL) ===== -->
-<script type="module">
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
   collection,
@@ -225,140 +127,120 @@ import {
   updateDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
 
 const auth = getAuth();
 const db = getFirestore();
 
-const tbody = document.getElementById("tbody");
-const search = document.getElementById("search");
-const statusFilter = document.getElementById("statusFilter");
+const tbody=document.getElementById("tbody");
+const search=document.getElementById("search");
+const statusFilter=document.getElementById("statusFilter");
 
-let users = [];
+let users=[];
 
-/* ================= AUTH CHECK ================= */
-onAuthStateChanged(auth, async user => {
+/* AUTH CHECK */
+onAuthStateChanged(auth, async user=>{
+  if(!user){ location.href="login.html"; return; }
 
-  if (!user) {
-    location.href = "login.html";
-    return;
-  }
-
-  const snap = await getDoc(doc(db, "users", user.uid));
-
-  if (!snap.exists()) {
-    location.href = "login.html";
-    return;
-  }
-
-  const data = snap.data();
-
-  if (data.role !== "admin" || data.approved !== true) {
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role!=="admin"){
     alert("Admin only");
-    location.href = "dashboard.html";
+    location.href="dashboard.html";
     return;
   }
-
-  // ✅ ADMIN VERIFIED
   load();
 });
 
-/* ================= LOAD USERS ================= */
-async function load() {
-  users = [];
-  const snap = await getDocs(collection(db, "users"));
-  snap.forEach(d => users.push({ uid: d.id, ...d.data() }));
+/* LOAD USERS */
+async function load(){
+  users=[];
+  const snap=await getDocs(collection(db,"users"));
+  snap.forEach(d=>users.push({uid:d.id,...d.data()}));
+
+  users.sort((a,b)=>{
+    const aTime=a.createdAt?.seconds||0;
+    const bTime=b.createdAt?.seconds||0;
+    return bTime-aTime;
+  });
+
   render();
 }
 
-/* ================= RENDER ================= */
-window.render = () => {
-  tbody.innerHTML = "";
-  const q = search.value.toLowerCase();
+/* FORMAT DATE */
+function formatDate(value){
+  if(!value) return "-";
+  if(value.seconds) return new Date(value.seconds*1000).toLocaleDateString("en-IN");
+  return "-";
+}
 
-  users.filter(u => {
+/* RENDER */
+window.render=()=>{
+  tbody.innerHTML="";
+  const q=search.value.toLowerCase();
 
-    if (statusFilter.value === "approved" && !u.approved) return false;
-    if (statusFilter.value === "pending" && u.approved) return false;
+  let filtered=users.filter(u=>{
+    if(statusFilter.value==="approved"&&!u.approved) return false;
+    if(statusFilter.value==="pending"&&u.approved) return false;
+    if(statusFilter.value==="admin"&&u.role!=="admin") return false;
+    if(statusFilter.value==="user"&&u.role==="admin") return false;
 
-    const name = (u.fullName || "").toLowerCase();
-    const email = (u.email || "").toLowerCase();
-    const phone = (u.phone || "");
+    return (u.fullName||"").toLowerCase().includes(q)
+        || (u.email||"").toLowerCase().includes(q);
+  });
 
-    return name.includes(q) || email.includes(q) || phone.includes(q);
-
-  }).forEach(u => {
-
-    tbody.innerHTML += `
-      <tr>
-        <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-        <td>${u.fullName || "-"}</td>
-        <td>${u.uid}</td>
-        <td>${u.email || "-"}</td>
-        <td>${u.phone || "-"}</td>
-        <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-IN") : "-"}</td>
-        <td>
-          <span class="badge ${u.approved ? "green" : "yellow"}">
-            ${u.approved ? "Approved" : "Pending"}
-          </span>
-        </td>
-        <td>
-          <button onclick="toggle('${u.uid}', ${u.approved})">
-            ${u.approved ? "Unapprove" : "Approve"}
-          </button>
-        </td>
-      </tr>`;
+  filtered.forEach((u,i)=>{
+    tbody.innerHTML+=`
+    <tr>
+      <td><input type="checkbox" class="sel" value="${u.uid}"></td>
+      <td>${i+1}</td>
+      <td>${u.fullName||"-"}</td>
+      <td>${u.email||"-"}</td>
+      <td>${u.phone||"-"}</td>
+      <td>
+        <select class="role-select" onchange="changeRole('${u.uid}',this.value)">
+          <option value="user" ${u.role!=="admin"?"selected":""}>User</option>
+          <option value="admin" ${u.role==="admin"?"selected":""}>Admin</option>
+        </select>
+      </td>
+      <td>${formatDate(u.createdAt)}</td>
+      <td>
+        <span class="badge ${u.approved?"green":"yellow"}">
+          ${u.approved?"Approved":"Pending"}
+        </span>
+      </td>
+      <td>
+        <button onclick="toggle('${u.uid}',${u.approved})">
+          ${u.approved?"Unapprove":"Approve"}
+        </button>
+      </td>
+    </tr>`;
   });
 };
 
-/* ================= HELPERS ================= */
-window.toggleAll = cb =>
-  document.querySelectorAll(".sel").forEach(c => c.checked = cb.checked);
-
-const selected = () =>
-  [...document.querySelectorAll(".sel:checked")].map(x => x.value);
-
-window.toggle = async (id, v) => {
-  await updateDoc(doc(db, "users", id), { approved: !v });
+/* ROLE CHANGE */
+window.changeRole=async(uid,newRole)=>{
+  await updateDoc(doc(db,"users",uid),{role:newRole});
   load();
 };
 
-window.bulkApprove = async () => {
-  for (const id of selected())
-    await updateDoc(doc(db, "users", id), { approved: true });
+/* HELPERS */
+window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
+const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
+
+window.toggle=async(id,v)=>{
+  await updateDoc(doc(db,"users",id),{approved:!v});
   load();
 };
+window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:true});load();};
+window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:false});load();};
+window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));load();};
 
-window.bulkUnapprove = async () => {
-  for (const id of selected())
-    await updateDoc(doc(db, "users", id), { approved: false });
-  load();
-};
-
-window.bulkDelete = async () => {
-  for (const id of selected())
-    await deleteDoc(doc(db, "users", id));
-  load();
-};
-
-/* ================= EXPORT ================= */
-window.exportXLSX = () => {
-  const rows = users.map(u => ({
-    UID: u.uid,
-    Name: u.fullName || "",
-    Email: u.email || "",
-    Phone: u.phone || "",
-    Approved: u.approved ? "Yes" : "No",
-    Created: u.createdAt || ""
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Users");
-  XLSX.writeFile(wb, "users_export.xlsx");
-};
 </script>
-
 
 </body>
 </html>
