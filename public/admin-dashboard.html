@@ -145,7 +145,6 @@ import {
   getFirestore,
   collection,
   query,
-  where,
   onSnapshot,
   doc,
   getDoc
@@ -161,6 +160,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let allUsers = [];
+let approvalChartInstance = null;
 
 /* ADMIN CHECK */
 onAuthStateChanged(auth, async user => {
@@ -191,28 +191,42 @@ function initRealtimeDashboard(){
     allUsers = snapshot.docs.map(d => ({id:d.id,...d.data()}));
     totalUsers.innerText = allUsers.length;
 
-    renderApprovalChart();
-    renderPendingBell();
+    updateApprovalChart();
+    updatePendingBell();
   });
 }
 
-/* APPROVAL CHART */
-function renderApprovalChart(){
+/* UPDATE CHART SAFELY */
+function updateApprovalChart(){
   const approved = allUsers.filter(u=>u.approved===true).length;
   const pending = allUsers.length - approved;
 
-  new Chart(approvalChart,{
+  if(approvalChartInstance){
+    approvalChartInstance.data.datasets[0].data = [approved,pending];
+    approvalChartInstance.update();
+    return;
+  }
+
+  approvalChartInstance = new Chart(approvalChart,{
     type:"doughnut",
     data:{
       labels:["Approved","Pending"],
-      datasets:[{data:[approved,pending]}]
+      datasets:[{
+        data:[approved,pending]
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false
     }
   });
 }
 
 /* REALTIME BELL */
-function renderPendingBell(){
-  const pending = allUsers.filter(u=>u.approved!==true && u.approvalReminder===true);
+function updatePendingBell(){
+  const pending = allUsers.filter(
+    u=>u.approved!==true && u.approvalReminder===true
+  );
 
   if(pending.length){
     pendingBadge.innerText = pending.length;
