@@ -22,56 +22,107 @@ body{
 }
 a{text-decoration:none;color:inherit}
 
-/* ===== NAVBAR ===== */
+/* ================= NAVBAR (MATCH INDEX) ================= */
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
+  height:50px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:14px 22px;
-  background:rgba(15,23,42,.85);
-  backdrop-filter:blur(12px);
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
+  padding:0;
 }
-.brand img{height:40px}
 
-/* Desktop nav */
-.nav-right{
+.brand{
+  height:50px;
   display:flex;
+  align-items:center;
 }
-.nav-right a{
-  margin-left:18px;
-  font-weight:600;
+.brand img{
+  height:50px;
+  width:auto;
+  object-fit:contain;
 }
-.nav-right a:hover{color:#38bdf8}
 
-/* Mobile hamburger */
-.menu-btn{
-  display:none;
-  font-size:26px;
+/* NAV LINKS */
+.nav-links{
+  display:flex;
+  gap:20px;
+  align-items:center;
+  padding-right:20px;
+}
+
+/* SAME STYLE FOR ALL NAV BUTTONS */
+.nav-links a,
+.nav-btn{
+  padding:8px 18px;
+  border-radius:25px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:white;
+  font-weight:700;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:none;
+  outline:none;
   cursor:pointer;
+  transition:all .3s ease;
 }
 
-/* Mobile dropdown */
+.nav-links a:hover,
+.nav-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+/* HAMBURGER */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  padding-right:20px;
+}
+.hamburger span{
+  width:25px;
+  height:3px;
+  background:#081634;
+  border-radius:3px;
+}
+
+/* MOBILE MENU */
 .mobile-menu{
   position:fixed;
-  top:64px;
-  left:0;right:0;
-  background:#0f172a;
-  transform:translateY(-100%);
-  transition:transform .35s ease;
+  top:50px;
+  right:-100%;
+  width:260px;
+  height:100%;
+  background:#081634;
+  padding:30px;
+  transition:.4s;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
   z-index:999;
 }
-.mobile-menu.show{
-  transform:translateY(0);
-}
 .mobile-menu a{
-  display:block;
-  padding:14px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  color:#c7d2fe;
+  color:white;
+  text-decoration:none;
+  font-weight:600;
 }
+.mobile-menu.active{right:0}
+
+@media(max-width:900px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+}
+
 
 /* ===== CONTENT ===== */
 main{
@@ -185,14 +236,28 @@ main{
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img src="images/logo.png" alt="Sadri Villa">
+    <img id="siteLogo" style="display:none" alt="Sadri Villa">
   </div>
 
-  <div class="nav-right">
+  <div class="nav-links">
     <a href="index.html">Home</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
+    <a href="about.html">About</a>
+    <button class="nav-btn" onclick="location.href='login.html'">Login</button>
+    <button class="nav-btn" onclick="location.href='signup.html'">Sign Up</button>
   </div>
+
+  <div class="hamburger" onclick="toggleMenu(event)">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
+</div>
+
 
   <div class="menu-btn" onclick="toggleMenu()">☰</div>
 </div>
@@ -206,8 +271,37 @@ main{
 
 <main>
 <section class="hero">
-  <h1>Why <span>Sadri Villa</span></h1>
+  <h1>About <span>Sadri Villa</span></h1>
   <p>A living heritage of the Sadri family in Fazilpur, Bihar — serving humanity for more than 150 years.</p>
+   <p>Sadri Villa is not merely a historic residence; it is a living legacy of honor, sacrifice, and humanity.
+
+Located in Shahpur Baghauni village of Tajpur block, Samastipur district, Bihar, the villa has stood proudly for over 150 years, witnessing generations of change while preserving timeless values.
+
+Founded by a respected freedom fighter and doctor, Sadri Villa carries the spirit of patriotism and service within its walls.
+
+What began as a family residence evolved into a sanctuary of compassion for the community.
+
+For decades, the Sadri family has opened its doors to those in need, offering shelter with dignity and kindness.
+
+More than 100 underprivileged families have celebrated their wedding ceremonies here, free of cost, beginning new chapters of life with hope and respect.
+
+The villa reflects architectural grace from a bygone era, standing as a symbol of cultural pride.
+
+Every brick carries stories of resilience, sacrifice, and unwavering commitment to society.
+
+Sadri Villa believes that true heritage is not measured by age, but by impact.
+
+It is a place where tradition meets responsibility, and history embraces humanity.
+
+The peaceful surroundings and welcoming atmosphere make it more than a monument — it is a home for the community.
+
+Generations of the Sadri family have upheld values of integrity, compassion, and unity.
+
+The mission of Sadri Villa is simple yet profound: preserve heritage while serving humanity.
+
+Even today, the legacy continues with the same dedication that inspired its foundation.
+
+Sadri Villa stands as a bridge between the past and the future — a timeless symbol of service, dignity, and hope.</p>
 
   <div class="vision animate">
     <h2>Our Vision</h2>
@@ -216,12 +310,12 @@ main{
 
   <!-- CARDS -->
   <div class="keypoints">
-    <div class="keycard animate"><div class="icon">🏛</div><h4>Heritage Legacy</h4><p>150+ years of cultural and family heritage.</p></div>
-    <div class="keycard animate"><div class="icon">❤️</div><h4>Social Welfare</h4><p>Free marriages and shelter for the needy.</p></div>
-    <div class="keycard animate"><div class="icon">🤝</div><h4>Community Service</h4><p>Serving people with dignity and respect.</p></div>
-    <div class="keycard animate"><div class="icon">🛏</div><h4>Free Shelter</h4><p>Safe temporary accommodation in hard times.</p></div>
-    <div class="keycard animate"><div class="icon">📜</div><h4>Family Values</h4><p>A Sadri family legacy rooted in Fazilpur.</p></div>
-    <div class="keycard animate"><div class="icon">🌱</div><h4>Future Vision</h4><p>Preserving heritage for future generations.</p></div>
+   <div class="keycard"><div class="icon">🏛</div><h4>Heritage Legacy</h4><p>150+ years of cultural and family heritage.</p></div>
+    <div class="keycard"><div class="icon">❤️</div><h4>Social Welfare</h4><p>Free marriages and shelter for the needy.</p></div>
+    <div class="keycard"><div class="icon">🤝</div><h4>Community Service</h4><p>Serving people with dignity and respect.</p></div>
+   <div class="keycard"><div class="icon">🛏</div><h4>Free Shelter</h4><p>Safe temporary accommodation in hard times.</p></div>
+    <div class="keycard"><div class="icon">📜</div><h4>Family Values</h4><p>A Sadri family legacy rooted in Fazilpur.</p></div>
+   <div class="keycard"><div class="icon">🌱</div><h4>Future Vision</h4><p>Preserving heritage for future generations.</p></div>
   </div>
 </section>
 </main>
@@ -239,6 +333,7 @@ main{
       <a href="signup.html">Sign Up</a><br>
       <a href="about.html">About</a>
     </div>
+    
    <div>
       <h4>Contact</h4>
       <p>📍 Fazilpur, Samastipur</p>
@@ -246,6 +341,17 @@ main{
       <a href="https://maps.google.com?q=Sadri+Villa+Fazilpur" target="_blank">
         🗺️ Villa Map
       </a>
+    </div>
+    <div class="footer-col">
+      <h4>Near Us</h4>
+    <a href="https://maps.app.goo.gl/PTyPhUnafXD2xgxcA" target="_blank">
+        Mosque
+    <p><a href="https://maps.app.goo.gl/P6fXKqgPnXYKYXPe7" target="_blank">
+        Clinic<p>
+     <p><a href="https://maps.app.goo.gl/KMxLCyrREXyiy7Jv7" target="_blank">
+        Super Market<p>
+      <p><a href="https://maps.app.goo.gl/X66PzhR31MWzHMiX8" target="_blank">
+        Collage<p>
     </div>
 
   </div>
@@ -255,23 +361,53 @@ main{
 </footer>
 
 <script>
-function toggleMenu(){
-  document.getElementById("mobileMenu").classList.toggle("show");
+function toggleMenu(e){
+  e.stopPropagation();
+  document.getElementById("mobileMenu").classList.toggle("active");
 }
-function closeMenu(){
-  document.getElementById("mobileMenu").classList.remove("show");
-}
-
-/* Scroll animation */
-const observer=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add("show");
-      observer.unobserve(e.target);
+document.addEventListener("click",function(){
+  document.getElementById("mobileMenu").classList.remove("active");
+});
+</script>
+<script>
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add("show");
+      observer.unobserve(entry.target);
     }
   });
-},{threshold:.15});
-document.querySelectorAll(".animate").forEach(el=>observer.observe(el));
+},{threshold:0.15});
+
+document.querySelectorAll(".animate").forEach(el=>{
+  observer.observe(el);
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
+});
+
+const db = getFirestore(app);
+const siteLogo = document.getElementById("siteLogo");
+
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists()) return;
+
+  const data = snap.data();
+
+  if(data.logo?.url){
+    const v = Date.now();   // prevent cache
+    siteLogo.onload = () => siteLogo.style.display="block";
+    siteLogo.src = data.logo.url + "?v=" + v;
+  }
+});
 </script>
 
 </body>
