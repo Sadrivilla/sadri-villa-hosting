@@ -135,106 +135,102 @@ body{margin:0;font-family:Arial;background:var(--bg)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* 🔥 FIREBASE */
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* FIREBASE */
 const app = initializeApp({
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06"
 });
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 🔐 AUTH + ADMIN CLAIM */
+let allUsers = [];
+
+/* ADMIN CHECK */
 onAuthStateChanged(auth, async user => {
   if (!user) {
     location.href = "login.html";
     return;
   }
 
-  try {
-    const snap = await getDoc(doc(db, "users", user.uid));
+  const snap = await getDoc(doc(db, "users", user.uid));
 
-    if (!snap.exists() || snap.data().role !== "admin") {
-      alert("Access denied");
-      location.href = "dashboard.html";
-      return;
-    }
-
-    pName.innerText = snap.data().fullName || "Admin";
-
-    loadDashboard();
-
-  } catch (error) {
-    console.error("Error loading admin:", error);
+  if (!snap.exists() || snap.data().role !== "admin") {
+    alert("Access denied");
+    location.href = "dashboard.html";
+    return;
   }
+
+  pName.innerText = snap.data().fullName || "Admin";
+
+  initRealtimeDashboard();
 });
+
+/* REALTIME DASHBOARD */
+function initRealtimeDashboard(){
+
+  const q = query(collection(db,"users"));
+
+  onSnapshot(q, snapshot => {
+    allUsers = snapshot.docs.map(d => ({id:d.id,...d.data()}));
+    totalUsers.innerText = allUsers.length;
+
+    renderApprovalChart();
+    renderPendingBell();
+  });
+}
+
+/* APPROVAL CHART */
+function renderApprovalChart(){
+  const approved = allUsers.filter(u=>u.approved===true).length;
+  const pending = allUsers.length - approved;
+
+  new Chart(approvalChart,{
+    type:"doughnut",
+    data:{
+      labels:["Approved","Pending"],
+      datasets:[{data:[approved,pending]}]
+    }
+  });
+}
+
+/* REALTIME BELL */
+function renderPendingBell(){
+  const pending = allUsers.filter(u=>u.approved!==true && u.approvalReminder===true);
+
+  if(pending.length){
+    pendingBadge.innerText = pending.length;
+    pendingAlertIcon.style.display = "flex";
+  }else{
+    pendingAlertIcon.style.display = "none";
+  }
+}
 
 /* MENU */
 window.toggleMenu = () =>
   profileMenu.style.display =
-    profileMenu.style.display === "block" ? "none" : "block";
+    profileMenu.style.display==="block"?"none":"block";
 
-window.logout = async () => {
+window.logout = async()=>{
   await signOut(auth);
-  location.href = "login.html";
+  location.href="login.html";
 };
-
-/* LOAD DATA */
-let allUsers = [];
-async function loadDashboard() {
-  const snap = await getDocs(collection(db, "users"));
-  allUsers = snap.docs.map(d => d.data());
-  totalUsers.innerText = allUsers.length;
-  renderApprovalChart();
-  renderAgeChart();
-  renderProfileChart();
-  renderPendingAlerts();
-}
-
-/* CHARTS */
-function renderApprovalChart() {
-  const approved = allUsers.filter(u => u.approved === true).length;
-  const pending = allUsers.length - approved;
-
-  new Chart(approvalChart, {
-    type: "doughnut",
-    data: {
-      labels: ["Approved", "Pending"],
-      datasets: [{ data: [approved, pending] }]
-    }
-  });
-}
-
-function renderAgeChart() {
-  new Chart(ageChart, {
-    type: "bar",
-    data: {
-      labels: ["Young", "Adult", "Senior"],
-      datasets: [{ data: [10, 20, 5] }]
-    }
-  });
-}
-
-function renderProfileChart() {
-  new Chart(profileChart, {
-    type: "bar",
-    data: {
-      labels: allUsers.map(u => u.fullName || "User"),
-      datasets: [{ data: allUsers.map(() => 80) }]
-    }
-  });
-}
-
-function renderPendingAlerts() {
-  const pending = allUsers.filter(u => u.approved !== true);
-  if (pending.length) {
-    pendingBadge.innerText = pending.length;
-    pendingAlertIcon.style.display = "flex";
-  }
-}
 </script>
 
 </body>
