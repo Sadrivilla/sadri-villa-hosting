@@ -75,45 +75,55 @@ body{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app=initializeApp({
+import { 
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* FIREBASE */
+const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const uid=new URLSearchParams(location.search).get("uid");
+/* AUTH CHECK */
+onAuthStateChanged(auth, async user => {
 
-/* AUTH */
-onAuthStateChanged(auth, async user=>{
-  if(!user) return location.href="login.html";
-
-  const token=await user.getIdTokenResult(true);
-  if(!token.claims.admin){
-    alert("Admin only");
-    return location.href="dashboard.html";
+  if(!user){
+    location.href="login.html";
+    return;
   }
 
-  loadProfile();
+  const snap = await getDoc(doc(db,"users",user.uid));
+
+  if(!snap.exists() || snap.data().role !== "admin"){
+    alert("Admin only");
+    location.href="dashboard.html";
+    return;
+  }
+
+  loadProfile(user.uid, snap.data());
 });
 
-async function loadProfile(){
-  const snap=await getDoc(doc(db,"users",uid));
-  if(!snap.exists()) return alert("User not found");
+/* LOAD ADMIN PROFILE */
+function loadProfile(uid, data){
 
-  const u=snap.data();
-  name.innerText=u.fullName||"-";
-  email.innerText=u.email||"-";
-  phone.innerText=u.phone||"-";
-  uidEl.innerText=uid;
+  name.innerText = data.fullName || "-";
+  email.innerText = data.email || auth.currentUser.email || "-";
+  phone.innerText = data.phone || "-";
+  document.getElementById("uid").innerText = uid;
 }
-
-const uidEl=document.getElementById("uid");
 </script>
+
 
 </body>
 </html>
