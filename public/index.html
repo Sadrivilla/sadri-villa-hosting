@@ -4,53 +4,96 @@
 <meta charset="UTF-8">
 <title>Sadri Villa Fazilpur | Heritage Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon.png">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
+body{font-family:Arial,sans-serif;background:#ffffff}
 
 /* ================= NAVBAR ================= */
 .navbar{
-  position:fixed;top:0;left:0;right:0;
+  position:fixed;
+  top:0;left:0;right:0;
   height:72px;
   display:flex;
   justify-content:space-between;
-  align-items:stretch;
-  background:rgba(8,22,52,.35);
-  backdrop-filter:blur(14px);
+  align-items:center;
+  background:rgba(8,22,52,.92);
+  backdrop-filter:blur(10px);
   z-index:1000;
-  border-bottom:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  padding:0;
 }
-.brand{height:100%;display:flex;align-items:center;padding-left:20px}
-.brand img{height:52px;width:auto;object-fit:contain;display:none}
 
-.nav-actions{
+.brand{
+  height:72px;
   display:flex;
   align-items:center;
-  gap:14px;
-  padding-right:18px;
+}
+.brand img{
+  height:72px;
+  width:auto;
+  object-fit:contain;
+  display:none;
+}
+
+/* NAV LINKS */
+.nav-links{
+  display:flex;
+  gap:20px;
+  align-items:center;
+  padding-right:20px;
+}
+.nav-links a{
+  color:white;
+  text-decoration:none;
+  font-weight:600;
 }
 .nav-btn{
-  padding:12px 15px;
-  border-radius:24px;
+  padding:8px 16px;
+  border-radius:20px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
   border:none;
+  color:white;
   font-weight:700;
   cursor:pointer;
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
-  transition:.25s;
 }
-.nav-btn.outline{
-  background:transparent;
-  border:2px solid #60a5fa;
+
+/* HAMBURGER */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  padding-right:20px;
 }
-.nav-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 14px 30px rgba(56,189,248,.35);
+.hamburger span{
+  width:25px;
+  height:3px;
+  background:white;
+  border-radius:3px;
 }
+
+/* MOBILE MENU */
+.mobile-menu{
+  position:fixed;
+  top:72px;
+  right:-100%;
+  width:260px;
+  height:100%;
+  background:#081634;
+  padding:30px;
+  transition:.4s;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  z-index:999;
+}
+.mobile-menu a{
+  color:white;
+  text-decoration:none;
+  font-weight:600;
+}
+.mobile-menu.active{right:0}
 
 /* ================= HERO ================= */
 .hero{
@@ -60,96 +103,41 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   align-items:center;
   justify-content:center;
   text-align:center;
-  background:#081634;
+  background:#f8fafc;
   background-size:cover;
   background-position:center;
   position:relative;
-  transition:background-image .4s ease;
+  transition:background-image 1s ease-in-out;
 }
 .hero::before{
   content:"";
   position:absolute;
   inset:0;
-  background:rgba(8,22,52,.55);
+  background:rgba(0,0,0,.30);
 }
-.hero > div{
+.hero-content{
   position:relative;
-  z-index:1;
-  padding:0 20px;
-}
-.hero h1{font-size:54px;font-weight:800}
-.hero p{
-  font-size:20px;
-  max-width:760px;
-  margin:20px auto;
-  color:#cbd5f5;
-}
-
-/* HERO BUTTONS */
-.hero-buttons{
-  margin-top:30px;
-  display:flex;
-  justify-content:center;
-  gap:18px;
-  flex-wrap:wrap;
-}
-.hero-btn{
-  padding:14px 28px;
-  font-size:16px;
-  font-weight:700;
-  border-radius:30px;
-  cursor:pointer;
-  transition:.3s;
-  border:none;
-}
-.hero-btn.primary{
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;
-}
-.hero-btn.outline{
-  background:transparent;
-  border:2px solid #60a5fa;
-  color:#60a5fa;
-}
-.hero-btn.glow{
-  background:linear-gradient(135deg,#16a34a,#22c55e);
+  z-index:2;
+  max-width:1000px;
+  padding:20px;
   color:white;
-  box-shadow:0 0 20px rgba(34,197,94,.5);
 }
-.hero-btn:hover{
-  transform:translateY(-3px);
-  box-shadow:0 15px 35px rgba(56,189,248,.35);
+.hero h1{
+  font-size:52px;
+  margin-bottom:20px;
+  font-weight:800;
 }
-
-/* ================= STATS ================= */
-.villa-stats {
-  background:#ffffff;
-  padding:70px 20px;
-}
-.stats-container {
-  max-width:1200px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:40px;
-  text-align:center;
-}
-.stat-box h2 {font-size:44px;font-weight:700}
-.stat-box p {margin-top:12px;font-size:16px;color:#475569}
-.green{color:#16a34a}
-.blue{color:#0f4c81}
-.purple{color:#9333ea}
-.orange{color:#f97316}
-
-@media(max-width:900px){
-  .stats-container{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:480px){
-  .stats-container{grid-template-columns:1fr}
+.hero p{
+  font-size:18px;
+  line-height:1.6;
+  min-height:200px;
 }
 
 /* ================= CARDS ================= */
-.highlights{padding:90px 20px;background:#081634}
+.highlights{
+  padding:90px 20px;
+  background:#081634;
+}
 .highlight-grid{
   max-width:1200px;
   margin:auto;
@@ -158,45 +146,41 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
   gap:36px;
 }
 .card{
-  background:#1b2f63;
+  background:white;
   border-radius:28px;
   padding:46px 30px;
   text-align:center;
-  box-shadow:0 20px 45px rgba(0,0,0,.35);
+  box-shadow:0 20px 45px rgba(0,0,0,.08);
   transition:.35s;
 }
-.card h3{color:#fff}
-.card p{color:#cbd5f5}
+.card h3{color:#0f172a;margin-bottom:10px}
+.card p{color:#475569}
 .card:hover{
   transform:translateY(-8px);
-  box-shadow:0 30px 60px rgba(56,189,248,.35);
+  box-shadow:0 30px 60px rgba(0,0,0,.12);
 }
 
 /* ================= SLIDER ================= */
 .gallery{
-  background:white;
+  background:#a1bbd6;
   padding:60px 0;
   overflow:hidden;
 }
 .track{
   display:flex;
-  gap:24px;
-  padding-left:24px;
+  gap:20px;
   width:max-content;
-  will-change:transform;
-}
-.track.animate{
-  animation-name:scroll;
-  animation-timing-function:linear;
-  animation-iteration-count:infinite;
 }
 .track img{
-  width:380px;
-  height:260px;
+  width:350px;
+  height:240px;
   object-fit:cover;
-  border-radius:22px;
+  border-radius:20px;
 }
-.gallery:hover .track{
+.track.animate{
+  animation:scroll linear infinite;
+}
+.track:hover{
   animation-play-state:paused;
 }
 @keyframes scroll{
@@ -205,7 +189,10 @@ body{font-family:Arial,sans-serif;background:#ffffff;color:#e5e7eb}
 }
 
 /* ================= FOOTER ================= */
-footer{background:#081634}
+footer{
+  background:#081634;
+  color:white;
+}
 .footer-container{
   max-width:1200px;
   margin:auto;
@@ -214,15 +201,32 @@ footer{background:#081634}
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
   gap:40px;
 }
-.footer-logo{max-width:140px;margin-bottom:16px;display:none}
-.footer-col h4{color:#fff;margin-bottom:10px}
-.footer-col p,a{color:#cbd5f5;font-size:14px;text-decoration:none}
+.footer-logo{
+  height:60px;
+  object-fit:contain;
+  margin-bottom:15px;
+  display:none;
+}
+.footer-col h4{margin-bottom:10px}
+.footer-col p,a{
+  color:#cbd5f5;
+  text-decoration:none;
+  font-size:14px;
+}
 .footer-bottom{
   border-top:1px solid rgba(255,255,255,.1);
   text-align:center;
   padding:18px;
   font-size:13px;
   color:#94a3b8;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero h1{font-size:34px}
+  .hero p{font-size:16px}
 }
 </style>
 </head>
@@ -232,36 +236,35 @@ footer{background:#081634}
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Logo">
+    <img id="siteLogo">
   </div>
-  <div class="nav-actions">
-    <button class="nav-btn outline" onclick="location.href='about.html'">About</button>
-    <button class="nav-btn outline" onclick="location.href='login.html'">Login</button>
+
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="#" onclick="scrollFooter()">Contact</a>
+    <button class="nav-btn" onclick="location.href='login.html'">Login</button>
     <button class="nav-btn" onclick="location.href='signup.html'">Sign Up</button>
   </div>
+
+  <div class="hamburger" onclick="toggleMenu(event)">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="#" onclick="scrollFooter()">Contact</a>
+  <a href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
 </div>
 
 <!-- HERO -->
 <section class="hero" id="heroSection">
-  <div>
+  <div class="hero-content">
     <h1>Sadri Villa – A Living Heritage</h1>
-    <p>Preserving heritage, sheltering humanity, strengthening families.</p>
-
-    <div class="hero-buttons">
-      <button class="hero-btn primary" onclick="location.href='about.html'">Learn More</button>
-      <button class="hero-btn outline" onclick="document.querySelector('footer').scrollIntoView({behavior:'smooth'})">Contact Us</button>
-      <button class="hero-btn glow" onclick="location.href='signup.html'">Join Us</button>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section class="villa-stats">
-  <div class="stats-container">
-    <div class="stat-box"><h2 class="green count" data-target="150">0+</h2><p>Years of Heritage</p></div>
-    <div class="stat-box"><h2 class="blue count" data-target="20">0+</h2><p>Rooms & Courtyards</p></div>
-    <div class="stat-box"><h2 class="purple count" data-target="100">0+</h2><p>Family Members & Guests</p></div>
-    <div class="stat-box"><h2 class="orange count" data-target="24" data-suffix="/7">0</h2><p>Care, Shelter & Support</p></div>
+    <p id="animatedText"></p>
   </div>
 </section>
 
@@ -269,11 +272,11 @@ footer{background:#081634}
 <section class="highlights">
   <div class="highlight-grid">
     <div class="card"><h3>Heritage Legacy</h3><p>150+ years of cultural heritage.</p></div>
-    <div class="card"><h3>Social Welfare</h3><p>Free marriages & shelter.</p></div>
-    <div class="card"><h3>Community Service</h3><p>Dignity & respect.</p></div>
-    <div class="card"><h3>Free Shelter</h3><p>Safe place for needy.</p></div>
-    <div class="card"><h3>Family Values</h3><p>Traditions preserved.</p></div>
-    <div class="card"><h3>Future Vision</h3><p>Hope for generations.</p></div>
+    <div class="card"><h3>Social Welfare</h3><p>Free marriages & shelter support.</p></div>
+    <div class="card"><h3>Community Service</h3><p>Dignity & respect for all families.</p></div>
+    <div class="card"><h3>Free Shelter</h3><p>Temporary night shelter for helpless people.</p></div>
+    <div class="card"><h3>Marriage Support</h3><p>100+ poor marriages completed free of cost.</p></div>
+    <div class="card"><h3>Future Vision</h3><p>Hope and support for next generations.</p></div>
   </div>
 </section>
 
@@ -287,19 +290,22 @@ footer{background:#081634}
   <div class="footer-container">
     <div class="footer-col">
       <img id="footerLogo" class="footer-logo">
-      <p>150+ years of heritage, service, and compassion.</p>
+      <p>150+ years of heritage, compassion & community service.</p>
     </div>
     <div class="footer-col">
       <h4>Quick Links</h4>
-      <a href="#">Home</a><br>
+      <a href="index.html">Home</a><br>
       <a href="about.html">About</a><br>
       <a href="login.html">Login</a><br>
       <a href="signup.html">Sign Up</a>
     </div>
-    <div class="footer-col">
+   <div>
       <h4>Contact</h4>
-      <p>📍 Fazilpur, Samastipur, Bihar</p>
-      <p>📞 +91 87088 68221</p>
+      <p>📍 Fazilpur, Samastipur</p>
+      <p>📧 <a href="mailto:sadrivillafazilpur@gmail.com">sadrivillafazilpur@gmail.com</a></p>
+      <a href="https://maps.google.com?q=Sadri+Villa+Fazilpur" target="_blank">
+        🗺️ Villa Map
+      </a>
     </div>
   </div>
   <div class="footer-bottom">© 2026 Sadri Villa Fazilpur</div>
@@ -310,54 +316,74 @@ footer{background:#081634}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+const db=getFirestore(app);
 
-const db = getFirestore(app);
-const heroSection = document.getElementById("heroSection");
-const galleryTrack = document.getElementById("galleryTrack");
-const gallerySection = document.getElementById("gallerySection");
-const siteLogo = document.getElementById("siteLogo");
-const footerLogo = document.getElementById("footerLogo");
+const heroSection=document.getElementById("heroSection");
+const galleryTrack=document.getElementById("galleryTrack");
+const gallerySection=document.getElementById("gallerySection");
+const siteLogo=document.getElementById("siteLogo");
+const footerLogo=document.getElementById("footerLogo");
+const animatedText=document.getElementById("animatedText");
+
+let heroImages=[],current=0,interval;
+
+/* HERO TEXT */
+const heroParagraph = `Sadri Villa is a heritage of Sadri family in Shahpur Baghauni village of Tajpur block in Samastipur district of Bihar. This family has a huge history and this historical building is almost 150 years old. The ancient owner of this building was a freedom fighter and doctor. This monument is very beautiful and has a small park which visitors can enjoy free of cost. Sadri Villa provides temporary shelter for helpless people at night. The family members also allow economically weak people to arrange their marriage parties in this building free of cost. At least 100+ poor marriages have been completed here.`;
+
+function typeEffect(text){
+  animatedText.innerHTML="";
+  let i=0;
+  function typing(){
+    if(i<text.length){
+      animatedText.innerHTML+=text.charAt(i);
+      i++;
+      setTimeout(typing,18);
+    }
+  }
+  typing();
+}
+typeEffect(heroParagraph);
 
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists()) return;
-  const data = snap.data();
+  if(!snap.exists())return;
+  const data=snap.data();
 
-  /* LOGO LIVE */
+  /* LOGO */
   if(data.logo?.url){
-    const v = data.logo.updatedAt?.seconds || Date.now();
+    const v=Date.now();
     siteLogo.onload=()=>siteLogo.style.display="block";
     footerLogo.onload=()=>footerLogo.style.display="block";
     siteLogo.src=data.logo.url+"?v="+v;
     footerLogo.src=data.logo.url+"?v="+v;
   }
 
-  /* HERO LIVE */
-  const heroes=(data.heroimages||[]).filter(h=>h.enabled===true);
-  if(heroes.length){
-    heroSection.style.backgroundImage=`url('${heroes[0].url}')`;
-  }else{
-    heroSection.style.backgroundImage="";
+  /* HERO IMAGES */
+  heroImages=(data.heroimages||[]).filter(h=>h.enabled);
+  if(heroImages.length){
+    clearInterval(interval);
+    heroSection.style.backgroundImage=`url('${heroImages[0].url}')`;
+    current=0;
+    interval=setInterval(()=>{
+      current=(current+1)%heroImages.length;
+      heroSection.style.backgroundImage=`url('${heroImages[current].url}')`;
+    },5000);
   }
 
-  /* SLIDER LIVE */
-  const imgs=(data.sliderImages||[])
-    .filter(i=>i.enabled!==false)
-    .sort((a,b)=>(a.order||0)-(b.order||0));
-
+  /* SLIDER */
+  const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
   galleryTrack.innerHTML="";
   if(!imgs.length){
     gallerySection.style.display="none";
     return;
   }
-
   gallerySection.style.display="block";
-  const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
+  const list=imgs.length>1?[...imgs,...imgs]:imgs;
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
@@ -368,42 +394,24 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     galleryTrack.classList.add("animate");
     requestAnimationFrame(()=>{
       const width=galleryTrack.scrollWidth/2;
-      const speed=window.innerWidth<768?70:80;
-      galleryTrack.style.animationDuration=(width/speed)+"s";
+      galleryTrack.style.animationDuration=(width/80)+"s";
     });
-  }else{
-    galleryTrack.classList.remove("animate");
   }
 });
 </script>
 
-<!-- COUNTER -->
 <script>
-const counters=document.querySelectorAll('.count');
-let started=false;
-function startCount(){
-  if(started)return;
-  const section=document.querySelector('.villa-stats');
-  if(section.getBoundingClientRect().top<window.innerHeight-100){
-    started=true;
-    counters.forEach(c=>{
-      const target=+c.dataset.target;
-      const suffix=c.dataset.suffix||'+';
-      let v=0,step=target/60;
-      (function anim(){
-        v+=step;
-        if(v<target){
-          c.textContent=Math.floor(v)+suffix;
-          requestAnimationFrame(anim);
-        }else{
-          c.textContent=target+suffix;
-        }
-      })();
-    });
-  }
+function toggleMenu(e){
+  e.stopPropagation();
+  document.getElementById("mobileMenu").classList.toggle("active");
 }
-window.addEventListener('scroll',startCount);
-startCount();
+document.addEventListener("click",function(){
+  document.getElementById("mobileMenu").classList.remove("active");
+});
+function scrollFooter(){
+  document.querySelector("footer").scrollIntoView({behavior:'smooth'});
+  document.getElementById("mobileMenu").classList.remove("active");
+}
 </script>
 
 </body>
