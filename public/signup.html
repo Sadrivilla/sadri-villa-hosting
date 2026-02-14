@@ -10,38 +10,109 @@
 body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 
 /* ===== NAVBAR (SAME AS INDEX) ===== */
+/* ================= NAVBAR (MATCH INDEX) ================= */
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
-  background:rgba(8,22,52,.75);
-  backdrop-filter:blur(14px);
+  height:50px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  background:rgba(255,255,255,0.75);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
+  padding:0;
 }
+
 .brand{
-  height:100%;
+  height:50px;
   display:flex;
   align-items:center;
 }
+
 .brand img{
-  height:100%;
+  height:50px;
   width:auto;
   object-fit:contain;
-  display:block;
+  display:none; /* prevent broken flash */
 }
+
+/* NAV BUTTONS */
 .nav-actions{
   display:flex;
+  gap:20px;
   align-items:center;
-  gap:22px;
   padding-right:20px;
 }
+
 .nav-actions a{
-  color:#fff;
+  padding:8px 18px;
+  border-radius:25px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:white;
+  font-weight:700;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:.3s ease;
+}
+
+.nav-actions a:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+/* HAMBURGER */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  padding-right:20px;
+}
+
+.hamburger span{
+  width:25px;
+  height:3px;
+  background:#081634;
+  border-radius:3px;
+}
+
+/* MOBILE MENU */
+.mobile-menu{
+  position:fixed;
+  top:50px;
+  right:-100%;
+  width:260px;
+  height:100%;
+  background:#081634;
+  padding:30px;
+  transition:.4s;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  z-index:999;
+}
+
+.mobile-menu a{
+  color:white;
   text-decoration:none;
   font-weight:600;
 }
+
+.mobile-menu.active{
+  right:0;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .nav-actions{ display:none; }
+  .hamburger{ display:flex; }
+}
+
 
 /* ===== PAGE ===== */
 .page{padding:120px 24px 40px;display:flex;justify-content:center}
@@ -124,15 +195,29 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 <body>
 
 <!-- NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar" id="navbar">
   <div class="brand">
     <img id="siteLogo" alt="Sadri Villa Logo">
   </div>
+
   <div class="nav-actions">
     <a href="index.html">Home</a>
     <a href="login.html">Login</a>
     <a href="signup.html">Sign Up</a>
   </div>
+
+  <div class="hamburger" onclick="toggleMenu(event)">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="login.html">Login</a>
+  <a href="signup.html">Sign Up</a>
 </div>
 
 <div class="page">
@@ -141,9 +226,9 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 <div class="left">
   <h1>Sadri Villa – A Living Heritage</h1>
   <p>Preserving tradition while serving humanity.</p>
-  <div class="benefit"><div class="icon">✓</div>150+ years legacy</div>
-  <div class="benefit"><div class="icon">✓</div>Free shelter</div>
-  <div class="benefit"><div class="icon">✓</div>Community support</div>
+  <div class="benefit"><div class="icon">✓</div>For over 150 years, Sadri Villa has stood as a proud symbol of heritage, honor, and enduring tradition.</div>
+  <div class="benefit"><div class="icon">✓</div>Founded by a freedom fighter and healer, this villa carries the spirit of courage and service.</div>
+  <div class="benefit"><div class="icon">✓</div>A dignified space where countless underprivileged families have begun their new journey in life.</div>
 </div>
 
 <div class="card">
@@ -205,23 +290,34 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 
-const FALLBACK_LOGO =
-"https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.appspot.com/o/images%2Fsite%2Flogo.jpg?alt=media";
+const siteLogo = document.getElementById("siteLogo");
 
-siteLogo.src = FALLBACK_LOGO;
+/* hide until loaded */
+siteLogo.style.display = "none";
 
 onSnapshot(doc(db,"siteSettings","home"), snap => {
   if(!snap.exists()) return;
-  const d = snap.data();
-  if(d.logo?.url){
-    const v = d.logo.updatedAt?.seconds || Date.now();
-    siteLogo.src = `${d.logo.url}?v=${v}`;
-    if(d.logo.height){
-      navbar.style.height = d.logo.height + "px";
-    }
+
+  const data = snap.data();
+
+  if(data.logo?.url){
+    const cacheBuster = data.logo.updatedAt?.seconds || Date.now();
+
+    const img = new Image();
+    img.src = data.logo.url + "?v=" + cacheBuster;
+
+    img.onload = () => {
+      siteLogo.src = img.src;
+      siteLogo.style.display = "block";
+    };
+
+    img.onerror = () => {
+      siteLogo.style.display = "none";
+    };
   }
 });
 </script>
+
 
 <!-- 🔐 SIGNUP LOGIC (UNCHANGED) -->
 <script type="module">
@@ -319,6 +415,17 @@ createBtn.onclick=async()=>{
   msg.style.display="block";
   setTimeout(()=>location.href="pending.html",2500);
 };
+</script>
+
+<script>
+function toggleMenu(e){
+  e.stopPropagation();
+  document.getElementById("mobileMenu").classList.toggle("active");
+}
+
+document.addEventListener("click",function(){
+  document.getElementById("mobileMenu").classList.remove("active");
+});
 </script>
 
 </body>
