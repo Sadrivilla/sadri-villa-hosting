@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <title>Add Admin | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+<link rel="stylesheet" href="/assets/navbar.css">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -13,32 +12,6 @@ body{
   font-family:Arial,sans-serif;
   background:#ffffff;
   color:#0f172a;
-}
-
-/* ===== NAVBAR (SAME AS index.html) ===== */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:72px;
-  display:flex;
-  align-items:stretch;
-  background:rgba(8,22,52,.35);
-  backdrop-filter:blur(14px);
-  z-index:1000;
-  border-bottom:1px solid rgba(255,255,255,0.15);
-  box-shadow:0 8px 24px rgba(0,0,0,0.25);
-}
-.brand{
-  height:100%;
-  display:flex;
-  align-items:stretch;
-  padding-left:18px;
-}
-.brand img{
-  height:100%;
-  width:auto;
-  object-fit:contain;
-  display:none;
 }
 
 /* ===== FORM CARD ===== */
@@ -50,11 +23,7 @@ body{
   background:#f8fbff;
   box-shadow:0 25px 55px rgba(0,0,0,.15);
 }
-h2{
-  text-align:center;
-  margin-bottom:26px;
-  font-size:24px;
-}
+h2{text-align:center;margin-bottom:26px;font-size:24px}
 
 label{
   display:block;
@@ -106,14 +75,10 @@ button:hover{
 
 <body>
 
-<!-- ===== NAVBAR ===== -->
-<div class="navbar">
-  <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Logo">
-  </div>
-</div>
+<!-- GLOBAL NAVBAR -->
+<div id="navbar-container"></div>
 
-<!-- ===== FORM ===== -->
+<!-- FORM -->
 <div class="container">
   <h2>➕ Add New Admin</h2>
 
@@ -131,41 +96,82 @@ button:hover{
   <div id="msg" class="msg"></div>
 </div>
 
-<!-- ===== FIREBASE ===== -->
 <script type="module">
-import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp, onSnapshot } from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, 
+  onAuthStateChanged,
+  createUserWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc,
+  setDoc, 
+  serverTimestamp,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* ===== FIREBASE INIT ===== */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth = getAuth();
+const db = getFirestore();
 
-/* LOGO (SAME CONDITION AS index.html) */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists())return;
-  const logo=snap.data().logo;
-  if(!logo?.url)return;
-  siteLogo.onload=()=>siteLogo.style.display="block";
-  siteLogo.src=logo.url+"?v="+(logo.updatedAt?.seconds||Date.now());
+/* ===== ADMIN ACCESS CONTROL ===== */
+onAuthStateChanged(auth, async (user) => {
+
+  if(!user){
+    location.href = "index.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db,"users",user.uid));
+
+  if(!snap.exists() || snap.data().role !== "admin"){
+    location.href = "index.html";
+    return;
+  }
+
 });
 
-/* CREATE ADMIN */
+/* ===== REALTIME LOGO ===== */
+onSnapshot(doc(db,"siteSettings","home"), snap => {
+  if(!snap.exists()) return;
+  const data = snap.data();
+  const logo = document.getElementById("siteLogo");
+  if(!logo) return;
+
+  if(data.logo?.url){
+    const v = data.logo.updatedAt?.seconds || Date.now();
+    const img = new Image();
+    img.src = data.logo.url + "?v=" + v;
+
+    img.onload = () => {
+      logo.src = img.src;
+      logo.style.display = "block";
+    };
+  }
+});
+
+/* ===== CREATE ADMIN ===== */
 window.createAdmin = async () => {
+
+  const msg = document.getElementById("msg");
   msg.textContent="";
   msg.className="msg";
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const nameEl = document.getElementById("name");
+  const emailEl = document.getElementById("email");
+  const passEl = document.getElementById("password");
+
+  const name = nameEl.value.trim();
+  const email = emailEl.value.trim();
+  const password = passEl.value;
 
   if(!name || !email || password.length < 6){
     msg.textContent="Please fill all fields correctly";
@@ -176,24 +182,45 @@ window.createAdmin = async () => {
   try{
     const cred = await createUserWithEmailAndPassword(auth,email,password);
 
-    await setDoc(doc(db,"admins",cred.user.uid),{
-      name,
+    await setDoc(doc(db,"users",cred.user.uid),{
+      fullName:name,
       email,
       role:"admin",
-      approved:false,
+      approved:true,
       createdAt: serverTimestamp()
     });
 
-    msg.textContent="Admin created. Awaiting approval.";
+    msg.textContent="Admin created successfully.";
     msg.classList.add("success");
 
-    name.value=email.value=password.value="";
+    nameEl.value="";
+    emailEl.value="";
+    passEl.value="";
   }
   catch(err){
     msg.textContent=err.message;
     msg.classList.add("error");
   }
 };
+</script>
+
+<script>
+/* LOAD GLOBAL NAVBAR */
+fetch("/components/navbar.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("navbar-container").innerHTML = data;
+  });
+
+function toggleMenu(e){
+  e.stopPropagation();
+  document.getElementById("mobileMenu").classList.toggle("active");
+}
+
+document.addEventListener("click",function(){
+  const menu = document.getElementById("mobileMenu");
+  if(menu) menu.classList.remove("active");
+});
 </script>
 
 </body>
