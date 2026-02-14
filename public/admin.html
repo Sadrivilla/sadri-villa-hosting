@@ -215,99 +215,150 @@ onSnapshot(doc(db,"siteSettings","home"), snap=>{
 
 <!-- ===== ADMIN LOGIC (UNCHANGED, FULL) ===== -->
 <script type="module">
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore,collection,getDocs,doc,updateDoc,deleteDoc
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
-const auth=getAuth();
-const db=getFirestore();
+const auth = getAuth();
+const db = getFirestore();
 
-const tbody=document.getElementById("tbody");
-const search=document.getElementById("search");
-const statusFilter=document.getElementById("statusFilter");
+const tbody = document.getElementById("tbody");
+const search = document.getElementById("search");
+const statusFilter = document.getElementById("statusFilter");
 
-let users=[];
+let users = [];
 
-/* AUTH */
-onAuthStateChanged(auth, async user=>{
-  if(!user) return location.href="login.html";
-  const token=await user.getIdTokenResult(true);
-  if(!token.claims.admin){
-    alert("Admin only");
-    return location.href="dashboard.html";
+/* ================= AUTH CHECK ================= */
+onAuthStateChanged(auth, async user => {
+
+  if (!user) {
+    location.href = "login.html";
+    return;
   }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+
+  if (!snap.exists()) {
+    location.href = "login.html";
+    return;
+  }
+
+  const data = snap.data();
+
+  if (data.role !== "admin" || data.approved !== true) {
+    alert("Admin only");
+    location.href = "dashboard.html";
+    return;
+  }
+
+  // ✅ ADMIN VERIFIED
   load();
 });
 
-/* LOAD USERS */
-async function load(){
-  users=[];
-  const snap=await getDocs(collection(db,"users"));
-  snap.forEach(d=>users.push({uid:d.id,...d.data()}));
+/* ================= LOAD USERS ================= */
+async function load() {
+  users = [];
+  const snap = await getDocs(collection(db, "users"));
+  snap.forEach(d => users.push({ uid: d.id, ...d.data() }));
   render();
 }
 
-/* RENDER */
-window.render=()=>{
-  tbody.innerHTML="";
-  const q=search.value.toLowerCase();
+/* ================= RENDER ================= */
+window.render = () => {
+  tbody.innerHTML = "";
+  const q = search.value.toLowerCase();
 
-  users.filter(u=>{
-    if(statusFilter.value==="approved"&&!u.approved) return false;
-    if(statusFilter.value==="pending"&&u.approved) return false;
+  users.filter(u => {
 
-    const name=(u.fullName||u.adminFields?.Name||u.displayName||"").toLowerCase();
-    const email=(u.email||u.adminFields?.Email||"").toLowerCase();
-    const phone=(u.phone||u.adminFields?.Phone||"");
+    if (statusFilter.value === "approved" && !u.approved) return false;
+    if (statusFilter.value === "pending" && u.approved) return false;
 
-    return name.includes(q)||email.includes(q)||phone.includes(q);
-  }).forEach(u=>{
-    tbody.innerHTML+=`
-    <tr>
-      <td><input type="checkbox" class="sel" value="${u.uid}"></td>
-      <td>${u.fullName||u.adminFields?.Name||u.displayName||"-"}</td>
-      <td><button class="uid-btn" onclick="copyUID('${u.uid}',this)">Copy UID</button></td>
-      <td>${u.email||"-"}</td>
-      <td>${u.phone||"-"}</td>
-      <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString("en-IN"):"-"}</td>
-      <td>
-        <span class="badge ${u.approved?"green":"yellow"}">
-          ${u.approved?"Approved":"Pending"}
-        </span>
-      </td>
-      <td>
-        <button onclick="toggle('${u.uid}',${u.approved})">
-          ${u.approved?"Unapprove":"Approve"}
-        </button>
-      </td>
-    </tr>`;
+    const name = (u.fullName || "").toLowerCase();
+    const email = (u.email || "").toLowerCase();
+    const phone = (u.phone || "");
+
+    return name.includes(q) || email.includes(q) || phone.includes(q);
+
+  }).forEach(u => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td><input type="checkbox" class="sel" value="${u.uid}"></td>
+        <td>${u.fullName || "-"}</td>
+        <td>${u.uid}</td>
+        <td>${u.email || "-"}</td>
+        <td>${u.phone || "-"}</td>
+        <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-IN") : "-"}</td>
+        <td>
+          <span class="badge ${u.approved ? "green" : "yellow"}">
+            ${u.approved ? "Approved" : "Pending"}
+          </span>
+        </td>
+        <td>
+          <button onclick="toggle('${u.uid}', ${u.approved})">
+            ${u.approved ? "Unapprove" : "Approve"}
+          </button>
+        </td>
+      </tr>`;
   });
 };
 
-/* HELPERS */
-window.toggleAll=cb=>document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
-const selected=()=>[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
+/* ================= HELPERS ================= */
+window.toggleAll = cb =>
+  document.querySelectorAll(".sel").forEach(c => c.checked = cb.checked);
 
-window.toggle=async(id,v)=>{await updateDoc(doc(db,"users",id),{approved:!v});load();};
-window.bulkApprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:true});load();};
-window.bulkUnapprove=async()=>{for(const id of selected())await updateDoc(doc(db,"users",id),{approved:false});load();};
-window.bulkDelete=async()=>{for(const id of selected())await deleteDoc(doc(db,"users",id));load();};
+const selected = () =>
+  [...document.querySelectorAll(".sel:checked")].map(x => x.value);
 
-/* EXPORT */
-window.exportXLSX=()=>{
-  const rows=users.map(u=>({
-    UID:u.uid,Name:u.fullName||"",Email:u.email||"",
-    Phone:u.phone||"",Approved:u.approved?"Yes":"No",
-    Created:u.createdAt||""
+window.toggle = async (id, v) => {
+  await updateDoc(doc(db, "users", id), { approved: !v });
+  load();
+};
+
+window.bulkApprove = async () => {
+  for (const id of selected())
+    await updateDoc(doc(db, "users", id), { approved: true });
+  load();
+};
+
+window.bulkUnapprove = async () => {
+  for (const id of selected())
+    await updateDoc(doc(db, "users", id), { approved: false });
+  load();
+};
+
+window.bulkDelete = async () => {
+  for (const id of selected())
+    await deleteDoc(doc(db, "users", id));
+  load();
+};
+
+/* ================= EXPORT ================= */
+window.exportXLSX = () => {
+  const rows = users.map(u => ({
+    UID: u.uid,
+    Name: u.fullName || "",
+    Email: u.email || "",
+    Phone: u.phone || "",
+    Approved: u.approved ? "Yes" : "No",
+    Created: u.createdAt || ""
   }));
-  const ws=XLSX.utils.json_to_sheet(rows);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Users");
-  XLSX.writeFile(wb,"users_export.xlsx");
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+  XLSX.writeFile(wb, "users_export.xlsx");
 };
 </script>
+
 
 </body>
 </html>
