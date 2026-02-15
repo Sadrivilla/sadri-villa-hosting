@@ -45,8 +45,13 @@ button{padding:6px 10px;border:none;border-radius:10px;cursor:pointer;background
 <div class="upload-box">
   <input type="file" id="fileInput" accept="image/*" multiple>
   <label for="fileInput">Select Multiple Images</label>
+
   <div id="previewGrid" class="preview-grid"></div>
+
+  <br>
+  <button id="uploadBtn" style="display:none;">Upload Images</button>
 </div>
+
 
 <h4 style="margin-top:30px">Existing Slider Images</h4>
 <div id="sliderList"></div>
@@ -118,22 +123,39 @@ onAuthStateChanged(auth, async (user)=>{
 });
 
 /* PREVIEW */
-fileInput.onchange=e=>{
- selectedFiles=[...e.target.files];
- previewGrid.innerHTML="";
+const uploadBtn = document.getElementById("uploadBtn");
+
+fileInput.onchange = e => {
+ selectedFiles = [...e.target.files];
+ previewGrid.innerHTML = "";
+
+ if(!selectedFiles.length){
+   uploadBtn.style.display="none";
+   return;
+ }
+
+ uploadBtn.style.display="inline-block";
+
  selectedFiles.forEach(file=>{
   const reader=new FileReader();
   reader.onload=ev=>{
    previewGrid.innerHTML+=`
    <div class="preview-item">
      <img src="${ev.target.result}">
-     <div class="progress-bar"><div class="progress-fill"></div></div>
+     <div class="progress-bar">
+       <div class="progress-fill"></div>
+     </div>
    </div>`;
   };
   reader.readAsDataURL(file);
  });
- uploadAll();
 };
+
+/* Upload button click */
+uploadBtn.onclick = () => {
+  uploadAll();
+};
+
 
 /* LOAD */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
