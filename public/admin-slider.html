@@ -61,8 +61,9 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
+/* 🔥 YOUR REAL CONFIG */
 const app = initializeApp({
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
   projectId: "sadri-villa-14c06",
   storageBucket: "sadri-villa-14c06.firebasestorage.app"
@@ -80,23 +81,31 @@ const popup=document.getElementById("popup");
 let sliderImages=[];
 let selectedFiles=[];
 
+/* CENTER POPUP */
 function showPopup(msg,type="success"){
  popup.innerHTML=`<div class="${type}">${msg}</div>`;
  popup.classList.add("show");
  setTimeout(()=>popup.classList.remove("show"),2500);
 }
 
-/* ADMIN CHECK */
-onAuthStateChanged(auth, async user=>{
- if(!user){location.href="login.html";return;}
- const snap=await getDoc(doc(db,"users",user.uid));
- if(!snap.exists()||snap.data().role!=="admin"){
-  alert("Admin only");
-  location.href="dashboard.html";
+/* ✅ CLEAN ADMIN CHECK */
+onAuthStateChanged(auth, async (user)=>{
+ if(!user){
+   location.href="login.html";
+   return;
  }
+
+ const snap=await getDoc(doc(db,"users",user.uid));
+
+ if(!snap.exists() || snap.data().role!=="admin"){
+   location.href="dashboard.html";
+   return;
+ }
+
+ console.log("Admin verified ✅");
 });
 
-/* PREVIEW MULTI */
+/* MULTI PREVIEW */
 fileInput.onchange=e=>{
  selectedFiles=[...e.target.files];
  previewGrid.innerHTML="";
@@ -114,7 +123,7 @@ fileInput.onchange=e=>{
  uploadAll();
 };
 
-/* LOAD */
+/* LOAD SLIDERS */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
  sliderImages=snap.data()?.sliderImages||[];
  render();
@@ -124,6 +133,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 function render(){
  sliderList.innerHTML="";
  sliderImages.sort((a,b)=>a.order-b.order);
+
  sliderImages.forEach((img,i)=>{
   sliderList.innerHTML+=`
    <div class="item ${img.enabled!==false?"enabled":""}">
@@ -142,7 +152,7 @@ function render(){
  });
 }
 
-/* MULTI UPLOAD */
+/* MULTI UPLOAD WITH PROGRESS */
 async function uploadAll(){
  if(!selectedFiles.length) return;
 
@@ -193,7 +203,7 @@ window.move=async(i,dir)=>{
  showPopup("Order updated","success");
 };
 
-/* TOGGLE */
+/* ENABLE/DISABLE */
 window.toggle=async(i)=>{
  sliderImages[i].enabled=!sliderImages[i].enabled;
  await updateDoc(doc(db,"siteSettings","home"),{sliderImages});
