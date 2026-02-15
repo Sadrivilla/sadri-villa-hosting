@@ -71,48 +71,47 @@ firebase.initializeApp({
 });
 
 const db = firebase.firestore();
-const logoList = document.getElementById("logoList");
+const logoPreview = document.getElementById("logoList");
 
-/* ---------- LOAD LOGOS LIVE ---------- */
+/* ---------- LOAD CURRENT LOGO ---------- */
 db.collection("siteSettings")
   .doc("home")
   .onSnapshot(doc => {
 
-    logoList.innerHTML = "";
+    logoPreview.innerHTML = "";
 
     if (!doc.exists) return;
 
-    const logos = doc.data().logos || [];
+    const logo = doc.data().logo;
+    if (!logo || !logo.url) return;
 
-    logos.forEach((logo) => {
+    // Extract file name from URL
+    const fileName = logo.url.split("/").pop().split("?")[0];
 
-      const fileName = logo.fileName
-        ? logo.fileName.split("/").pop()
-        : logo.url.split("/").pop().split("?")[0];
+    logoPreview.innerHTML = `
+      <div style="
+        background:#fff;
+        padding:15px;
+        border-radius:14px;
+        box-shadow:0 6px 18px rgba(0,0,0,.08);
+        text-align:center;
+        max-width:300px;
+      ">
+        <img src="${logo.url}" 
+             style="max-width:100%;height:100px;object-fit:contain">
 
-      logoList.innerHTML += `
         <div style="
-          background:#fff;
-          padding:10px;
-          border-radius:14px;
-          box-shadow:0 6px 18px rgba(0,0,0,.08);
-          text-align:center;
+          margin-top:10px;
+          font-size:13px;
+          color:#475569;
+          word-break:break-all;
         ">
-          <img src="${logo.url}" 
-            style="width:100%;height:100px;object-fit:contain">
-          
-          <div style="
-            font-size:12px;
-            margin-top:6px;
-            word-break:break-all;
-            color:#475569;
-          ">
-            ${fileName}
-          </div>
+          ${fileName}
         </div>
-      `;
-    });
-  });
+      </div>
+    `;
+});
+
 
 /* ---------- AUTH CHECK ---------- */
 let authReady = false;
