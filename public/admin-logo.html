@@ -37,6 +37,22 @@ button {
 .msg.error { color: #991b1b; }
 .msg.success { color: #065f46; }
 .msg.loading { color: #1d4ed8; }
+/* ===== Spinner ===== */
+.spinner {
+  display: none;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 10px auto 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 </style>
 </head>
 
@@ -59,7 +75,8 @@ button {
   <div id="logoPreviewName"
        style="font-size:12px;margin-top:8px;color:#475569;"></div>
 </div>
-  <button onclick="uploadLogo()">Upload Logo</button>
+<button id="uploadBtn" onclick="uploadLogo()">Upload Logo</button>
+<div id="uploadSpinner" class="spinner"></div>
   <div class="msg" id="logoMsg"></div>
 </div>
 
@@ -164,6 +181,8 @@ firebase.auth().onAuthStateChanged(user => {
 async function uploadLogo() {
   const msg = document.getElementById("logoMsg");
   const file = document.getElementById("logoInput").files[0];
+  const spinner = document.getElementById("uploadSpinner");
+  const uploadBtn = document.getElementById("uploadBtn");
 
   if (!authReady) {
     msg.className = "msg error";
@@ -176,6 +195,11 @@ async function uploadLogo() {
     msg.innerText = "Please select an image";
     return;
   }
+
+  // 🔄 START LOADING
+  spinner.style.display = "block";
+  uploadBtn.disabled = true;
+  uploadBtn.style.opacity = "0.6";
 
   msg.className = "msg loading";
   msg.innerText = "Uploading logo…";
@@ -211,11 +235,18 @@ async function uploadLogo() {
     msg.className = "msg success";
     msg.innerText = "✅ Logo uploaded successfully";
 
+    document.getElementById("logoInput").value = "";
+
   } catch (err) {
     console.error(err);
     msg.className = "msg error";
     msg.innerText = err.message || "Upload failed";
   }
+
+  // ✅ STOP LOADING
+  spinner.style.display = "none";
+  uploadBtn.disabled = false;
+  uploadBtn.style.opacity = "1";
 }
 </script>
 
