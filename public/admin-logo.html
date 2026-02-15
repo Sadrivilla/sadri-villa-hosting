@@ -48,6 +48,17 @@ button {
   <h3>Upload Logo</h3>
   <input type="file" id="logoInput" accept="image/*">
   <br><br>
+  <!-- ✅ Preview Container -->
+<div id="logoPreviewBox" style="
+  display:none;
+  margin-bottom:15px;
+  text-align:center;
+">
+  <img id="logoPreviewImg" 
+       style="max-width:200px;height:120px;object-fit:contain;border-radius:12px;">
+  <div id="logoPreviewName"
+       style="font-size:12px;margin-top:8px;color:#475569;"></div>
+</div>
   <button onclick="uploadLogo()">Upload Logo</button>
   <div class="msg" id="logoMsg"></div>
 </div>
@@ -72,6 +83,30 @@ firebase.initializeApp({
 
 const db = firebase.firestore();
 const logoPreview = document.getElementById("logoList");
+
+/* ---------- PREVIEW BEFORE UPLOAD ---------- */
+const logoInput = document.getElementById("logoInput");
+const previewBox = document.getElementById("logoPreviewBox");
+const previewImg = document.getElementById("logoPreviewImg");
+const previewName = document.getElementById("logoPreviewName");
+
+logoInput.addEventListener("change", () => {
+  const file = logoInput.files[0];
+  if (!file) {
+    previewBox.style.display = "none";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src = e.target.result;
+    previewName.innerText = file.name;
+    previewBox.style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+});
+
 
 /* ---------- LOAD CURRENT LOGO ---------- */
 db.collection("siteSettings")
