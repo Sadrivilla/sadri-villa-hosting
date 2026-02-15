@@ -101,8 +101,8 @@ async function uploadLogo() {
       reader.readAsDataURL(file);
     });
 
-    const res = await fetch(
-      "https://uploadlogo-jgzkr3mifq-uc.a.run.app",
+const res = await fetch(
+  "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadLogo",
       {
         method: "POST",
         headers: {
