@@ -175,7 +175,8 @@ button:hover{opacity:.9}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot, updateDoc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 /* FIREBASE INIT */
@@ -207,11 +208,7 @@ function showToast(msg, type = "info") {
   setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-/* AUTH */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) location.href = "login.html";
- import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+/* AUTH CHECK */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     location.href = "login.html";
@@ -225,6 +222,7 @@ onAuthStateChanged(auth, async (user) => {
     location.href = "dashboard.html";
   }
 });
+
 
 
 /* PREVIEW */
@@ -294,14 +292,10 @@ window.upload = async () => {
     createdAt: new Date()
   });
 
-  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+await updateDoc(doc(db, "siteSettings", "home"), {
+  sliderImages: sliderImages
+});
 
-  previewBox.style.display = "none";
-  fileInput.value = "";
-  selectedFile = null;
-
-  showToast("Slider image uploaded", "success");
-};
 
 /* MOVE */
 window.move = async (i, dir) => {
