@@ -61,7 +61,7 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-/* 🔥 YOUR REAL CONFIG */
+/* 🔥 FIREBASE CONFIG */
 const app = initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
@@ -81,31 +81,43 @@ const popup=document.getElementById("popup");
 let sliderImages=[];
 let selectedFiles=[];
 
-/* CENTER POPUP */
+/* POPUP */
 function showPopup(msg,type="success"){
  popup.innerHTML=`<div class="${type}">${msg}</div>`;
  popup.classList.add("show");
  setTimeout(()=>popup.classList.remove("show"),2500);
 }
 
-/* ✅ CLEAN ADMIN CHECK */
+/* ADMIN CHECK (NO INSTANT REDIRECT BUG) */
 onAuthStateChanged(auth, async (user)=>{
  if(!user){
-   location.href="login.html";
+   showPopup("Login required","error");
+   setTimeout(()=>location.href="login.html",1500);
    return;
  }
 
- const snap=await getDoc(doc(db,"users",user.uid));
+ try{
+   const snap=await getDoc(doc(db,"users",user.uid));
 
- if(!snap.exists() || snap.data().role!=="admin"){
-   location.href="dashboard.html";
-   return;
+   if(!snap.exists()){
+     showPopup("User document not found","error");
+     return;
+   }
+
+   if(snap.data().role!=="admin"){
+     showPopup("Admin access only","error");
+     return;
+   }
+
+   console.log("Admin verified ✅");
+
+ }catch(e){
+   showPopup("Permission error","error");
+   console.error(e);
  }
-
- console.log("Admin verified ✅");
 });
 
-/* MULTI PREVIEW */
+/* PREVIEW */
 fileInput.onchange=e=>{
  selectedFiles=[...e.target.files];
  previewGrid.innerHTML="";
@@ -123,7 +135,7 @@ fileInput.onchange=e=>{
  uploadAll();
 };
 
-/* LOAD SLIDERS */
+/* LOAD */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
  sliderImages=snap.data()?.sliderImages||[];
  render();
@@ -152,7 +164,7 @@ function render(){
  });
 }
 
-/* MULTI UPLOAD WITH PROGRESS */
+/* MULTI UPLOAD */
 async function uploadAll(){
  if(!selectedFiles.length) return;
 
@@ -190,7 +202,7 @@ async function uploadAll(){
  previewGrid.innerHTML="";
  fileInput.value="";
  selectedFiles=[];
- showPopup("All images uploaded successfully","success");
+ showPopup("Images uploaded successfully","success");
 }
 
 /* MOVE */
@@ -203,7 +215,7 @@ window.move=async(i,dir)=>{
  showPopup("Order updated","success");
 };
 
-/* ENABLE/DISABLE */
+/* TOGGLE */
 window.toggle=async(i)=>{
  sliderImages[i].enabled=!sliderImages[i].enabled;
  await updateDoc(doc(db,"siteSettings","home"),{sliderImages});
