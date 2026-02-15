@@ -17,6 +17,13 @@ body {
   background: #f1f5f9;
   color: #0f172a;
 }
+  .file-name {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #475569;
+  word-break: break-all;
+  text-align: center;
+}
 
 /* TOP BAR */
 .top-bar {
@@ -269,19 +276,29 @@ onSnapshot(homeRef, (snap) => {
     const div = document.createElement("div");
     div.className = "hero-card";
 
-    div.innerHTML = `
-      <img src="${img.url}">
-      <div class="hero-card-actions">
-        <label class="switch">
-          <input type="checkbox" ${img.enabled ? "checked" : ""}
-            onchange="toggleHero(${i})">
-          <span class="slider"></span>
-        </label>
-        <button class="delete-btn" onclick="deleteHero(${i})">
-          Delete
-        </button>
-      </div>
-    `;
+   // Extract filename safely
+const fileName = img.fileName
+  ? img.fileName.split("/").pop()
+  : img.url.split("/").pop().split("?")[0];
+
+div.innerHTML = `
+  <img src="${img.url}">
+  
+  <div class="file-name">
+    ${fileName}
+  </div>
+
+  <div class="hero-card-actions">
+    <label class="switch">
+      <input type="checkbox" ${img.enabled ? "checked" : ""}
+        onchange="toggleHero(${i})">
+      <span class="slider"></span>
+    </label>
+    <button class="delete-btn" onclick="deleteHero(${i})">
+      Delete
+    </button>
+  </div>
+`;
 
     list.appendChild(div);
   });
