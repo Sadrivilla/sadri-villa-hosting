@@ -85,7 +85,7 @@ db.collection("siteSettings")
     const logo = doc.data().logo;
     if (!logo || !logo.url) return;
 
-    // Extract file name from URL
+    // Extract file name
     const fileName = logo.url.split("/").pop().split("?")[0];
 
     logoPreview.innerHTML = `
@@ -97,7 +97,7 @@ db.collection("siteSettings")
         text-align:center;
         max-width:300px;
       ">
-        <img src="${logo.url}" 
+        <img src="${logo.url}?t=${Date.now()}" 
              style="max-width:100%;height:100px;object-fit:contain">
 
         <div style="
