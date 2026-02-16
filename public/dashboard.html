@@ -14,7 +14,7 @@ html,body{
   overflow-x:hidden;
 }
 
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 .navbar{
   position:sticky;
   top:0;
@@ -22,8 +22,8 @@ html,body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 20px;
-  background:#f8fbff;
+  padding:0 24px;
+  background:#fff;
   box-shadow:0 10px 25px rgba(0,0,0,.08);
   z-index:1000;
 }
@@ -31,41 +31,31 @@ html,body{
 .nav-left{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:12px;
 }
 
 #siteLogo{
-  height:42px;
+  height:44px;
   display:none;
 }
 
-.nav-title b{
-  font-size:16px;
-}
+.nav-title b{font-size:16px;}
+.nav-title span{font-size:13px;color:#64748b;}
 
-.nav-title span{
-  font-size:13px;
-  color:#64748b;
-}
-
-/* PROFILE */
-.profile-wrapper{
-  position:relative;
-  cursor:pointer;
-}
+.profile-wrapper{position:relative;cursor:pointer;}
 
 .profile-photo{
-  width:44px;
-  height:44px;
+  width:46px;height:46px;
   border-radius:50%;
   object-fit:cover;
   border:3px solid #38bdf8;
+  transition:.3s;
 }
+.profile-photo:hover{transform:scale(1.08);}
 
 .profile-card{
   position:absolute;
-  right:0;
-  top:60px;
+  right:0;top:60px;
   width:220px;
   background:#fff;
   border-radius:18px;
@@ -75,11 +65,7 @@ html,body{
   flex-direction:column;
   gap:10px;
 }
-
-.profile-card.show{
-  display:flex;
-}
-
+.profile-card.show{display:flex;}
 .profile-card button{
   padding:10px;
   border:none;
@@ -88,12 +74,12 @@ html,body{
   background:#f1f5f9;
 }
 
-/* DASHBOARD */
+/* ================= DASHBOARD ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:20px;
-  padding:24px
+  padding:24px;
 }
 
 .card{
@@ -109,35 +95,53 @@ html,body{
   border-radius:20px;
   overflow:hidden;
 }
-
 .progress div{
   height:100%;
+  width:0%;
+  transition:width 1s ease;
 }
 
-/* SLIDER */
+/* ================= SLIDER ================= */
 .gallery{
   background:#fff;
   padding:40px 0;
-  overflow:hidden
+  overflow:hidden;
 }
-
 .track{
   display:flex;
   gap:24px;
   padding-left:24px;
-  width:max-content
+  width:max-content;
 }
-
 .track.animate{
-  animation:scroll 16s linear infinite
+  animation:scroll 25s linear infinite;
 }
-
+.track.pause{
+  animation-play-state:paused;
+}
 .track img{
-  width:320px;
-  height:200px;
+  width:320px;height:200px;
   object-fit:cover;
   border-radius:22px;
-  cursor:pointer
+  position:relative;
+}
+
+.img-wrap{
+  position:relative;
+}
+.download-btn{
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  background:#2563eb;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:12px;
+  display:none;
+}
+.img-wrap:hover .download-btn{
+  display:block;
 }
 
 @keyframes scroll{
@@ -145,31 +149,23 @@ html,body{
   to{transform:translateX(-50%)}
 }
 
-/* MODAL */
+/* ================= MODAL ================= */
 .modal{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.75);
-  z-index:4000;
+  background:rgba(0,0,0,.7);
   align-items:center;
-  justify-content:center
+  justify-content:center;
+  z-index:5000;
 }
-
-.modal-box{
-  background:#fff;
-  padding:16px;
-  border-radius:20px;
-  text-align:center
-}
-
-.modal-box img{
+.modal img{
   max-width:90vw;
-  max-height:70vh;
-  border-radius:14px
+  max-height:80vh;
+  border-radius:20px;
 }
 
-/* LOGOUT MODAL */
+/* ================= LOGOUT ================= */
 .confirm-modal{
   position:fixed;
   inset:0;
@@ -177,33 +173,13 @@ html,body{
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:5000;
+  z-index:6000;
 }
-
 .confirm-box{
   background:#fff;
-  padding:28px;
+  padding:30px;
   border-radius:20px;
-  width:320px;
-  text-align:center;
 }
-
-.confirm-actions{
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-  gap:14px;
-}
-
-.confirm-actions button{
-  padding:10px 18px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-.cancel-btn{background:#e5e7eb;}
-.confirm-btn{background:#ef4444;color:#fff;}
 </style>
 </head>
 
@@ -224,10 +200,8 @@ html,body{
       src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
 
     <div class="profile-card" id="profileCard">
-      <button onclick="openMap()">📍 Map</button>
-      <button onclick="changePassword()">🔒 Change Password</button>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="openLogout()">🚪 Logout</button>
+      <button onclick="location.href='profile.html'">Profile</button>
+      <button onclick="openLogout()">Logout</button>
     </div>
   </div>
 </div>
@@ -240,16 +214,6 @@ html,body{
     <div class="progress"><div id="bar"></div></div>
     <canvas id="chart" height="160"></canvas>
   </div>
-
-  <div class="card">
-    <h3>Member Since</h3>
-    <h2 id="memberDays">–</h2>
-  </div>
-
-  <div class="card">
-    <h3>Last Login</h3>
-    <h2 id="lastLogin">–</h2>
-  </div>
 </div>
 
 <!-- SLIDER -->
@@ -258,27 +222,23 @@ html,body{
 </section>
 
 <!-- IMAGE MODAL -->
-<div class="modal" id="imgModal" onclick="closeImg()">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <img id="modalImg">
-  </div>
+<div class="modal" id="imgModal" onclick="this.style.display='none'">
+  <img id="modalImg">
 </div>
 
 <!-- LOGOUT MODAL -->
 <div class="confirm-modal" id="logoutModal">
   <div class="confirm-box">
     <h3>Confirm Logout</h3>
-    <div class="confirm-actions">
-      <button class="cancel-btn" onclick="closeLogout()">Cancel</button>
-      <button class="confirm-btn" onclick="logout()">Logout</button>
-    </div>
+    <button onclick="logout()">Logout</button>
+    <button onclick="closeLogout()">Cancel</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -296,100 +256,106 @@ document.onclick=e=>{
     profileCard.classList.remove("show");
 };
 
-/* LOGO */
+/* LIVE USER DATA */
+onAuthStateChanged(auth,user=>{
+  if(!user){location.href="login.html";return;}
+
+  onSnapshot(doc(db,"users",user.uid),snap=>{
+    const data=snap.data();
+    if(!data)return;
+
+    welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
+
+    if(data.profilePhoto)
+      profilePhoto.src=data.profilePhoto+"?v="+Date.now();
+
+    calculateCompletion(data);
+  });
+});
+
+/* STRONG PROFILE COMPLETION */
+function calculateCompletion(data){
+  const fields=["fullName","phone","profilePhoto"];
+  let filled=0;
+  fields.forEach(f=>{
+    if(data[f]) filled++;
+  });
+
+  const percent=Math.round((filled/fields.length)*100);
+
+  animatePercent(percent);
+}
+
+/* ANIMATED COUNTER */
+function animatePercent(target){
+  let current=0;
+  const interval=setInterval(()=>{
+    if(current>=target){clearInterval(interval);}
+    percent.innerText=current+"%";
+    bar.style.width=current+"%";
+    current++;
+  },10);
+}
+
+/* LIVE LOGO */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   const logo=snap.data()?.logo;
   if(logo?.url){
-    siteLogo.src=logo.url;
+    siteLogo.src=logo.url+"?v="+Date.now();
     siteLogo.style.display="block";
   }
-});
 
-/* SLIDER */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  const imgs=snap.data()?.sliderImages||[];
+  const imgs=(snap.data()?.sliderImages||[])
+    .filter(i=>i.enabled!==false);
+
   galleryTrack.innerHTML="";
-  if(!imgs.length){gallerySection.style.display="none";return;}
+  if(!imgs.length){
+    gallerySection.style.display="none";
+    return;
+  }
+
   gallerySection.style.display="block";
 
   const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
   list.forEach(i=>{
+    const wrap=document.createElement("div");
+    wrap.className="img-wrap";
+
     const img=document.createElement("img");
     img.src=i.url;
     img.onclick=()=>openImg(i.url);
-    galleryTrack.appendChild(img);
+
+    const link=document.createElement("a");
+    link.href=i.url;
+    link.download="";
+    link.className="download-btn";
+    link.innerText="Download";
+
+    wrap.appendChild(img);
+    wrap.appendChild(link);
+    galleryTrack.appendChild(wrap);
   });
 
   galleryTrack.classList.toggle("animate",imgs.length>1);
+
+  galleryTrack.onmouseenter=()=>galleryTrack.classList.add("pause");
+  galleryTrack.onmouseleave=()=>galleryTrack.classList.remove("pause");
 });
 
-/* AUTH */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()){location.href="login.html";return;}
-
-  loadDashboard(snap.data());
-});
-
-function loadDashboard(data){
-  welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
-
-  if(data.profilePhoto)
-    profilePhoto.src=data.profilePhoto;
-
-  const total=2;
-  const filled=(data.fullName?1:0)+(data.phone?1:0);
-  const percent=Math.round((filled/total)*100);
-
-  document.getElementById("percent").innerText=percent+"%";
-  document.getElementById("bar").style.width=percent+"%";
-  document.getElementById("bar").style.background="#2563eb";
-
-  new Chart(chart,{
-    type:"doughnut",
-    data:{
-      labels:["Done","Pending"],
-      datasets:[{
-        data:[filled,total-filled],
-        backgroundColor:["#2563eb","#e5e7eb"]
-      }]
-    },
-    options:{plugins:{legend:{display:false}}}
-  });
-
-  if(data.createdAt)
-    memberDays.innerText=
-      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
-
-  lastLogin.innerText=data.lastLogin?
-    new Date(data.lastLogin).toLocaleDateString("en-IN"):
-    "First login";
-}
-
-/* MODALS */
+/* MODAL */
 window.openImg=src=>{
   modalImg.src=src;
   imgModal.style.display="flex";
 };
-window.closeImg=()=>imgModal.style.display="none";
 
-window.openLogout=()=>{
-  logoutModal.style.display="flex";
-};
-window.closeLogout=()=>{
-  logoutModal.style.display="none";
-};
-
+/* LOGOUT */
+window.openLogout=()=>logoutModal.style.display="flex";
+window.closeLogout=()=>logoutModal.style.display="none";
 window.logout=async()=>{
   await signOut(auth);
   location.href="login.html";
 };
-
-window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
-window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
 </script>
 
 </body>
