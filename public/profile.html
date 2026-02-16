@@ -76,10 +76,11 @@ import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage,ref,uploadBytes,getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const app=initializeApp({
-apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06"
+const app = initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.appspot.com"
 });
 
 const auth=getAuth(app);
