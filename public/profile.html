@@ -187,15 +187,20 @@ input[readonly]{background:#e5e7eb}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore,doc,getDoc,setDoc,collection,getDocs } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage,ref,uploadBytes,getDownloadURL } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+
 const auth=getAuth(app);
 const db=getFirestore(app);
+const storage=getStorage(app);
 
 const staticWrap=document.getElementById("staticWrap");
 const adminWrap=document.getElementById("adminWrap");
@@ -211,18 +216,52 @@ const popup=id=>{
 };
 
 onAuthStateChanged(auth,async u=>{
-  if(!u)return location.href="login.html";
+  if(!u) return location.href="login.html";
   uid=u.uid;
 
   const snap=await getDoc(doc(db,"users",uid));
   baseUser=snap.data()||{};
 
   staticWrap.innerHTML=`
-    <div class="block"><label>Full Name <span>*</span></label><input id="fullName" value="${baseUser.fullName||""}"></div>
-    <div class="block"><label>Mobile <span>*</span></label><input id="phone" value="${baseUser.phone||""}"></div>
-    <div class="block"><label>Email</label><input value="${u.email}" readonly></div>
-    <div class="block"><label>Role</label><input value="${baseUser.role||'User'}" readonly></div>
+    <div class="block">
+      <label>Profile Photo</label>
+      <input type="file" id="photoInput" accept="image/*">
+      <img id="photoPreview"
+        src="${baseUser.profilePhoto||'https://cdn-icons-png.flaticon.com/512/149/149071.png'}"
+        style="margin-top:10px;width:100px;height:100px;border-radius:50%;object-fit:cover">
+    </div>
+
+    <div class="block">
+      <label>Full Name <span>*</span></label>
+      <input id="fullName" value="${baseUser.fullName||""}">
+    </div>
+
+    <div class="block">
+      <label>Mobile <span>*</span></label>
+      <input id="phone" value="${baseUser.phone||""}">
+    </div>
+
+    <div class="block">
+      <label>Email</label>
+      <input value="${u.email}" readonly>
+    </div>
+
+    <div class="block">
+      <label>Role</label>
+      <input value="${baseUser.role||'User'}" readonly>
+    </div>
   `;
+
+  const photoInput=document.getElementById("photoInput");
+  const photoPreview=document.getElementById("photoPreview");
+
+  photoInput?.addEventListener("change", e=>{
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>photoPreview.src=reader.result;
+    reader.readAsDataURL(file);
+  });
 
   const fs=await getDocs(collection(db,"profileFields"));
   fs.forEach(d=>profileFields.push({key:d.id,...d.data()}));
@@ -231,7 +270,7 @@ onAuthStateChanged(auth,async u=>{
   userCustom=baseUser.userCustomFields||{};
 
   profileFields.forEach(f=>{
-    if(f.visible===false)return;
+    if(f.visible===false) return;
     adminWrap.innerHTML+=`
       <div class="block">
         <label>${f.label||f.key} ${f.required?'<span>*</span>':''}</label>
@@ -240,7 +279,9 @@ onAuthStateChanged(auth,async u=>{
     `;
   });
 
-  Object.entries(userCustom).forEach(([k,v])=>drawUserCustom(k,v.value,v.showOnDashboard));
+  Object.entries(userCustom).forEach(([k,v])=>{
+    drawUserCustom(k,v.value,v.showOnDashboard);
+  });
 });
 
 window.addUserCustom=()=>drawUserCustom();
@@ -261,24 +302,49 @@ function drawUserCustom(k="",v="",s=false){
 window.saveProfile=async()=>{
   const fullName=document.getElementById("fullName").value.trim();
   const phone=document.getElementById("phone").value.trim();
-  if(fullName.length<3||!/^[0-9]{10}$/.test(phone)){popup("error");return;}
+  const photoInput=document.getElementById("photoInput");
+
+  if(fullName.length<3||!/^[0-9]{10}$/.test(phone)){
+    popup("error");
+    return;
+  }
 
   adminValues={};
-  document.querySelectorAll("[data-admin]").forEach(i=>adminValues[i.dataset.admin]=i.value.trim());
+  document.querySelectorAll("[data-admin]").forEach(i=>{
+    adminValues[i.dataset.admin]=i.value.trim();
+  });
 
   userCustom={};
   [...userWrap.children].forEach(b=>{
     const k=b.querySelector(".ckey").value.trim();
-    if(k)userCustom[k]={value:b.querySelector(".cval").value,showOnDashboard:b.querySelector(".cshow").checked};
+    if(k){
+      userCustom[k]={
+        value:b.querySelector(".cval").value,
+        showOnDashboard:b.querySelector(".cshow").checked
+      };
+    }
   });
 
   loader.style.display="flex";
+
+  let photoURL=baseUser.profilePhoto||"";
+
+  if(photoInput.files.length>0){
+    const file=photoInput.files[0];
+    const storageRef=ref(storage,"profilePhotos/"+uid);
+    await uploadBytes(storageRef,file);
+    photoURL=await getDownloadURL(storageRef);
+  }
+
   await setDoc(doc(db,"users",uid),{
-    fullName,phone,
+    fullName,
+    phone,
+    profilePhoto:photoURL,
     adminFields:adminValues,
     userCustomFields:userCustom,
     updatedAt:new Date().toISOString()
   },{merge:true});
+
   loader.style.display="none";
   popup("success");
 };
@@ -286,28 +352,40 @@ window.saveProfile=async()=>{
 window.exportPDF=()=>{
   const { jsPDF }=window.jspdf;
   const pdf=new jsPDF();
+  const fullName=document.getElementById("fullName").value;
+  const phone=document.getElementById("phone").value;
+  const email=auth.currentUser?.email||"";
+
   let y=15;
   pdf.text("My Profile",105,y,{align:"center"});y+=10;
-  pdf.text(`Name: ${fullName.value}`,10,y);y+=7;
-  pdf.text(`Phone: ${phone.value}`,10,y);y+=7;
-  pdf.text(`Email: ${auth.currentUser.email}`,10,y);
+  pdf.text(`Name: ${fullName}`,10,y);y+=7;
+  pdf.text(`Phone: ${phone}`,10,y);y+=7;
+  pdf.text(`Email: ${email}`,10,y);
+
   pdf.save("my-profile.pdf");
 };
 
 window.exportExcel=()=>{
+  const fullName=document.getElementById("fullName").value;
+  const phone=document.getElementById("phone").value;
+  const email=auth.currentUser?.email||"";
+
   const rows=[
-    ["Full Name",fullName.value],
-    ["Phone",phone.value],
-    ["Email",auth.currentUser.email]
+    ["Full Name",fullName],
+    ["Phone",phone],
+    ["Email",email]
   ];
+
   Object.entries(adminValues).forEach(([k,v])=>rows.push([k,v]));
   Object.entries(userCustom).forEach(([k,v])=>rows.push([k,v.value]));
+
   const ws=XLSX.utils.aoa_to_sheet(rows);
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"Profile");
   XLSX.writeFile(wb,"my-profile.xlsx");
 };
 </script>
+
 
 </body>
 </html>
