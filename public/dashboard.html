@@ -13,40 +13,105 @@ html,body{
   background:#eef2ff;
   overflow-x:hidden;
 }
-
-/* NAVBAR */
+  /* NAVBAR */
 .navbar{
-  position:sticky;top:0;z-index:1000;
-  height:72px;display:flex;align-items:center;
-  justify-content:space-between;padding:0 14px;
-  background:#f8fbff;transition:.3s;
+  position:sticky;
+  top:0;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  background:#f8fbff;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  z-index:1000;
 }
-.navbar.scrolled{box-shadow:0 12px 30px rgba(0,0,0,.18)}
-.nav-left{display:flex;align-items:center;gap:10px;height:100%}
-.nav-left img{height:100%;display:none}
-.nav-title b{font-size:16px}
-.nav-title span{font-size:13px;color:#475569}
-
-.nav-right{display:flex;gap:10px}
-.nav-btn{
-  padding:10px 18px;border:none;border-radius:22px;
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:#fff;font-weight:700;cursor:pointer
-}
-
-.menu-btn{display:none;font-size:26px;border:none;background:none}
-.menu-card{
-  position:fixed;top:78px;right:14px;width:240px;
-  background:rgba(255,255,255,.9);
-  backdrop-filter:blur(18px);
-  border-radius:22px;box-shadow:0 20px 45px rgba(0,0,0,.2);
-  padding:14px;display:none;flex-direction:column;gap:10px;z-index:2000
+  /* LOGOUT MODAL */
+.confirm-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:5000;
+  animation:fadeIn .2s ease;
 }
 
-@media(max-width:768px){
-  .nav-right{display:none}
-  .menu-btn{display:block}
+.confirm-box{
+  background:#fff;
+  padding:28px;
+  border-radius:20px;
+  width:320px;
+  text-align:center;
+  box-shadow:0 20px 45px rgba(0,0,0,.2);
+  animation:scaleIn .2s ease;
 }
+
+.confirm-actions{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:14px;
+}
+
+.cancel-btn,
+.confirm-btn{
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.cancel-btn{
+  background:#e5e7eb;
+}
+
+.confirm-btn{
+  background:#ef4444;
+  color:#fff;
+}
+
+.cancel-btn:hover{
+  background:#d1d5db;
+}
+
+.confirm-btn:hover{
+  background:#dc2626;
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes scaleIn{
+  from{transform:scale(.9)}
+  to{transform:scale(1)}
+}
+
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.nav-title b{
+  font-size:16px;
+}
+
+.nav-title span{
+  font-size:13px;
+  color:#64748b;
+}
+
+
+
+
+
 
 /* DASHBOARD */
 .grid{
@@ -60,7 +125,10 @@ html,body{
   cursor:pointer
 }
 .progress{height:14px;background:#e5e7eb;border-radius:20px;overflow:hidden}
-.progress div{height:100%}
+.progress div{
+  height:100%;
+  transition: width .6s ease, background .3s ease;
+}
 
 /* SLIDER */
 .gallery{background:#fff;padding:40px 0;overflow:hidden}
@@ -90,6 +158,56 @@ html,body{
 }
 .download{background:#2563eb;color:#fff}
 .close{background:#ef4444;color:#fff}
+
+  /* PROFILE SECTION */
+.profile-wrapper{
+  position:relative;
+  cursor:pointer;
+}
+
+.profile-photo{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #38bdf8;
+  transition:.3s;
+}
+
+.profile-photo:hover{
+  transform:scale(1.08);
+}
+
+.profile-card{
+  position:absolute;
+  right:0;
+  top:60px;
+  width:220px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(20px);
+  border-radius:20px;
+  box-shadow:0 20px 45px rgba(0,0,0,.2);
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  z-index:3000;
+
+  /* Animation state */
+  opacity:0;
+  transform:translateY(-10px);
+  pointer-events:none;
+  transition:all .2s ease;
+}
+
+.profile-card.show{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+
+
 </style>
 </head>
 
@@ -105,23 +223,21 @@ html,body{
     </div>
   </div>
 
-  <div class="nav-right">
-    <button class="nav-btn" onclick="openMap()">📍 Map</button>
-    <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
-    <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
-    <button class="nav-btn" onclick="logout()">🚪 Logout</button>
+  <div class="profile-wrapper">
+    <img id="profilePhoto" class="profile-photo"
+      src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+
+    <div class="profile-card" id="profileCard">
+      <button onclick="openMap()">📍 Map</button>
+      <button onclick="changePassword()">🔒 Change Password</button>
+      <button onclick="location.href='profile.html'">👤 Profile</button>
+<button id="openLogoutModal">🚪 Logout</button>
+    </div>
   </div>
-
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
 </div>
 
-<div class="menu-card" id="menuCard">
-  <button class="nav-btn" onclick="openMap()">📍 Map</button>
-  <button class="nav-btn" onclick="changePassword()">🔒 Change Password</button>
-  <button class="nav-btn" onclick="location.href='profile.html'">👤 Profile</button>
-  <button class="nav-btn" onclick="logout()">🚪 Logout</button>
-</div>
 
+ 
 <!-- DASHBOARD -->
 <div class="grid">
   <div class="card" onclick="location.href='profile.html'">
@@ -160,11 +276,25 @@ html,body{
     </div>
   </div>
 </div>
+  <!-- LOGOUT CONFIRM MODAL -->
+<div class="confirm-modal" id="logoutModal">
+  <div class="confirm-box">
+    <h3>Confirm Logout</h3>
+    <p>Are you sure you want to logout?</p>
+    <div class="confirm-actions">
+      <button class="cancel-btn" id="cancelLogout">Cancel</button>
+      <button class="confirm-btn" id="confirmLogout">Logout</button>
+    </div>
+  </div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,getDoc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getStorage,ref,uploadBytes,getDownloadURL } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -173,10 +303,10 @@ const app=initializeApp({
 });
 const auth=getAuth(app);
 const db=getFirestore(app);
+  const storage = getStorage(app);
 
-/* NAV */
-window.addEventListener("scroll",()=>navbar.classList.toggle("scrolled",scrollY>6));
-window.toggleMenu=()=>menuCard.style.display=menuCard.style.display==="flex"?"none":"flex";
+
+
 
 /* LOGO – LIVE */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
@@ -207,68 +337,108 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 });
 
 /* AUTH */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||!snap.data().approved){
-    await signOut(auth);location.href="pending.html";return;
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    location.href = "login.html";
+    return;
   }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+
+  if (!snap.exists() || !snap.data().approved) {
+    await signOut(auth);
+    location.href = "pending.html";
+    return;
+  }
+
   loadDashboard(snap.data());
 });
 
+
+
 /* DASHBOARD LOGIC – GROUP WISE */
 function loadDashboard(data){
-  welcomeName.innerText="Welcome "+(data.fullName||"Member").split(" ")[0];
+
+  welcomeName.innerText =
+    "Welcome " + (data.fullName || "Member").split(" ")[0];
+
+  if(data.profilePhoto){
+    profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
+  }
 
   /* USER DETAILS */
-  let userTotal=2,userFilled=0;
-  if(data.fullName)userFilled++;
-  if(data.phone)userFilled++;
+  let userTotal = 2, userFilled = 0;
+  if(data.fullName) userFilled++;
+  if(data.phone) userFilled++;
 
   /* ADMIN */
-  let adminTotal=0,adminFilled=0;
-  Object.values(data.adminFields||{}).forEach(v=>{
-    adminTotal++; if(v)adminFilled++;
+  let adminTotal = 0, adminFilled = 0;
+  Object.values(data.adminFields || {}).forEach(v=>{
+    adminTotal++;
+    if(v) adminFilled++;
   });
 
   /* CUSTOM */
-  let customTotal=0,customFilled=0;
-  Object.values(data.userCustomFields||{}).forEach(v=>{
-    customTotal++; if(v?.value)customFilled++;
+  let customTotal = 0, customFilled = 0;
+  Object.values(data.userCustomFields || {}).forEach(v=>{
+    customTotal++;
+    if(v?.value) customFilled++;
   });
 
-  const total=userTotal+adminTotal+customTotal;
-  const filled=userFilled+adminFilled+customFilled;
+  const total  = userTotal + adminTotal + customTotal;
+  const filled = userFilled + adminFilled + customFilled;
 
-  const percent=Math.round((filled/total)*100)||0;
+const percent = total === 0 ? 0 : Math.round((filled / total) * 100);
   percentEl(percent);
 
-  groupInfo.innerText=
+  groupInfo.innerText =
     `User ${userFilled}/${userTotal} • Admin ${adminFilled}/${adminTotal} • Custom ${customFilled}/${customTotal}`;
 
-  new Chart(chart,{
-    type:"doughnut",
-    data:{
-      labels:["Completed","Pending"],
-      datasets:[{data:[filled,total-filled],backgroundColor:["#2563eb","#e5e7eb"]}]
+  /* SAFE CHART */
+  if (window.profileChart) {
+    window.profileChart.destroy();
+  }
+
+  window.profileChart = new Chart(chart, {
+    type: "doughnut",
+    data: {
+      labels: ["Completed", "Pending"],
+      datasets: [{
+        data: [filled, total - filled],
+        backgroundColor: ["#2563eb", "#e5e7eb"],
+        borderWidth: 0
+      }]
     },
-    options:{plugins:{legend:{display:false}}}
+    options: {
+      cutout: "70%",
+      plugins: {
+        legend: { display: false }
+      }
+    }
   });
 
   if(data.createdAt){
-    memberDays.innerText=
-      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+    memberDays.innerText =
+      Math.floor((Date.now() - new Date(data.createdAt)) / 86400000) + " days";
   }
-  lastLogin.innerText=data.lastLogin
+
+  lastLogin.innerText = data.lastLogin
     ? new Date(data.lastLogin).toLocaleDateString("en-IN")
     : "First login";
+
 }
 
 function percentEl(p){
-  percent.innerText=p+"%";
-  bar.style.width=p+"%";
-  bar.style.background=p<40?"#ef4444":p<70?"#facc15":"#16a34a";
+  percent.innerText = p + "%";
+  bar.style.width = p + "%";
+  bar.style.background =
+    p < 40 ? "#ef4444" :
+    p < 70 ? "#facc15" :
+    "#16a34a";
 }
+
+
+
 
 /* MODAL */
 window.openImg=src=>{
@@ -286,6 +456,73 @@ window.closeImg=()=>{
 window.logout=async()=>{await signOut(auth);location.href="login.html"};
 window.openMap=()=>window.open("https://maps.app.goo.gl/Cs3dHkBJnpDyPAgh6","_blank");
 window.changePassword=()=>sendPasswordResetEmail(auth,auth.currentUser.email);
+
+
+/* UI INTERACTIONS */
+document.addEventListener("DOMContentLoaded", () => {
+
+/* PROFILE DROPDOWN */
+const profilePhotoEl = document.getElementById("profilePhoto");
+const profileCardEl = document.getElementById("profileCard");
+
+profilePhotoEl.addEventListener("click", (e) => {
+  e.stopPropagation();
+  profileCardEl.classList.toggle("show");
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".profile-wrapper")) {
+    profileCardEl.classList.remove("show");
+  }
+});
+
+
+  /* LOGOUT CONFIRMATION */
+  const logoutModal = document.getElementById("logoutModal");
+  const openLogoutBtn = document.getElementById("openLogoutModal");
+  const cancelLogout = document.getElementById("cancelLogout");
+  const confirmLogout = document.getElementById("confirmLogout");
+
+  openLogoutBtn.addEventListener("click", () => {
+   profileCardEl.classList.remove("show");
+
+logoutModal.style.display = "flex";
+document.body.style.overflow = "hidden";
+  });
+
+  cancelLogout.addEventListener("click", () => {
+    logoutModal.style.opacity = "0";
+setTimeout(() => {
+  logoutModal.style.display = "none";
+  logoutModal.style.opacity = "1";
+  document.body.style.overflow = "auto";
+}, 150);
+
+
+  });
+
+  confirmLogout.addEventListener("click", async () => {
+    confirmLogout.innerText = "Logging out...";
+    confirmLogout.disabled = true;
+
+    await signOut(auth);
+    location.href = "login.html";
+  });
+
+logoutModal.addEventListener("click", (e) => {
+  if (e.target === logoutModal) {
+    logoutModal.style.opacity = "0";
+ setTimeout(() => {
+  logoutModal.style.display = "none";
+  logoutModal.style.opacity = "1";
+  document.body.style.overflow = "auto";
+}, 150);
+
+  }
+});
+
+
+
 </script>
 
 </body>
