@@ -11,7 +11,6 @@ html,body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#eef2ff;
-  overflow-x:hidden;
 }
 
 /* ================= NAVBAR ================= */
@@ -24,57 +23,39 @@ html,body{
   justify-content:space-between;
   padding:0 24px;
   background:#fff;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
   z-index:1000;
 }
 
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
+.nav-left{display:flex;align-items:center;gap:12px;}
 
-#siteLogo{
-  height:44px;
-  display:none;
-}
+#siteLogo{height:44px;display:none;}
 
-.nav-title b{font-size:16px;}
-.nav-title span{font-size:13px;color:#64748b;}
+.nav-title span{
+  font-size:13px;
+  color:#64748b;
+}
 
 .profile-wrapper{position:relative;cursor:pointer;}
-
 .profile-photo{
-  width:46px;height:46px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #38bdf8;
-  transition:.3s;
+  width:46px;height:46px;border-radius:50%;
+  object-fit:cover;border:3px solid #38bdf8;
 }
-.profile-photo:hover{transform:scale(1.08);}
-
 .profile-card{
-  position:absolute;
-  right:0;top:60px;
-  width:220px;
-  background:#fff;
+  position:absolute;right:0;top:60px;
+  width:220px;background:#fff;
   border-radius:18px;
   box-shadow:0 20px 45px rgba(0,0,0,.2);
   padding:14px;
-  display:none;
-  flex-direction:column;
-  gap:10px;
+  display:none;flex-direction:column;gap:10px;
 }
 .profile-card.show{display:flex;}
 .profile-card button{
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  background:#f1f5f9;
+  padding:10px;border:none;border-radius:10px;
+  cursor:pointer;background:#f1f5f9;
 }
 
-/* ================= DASHBOARD ================= */
+/* ================= DASHBOARD GRID ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -84,9 +65,9 @@ html,body{
 
 .card{
   background:#fff;
-  border-radius:26px;
+  border-radius:22px;
   padding:24px;
-  box-shadow:0 20px 45px rgba(0,0,0,.12);
+  box-shadow:0 15px 35px rgba(0,0,0,.12);
 }
 
 .progress{
@@ -99,6 +80,18 @@ html,body{
   height:100%;
   width:0%;
   transition:width 1s ease;
+}
+
+/* ================= CUSTOM DASHBOARD Q&A ================= */
+.qa-card{
+  background:#fff;
+  border-radius:20px;
+  padding:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+.qa-card h4{
+  margin:0 0 6px;
+  color:#2563eb;
 }
 
 /* ================= SLIDER ================= */
@@ -119,31 +112,25 @@ html,body{
 .track.pause{
   animation-play-state:paused;
 }
+.img-wrap{position:relative;}
 .track img{
   width:320px;height:200px;
   object-fit:cover;
-  border-radius:22px;
-  position:relative;
-}
-
-.img-wrap{
-  position:relative;
+  border-radius:20px;
 }
 .download-btn{
   position:absolute;
-  bottom:10px;
-  right:10px;
-  background:#2563eb;
-  color:#fff;
-  padding:6px 12px;
+  bottom:10px;right:10px;
+  background:#2563eb;color:#fff;
+  padding:6px 10px;
   border-radius:10px;
   font-size:12px;
-  display:none;
+  opacity:0;
+  transition:.3s;
 }
 .img-wrap:hover .download-btn{
-  display:block;
+  opacity:1;
 }
-
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
@@ -164,22 +151,6 @@ html,body{
   max-height:80vh;
   border-radius:20px;
 }
-
-/* ================= LOGOUT ================= */
-.confirm-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:6000;
-}
-.confirm-box{
-  background:#fff;
-  padding:30px;
-  border-radius:20px;
-}
 </style>
 </head>
 
@@ -190,7 +161,7 @@ html,body{
   <div class="nav-left">
     <img id="siteLogo">
     <div class="nav-title">
-      <b>Sadri Villa</b>
+      <b>Sadri Villa</b><br>
       <span id="welcomeName">Welcome</span>
     </div>
   </div>
@@ -198,23 +169,41 @@ html,body{
   <div class="profile-wrapper">
     <img id="profilePhoto" class="profile-photo"
       src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-
     <div class="profile-card" id="profileCard">
       <button onclick="location.href='profile.html'">Profile</button>
-      <button onclick="openLogout()">Logout</button>
+      <button onclick="logout()">Logout</button>
     </div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div class="grid">
+
+  <!-- PROFILE COMPLETION -->
   <div class="card">
     <h3>Profile Completion</h3>
     <h1 id="percent">0%</h1>
     <div class="progress"><div id="bar"></div></div>
+    <p id="groupInfo"></p>
     <canvas id="chart" height="160"></canvas>
   </div>
+
+  <!-- MEMBER SINCE -->
+  <div class="card">
+    <h3>📅 Member Since</h3>
+    <h2 id="memberDays">-</h2>
+  </div>
+
+  <!-- LAST LOGIN -->
+  <div class="card">
+    <h3>⏰ Last Login</h3>
+    <h2 id="lastLogin">-</h2>
+  </div>
+
 </div>
+
+<!-- CUSTOM FIELDS DASHBOARD SECTION -->
+<div class="grid" id="customDashboard"></div>
 
 <!-- SLIDER -->
 <section class="gallery" id="gallerySection" style="display:none">
@@ -226,22 +215,13 @@ html,body{
   <img id="modalImg">
 </div>
 
-<!-- LOGOUT MODAL -->
-<div class="confirm-modal" id="logoutModal">
-  <div class="confirm-box">
-    <h3>Confirm Logout</h3>
-    <button onclick="logout()">Logout</button>
-    <button onclick="closeLogout()">Cancel</button>
-  </div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  apiKey:"YOUR_API_KEY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
@@ -249,7 +229,7 @@ const app=initializeApp({
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-/* PROFILE DROPDOWN */
+/* DROPDOWN */
 profilePhoto.onclick=()=>profileCard.classList.toggle("show");
 document.onclick=e=>{
   if(!e.target.closest(".profile-wrapper"))
@@ -269,21 +249,59 @@ onAuthStateChanged(auth,user=>{
     if(data.profilePhoto)
       profilePhoto.src=data.profilePhoto+"?v="+Date.now();
 
-    calculateCompletion(data);
+    loadDashboard(data);
   });
 });
 
-/* STRONG PROFILE COMPLETION */
-function calculateCompletion(data){
-  const fields=["fullName","phone","profilePhoto"];
-  let filled=0;
-  fields.forEach(f=>{
-    if(data[f]) filled++;
-  });
+/* DASHBOARD LOGIC */
+function loadDashboard(data){
 
-  const percent=Math.round((filled/fields.length)*100);
+  /* USER GROUP */
+  let userTotal=2;
+  let userFilled=0;
+  if(data.fullName) userFilled++;
+  if(data.phone) userFilled++;
+
+  /* ADMIN GROUP */
+  let adminTotal=Object.keys(data.adminFields||{}).length;
+  let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
+
+  /* CUSTOM GROUP */
+  let customTotal=Object.keys(data.userCustomFields||{}).length;
+  let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v.value).length;
+
+  const total=userTotal+adminTotal+customTotal;
+  const filled=userFilled+adminFilled+customFilled;
+
+  const percent=Math.round((filled/(total||1))*100);
 
   animatePercent(percent);
+
+  groupInfo.innerText=
+    `User ${userFilled}/${userTotal} | Admin ${adminFilled}/${adminTotal} | Custom ${customFilled}/${customTotal}`;
+
+  /* MEMBER DAYS */
+  if(data.createdAt){
+    memberDays.innerText=
+      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+  }
+
+  lastLogin.innerText=data.lastLogin
+    ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+    : "First login";
+
+  /* CUSTOM DASHBOARD Q&A */
+  customDashboard.innerHTML="";
+  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+    if(v.showOnDashboard){
+      customDashboard.innerHTML+=`
+        <div class="qa-card">
+          <h4>${k}</h4>
+          <p>${v.value}</p>
+        </div>
+      `;
+    }
+  });
 }
 
 /* ANIMATED COUNTER */
@@ -297,7 +315,7 @@ function animatePercent(target){
   },10);
 }
 
-/* LIVE LOGO */
+/* LIVE LOGO + SLIDER */
 onSnapshot(doc(db,"siteSettings","home"),snap=>{
   const logo=snap.data()?.logo;
   if(logo?.url){
@@ -313,7 +331,6 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     gallerySection.style.display="none";
     return;
   }
-
   gallerySection.style.display="block";
 
   const list=imgs.length>1?[...imgs,...imgs]:imgs;
@@ -324,7 +341,7 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 
     const img=document.createElement("img");
     img.src=i.url;
-    img.onclick=()=>openImg(i.url);
+    img.onclick=()=>{modalImg.src=i.url;imgModal.style.display="flex";};
 
     const link=document.createElement("a");
     link.href=i.url;
@@ -338,20 +355,11 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
   });
 
   galleryTrack.classList.toggle("animate",imgs.length>1);
-
   galleryTrack.onmouseenter=()=>galleryTrack.classList.add("pause");
   galleryTrack.onmouseleave=()=>galleryTrack.classList.remove("pause");
 });
 
-/* MODAL */
-window.openImg=src=>{
-  modalImg.src=src;
-  imgModal.style.display="flex";
-};
-
 /* LOGOUT */
-window.openLogout=()=>logoutModal.style.display="flex";
-window.closeLogout=()=>logoutModal.style.display="none";
 window.logout=async()=>{
   await signOut(auth);
   location.href="login.html";
