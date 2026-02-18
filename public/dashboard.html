@@ -1,172 +1,143 @@
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06",
-  storageBucket: "sadri-villa-14c06.firebasestorage.app"
-};
+document.addEventListener("DOMContentLoaded", () => {
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+    authDomain: "sadri-villa-14c06.firebaseapp.com",
+    projectId: "sadri-villa-14c06",
+    storageBucket: "sadri-villa-14c06.appspot.com"
+  };
 
-/* PROFILE DROPDOWN */
-const profilePhoto = document.getElementById("profilePhoto");
-const profileCard = document.getElementById("profileCard");
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-profilePhoto.onclick = () => profileCard.classList.toggle("show");
+  /* PROFILE DROPDOWN (SAFE) */
+  const profilePhoto = document.getElementById("profilePhoto");
+  const profileCard = document.getElementById("profileCard");
 
-document.onclick = e => {
-  if(!e.target.closest(".profile-wrapper"))
-    profileCard.classList.remove("show");
-};
+  if (profilePhoto && profileCard) {
+    profilePhoto.addEventListener("click", () => {
+      profileCard.classList.toggle("show");
+    });
 
-/* AUTH + LIVE USER */
-onAuthStateChanged(auth,user=>{
-  if(!user){
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".profile-wrapper")) {
+        profileCard.classList.remove("show");
+      }
+    });
+  }
+
+  /* AUTH + LIVE USER */
+  onAuthStateChanged(auth,user=>{
+    if(!user){
+      location.href="login.html";
+      return;
+    }
+
+    onSnapshot(doc(db,"users",user.uid),snap=>{
+      const data=snap.data();
+      if(!data) return;
+
+      const welcomeName = document.getElementById("welcomeName");
+      if(welcomeName){
+        welcomeName.innerText =
+          "Welcome " + (data.fullName||"Member").split(" ")[0];
+      }
+
+      if(data.profilePhoto && profilePhoto){
+        profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
+      }
+
+      loadDashboard(data);
+    });
+  });
+
+  /* DASHBOARD LOGIC */
+  function loadDashboard(data){
+
+    let userTotal=2;
+    let userFilled=0;
+    if(data.fullName) userFilled++;
+    if(data.phone) userFilled++;
+
+    let adminTotal=Object.keys(data.adminFields||{}).length;
+    let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
+
+    let customTotal=Object.keys(data.userCustomFields||{}).length;
+    let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v.value).length;
+
+    const total=userTotal+adminTotal+customTotal;
+    const filled=userFilled+adminFilled+customFilled;
+
+    const percent=Math.round((filled/(total||1))*100);
+    animatePercent(percent);
+
+    const groupInfo = document.getElementById("groupInfo");
+    if(groupInfo){
+      groupInfo.innerText =
+        `User ${userFilled}/${userTotal} | Admin ${adminFilled}/${adminTotal} | Custom ${customFilled}/${customTotal}`;
+    }
+
+    const memberDays = document.getElementById("memberDays");
+    if(data.createdAt && memberDays){
+      memberDays.innerText =
+        Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+    }
+
+    const lastLogin = document.getElementById("lastLogin");
+    if(lastLogin){
+      lastLogin.innerText =
+        data.lastLogin
+          ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+          : "First login";
+    }
+
+    const customDashboard = document.getElementById("customDashboard");
+    if(customDashboard){
+      customDashboard.innerHTML="";
+      Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+        if(v.showOnDashboard){
+          customDashboard.innerHTML+=`
+            <div class="qa-card">
+              <h4>${k}</h4>
+              <p>${v.value}</p>
+            </div>
+          `;
+        }
+      });
+    }
+  }
+
+  function animatePercent(target){
+    let current=0;
+    const percentEl=document.getElementById("percent");
+    const bar=document.getElementById("bar");
+    if(!percentEl || !bar) return;
+
+    const interval=setInterval(()=>{
+      if(current>=target){
+        clearInterval(interval);
+      }
+      percentEl.innerText=current+"%";
+      bar.style.width=current+"%";
+      current++;
+    },10);
+  }
+
+  /* LOGOUT */
+  window.logout=async()=>{
+    await signOut(auth);
     location.href="login.html";
-    return;
-  }
+  };
 
-  onSnapshot(doc(db,"users",user.uid),snap=>{
-    const data=snap.data();
-    if(!data) return;
-
-    document.getElementById("welcomeName").innerText =
-      "Welcome " + (data.fullName||"Member").split(" ")[0];
-
-    if(data.profilePhoto)
-      profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
-
-    loadDashboard(data);
-  });
 });
-
-/* DASHBOARD LOGIC */
-function loadDashboard(data){
-
-  let userTotal=2;
-  let userFilled=0;
-  if(data.fullName) userFilled++;
-  if(data.phone) userFilled++;
-
-  let adminTotal=Object.keys(data.adminFields||{}).length;
-  let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
-
-  let customTotal=Object.keys(data.userCustomFields||{}).length;
-  let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v.value).length;
-
-  const total=userTotal+adminTotal+customTotal;
-  const filled=userFilled+adminFilled+customFilled;
-
-  const percent=Math.round((filled/(total||1))*100);
-
-  animatePercent(percent);
-
-  document.getElementById("groupInfo").innerText =
-    `User ${userFilled}/${userTotal} | Admin ${adminFilled}/${adminTotal} | Custom ${customFilled}/${customTotal}`;
-
-  if(data.createdAt){
-    document.getElementById("memberDays").innerText =
-      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
-  }
-
-  document.getElementById("lastLogin").innerText =
-    data.lastLogin
-      ? new Date(data.lastLogin).toLocaleDateString("en-IN")
-      : "First login";
-
-  /* CUSTOM DASHBOARD */
-  const customDashboard = document.getElementById("customDashboard");
-  customDashboard.innerHTML="";
-  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-    if(v.showOnDashboard){
-      customDashboard.innerHTML+=`
-        <div class="qa-card">
-          <h4>${k}</h4>
-          <p>${v.value}</p>
-        </div>
-      `;
-    }
-  });
-}
-
-/* ANIMATED PROGRESS */
-function animatePercent(target){
-  let current=0;
-  const percentEl=document.getElementById("percent");
-  const bar=document.getElementById("bar");
-
-  const interval=setInterval(()=>{
-    if(current>=target){
-      clearInterval(interval);
-    }
-    percentEl.innerText=current+"%";
-    bar.style.width=current+"%";
-    current++;
-  },10);
-}
-
-/* LIVE LOGO + SLIDER */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  const data=snap.data();
-  if(!data) return;
-
-  const logo=data.logo;
-  if(logo?.url){
-    const siteLogo=document.getElementById("siteLogo");
-    siteLogo.src=logo.url+"?v="+Date.now();
-    siteLogo.style.display="block";
-  }
-
-  const imgs=(data.sliderImages||[])
-    .filter(i=>i.enabled!==false);
-
-  const galleryTrack=document.getElementById("galleryTrack");
-  const gallerySection=document.getElementById("gallerySection");
-
-  galleryTrack.innerHTML="";
-  if(!imgs.length){
-    gallerySection.style.display="none";
-    return;
-  }
-
-  gallerySection.style.display="block";
-  const list=imgs.length>1?[...imgs,...imgs]:imgs;
-
-  list.forEach(i=>{
-    const wrap=document.createElement("div");
-    wrap.className="img-wrap";
-
-    const img=document.createElement("img");
-    img.src=i.url;
-
-    img.onclick=()=>{
-      document.getElementById("modalImg").src=i.url;
-      document.getElementById("imgModal").style.display="flex";
-    };
-
-    const link=document.createElement("a");
-    link.href=i.url;
-    link.download="";
-    link.className="download-btn";
-    link.innerText="Download";
-
-    wrap.appendChild(img);
-    wrap.appendChild(link);
-    galleryTrack.appendChild(wrap);
-  });
-
-  galleryTrack.classList.toggle("animate",imgs.length>1);
-});
-
-/* LOGOUT */
-window.logout=async()=>{
-  await signOut(auth);
-  location.href="login.html";
-};
 </script>
+
+</body>
+</html>
