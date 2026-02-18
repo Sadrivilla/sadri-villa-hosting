@@ -11,12 +11,9 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 
 /* LOADER */
 .loader{
-  position:fixed;
-  inset:0;
+  position:fixed;inset:0;
   background:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  display:flex;justify-content:center;align-items:center;
   z-index:2000;
 }
 .loader div{
@@ -28,7 +25,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* NAVBAR (same height as index) */
+/* NAVBAR */
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
@@ -42,33 +39,29 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   z-index:1000;
   padding:0 20px;
 }
-
 .brand{
   height:50px;
   display:flex;
   align-items:center;
   gap:15px;
 }
-
 .brand img{
   height:50px;
   width:auto;
   object-fit:contain;
   display:none;
 }
-
-.nav-title{
-  font-weight:700;
-}
+.nav-title{font-weight:700}
 
 /* PROFILE */
 .profile-wrapper{position:relative;cursor:pointer}
 #profilePhoto{
-  width:40px;height:40px;border-radius:50%;
+  width:40px;height:40px;
+  border-radius:50%;
   object-fit:cover;
   border:2px solid #38bdf8;
+  background:#e0f2fe;
 }
-
 #profileCard{
   position:absolute;top:55px;right:0;
   background:#fff;border-radius:12px;
@@ -84,23 +77,43 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 #profileCard.show{display:block}
 
 /* DASHBOARD */
-.dashboard{padding:80px 30px 40px}
+.dashboard{padding:80px 20px 40px}
 
 /* CARDS */
 .card{
-  background:#fff;padding:20px;border-radius:20px;
+  background:#fff;
+  padding:20px;
+  border-radius:20px;
   margin-bottom:25px;
   box-shadow:0 10px 30px rgba(0,0,0,.05);
 }
 
 /* PROGRESS */
 .progress-container{
-  background:#eee;height:18px;border-radius:20px;overflow:hidden;margin-top:10px
+  background:#eee;height:18px;
+  border-radius:20px;overflow:hidden;margin-top:10px
 }
 #bar{height:100%;width:0%;transition:.4s}
 
-/* SLIDER (same as index) */
+/* GROUP INFO */
+.group-info{
+  margin-top:10px;
+  font-size:14px;
+  color:#475569;
+}
+
+/* CUSTOM DASHBOARD */
+.qa-card{
+  background:#f8fafc;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+/* SLIDER EDGE TO EDGE */
 .gallery{
+  width:100vw;
+  margin-left:calc(-50vw + 50%);
   background:#f1f5f9;
   padding:40px 0;
   overflow:hidden;
@@ -113,7 +126,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 .track.scrolling{animation:scroll linear infinite}
 .track:hover{animation-play-state:paused}
 .track img{
-  width:300px;height:200px;
+  width:320px;height:220px;
   object-fit:cover;border-radius:20px;
   box-shadow:0 8px 25px rgba(0,0,0,.15);
   transition:.3s;cursor:pointer
@@ -168,7 +181,8 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   </div>
 
   <div class="profile-wrapper">
-    <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+    <img id="profilePhoto"
+     src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
     <div id="profileCard">
       <a href="profile.html">Profile</a>
       <a href="change-password.html">Change Password</a>
@@ -187,7 +201,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
       <div id="bar"></div>
     </div>
     <p><span id="percent">0%</span></p>
-    <p id="groupInfo"></p>
+    <div class="group-info" id="groupInfo"></div>
   </div>
 
   <!-- USER INFO -->
@@ -196,12 +210,18 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
     <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
   </div>
 
-  <!-- GALLERY -->
-  <section class="gallery">
-    <div class="track" id="galleryTrack"></div>
-  </section>
+  <!-- CUSTOM DASHBOARD -->
+  <div class="card">
+    <h3>Custom Dashboard</h3>
+    <div id="customDashboard"></div>
+  </div>
 
 </div>
+
+<!-- EDGE TO EDGE SLIDER -->
+<section class="gallery">
+  <div class="track" id="galleryTrack"></div>
+</section>
 
 <!-- IMAGE POPUP -->
 <div class="modal" id="imgModal">
@@ -227,7 +247,7 @@ import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/fire
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  apiKey:"AIzaSy...",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
@@ -265,11 +285,20 @@ onAuthStateChanged(auth,user=>{
     document.getElementById("lastLogin").innerText=
       data.lastLogin?formatDate(data.lastLogin):"First login";
 
-    /* PROFILE COMPLETION */
-    let total=2,filled=0;
-    if(data.fullName)filled++;
-    if(data.phone)filled++;
-    const percent=Math.round((filled/total)*100);
+    /* PROFILE COMPLETION CALCULATION */
+    let userTotal=2,userFilled=0;
+    if(data.fullName)userFilled++;
+    if(data.phone)userFilled++;
+
+    let adminTotal=Object.keys(data.adminFields||{}).length;
+    let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
+
+    let customTotal=Object.keys(data.userCustomFields||{}).length;
+    let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v?.value).length;
+
+    const total=userTotal+adminTotal+customTotal;
+    const filled=userFilled+adminFilled+customFilled;
+    const percent=Math.round((filled/(total||1))*100);
 
     const bar=document.getElementById("bar");
     bar.style.width=percent+"%";
@@ -279,13 +308,29 @@ onAuthStateChanged(auth,user=>{
     else if(percent<=70)bar.style.background="#38bdf8";
     else bar.style.background="#22c55e";
 
-    document.getElementById("groupInfo").innerText=
-      `Completed ${filled} of ${total} basic fields`;
+    document.getElementById("groupInfo").innerHTML=
+      `User ${userFilled}/${userTotal} | 
+       Admin ${adminFilled}/${adminTotal} | 
+       Custom ${customFilled}/${customTotal}`;
+
+    /* CUSTOM DASHBOARD */
+    const customDashboard=document.getElementById("customDashboard");
+    customDashboard.innerHTML="";
+    Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
+      if(v?.showOnDashboard){
+        customDashboard.innerHTML+=`
+          <div class="qa-card">
+            <strong>${k}</strong><br>
+            ${v.value||""}
+          </div>`;
+      }
+    });
 
     loader.style.display="none";
     body.style.display="block";
   });
 
+  /* SLIDER */
   onSnapshot(doc(db,"siteSettings","home"),snap=>{
     if(!snap.exists())return;
     const data=snap.data();
