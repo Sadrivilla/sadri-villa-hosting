@@ -9,6 +9,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:#eef6ff}
 
+/* BUTTON */
 .btn{
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;border:none;padding:10px 18px;
@@ -16,12 +17,37 @@ body{margin:0;font-family:Arial;background:#eef6ff}
 }
 .btn:hover{transform:translateY(-2px)}
 
-.wrap{max-width:1100px;margin:auto;padding:24px}
-.card{
-  background:#fff;border-radius:26px;padding:28px;
-  box-shadow:0 20px 45px rgba(0,0,0,.12);
+/* PROFILE MODAL */
+.profile-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
 }
-h2{text-align:center;margin:0 0 24px}
+.profile-card{
+  background:#fff;
+  width:95%;
+  max-width:900px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:26px;
+  padding:28px;
+  position:relative;
+}
+.close-btn{
+  position:absolute;
+  top:12px;
+  right:16px;
+  font-size:20px;
+  font-weight:bold;
+  color:#ef4444;
+  cursor:pointer;
+}
+
+/* LAYOUT */
 .section{margin-bottom:28px}
 .section h3{color:#2563eb;margin-bottom:14px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -29,22 +55,33 @@ h2{text-align:center;margin:0 0 24px}
 
 .block{
   background:#f8fbff;border:1px solid #c7d2fe;
-  padding:14px;border-radius:14px
+  padding:14px;border-radius:14px;margin-bottom:10px
 }
 label{font-size:13px;font-weight:bold}
 input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px solid #d1d5db}
 
+/* PROFILE PHOTO */
 .photo-section{text-align:center;margin-bottom:30px}
 #photoPreview{
   width:80px;height:80px;border-radius:50%;
   object-fit:cover;border:3px solid #38bdf8;
   display:block;margin:0 auto 12px;
-  background:#e0f2fe
+  background:#e0f2fe;
+  cursor:pointer;
 }
 
+/* CUSTOM FIELD */
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+
+/* LOADER */
 .loader{
   position:fixed;inset:0;background:rgba(0,0,0,.4);
-  display:none;align-items:center;justify-content:center;z-index:9999
+  display:none;align-items:center;justify-content:center;z-index:10000
 }
 .loader div{
   width:60px;height:60px;border:6px solid #e5e7eb;
@@ -66,38 +103,41 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 
 <body>
 
-<div class="wrap">
-<div class="card">
+<!-- PROFILE MODAL -->
+<div class="profile-modal" id="profileModal">
+  <div class="profile-card">
+    <div class="close-btn" onclick="closeProfile()">✖</div>
 
-<h2>👤 My Profile</h2>
+    <h2 style="text-align:center">👤 My Profile</h2>
 
-<div class="photo-section">
-  <img id="photoPreview"
-   src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
-  <input type="file" id="photoInput" accept="image/*">
-  <br><br>
-  <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
-</div>
+    <div class="photo-section">
+      <img id="photoPreview"
+       src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+       onclick="openProfile()">
+      <input type="file" id="photoInput" accept="image/*">
+      <br><br>
+      <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
+    </div>
 
-<div class="section">
-  <h3>User Details</h3>
-  <div class="grid" id="staticWrap"></div>
-</div>
+    <div class="section">
+      <h3>User Details</h3>
+      <div class="grid" id="staticWrap"></div>
+    </div>
 
-<div class="section">
-  <h3>Admin Fields</h3>
-  <div class="grid" id="adminWrap"></div>
-</div>
+    <div class="section">
+      <h3>Admin Fields</h3>
+      <div class="grid" id="adminWrap"></div>
+    </div>
 
-<div class="section">
-  <h3>Your Custom Fields</h3>
-  <div id="userWrap"></div>
-</div>
+    <div class="section">
+      <h3>Your Custom Fields</h3>
+      <div id="userWrap"></div>
+      <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
+    </div>
 
-<br>
-<button class="btn" onclick="saveProfile()">💾 Save Profile</button>
-
-</div>
+    <br>
+    <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
+  </div>
 </div>
 
 <div class="loader" id="loader"><div></div></div>
@@ -138,6 +178,10 @@ const showError=()=>{
   setTimeout(()=>p.style.display="none",2000);
 };
 
+/* OPEN / CLOSE MODAL */
+window.openProfile=()=>document.getElementById("profileModal").style.display="flex";
+window.closeProfile=()=>document.getElementById("profileModal").style.display="none";
+
 photoInput.onchange=e=>{
   const file=e.target.files[0];
   if(file)photoPreview.src=URL.createObjectURL(file);
@@ -165,6 +209,7 @@ onAuthStateChanged(auth,async user=>{
   /* LOAD ADMIN FIELDS */
   const fs=await getDocs(collection(db,"profileFields"));
   adminValues=baseUser.adminFields||{};
+  document.getElementById("adminWrap").innerHTML="";
   fs.forEach(d=>{
     const f=d.data();
     document.getElementById("adminWrap").innerHTML+=`
@@ -174,7 +219,33 @@ onAuthStateChanged(auth,async user=>{
       </div>
     `;
   });
+
+  /* LOAD CUSTOM FIELDS */
+  userCustom=baseUser.userCustomFields||{};
+  document.getElementById("userWrap").innerHTML="";
+  Object.entries(userCustom).forEach(([k,v])=>{
+    drawUserCustom(k,v.value,v.showOnDashboard);
+  });
 });
+
+/* ADD CUSTOM FIELD */
+window.addUserCustom=()=>drawUserCustom();
+
+function drawUserCustom(key="",value="",show=false){
+  document.getElementById("userWrap").innerHTML+=`
+    <div class="block">
+      <input class="ckey" placeholder="Field Question" value="${key}">
+      <input class="cval" placeholder="Answer" value="${value}">
+      <div class="row">
+        <span>
+          <input type="checkbox" class="cshow" ${show?"checked":""}>
+          Show on Dashboard
+        </span>
+        <button class="btn" style="background:#ef4444" onclick="this.closest('.block').remove()">Delete</button>
+      </div>
+    </div>
+  `;
+}
 
 /* SAVE PHOTO */
 window.savePhoto=async()=>{
@@ -186,19 +257,15 @@ window.savePhoto=async()=>{
 
     const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
     await uploadBytes(storageRef,file);
-
     const url=await getDownloadURL(storageRef);
 
-    await setDoc(doc(db,"users",uid),{
-      profilePhoto:url
-    },{merge:true});
+    await setDoc(doc(db,"users",uid),{profilePhoto:url},{merge:true});
 
     loader.style.display="none";
     showSuccess();
   }catch(e){
     loader.style.display="none";
     showError();
-    console.error(e);
   }
 };
 
@@ -213,12 +280,24 @@ window.saveProfile=async()=>{
       adminValues[i.dataset.admin]=i.value.trim();
     });
 
+    userCustom={};
+    document.querySelectorAll("#userWrap .block").forEach(b=>{
+      const k=b.querySelector(".ckey").value.trim();
+      if(k){
+        userCustom[k]={
+          value:b.querySelector(".cval").value,
+          showOnDashboard:b.querySelector(".cshow").checked
+        };
+      }
+    });
+
     loader.style.display="flex";
 
     await setDoc(doc(db,"users",uid),{
       fullName,
       phone,
       adminFields:adminValues,
+      userCustomFields:userCustom,
       updatedAt:new Date().toISOString()
     },{merge:true});
 
@@ -227,7 +306,6 @@ window.saveProfile=async()=>{
   }catch(e){
     loader.style.display="none";
     showError();
-    console.error(e);
   }
 };
 </script>
