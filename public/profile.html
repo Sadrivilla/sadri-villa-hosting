@@ -14,79 +14,83 @@ body{margin:0;font-family:Arial;background:#eef6ff}
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;border:none;padding:10px 18px;
   border-radius:14px;font-weight:bold;cursor:pointer;
+  transition:.25s;
 }
 .btn:hover{transform:translateY(-2px)}
 
-.btn-green{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
+.wrap{max-width:1100px;margin:auto;padding:24px}
+.card{
+  background:#fff;border-radius:26px;padding:28px;
+  box-shadow:0 20px 45px rgba(0,0,0,.12);
 }
 
-/* MODAL */
-.profile-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
+.top-row{
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-.modal-card{
-  background:#fff;
-  width:95%;
-  max-width:1000px;
-  border-radius:26px;
-  padding:28px;
-  max-height:90vh;
-  overflow-y:auto;
-  box-shadow:0 25px 60px rgba(0,0,0,.3);
+  margin-bottom:20px;
 }
 
-/* CLOSE */
-.close-btn{
-  float:right;
-  font-size:22px;
-  cursor:pointer;
-}
+h2{text-align:center;margin:0 0 24px}
 
-/* GRID */
 .section{margin-bottom:28px}
 .section h3{color:#2563eb;margin-bottom:14px}
+
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:768px){.grid{grid-template-columns:1fr}}
 
 .block{
   background:#f8fbff;border:1px solid #c7d2fe;
-  padding:14px;border-radius:14px;margin-bottom:10px
+  padding:14px;border-radius:14px;margin-bottom:10px;
 }
+
 label{font-size:13px;font-weight:bold}
-input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px solid #d1d5db}
-
-/* PROFILE IMAGE */
-.photo-section{text-align:center;margin-bottom:20px}
-#photoPreview{
-  width:80px;height:80px;border-radius:50%;
-  object-fit:cover;border:3px solid #38bdf8;
-  cursor:pointer;
-  background:#e0f2fe
+input{
+  width:100%;margin-top:6px;padding:12px;
+  border-radius:12px;border:1.5px solid #d1d5db
 }
 
-/* CUSTOM FIELD */
+/* PROFILE PHOTO */
+.photo-section{text-align:center;margin-bottom:30px}
+#photoPreview{
+  width:120px;height:120px;border-radius:50%;
+  object-fit:cover;border:4px solid #38bdf8;
+  display:block;margin:0 auto 12px;
+  background:#e0f2fe;
+  cursor:pointer;
+}
+
+/* IMAGE POPUP */
+.image-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+}
+.image-modal-content{
+  text-align:center;
+}
+.image-modal-content img{
+  max-width:90vw;
+  max-height:75vh;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+
+/* CUSTOM FIELD ROW */
 .row{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-top:8px;
 }
-.delete-btn{
-  background:#ef4444;color:white;border:none;
-  padding:6px 10px;border-radius:8px;cursor:pointer
-}
 
-/* LOADER */
 .loader{
   position:fixed;inset:0;background:rgba(0,0,0,.4);
-  display:none;align-items:center;justify-content:center;z-index:10000
+  display:none;align-items:center;justify-content:center;z-index:9999
 }
 .loader div{
   width:60px;height:60px;border:6px solid #e5e7eb;
@@ -95,7 +99,6 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* POPUP */
 .popup{
   position:fixed;bottom:30px;left:50%;
   transform:translateX(-50%);
@@ -109,49 +112,52 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 
 <body>
 
-<div style="text-align:center;margin-top:50px">
-  <img id="openProfileImage"
-   src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
-   style="width:90px;height:90px;border-radius:50%;border:4px solid #38bdf8;cursor:pointer;">
-  <h2>My Profile</h2>
+<div class="wrap">
+<div class="card">
+
+<div class="top-row">
+  <button class="btn" onclick="location.href='dashboard.html'">← Back</button>
+  <h2>👤 My Profile</h2>
+  <div></div>
 </div>
 
-<!-- MODAL -->
-<div class="profile-modal" id="profileModal">
-  <div class="modal-card">
+<!-- PROFILE PHOTO -->
+<div class="photo-section">
+  <img id="photoPreview"
+   src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+  <input type="file" id="photoInput" accept="image/*">
+  <br><br>
+  <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
+</div>
 
-    <span class="close-btn" onclick="closeModal()">✖</span>
+<div class="section">
+  <h3>User Details</h3>
+  <div class="grid" id="staticWrap"></div>
+</div>
 
-    <button class="btn btn-green" onclick="location.href='dashboard.html'">← Back</button>
+<div class="section">
+  <h3>Admin Fields</h3>
+  <div class="grid" id="adminWrap"></div>
+</div>
 
-    <div class="photo-section">
-      <img id="photoPreview"
-       src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
-      <br><br>
-      <input type="file" id="photoInput" accept="image/*">
-      <br><br>
-      <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
-    </div>
+<div class="section">
+  <h3>Your Custom Fields</h3>
+  <div id="userWrap"></div>
+  <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
+</div>
 
-    <div class="section">
-      <h3>User Details</h3>
-      <div class="grid" id="staticWrap"></div>
-    </div>
+<br>
+<button class="btn" onclick="saveProfile()">💾 Save Profile</button>
 
-    <div class="section">
-      <h3>Admin Fields</h3>
-      <div class="grid" id="adminWrap"></div>
-    </div>
+</div>
+</div>
 
-    <div class="section">
-      <h3>Your Custom Fields</h3>
-      <div id="userWrap"></div>
-      <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
-    </div>
-
-    <br>
-    <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
-
+<!-- IMAGE POPUP -->
+<div class="image-modal" id="imageModal">
+  <div class="image-modal-content">
+    <img id="largeProfileImage">
+    <br><br>
+    <button class="btn" onclick="closeImageModal()">Close</button>
   </div>
 </div>
 
@@ -176,25 +182,39 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
 
-let uid,userCustom={},adminValues={};
+let uid,adminValues={},userCustom={},baseUser={};
 
 const loader=document.getElementById("loader");
+const photoInput=document.getElementById("photoInput");
+const photoPreview=document.getElementById("photoPreview");
 
-const showSuccess=()=>{successPopup.style.display="block";setTimeout(()=>successPopup.style.display="none",2000);}
-const showError=()=>{errorPopup.style.display="block";setTimeout(()=>errorPopup.style.display="none",2000);}
+const showSuccess=()=>{
+  const p=document.getElementById("successPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
+};
+const showError=()=>{
+  const p=document.getElementById("errorPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
+};
 
-/* OPEN MODAL */
-document.getElementById("openProfileImage").onclick=()=>{
-  document.getElementById("profileModal").style.display="flex";
-}
-window.closeModal=()=>{
-  document.getElementById("profileModal").style.display="none";
-}
-
-/* PREVIEW */
+/* IMAGE PREVIEW */
 photoInput.onchange=e=>{
   const file=e.target.files[0];
   if(file)photoPreview.src=URL.createObjectURL(file);
+};
+
+/* IMAGE POPUP */
+photoPreview.onclick=()=>{
+  document.getElementById("largeProfileImage").src=photoPreview.src;
+  document.getElementById("imageModal").style.display="flex";
+};
+window.closeImageModal=()=>{
+  document.getElementById("imageModal").style.display="none";
+};
+document.getElementById("imageModal").onclick=e=>{
+  if(e.target.id==="imageModal") closeImageModal();
 };
 
 onAuthStateChanged(auth,async user=>{
@@ -202,52 +222,54 @@ onAuthStateChanged(auth,async user=>{
   uid=user.uid;
 
   const snap=await getDoc(doc(db,"users",uid));
-  const data=snap.data()||{};
+  baseUser=snap.data()||{};
 
-  if(data.profilePhoto){
-    photoPreview.src=data.profilePhoto;
-    openProfileImage.src=data.profilePhoto;
-  }
+  if(baseUser.profilePhoto)
+    photoPreview.src=baseUser.profilePhoto;
 
-  staticWrap.innerHTML=`
+  document.getElementById("staticWrap").innerHTML=`
     <div class="block"><label>Full Name</label>
-      <input id="fullName" value="${data.fullName||""}">
+      <input id="fullName" value="${baseUser.fullName||""}">
     </div>
     <div class="block"><label>Mobile</label>
-      <input id="phone" value="${data.phone||""}">
+      <input id="phone" value="${baseUser.phone||""}">
     </div>
   `;
 
   /* ADMIN FIELDS */
   const fs=await getDocs(collection(db,"profileFields"));
-  adminValues=data.adminFields||{};
+  adminValues=baseUser.adminFields||{};
   fs.forEach(d=>{
-    adminWrap.innerHTML+=`
+    const f=d.data();
+    document.getElementById("adminWrap").innerHTML+=`
       <div class="block">
-        <label>${d.data().label||d.id}</label>
+        <label>${f.label||d.id}</label>
         <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
       </div>
     `;
   });
 
   /* CUSTOM FIELDS */
-  userCustom=data.userCustomFields||{};
+  userCustom=baseUser.userCustomFields||{};
   Object.entries(userCustom).forEach(([k,v])=>{
     drawUserCustom(k,v.value,v.showOnDashboard);
   });
 });
 
-/* ADD CUSTOM FIELD */
+/* ADD CUSTOM */
 window.addUserCustom=()=>drawUserCustom();
 
-function drawUserCustom(k="",v="",show=false){
-  userWrap.innerHTML+=`
+function drawUserCustom(k="",v="",s=false){
+  document.getElementById("userWrap").innerHTML+=`
     <div class="block">
       <input class="ckey" placeholder="Field name" value="${k}">
-      <input class="cval" placeholder="Answer" value="${v}">
+      <input class="cval" placeholder="Value" value="${v}">
       <div class="row">
-        <label><input type="checkbox" class="cshow" ${show?"checked":""}> Show on Dashboard</label>
-        <button class="delete-btn" onclick="this.closest('.block').remove()">Delete</button>
+        <span>
+          <input type="checkbox" class="cshow" ${s?"checked":""}>
+          Show on Dashboard
+        </span>
+        <button class="btn" onclick="this.closest('.block').remove()">Delete</button>
       </div>
     </div>
   `;
@@ -265,18 +287,23 @@ window.savePhoto=async()=>{
     await uploadBytes(storageRef,file);
     const url=await getDownloadURL(storageRef);
 
-    await setDoc(doc(db,"users",uid),{profilePhoto:url},{merge:true});
+    await setDoc(doc(db,"users",uid),{
+      profilePhoto:url
+    },{merge:true});
 
     loader.style.display="none";
     showSuccess();
-  }catch(e){loader.style.display="none";showError();}
+  }catch(e){
+    loader.style.display="none";
+    showError();
+  }
 };
 
 /* SAVE PROFILE */
 window.saveProfile=async()=>{
   try{
-    const fullName=fullName.value.trim();
-    const phone=phone.value.trim();
+    const fullName=document.getElementById("fullName").value.trim();
+    const phone=document.getElementById("phone").value.trim();
 
     adminValues={};
     document.querySelectorAll("[data-admin]").forEach(i=>{
@@ -284,7 +311,7 @@ window.saveProfile=async()=>{
     });
 
     userCustom={};
-    [...userWrap.children].forEach(b=>{
+    document.querySelectorAll("#userWrap .block").forEach(b=>{
       const k=b.querySelector(".ckey").value.trim();
       if(k){
         userCustom[k]={
@@ -306,7 +333,10 @@ window.saveProfile=async()=>{
 
     loader.style.display="none";
     showSuccess();
-  }catch(e){loader.style.display="none";showError();}
+  }catch(e){
+    loader.style.display="none";
+    showError();
+  }
 };
 </script>
 
