@@ -224,33 +224,60 @@ onAuthStateChanged(auth,async user=>{
     </div>
   `;
 
-  const fs=await getDocs(collection(db,"profileFields"));
-  adminValues=baseUser.adminFields||{};
-
-  const fields = [];
+ const fs=await getDocs(collection(db,"profileFields"));
+adminValues=baseUser.adminFields||{};
 
 fs.forEach(d=>{
-  fields.push({ id:d.id, ...d.data() });
-});
+  const f=d.data();
 
-/* Sort by sequence */
-fields.sort((a,b)=>(a.sequence||9999)-(b.sequence||9999));
+  // 🚫 Skip if not visible
+  if(f.visible===false) return;
 
-fields.forEach(f=>{
+  let fieldHTML="";
+  const value = adminValues[d.id] || "";
 
-  /* ❌ If not visible → DO NOT SHOW */
-  if(f.visible === false) return;
+  // TEXT
+  if(!f.type || f.type==="text"){
+    fieldHTML=`<input data-admin="${d.id}" value="${value}">`;
+  }
+
+  // NUMBER
+  else if(f.type==="number"){
+    fieldHTML=`<input type="number" data-admin="${d.id}" value="${value}">`;
+  }
+
+  // DATE
+  else if(f.type==="date"){
+    fieldHTML=`<input type="date" data-admin="${d.id}" value="${value}">`;
+  }
+
+  // DROPDOWN
+  else if(f.type==="dropdown"){
+    let optionsHTML = `<option value="">Select</option>`;
+    (f.options||[]).forEach(opt=>{
+      optionsHTML += `
+        <option value="${opt}" ${opt===value?"selected":""}>
+          ${opt}
+        </option>`;
+    });
+
+    fieldHTML = `
+      <select data-admin="${d.id}">
+        ${optionsHTML}
+      </select>`;
+  }
 
   document.getElementById("adminWrap").innerHTML+=`
     <div class="block">
       <label>
-        ${f.label || f.id}
-        ${f.required ? '<span>*</span>' : ''}
+        ${f.label||d.id}
+        ${f.required?'<span>*</span>':''}
       </label>
-      <input data-admin="${f.id}" value="${adminValues[f.id]||""}">
+      ${fieldHTML}
     </div>
   `;
 });
+
 
 
   userCustom=baseUser.userCustomFields||{};
