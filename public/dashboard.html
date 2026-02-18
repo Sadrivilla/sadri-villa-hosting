@@ -13,12 +13,13 @@ body{
   display:none;
 }
 
+/* NAVBAR */
 .navbar{
   background:#fff;
-  padding:12px 25px;
+  padding:10px 25px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
@@ -29,7 +30,9 @@ body{
 }
 
 #siteLogo{
-  height:45px;
+  height:50px;
+  width:auto;
+  object-fit:contain;
   display:none;
 }
 
@@ -38,26 +41,28 @@ body{
   font-weight:bold;
 }
 
+/* PROFILE */
 .profile-wrapper{
   position:relative;
   cursor:pointer;
 }
 
 #profilePhoto{
-  width:42px;
-  height:42px;
+  width:45px;
+  height:45px;
   border-radius:50%;
   object-fit:cover;
+  border:2px solid #ddd;
 }
 
 #profileCard{
   position:absolute;
-  top:55px;
+  top:60px;
   right:0;
   background:#fff;
   border-radius:12px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.15);
-  width:180px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.2);
+  width:200px;
   display:none;
   overflow:hidden;
 }
@@ -71,13 +76,14 @@ body{
 }
 
 #profileCard a:hover{
-  background:#f0f0f0;
+  background:#f2f2f2;
 }
 
 #profileCard.show{
   display:block;
 }
 
+/* DASHBOARD */
 .dashboard{
   padding:30px;
 }
@@ -90,46 +96,106 @@ body{
   box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
-.progress-container{
-  background:#eee;
-  height:20px;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-#bar{
-  height:100%;
-  width:0%;
-  background:#4caf50;
-  transition:width 0.3s;
-}
-
-.qa-card{
-  background:#fafafa;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-
+/* SLIDER */
 .slider{
-  margin-top:20px;
   overflow:hidden;
+  position:relative;
 }
 
 .slider-track{
   display:flex;
   gap:15px;
+  animation:scroll 25s linear infinite;
 }
 
 .slider img{
-  height:150px;
+  height:170px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:transform .3s;
+}
+
+.slider img:hover{
+  transform:scale(1.05);
+}
+
+@keyframes scroll{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:#fff;
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.modal-content img{
+  max-width:400px;
   border-radius:12px;
 }
+
+.download-btn{
+  display:inline-block;
+  margin-top:10px;
+  padding:8px 15px;
+  background:#4caf50;
+  color:#fff;
+  border-radius:6px;
+  text-decoration:none;
+}
+
+/* LOGOUT MODAL */
+.logout-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.logout-card{
+  background:#fff;
+  padding:30px;
+  border-radius:15px;
+  text-align:center;
+  width:300px;
+}
+
+.logout-card button{
+  margin:10px;
+  padding:8px 15px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.confirm{background:#e53935;color:#fff;}
+.cancel{background:#ccc;}
 </style>
 </head>
 
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
   <div class="nav-left">
     <img id="siteLogo">
@@ -137,11 +203,11 @@ body{
   </div>
 
   <div class="profile-wrapper">
-    <img id="profilePhoto" src="https://i.pravatar.cc/150?img=3">
+    <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
     <div id="profileCard">
       <a href="profile.html">Profile</a>
       <a href="change-password.html">Change Password</a>
-      <a href="map.html">Villa Map</a>
+      <a href="https://maps.app.goo.gl/CMSPhzq4hsGffxke6" target="_blank">Villa Map</a>
       <a href="#" id="logoutBtn" style="color:red;">Logout</a>
     </div>
   </div>
@@ -150,155 +216,131 @@ body{
 <div class="dashboard">
 
   <div class="card">
-    <h3>Profile Completion</h3>
-    <div class="progress-container">
-      <div id="bar"></div>
-    </div>
-    <p><span id="percent">0%</span></p>
-    <p id="groupInfo"></p>
-  </div>
-
-  <div class="card">
     <p><strong>Member Since:</strong> <span id="memberDays"></span></p>
     <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
   </div>
 
+  <!-- GALLERY AT BOTTOM -->
   <div class="card slider">
     <h3>Gallery</h3>
     <div class="slider-track" id="sliderTrack"></div>
   </div>
 
-  <div class="card">
-    <h3>Custom Dashboard</h3>
-    <div id="customDashboard"></div>
-  </div>
+</div>
 
+<!-- IMAGE MODAL -->
+<div class="modal" id="imgModal">
+  <div class="modal-content">
+    <img id="modalImg">
+    <br>
+    <a id="downloadLink" class="download-btn" download>Download</a>
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="logout-modal" id="logoutModal">
+  <div class="logout-card">
+    <h3>Are you sure you want to logout?</h3>
+    <button class="confirm" id="confirmLogout">Yes</button>
+    <button class="cancel" id="cancelLogout">Cancel</button>
+  </div>
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06",
-  storageBucket: "sadri-villa-14c06.appspot.com"
+const firebaseConfig={
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06",
+  storageBucket:"sadri-villa-14c06.appspot.com"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-/* PROFILE DROPDOWN */
 const profilePhoto=document.getElementById("profilePhoto");
 const profileCard=document.getElementById("profileCard");
-
-profilePhoto.onclick=(e)=>{
-  e.stopPropagation();
-  profileCard.classList.toggle("show");
-};
-
+profilePhoto.onclick=(e)=>{e.stopPropagation();profileCard.classList.toggle("show");};
 document.onclick=()=>profileCard.classList.remove("show");
 
-/* AUTH */
-onAuthStateChanged(auth,(user)=>{
-  if(!user){
-    window.location.href="login.html";
-    return;
-  }
-
+onAuthStateChanged(auth,user=>{
+  if(!user){location.href="login.html";return;}
   document.body.style.display="block";
 
-  const userRef=doc(db,"users",user.uid);
-  onSnapshot(userRef,(snap)=>{
-    if(!snap.exists()) return;
+  onSnapshot(doc(db,"users",user.uid),snap=>{
+    if(!snap.exists())return;
     const data=snap.data();
-    updateUser(data);
+
+    document.getElementById("welcomeName").innerText=
+      "Sadri Villa – Welcome "+(data.fullName||"Member");
+
+    if(data.profilePhoto){
+      profilePhoto.src=data.profilePhoto+"?v="+Date.now();
+    }
+
+    const created=data.createdAt?new Date(data.createdAt):null;
+    document.getElementById("memberDays").innerText=
+      created && !isNaN(created)
+        ? Math.floor((Date.now()-created)/86400000)+" days"
+        : "0 days";
+
+    document.getElementById("lastLogin").innerText=
+      data.lastLogin
+        ? new Date(data.lastLogin).toLocaleDateString("en-IN")
+        : "First login";
   });
 
-  const siteRef=doc(db,"siteSettings","home");
-  onSnapshot(siteRef,(snap)=>{
-    if(!snap.exists()) return;
-    updateSite(snap.data());
-  });
+  onSnapshot(doc(db,"siteSettings","home"),snap=>{
+    if(!snap.exists())return;
+    const data=snap.data();
 
+    if(data.logo?.url){
+      const logo=document.getElementById("siteLogo");
+      logo.src=data.logo.url+"?v="+Date.now();
+      logo.style.display="block";
+    }
+
+    const track=document.getElementById("sliderTrack");
+    track.innerHTML="";
+    const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
+    const list=imgs.length>1?[...imgs,...imgs]:imgs;
+
+    list.forEach(i=>{
+      const img=document.createElement("img");
+      img.src=i.url+"?v="+Date.now();
+      img.onclick=()=>{
+        document.getElementById("modalImg").src=i.url;
+        document.getElementById("downloadLink").href=i.url;
+        document.getElementById("imgModal").style.display="flex";
+      };
+      track.appendChild(img);
+    });
+  });
 });
 
-/* USER UPDATE */
-function updateUser(data){
-
-  document.getElementById("welcomeName").innerText=
-    "Sadri Villa – Welcome " + (data.fullName||"Member");
-
-  if(data.profilePhoto){
-    profilePhoto.src=data.profilePhoto+"?v="+Date.now();
-  }
-
-  let created = data.createdAt ? new Date(data.createdAt) : null;
-  if(created && !isNaN(created)){
-    document.getElementById("memberDays").innerText=
-      Math.floor((Date.now()-created)/86400000)+" days";
-  }else{
-    document.getElementById("memberDays").innerText="0 days";
-  }
-
-  document.getElementById("lastLogin").innerText=
-    data.lastLogin
-      ? new Date(data.lastLogin).toLocaleDateString("en-IN")
-      : "First login";
-
-  let percent=50;
-  document.getElementById("percent").innerText=percent+"%";
-  document.getElementById("bar").style.width=percent+"%";
-
-  const customDashboard=document.getElementById("customDashboard");
-  customDashboard.innerHTML="";
-  Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-    if(v?.showOnDashboard){
-      customDashboard.innerHTML+=`
-        <div class="qa-card">
-          <h4>${k}</h4>
-          <p>${v.value||""}</p>
-        </div>`;
-    }
-  });
-
-}
-
-/* SITE UPDATE */
-function updateSite(data){
-
-  if(data.logo?.url){
-    const logo=document.getElementById("siteLogo");
-    logo.src=data.logo.url+"?v="+Date.now();
-    logo.style.display="block";
-  }
-
-  const sliderTrack=document.getElementById("sliderTrack");
-  sliderTrack.innerHTML="";
-
-  const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
-
-  imgs.forEach(i=>{
-    const img=document.createElement("img");
-    img.src=i.url+"?v="+Date.now();
-    sliderTrack.appendChild(img);
-  });
-
-}
-
-/* LOGOUT CONFIRM */
-document.getElementById("logoutBtn").onclick=async(e)=>{
-  e.preventDefault();
-  if(confirm("Are you sure you want to logout?")){
-    await signOut(auth);
-    window.location.href="login.html";
-  }
+/* IMAGE MODAL CLOSE */
+document.getElementById("imgModal").onclick=()=>{
+  document.getElementById("imgModal").style.display="none";
 };
 
+/* LOGOUT MODAL */
+document.getElementById("logoutBtn").onclick=(e)=>{
+  e.preventDefault();
+  document.getElementById("logoutModal").style.display="flex";
+};
+
+document.getElementById("cancelLogout").onclick=()=>{
+  document.getElementById("logoutModal").style.display="none";
+};
+
+document.getElementById("confirmLogout").onclick=async()=>{
+  await signOut(auth);
+  location.href="login.html";
+};
 </script>
 
 </body>
