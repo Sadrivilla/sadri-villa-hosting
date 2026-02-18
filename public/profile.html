@@ -9,16 +9,13 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:#eef6ff}
 
-/* BUTTON */
 .btn{
   background:linear-gradient(135deg,#38bdf8,#60a5fa);
   color:#fff;border:none;padding:10px 18px;
   border-radius:14px;font-weight:bold;cursor:pointer;
-  transition:.25s;
 }
 .btn:hover{transform:translateY(-2px)}
 
-/* LAYOUT */
 .wrap{max-width:1100px;margin:auto;padding:24px}
 .card{
   background:#fff;border-radius:26px;padding:28px;
@@ -35,11 +32,8 @@ h2{text-align:center;margin:0 0 24px}
   padding:14px;border-radius:14px
 }
 label{font-size:13px;font-weight:bold}
-label span{color:#dc2626}
 input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px solid #d1d5db}
-input[readonly]{background:#e5e7eb}
 
-/* PROFILE PHOTO */
 .photo-section{text-align:center;margin-bottom:30px}
 #photoPreview{
   width:80px;height:80px;border-radius:50%;
@@ -48,7 +42,6 @@ input[readonly]{background:#e5e7eb}
   background:#e0f2fe
 }
 
-/* LOADER */
 .loader{
   position:fixed;inset:0;background:rgba(0,0,0,.4);
   display:none;align-items:center;justify-content:center;z-index:9999
@@ -59,6 +52,15 @@ input[readonly]{background:#e5e7eb}
   animation:spin 1s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.popup{
+  position:fixed;bottom:30px;left:50%;
+  transform:translateX(-50%);
+  padding:14px 24px;border-radius:12px;
+  color:#fff;font-weight:bold;display:none;
+}
+.success{background:#22c55e}
+.error{background:#ef4444}
 </style>
 </head>
 
@@ -69,7 +71,6 @@ input[readonly]{background:#e5e7eb}
 
 <h2>👤 My Profile</h2>
 
-<!-- PROFILE PHOTO -->
 <div class="photo-section">
   <img id="photoPreview"
    src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
@@ -91,7 +92,6 @@ input[readonly]{background:#e5e7eb}
 <div class="section">
   <h3>Your Custom Fields</h3>
   <div id="userWrap"></div>
-  <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
 </div>
 
 <br>
@@ -101,6 +101,8 @@ input[readonly]{background:#e5e7eb}
 </div>
 
 <div class="loader" id="loader"><div></div></div>
+<div class="popup success" id="successPopup">Profile updated successfully</div>
+<div class="popup error" id="errorPopup">Something went wrong</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -112,33 +114,38 @@ const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.appspot.com"
+  storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
+
 const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
 
 let uid,adminValues={},userCustom={},baseUser={};
 
-const staticWrap=document.getElementById("staticWrap");
-const adminWrap=document.getElementById("adminWrap");
-const userWrap=document.getElementById("userWrap");
 const loader=document.getElementById("loader");
-
 const photoInput=document.getElementById("photoInput");
 const photoPreview=document.getElementById("photoPreview");
 
-/* PREVIEW */
-photoInput.onchange=e=>{
-  const file=e.target.files[0];
-  if(file){
-    photoPreview.src=URL.createObjectURL(file);
-  }
+const showSuccess=()=>{
+  const p=document.getElementById("successPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
+};
+const showError=()=>{
+  const p=document.getElementById("errorPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
 };
 
-onAuthStateChanged(auth,async u=>{
-  if(!u)return location.href="login.html";
-  uid=u.uid;
+photoInput.onchange=e=>{
+  const file=e.target.files[0];
+  if(file)photoPreview.src=URL.createObjectURL(file);
+};
+
+onAuthStateChanged(auth,async user=>{
+  if(!user)return location.href="login.html";
+  uid=user.uid;
 
   const snap=await getDoc(doc(db,"users",uid));
   baseUser=snap.data()||{};
@@ -146,62 +153,82 @@ onAuthStateChanged(auth,async u=>{
   if(baseUser.profilePhoto)
     photoPreview.src=baseUser.profilePhoto;
 
-  staticWrap.innerHTML=`
-    <div class="block"><label>Full Name <span>*</span></label>
+  document.getElementById("staticWrap").innerHTML=`
+    <div class="block"><label>Full Name</label>
       <input id="fullName" value="${baseUser.fullName||""}">
     </div>
-    <div class="block"><label>Mobile <span>*</span></label>
+    <div class="block"><label>Mobile</label>
       <input id="phone" value="${baseUser.phone||""}">
-    </div>
-    <div class="block"><label>Email</label>
-      <input value="${u.email}" readonly>
     </div>
   `;
 
+  /* LOAD ADMIN FIELDS */
+  const fs=await getDocs(collection(db,"profileFields"));
+  adminValues=baseUser.adminFields||{};
+  fs.forEach(d=>{
+    const f=d.data();
+    document.getElementById("adminWrap").innerHTML+=`
+      <div class="block">
+        <label>${f.label||d.id}</label>
+        <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
+      </div>
+    `;
+  });
 });
 
-/* SAVE PHOTO ONLY */
+/* SAVE PHOTO */
 window.savePhoto=async()=>{
-  const file=photoInput.files[0];
-  if(!file)return alert("Select image first");
+  try{
+    const file=photoInput.files[0];
+    if(!file)return alert("Select image first");
 
-  loader.style.display="flex";
+    loader.style.display="flex";
 
-  const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
-  await uploadBytes(storageRef,file);
+    const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
+    await uploadBytes(storageRef,file);
 
-  const url=await getDownloadURL(storageRef);
+    const url=await getDownloadURL(storageRef);
 
-  await setDoc(doc(db,"users",uid),{
-    profilePhoto:url
-  },{merge:true});
+    await setDoc(doc(db,"users",uid),{
+      profilePhoto:url
+    },{merge:true});
 
-  loader.style.display="none";
-  alert("Profile picture updated");
-
-  // Dashboard auto updates because it uses onSnapshot
+    loader.style.display="none";
+    showSuccess();
+  }catch(e){
+    loader.style.display="none";
+    showError();
+    console.error(e);
+  }
 };
 
-/* SAVE PROFILE (OLD LOGIC UNCHANGED) */
+/* SAVE PROFILE */
 window.saveProfile=async()=>{
-  const fullName=document.getElementById("fullName").value.trim();
-  const phone=document.getElementById("phone").value.trim();
+  try{
+    const fullName=document.getElementById("fullName").value.trim();
+    const phone=document.getElementById("phone").value.trim();
 
-  if(fullName.length<3||!/^[0-9]{10}$/.test(phone)){
-    alert("Fill required fields properly");
-    return;
+    adminValues={};
+    document.querySelectorAll("[data-admin]").forEach(i=>{
+      adminValues[i.dataset.admin]=i.value.trim();
+    });
+
+    loader.style.display="flex";
+
+    await setDoc(doc(db,"users",uid),{
+      fullName,
+      phone,
+      adminFields:adminValues,
+      updatedAt:new Date().toISOString()
+    },{merge:true});
+
+    loader.style.display="none";
+    showSuccess();
+  }catch(e){
+    loader.style.display="none";
+    showError();
+    console.error(e);
   }
-
-  loader.style.display="flex";
-
-  await setDoc(doc(db,"users",uid),{
-    fullName,
-    phone,
-    updatedAt:new Date().toISOString()
-  },{merge:true});
-
-  loader.style.display="none";
-  alert("Profile updated");
 };
 </script>
 
