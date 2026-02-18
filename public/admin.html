@@ -189,7 +189,7 @@ th{background:#f8fafc;text-align:left}
 <!-- NAVBAR -->
 <div class="navbar">
   <div class="brand">
-    <img id="siteLogo">
+<img id="siteLogo" src="logo.png">
   </div>
 </div>
 
@@ -222,6 +222,7 @@ th{background:#f8fafc;text-align:left}
   <button class="secondary" onclick="confirmBulk('unapprove')">Unapprove</button>
   <button class="danger" onclick="confirmBulk('delete')">Delete</button>
   <button class="export" onclick="exportXLSX()">Export XLSX</button>
+<button class="export" onclick="exportPDF()">Export PDF</button>
 </div>
 
 <table>
@@ -265,6 +266,10 @@ import {
   doc,getDoc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+ import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
+import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+
+
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -274,6 +279,28 @@ const app=initializeApp({
 
 const auth=getAuth();
 const db=getFirestore();
+  // ===== LOAD SITE LOGO FROM FIRESTORE =====
+async function loadLogo(){
+  try{
+    const snap = await getDoc(doc(db,"siteSettings","home"));
+
+    if(snap.exists()){
+      const data = snap.data();
+
+      if(data.logo && data.logo.url){
+        document.getElementById("siteLogo").src = data.logo.url;
+      }
+    }
+  }catch(e){
+    console.log("Logo load error", e);
+  }
+}
+
+
+
+
+loadLogo();
+
 
 let users=[];
 let pendingAction=null;
@@ -559,6 +586,162 @@ function formatLabel(key){
     .replace(/_/g," ")
     .replace(/\b\w/g,l=>l.toUpperCase());
 }
+  window.exportPDF = async () => {
+
+  showLoader();
+
+  try{
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+   
+
+
+    // ===== HEADER =====
+
+     // ===== ADD LOGO =====
+const logoImg = document.getElementById("siteLogo");
+if(logoImg && logoImg.src){
+  doc.addImage(logoImg.src, "PNG", 14, 10, 25, 12);
+}
+    doc.setFontSize(18);
+    doc.text("Sadri Villa - Users Report", pageWidth/2, 20, {align:"center"});
+
+    doc.setFontSize(10);
+    doc.text("Generated: " + new Date().toLocaleString(),
+      pageWidth-14, 30, {align:"right"});
+
+    let y = 40;
+
+    for(let i=0; i<users.length; i++){
+
+      const u = users[i];
+
+    if(i !== 0){
+  doc.addPage();
+  y = 20;
+
+  // Re-add logo on new page
+  if(logoImg && logoImg.src){
+    doc.addImage(logoImg.src, "PNG", 14, 10, 25, 12);
+  }
+}
+
+
+      // Section Title
+      doc.setFillColor(37,99,235);
+      doc.setTextColor(255);
+      doc.rect(14, y-6, pageWidth-28, 10, "F");
+      doc.text(`User ${i+1}`, 16, y);
+      doc.setTextColor(0);
+      y += 12;
+      // ===== ADD PROFILE PHOTO =====
+if(u.profilePhoto){
+  try{
+    const img = await fetch(u.profilePhoto);
+    const blob = await img.blob();
+    const reader = new FileReader();
+
+    await new Promise(resolve=>{
+      reader.onload = function(){
+        doc.addImage(reader.result, "JPEG", pageWidth-40, y-10, 25, 25);
+        resolve();
+      };
+      reader.readAsDataURL(blob);
+    });
+
+  }catch(e){
+    console.log("Image load failed");
+  }
+}
+
+
+      // ===== USER DETAILS =====
+      doc.autoTable({
+        startY: y,
+        theme: "grid",
+        headStyles:{fillColor:[16,185,129],textColor:255},
+        head:[["User Details",""]],
+        body:[
+          ["Full Name", u.fullName || "-"],
+          ["Email", u.email || "-"],
+          ["Phone", u.phone || "-"],
+          ["Role", u.role || "-"],
+          ["Approved", u.approved ? "Yes":"No"]
+        ]
+      });
+
+      y = doc.lastAutoTable.finalY + 8;
+
+      // ===== ADMIN FIELDS =====
+      if(u.adminFields){
+        const rows = Object.entries(u.adminFields)
+          .map(([k,v])=>[formatLabel(k), v || "-"]);
+
+        doc.autoTable({
+          startY: y,
+          theme: "grid",
+          headStyles:{fillColor:[59,130,246],textColor:255},
+          head:[["Admin Fields",""]],
+          body:rows
+        });
+
+        y = doc.lastAutoTable.finalY + 8;
+      }
+
+      // ===== CUSTOM FIELDS =====
+if(u.userCustomFields){
+  const rows = Object.entries(u.userCustomFields)
+    .map(([k,v])=>[formatLabel(k), v.value || "-"]);
+
+  doc.autoTable({
+    startY: y,
+    theme: "grid",
+    headStyles:{fillColor:[168,85,247],textColor:255},
+    head:[["Custom Fields",""]],
+    body:rows
+  });
+  y = doc.lastAutoTable.finalY + 8;
+      }
+
+    }
+
+    // ===== FOOTER WITH PAGE NUMBERS =====
+    const totalPages = doc.getNumberOfPages();
+
+    for(let p=1; p<=totalPages; p++){
+      doc.setPage(p);
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+
+      doc.text(
+        `© ${new Date().getFullYear()} Sadri Villa | Confidential`,
+        pageWidth/2,
+        pageHeight-10,
+        {align:"center"}
+      );
+
+      doc.text(
+        `Page ${p} of ${totalPages}`,
+        pageWidth-20,
+        pageHeight-10,
+        {align:"right"}
+      );
+    }
+
+    doc.save("SadriVilla_Users_Report.pdf");
+
+    showToast("PDF Export Complete");
+
+  }catch(e){
+    showToast("PDF Export Failed","error");
+  }
+
+  hideLoader();
+};
+
 
 </script>
 
