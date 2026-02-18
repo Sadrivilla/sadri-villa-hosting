@@ -17,37 +17,39 @@ body{margin:0;font-family:Arial;background:#eef6ff}
 }
 .btn:hover{transform:translateY(-2px)}
 
-/* PROFILE MODAL */
+.btn-green{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+/* MODAL */
 .profile-modal{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.6);
-  display:flex;   /* ✅ make visible */
+  display:none;
   align-items:center;
   justify-content:center;
   z-index:9999;
 }
-.profile-card{
+.modal-card{
   background:#fff;
   width:95%;
-  max-width:900px;
-  max-height:90vh;
-  overflow:auto;
+  max-width:1000px;
   border-radius:26px;
   padding:28px;
-  position:relative;
+  max-height:90vh;
+  overflow-y:auto;
+  box-shadow:0 25px 60px rgba(0,0,0,.3);
 }
+
+/* CLOSE */
 .close-btn{
-  position:absolute;
-  top:12px;
-  right:16px;
-  font-size:20px;
-  font-weight:bold;
-  color:#ef4444;
+  float:right;
+  font-size:22px;
   cursor:pointer;
 }
 
-/* LAYOUT */
+/* GRID */
 .section{margin-bottom:28px}
 .section h3{color:#2563eb;margin-bottom:14px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -60,14 +62,13 @@ body{margin:0;font-family:Arial;background:#eef6ff}
 label{font-size:13px;font-weight:bold}
 input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px solid #d1d5db}
 
-/* PROFILE PHOTO */
-.photo-section{text-align:center;margin-bottom:30px}
+/* PROFILE IMAGE */
+.photo-section{text-align:center;margin-bottom:20px}
 #photoPreview{
   width:80px;height:80px;border-radius:50%;
   object-fit:cover;border:3px solid #38bdf8;
-  display:block;margin:0 auto 12px;
-  background:#e0f2fe;
   cursor:pointer;
+  background:#e0f2fe
 }
 
 /* CUSTOM FIELD */
@@ -76,6 +77,10 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
   justify-content:space-between;
   align-items:center;
   margin-top:8px;
+}
+.delete-btn{
+  background:#ef4444;color:white;border:none;
+  padding:6px 10px;border-radius:8px;cursor:pointer
 }
 
 /* LOADER */
@@ -90,6 +95,7 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* POPUP */
 .popup{
   position:fixed;bottom:30px;left:50%;
   transform:translateX(-50%);
@@ -103,17 +109,25 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 
 <body>
 
-<!-- PROFILE MODAL -->
-<div class="profile-modal" id="profileModal">
-  <div class="profile-card">
-    <div class="close-btn" onclick="closeProfile()">✖</div>
+<div style="text-align:center;margin-top:50px">
+  <img id="openProfileImage"
+   src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+   style="width:90px;height:90px;border-radius:50%;border:4px solid #38bdf8;cursor:pointer;">
+  <h2>My Profile</h2>
+</div>
 
-    <h2 style="text-align:center">👤 My Profile</h2>
+<!-- MODAL -->
+<div class="profile-modal" id="profileModal">
+  <div class="modal-card">
+
+    <span class="close-btn" onclick="closeModal()">✖</span>
+
+    <button class="btn btn-green" onclick="location.href='dashboard.html'">← Back</button>
 
     <div class="photo-section">
       <img id="photoPreview"
-       src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
-       onclick="openProfile()">
+       src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+      <br><br>
       <input type="file" id="photoInput" accept="image/*">
       <br><br>
       <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
@@ -137,6 +151,7 @@ input{width:100%;margin-top:6px;padding:12px;border-radius:12px;border:1.5px sol
 
     <br>
     <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
+
   </div>
 </div>
 
@@ -161,27 +176,22 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
 
-let uid,adminValues={},userCustom={},baseUser={};
+let uid,userCustom={},adminValues={};
 
 const loader=document.getElementById("loader");
-const photoInput=document.getElementById("photoInput");
-const photoPreview=document.getElementById("photoPreview");
 
-const showSuccess=()=>{
-  const p=document.getElementById("successPopup");
-  p.style.display="block";
-  setTimeout(()=>p.style.display="none",2000);
-};
-const showError=()=>{
-  const p=document.getElementById("errorPopup");
-  p.style.display="block";
-  setTimeout(()=>p.style.display="none",2000);
-};
+const showSuccess=()=>{successPopup.style.display="block";setTimeout(()=>successPopup.style.display="none",2000);}
+const showError=()=>{errorPopup.style.display="block";setTimeout(()=>errorPopup.style.display="none",2000);}
 
-/* OPEN / CLOSE MODAL */
-window.openProfile=()=>document.getElementById("profileModal").style.display="flex";
-window.closeProfile=()=>document.getElementById("profileModal").style.display="none";
+/* OPEN MODAL */
+document.getElementById("openProfileImage").onclick=()=>{
+  document.getElementById("profileModal").style.display="flex";
+}
+window.closeModal=()=>{
+  document.getElementById("profileModal").style.display="none";
+}
 
+/* PREVIEW */
 photoInput.onchange=e=>{
   const file=e.target.files[0];
   if(file)photoPreview.src=URL.createObjectURL(file);
@@ -192,37 +202,36 @@ onAuthStateChanged(auth,async user=>{
   uid=user.uid;
 
   const snap=await getDoc(doc(db,"users",uid));
-  baseUser=snap.data()||{};
+  const data=snap.data()||{};
 
-  if(baseUser.profilePhoto)
-    photoPreview.src=baseUser.profilePhoto;
+  if(data.profilePhoto){
+    photoPreview.src=data.profilePhoto;
+    openProfileImage.src=data.profilePhoto;
+  }
 
-  document.getElementById("staticWrap").innerHTML=`
+  staticWrap.innerHTML=`
     <div class="block"><label>Full Name</label>
-      <input id="fullName" value="${baseUser.fullName||""}">
+      <input id="fullName" value="${data.fullName||""}">
     </div>
     <div class="block"><label>Mobile</label>
-      <input id="phone" value="${baseUser.phone||""}">
+      <input id="phone" value="${data.phone||""}">
     </div>
   `;
 
-  /* LOAD ADMIN FIELDS */
+  /* ADMIN FIELDS */
   const fs=await getDocs(collection(db,"profileFields"));
-  adminValues=baseUser.adminFields||{};
-  document.getElementById("adminWrap").innerHTML="";
+  adminValues=data.adminFields||{};
   fs.forEach(d=>{
-    const f=d.data();
-    document.getElementById("adminWrap").innerHTML+=`
+    adminWrap.innerHTML+=`
       <div class="block">
-        <label>${f.label||d.id}</label>
+        <label>${d.data().label||d.id}</label>
         <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
       </div>
     `;
   });
 
-  /* LOAD CUSTOM FIELDS */
-  userCustom=baseUser.userCustomFields||{};
-  document.getElementById("userWrap").innerHTML="";
+  /* CUSTOM FIELDS */
+  userCustom=data.userCustomFields||{};
   Object.entries(userCustom).forEach(([k,v])=>{
     drawUserCustom(k,v.value,v.showOnDashboard);
   });
@@ -231,17 +240,14 @@ onAuthStateChanged(auth,async user=>{
 /* ADD CUSTOM FIELD */
 window.addUserCustom=()=>drawUserCustom();
 
-function drawUserCustom(key="",value="",show=false){
-  document.getElementById("userWrap").innerHTML+=`
+function drawUserCustom(k="",v="",show=false){
+  userWrap.innerHTML+=`
     <div class="block">
-      <input class="ckey" placeholder="Field Question" value="${key}">
-      <input class="cval" placeholder="Answer" value="${value}">
+      <input class="ckey" placeholder="Field name" value="${k}">
+      <input class="cval" placeholder="Answer" value="${v}">
       <div class="row">
-        <span>
-          <input type="checkbox" class="cshow" ${show?"checked":""}>
-          Show on Dashboard
-        </span>
-        <button class="btn" style="background:#ef4444" onclick="this.closest('.block').remove()">Delete</button>
+        <label><input type="checkbox" class="cshow" ${show?"checked":""}> Show on Dashboard</label>
+        <button class="delete-btn" onclick="this.closest('.block').remove()">Delete</button>
       </div>
     </div>
   `;
@@ -263,17 +269,14 @@ window.savePhoto=async()=>{
 
     loader.style.display="none";
     showSuccess();
-  }catch(e){
-    loader.style.display="none";
-    showError();
-  }
+  }catch(e){loader.style.display="none";showError();}
 };
 
 /* SAVE PROFILE */
 window.saveProfile=async()=>{
   try{
-    const fullName=document.getElementById("fullName").value.trim();
-    const phone=document.getElementById("phone").value.trim();
+    const fullName=fullName.value.trim();
+    const phone=phone.value.trim();
 
     adminValues={};
     document.querySelectorAll("[data-admin]").forEach(i=>{
@@ -281,11 +284,11 @@ window.saveProfile=async()=>{
     });
 
     userCustom={};
-    document.querySelectorAll("#userWrap .block").forEach(b=>{
+    [...userWrap.children].forEach(b=>{
       const k=b.querySelector(".ckey").value.trim();
       if(k){
         userCustom[k]={
-          value:b.querySelector(".cval").value,
+          value:b.querySelector(".cval").value.trim(),
           showOnDashboard:b.querySelector(".cshow").checked
         };
       }
@@ -303,10 +306,7 @@ window.saveProfile=async()=>{
 
     loader.style.display="none";
     showSuccess();
-  }catch(e){
-    loader.style.display="none";
-    showError();
-  }
+  }catch(e){loader.style.display="none";showError();}
 };
 </script>
 
