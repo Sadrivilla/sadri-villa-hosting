@@ -3,23 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard | Sadri Villa</title>
+<title>Sadri Villa Dashboard</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial, sans-serif;
   background:#f4f6fb;
-  display:none; /* Hidden until auth confirmed */
+  display:none;
 }
 
 .navbar{
-  background:#ffffff;
-  padding:15px 25px;
+  background:#fff;
+  padding:12px 25px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+#siteLogo{
+  height:45px;
+  display:none;
+}
+
+.nav-title{
+  font-size:18px;
+  font-weight:bold;
 }
 
 .profile-wrapper{
@@ -28,22 +44,34 @@ body{
 }
 
 #profilePhoto{
-  width:40px;
-  height:40px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   object-fit:cover;
 }
 
 #profileCard{
   position:absolute;
-  top:50px;
+  top:55px;
   right:0;
   background:#fff;
-  padding:15px;
-  border-radius:10px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.1);
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.15);
+  width:180px;
   display:none;
-  width:150px;
+  overflow:hidden;
+}
+
+#profileCard a{
+  display:block;
+  padding:12px;
+  text-decoration:none;
+  color:#333;
+  border-bottom:1px solid #eee;
+}
+
+#profileCard a:hover{
+  background:#f0f0f0;
 }
 
 #profileCard.show{
@@ -82,18 +110,39 @@ body{
   border-radius:10px;
   margin-bottom:10px;
 }
+
+.slider{
+  margin-top:20px;
+  overflow:hidden;
+}
+
+.slider-track{
+  display:flex;
+  gap:15px;
+}
+
+.slider img{
+  height:150px;
+  border-radius:12px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="navbar">
-  <h2 id="welcomeName">Welcome</h2>
+  <div class="nav-left">
+    <img id="siteLogo">
+    <div class="nav-title" id="welcomeName">Sadri Villa</div>
+  </div>
 
   <div class="profile-wrapper">
     <img id="profilePhoto" src="https://i.pravatar.cc/150?img=3">
     <div id="profileCard">
-      <p onclick="logout()" style="cursor:pointer;color:red;">Logout</p>
+      <a href="profile.html">Profile</a>
+      <a href="change-password.html">Change Password</a>
+      <a href="map.html">Villa Map</a>
+      <a href="#" id="logoutBtn" style="color:red;">Logout</a>
     </div>
   </div>
 </div>
@@ -112,6 +161,11 @@ body{
   <div class="card">
     <p><strong>Member Since:</strong> <span id="memberDays"></span></p>
     <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
+  </div>
+
+  <div class="card slider">
+    <h3>Gallery</h3>
+    <div class="slider-track" id="sliderTrack"></div>
   </div>
 
   <div class="card">
@@ -138,22 +192,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* Profile Dropdown */
-const profilePhoto = document.getElementById("profilePhoto");
-const profileCard = document.getElementById("profileCard");
+/* PROFILE DROPDOWN */
+const profilePhoto=document.getElementById("profilePhoto");
+const profileCard=document.getElementById("profileCard");
 
-profilePhoto.addEventListener("click", (e)=>{
+profilePhoto.onclick=(e)=>{
   e.stopPropagation();
   profileCard.classList.toggle("show");
-});
+};
 
-document.addEventListener("click", ()=>{
-  profileCard.classList.remove("show");
-});
+document.onclick=()=>profileCard.classList.remove("show");
 
-/* Auth */
+/* AUTH */
 onAuthStateChanged(auth,(user)=>{
-
   if(!user){
     window.location.href="login.html";
     return;
@@ -161,88 +212,91 @@ onAuthStateChanged(auth,(user)=>{
 
   document.body.style.display="block";
 
-  const userRef = doc(db,"users",user.uid);
-
+  const userRef=doc(db,"users",user.uid);
   onSnapshot(userRef,(snap)=>{
-
     if(!snap.exists()) return;
+    const data=snap.data();
+    updateUser(data);
+  });
 
-    const data = snap.data();
-
-    updateDashboard(data);
-
+  const siteRef=doc(db,"siteSettings","home");
+  onSnapshot(siteRef,(snap)=>{
+    if(!snap.exists()) return;
+    updateSite(snap.data());
   });
 
 });
 
-function updateDashboard(data){
+/* USER UPDATE */
+function updateUser(data){
 
-  document.getElementById("welcomeName").innerText =
-    "Welcome " + ((data.fullName||"Member").split(" ")[0]);
+  document.getElementById("welcomeName").innerText=
+    "Sadri Villa – Welcome " + (data.fullName||"Member");
 
   if(data.profilePhoto){
-    profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
+    profilePhoto.src=data.profilePhoto+"?v="+Date.now();
   }
 
-  let userTotal=2;
-  let userFilled=0;
-  if(data.fullName) userFilled++;
-  if(data.phone) userFilled++;
-
-  let adminTotal=Object.keys(data.adminFields||{}).length;
-  let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
-
-  let customTotal=Object.keys(data.userCustomFields||{}).length;
-  let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v?.value).length;
-
-  const total=userTotal+adminTotal+customTotal;
-  const filled=userFilled+adminFilled+customFilled;
-  const percent=Math.round((filled/(total||1))*100);
-
-  animatePercent(percent);
-
-  document.getElementById("groupInfo").innerText =
-    `User ${userFilled}/${userTotal} | Admin ${adminFilled}/${adminTotal} | Custom ${customFilled}/${customTotal}`;
-
-  if(data.createdAt){
-    document.getElementById("memberDays").innerText =
-      Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+  let created = data.createdAt ? new Date(data.createdAt) : null;
+  if(created && !isNaN(created)){
+    document.getElementById("memberDays").innerText=
+      Math.floor((Date.now()-created)/86400000)+" days";
+  }else{
+    document.getElementById("memberDays").innerText="0 days";
   }
 
-  document.getElementById("lastLogin").innerText =
+  document.getElementById("lastLogin").innerText=
     data.lastLogin
       ? new Date(data.lastLogin).toLocaleDateString("en-IN")
       : "First login";
 
-  const customDashboard = document.getElementById("customDashboard");
-  customDashboard.innerHTML="";
+  let percent=50;
+  document.getElementById("percent").innerText=percent+"%";
+  document.getElementById("bar").style.width=percent+"%";
 
+  const customDashboard=document.getElementById("customDashboard");
+  customDashboard.innerHTML="";
   Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
     if(v?.showOnDashboard){
       customDashboard.innerHTML+=`
         <div class="qa-card">
           <h4>${k}</h4>
           <p>${v.value||""}</p>
-        </div>
-      `;
+        </div>`;
     }
   });
 
 }
 
-function animatePercent(target){
-  let current=0;
-  const interval=setInterval(()=>{
-    if(current>=target) clearInterval(interval);
-    document.getElementById("percent").innerText=current+"%";
-    document.getElementById("bar").style.width=current+"%";
-    current++;
-  },10);
+/* SITE UPDATE */
+function updateSite(data){
+
+  if(data.logo?.url){
+    const logo=document.getElementById("siteLogo");
+    logo.src=data.logo.url+"?v="+Date.now();
+    logo.style.display="block";
+  }
+
+  const sliderTrack=document.getElementById("sliderTrack");
+  sliderTrack.innerHTML="";
+
+  const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
+
+  imgs.forEach(i=>{
+    const img=document.createElement("img");
+    img.src=i.url+"?v="+Date.now();
+    sliderTrack.appendChild(img);
+  });
+
 }
 
-window.logout=async()=>{
-  await signOut(auth);
-  window.location.href="login.html";
+/* LOGOUT CONFIRM */
+document.getElementById("logoutBtn").onclick=async(e)=>{
+  e.preventDefault();
+  if(confirm("Are you sure you want to logout?")){
+    await signOut(auth);
+    window.location.href="login.html";
+  }
 };
 
 </script>
