@@ -222,6 +222,8 @@ th{background:#f8fafc;text-align:left}
   <button class="secondary" onclick="confirmBulk('unapprove')">Unapprove</button>
   <button class="danger" onclick="confirmBulk('delete')">Delete</button>
   <button class="export" onclick="exportXLSX()">Export XLSX</button>
+  <button class="export" onclick="exportPDF()">Export PDF</button>
+
 </div>
 
 <table>
@@ -265,6 +267,9 @@ import {
   doc,getDoc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
+  import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
+import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -559,6 +564,80 @@ function formatLabel(key){
     .replace(/_/g," ")
     .replace(/\b\w/g,l=>l.toUpperCase());
 }
+  window.exportPDF = () => {
+
+  showLoader();
+
+  try {
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // ===== Title =====
+    doc.setFontSize(18);
+    doc.text("Sadri Villa - Users Report", pageWidth/2, 20, {align:"center"});
+
+    doc.setFontSize(10);
+    doc.text("Generated: " + new Date().toLocaleString(),
+      pageWidth-14, 30, {align:"right"});
+
+    // ===== Prepare Table Data =====
+    const adminFieldSet = new Set();
+    const customFieldSet = new Set();
+
+    users.forEach(u=>{
+      Object.keys(u.adminFields || {}).forEach(k=>adminFieldSet.add(k));
+      Object.keys(u.userCustomFields || {}).forEach(k=>customFieldSet.add(k));
+    });
+
+    const adminFields = Array.from(adminFieldSet);
+    const customFields = Array.from(customFieldSet);
+
+    const header = [
+      "Full Name",
+      "Email",
+      "Phone",
+      "Role",
+      "Approved",
+      "Created At",
+      ...adminFields.map(f=>"ADMIN - "+formatLabel(f)),
+      ...customFields.map(f=>"CUSTOM - "+formatLabel(f)),
+    ];
+
+    const body = users.map(u=>[
+      u.fullName || "-",
+      u.email || "-",
+      u.phone || "-",
+      u.role || "-",
+      u.approved ? "Yes" : "No",
+      formatDate(u.createdAt),
+      ...adminFields.map(f=>u.adminFields?.[f] || "-"),
+      ...customFields.map(f=>u.userCustomFields?.[f]?.value || "-")
+    ]);
+
+    // ===== Table =====
+    autoTable(doc,{
+      startY:40,
+      head:[header],
+      body:body,
+      theme:"grid",
+      headStyles:{
+        fillColor:[37,99,235],
+        textColor:255
+      }
+    });
+
+    doc.save("SadriVilla_All_Users.pdf");
+
+    showToast("PDF Export Complete");
+
+  } catch(e) {
+    showToast("PDF Export Failed","error");
+  }
+
+  hideLoader();
+};
+
 
 </script>
 
