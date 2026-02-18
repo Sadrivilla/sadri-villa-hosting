@@ -4,7 +4,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+try {
 
   const firebaseConfig = {
     apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -17,81 +17,105 @@ document.addEventListener("DOMContentLoaded", () => {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  /* PROFILE DROPDOWN (SAFE) */
-  const profilePhoto = document.getElementById("profilePhoto");
-  const profileCard = document.getElementById("profileCard");
+  window.addEventListener("DOMContentLoaded", () => {
 
-  if (profilePhoto && profileCard) {
-    profilePhoto.addEventListener("click", () => {
-      profileCard.classList.toggle("show");
-    });
+    /* ---------------- PROFILE DROPDOWN ---------------- */
 
-    document.addEventListener("click", e => {
-      if (!e.target.closest(".profile-wrapper")) {
-        profileCard.classList.remove("show");
-      }
-    });
-  }
+    const profilePhoto = document.getElementById("profilePhoto");
+    const profileCard = document.getElementById("profileCard");
 
-  /* AUTH + LIVE USER */
-  onAuthStateChanged(auth,user=>{
-    if(!user){
-      location.href="login.html";
-      return;
+    if (profilePhoto && profileCard) {
+      profilePhoto.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profileCard.classList.toggle("show");
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".profile-wrapper")) {
+          profileCard.classList.remove("show");
+        }
+      });
     }
 
-    onSnapshot(doc(db,"users",user.uid),snap=>{
-      const data=snap.data();
-      if(!data) return;
+    /* ---------------- AUTH ---------------- */
 
-      const welcomeName = document.getElementById("welcomeName");
-      if(welcomeName){
-        welcomeName.innerText =
-          "Welcome " + (data.fullName||"Member").split(" ")[0];
+    onAuthStateChanged(auth, (user) => {
+
+      if (!user) {
+        console.log("No user logged in");
+        window.location.href = "login.html";
+        return;
       }
 
-      if(data.profilePhoto && profilePhoto){
-        profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
-      }
+      console.log("User Logged In:", user.uid);
 
-      loadDashboard(data);
+      const userRef = doc(db, "users", user.uid);
+
+      onSnapshot(userRef, (snap) => {
+
+        if (!snap.exists()) {
+          console.log("User document not found");
+          return;
+        }
+
+        const data = snap.data();
+        console.log("User Data:", data);
+
+        updateDashboardUI(data, profilePhoto);
+
+      }, (error) => {
+        console.error("Firestore error:", error);
+      });
+
     });
+
   });
 
-  /* DASHBOARD LOGIC */
-  function loadDashboard(data){
+  /* ---------------- DASHBOARD UI ---------------- */
 
-    let userTotal=2;
-    let userFilled=0;
-    if(data.fullName) userFilled++;
-    if(data.phone) userFilled++;
+  function updateDashboardUI(data, profilePhoto) {
 
-    let adminTotal=Object.keys(data.adminFields||{}).length;
-    let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
+    const welcomeName = document.getElementById("welcomeName");
+    if (welcomeName) {
+      welcomeName.innerText =
+        "Welcome " + ((data.fullName || "Member").split(" ")[0]);
+    }
 
-    let customTotal=Object.keys(data.userCustomFields||{}).length;
-    let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v.value).length;
+    if (data.profilePhoto && profilePhoto) {
+      profilePhoto.src = data.profilePhoto + "?v=" + Date.now();
+    }
 
-    const total=userTotal+adminTotal+customTotal;
-    const filled=userFilled+adminFilled+customFilled;
+    let userTotal = 2;
+    let userFilled = 0;
+    if (data.fullName) userFilled++;
+    if (data.phone) userFilled++;
 
-    const percent=Math.round((filled/(total||1))*100);
+    let adminTotal = Object.keys(data.adminFields || {}).length;
+    let adminFilled = Object.values(data.adminFields || {}).filter(v => v).length;
+
+    let customTotal = Object.keys(data.userCustomFields || {}).length;
+    let customFilled = Object.values(data.userCustomFields || {}).filter(v => v?.value).length;
+
+    const total = userTotal + adminTotal + customTotal;
+    const filled = userFilled + adminFilled + customFilled;
+    const percent = Math.round((filled / (total || 1)) * 100);
+
     animatePercent(percent);
 
     const groupInfo = document.getElementById("groupInfo");
-    if(groupInfo){
+    if (groupInfo) {
       groupInfo.innerText =
         `User ${userFilled}/${userTotal} | Admin ${adminFilled}/${adminTotal} | Custom ${customFilled}/${customTotal}`;
     }
 
     const memberDays = document.getElementById("memberDays");
-    if(data.createdAt && memberDays){
+    if (data.createdAt && memberDays) {
       memberDays.innerText =
-        Math.floor((Date.now()-new Date(data.createdAt))/(86400000))+" days";
+        Math.floor((Date.now() - new Date(data.createdAt)) / 86400000) + " days";
     }
 
     const lastLogin = document.getElementById("lastLogin");
-    if(lastLogin){
+    if (lastLogin) {
       lastLogin.innerText =
         data.lastLogin
           ? new Date(data.lastLogin).toLocaleDateString("en-IN")
@@ -99,44 +123,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const customDashboard = document.getElementById("customDashboard");
-    if(customDashboard){
-      customDashboard.innerHTML="";
-      Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-        if(v.showOnDashboard){
-          customDashboard.innerHTML+=`
+    if (customDashboard) {
+      customDashboard.innerHTML = "";
+      Object.entries(data.userCustomFields || {}).forEach(([k, v]) => {
+        if (v?.showOnDashboard) {
+          customDashboard.innerHTML += `
             <div class="qa-card">
               <h4>${k}</h4>
-              <p>${v.value}</p>
+              <p>${v.value || ""}</p>
             </div>
           `;
         }
       });
     }
+
   }
 
-  function animatePercent(target){
-    let current=0;
-    const percentEl=document.getElementById("percent");
-    const bar=document.getElementById("bar");
-    if(!percentEl || !bar) return;
+  /* ---------------- PROGRESS BAR ---------------- */
 
-    const interval=setInterval(()=>{
-      if(current>=target){
+  function animatePercent(target) {
+
+    const percentEl = document.getElementById("percent");
+    const bar = document.getElementById("bar");
+    if (!percentEl || !bar) return;
+
+    let current = 0;
+
+    const interval = setInterval(() => {
+      if (current >= target) {
         clearInterval(interval);
       }
-      percentEl.innerText=current+"%";
-      bar.style.width=current+"%";
+      percentEl.innerText = current + "%";
+      bar.style.width = current + "%";
       current++;
-    },10);
+    }, 10);
+
   }
 
-  /* LOGOUT */
-  window.logout=async()=>{
-    await signOut(auth);
-    location.href="login.html";
+  /* ---------------- LOGOUT ---------------- */
+
+  window.logout = async () => {
+    await signOut(getAuth());
+    window.location.href = "login.html";
   };
 
-});
+} catch (err) {
+  console.error("Fatal Error:", err);
+}
+
 </script>
 
 </body>
