@@ -227,15 +227,31 @@ onAuthStateChanged(auth,async user=>{
   const fs=await getDocs(collection(db,"profileFields"));
   adminValues=baseUser.adminFields||{};
 
-  fs.forEach(d=>{
-    const f=d.data();
-    document.getElementById("adminWrap").innerHTML+=`
-      <div class="block">
-        <label>${f.label||d.id}${f.required?'<span>*</span>':''}</label>
-        <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
-      </div>
-    `;
-  });
+  const fields = [];
+
+fs.forEach(d=>{
+  fields.push({ id:d.id, ...d.data() });
+});
+
+/* Sort by sequence */
+fields.sort((a,b)=>(a.sequence||9999)-(b.sequence||9999));
+
+fields.forEach(f=>{
+
+  /* ❌ If not visible → DO NOT SHOW */
+  if(f.visible === false) return;
+
+  document.getElementById("adminWrap").innerHTML+=`
+    <div class="block">
+      <label>
+        ${f.label || f.id}
+        ${f.required ? '<span>*</span>' : ''}
+      </label>
+      <input data-admin="${f.id}" value="${adminValues[f.id]||""}">
+    </div>
+  `;
+});
+
 
   userCustom=baseUser.userCustomFields||{};
   Object.entries(userCustom).forEach(([k,v])=>{
