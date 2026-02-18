@@ -45,9 +45,15 @@ h2{text-align:center;margin:0 0 24px}
 }
 
 label{font-size:13px;font-weight:bold}
+label span{color:#dc2626;margin-left:4px}
+
 input{
   width:100%;margin-top:6px;padding:12px;
   border-radius:12px;border:1.5px solid #d1d5db
+}
+input[readonly]{
+  background:#e5e7eb;
+  cursor:not-allowed;
 }
 
 /* PROFILE PHOTO */
@@ -70,9 +76,7 @@ input{
   align-items:center;
   z-index:10000;
 }
-.image-modal-content{
-  text-align:center;
-}
+.image-modal-content{text-align:center}
 .image-modal-content img{
   max-width:90vw;
   max-height:75vh;
@@ -80,7 +84,6 @@ input{
   box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
-/* CUSTOM FIELD ROW */
 .row{
   display:flex;
   justify-content:space-between;
@@ -121,7 +124,6 @@ input{
   <div></div>
 </div>
 
-<!-- PROFILE PHOTO -->
 <div class="photo-section">
   <img id="photoPreview"
    src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
@@ -152,7 +154,6 @@ input{
 </div>
 </div>
 
-<!-- IMAGE POPUP -->
 <div class="image-modal" id="imageModal">
   <div class="image-modal-content">
     <img id="largeProfileImage">
@@ -188,34 +189,13 @@ const loader=document.getElementById("loader");
 const photoInput=document.getElementById("photoInput");
 const photoPreview=document.getElementById("photoPreview");
 
-const showSuccess=()=>{
-  const p=document.getElementById("successPopup");
-  p.style.display="block";
-  setTimeout(()=>p.style.display="none",2000);
-};
-const showError=()=>{
-  const p=document.getElementById("errorPopup");
-  p.style.display="block";
-  setTimeout(()=>p.style.display="none",2000);
-};
+const showSuccess=()=>{const p=document.getElementById("successPopup");p.style.display="block";setTimeout(()=>p.style.display="none",2000);}
+const showError=()=>{const p=document.getElementById("errorPopup");p.style.display="block";setTimeout(()=>p.style.display="none",2000);}
 
-/* IMAGE PREVIEW */
-photoInput.onchange=e=>{
-  const file=e.target.files[0];
-  if(file)photoPreview.src=URL.createObjectURL(file);
-};
+photoInput.onchange=e=>{const file=e.target.files[0];if(file)photoPreview.src=URL.createObjectURL(file);}
 
-/* IMAGE POPUP */
-photoPreview.onclick=()=>{
-  document.getElementById("largeProfileImage").src=photoPreview.src;
-  document.getElementById("imageModal").style.display="flex";
-};
-window.closeImageModal=()=>{
-  document.getElementById("imageModal").style.display="none";
-};
-document.getElementById("imageModal").onclick=e=>{
-  if(e.target.id==="imageModal") closeImageModal();
-};
+photoPreview.onclick=()=>{document.getElementById("largeProfileImage").src=photoPreview.src;document.getElementById("imageModal").style.display="flex";}
+window.closeImageModal=()=>{document.getElementById("imageModal").style.display="none";}
 
 onAuthStateChanged(auth,async user=>{
   if(!user)return location.href="login.html";
@@ -227,6 +207,8 @@ onAuthStateChanged(auth,async user=>{
   if(baseUser.profilePhoto)
     photoPreview.src=baseUser.profilePhoto;
 
+  const roleValue = baseUser.role || "user";
+
   document.getElementById("staticWrap").innerHTML=`
     <div class="block"><label>Full Name</label>
       <input id="fullName" value="${baseUser.fullName||""}">
@@ -234,29 +216,33 @@ onAuthStateChanged(auth,async user=>{
     <div class="block"><label>Mobile</label>
       <input id="phone" value="${baseUser.phone||""}">
     </div>
+    <div class="block"><label>Email</label>
+      <input value="${user.email||""}" readonly>
+    </div>
+    <div class="block"><label>Role</label>
+      <input value="${roleValue}" readonly>
+    </div>
   `;
 
-  /* ADMIN FIELDS */
   const fs=await getDocs(collection(db,"profileFields"));
   adminValues=baseUser.adminFields||{};
+
   fs.forEach(d=>{
     const f=d.data();
     document.getElementById("adminWrap").innerHTML+=`
       <div class="block">
-        <label>${f.label||d.id}</label>
+        <label>${f.label||d.id}${f.required?'<span>*</span>':''}</label>
         <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
       </div>
     `;
   });
 
-  /* CUSTOM FIELDS */
   userCustom=baseUser.userCustomFields||{};
   Object.entries(userCustom).forEach(([k,v])=>{
     drawUserCustom(k,v.value,v.showOnDashboard);
   });
 });
 
-/* ADD CUSTOM */
 window.addUserCustom=()=>drawUserCustom();
 
 function drawUserCustom(k="",v="",s=false){
@@ -275,31 +261,20 @@ function drawUserCustom(k="",v="",s=false){
   `;
 }
 
-/* SAVE PHOTO */
 window.savePhoto=async()=>{
   try{
     const file=photoInput.files[0];
     if(!file)return alert("Select image first");
-
     loader.style.display="flex";
-
     const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
     await uploadBytes(storageRef,file);
     const url=await getDownloadURL(storageRef);
-
-    await setDoc(doc(db,"users",uid),{
-      profilePhoto:url
-    },{merge:true});
-
+    await setDoc(doc(db,"users",uid),{profilePhoto:url},{merge:true});
     loader.style.display="none";
     showSuccess();
-  }catch(e){
-    loader.style.display="none";
-    showError();
-  }
+  }catch(e){loader.style.display="none";showError();}
 };
 
-/* SAVE PROFILE */
 window.saveProfile=async()=>{
   try{
     const fullName=document.getElementById("fullName").value.trim();
@@ -322,7 +297,6 @@ window.saveProfile=async()=>{
     });
 
     loader.style.display="flex";
-
     await setDoc(doc(db,"users",uid),{
       fullName,
       phone,
@@ -330,13 +304,9 @@ window.saveProfile=async()=>{
       userCustomFields:userCustom,
       updatedAt:new Date().toISOString()
     },{merge:true});
-
     loader.style.display="none";
     showSuccess();
-  }catch(e){
-    loader.style.display="none";
-    showError();
-  }
+  }catch(e){loader.style.display="none";showError();}
 };
 </script>
 
