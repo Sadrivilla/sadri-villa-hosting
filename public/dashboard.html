@@ -6,30 +6,51 @@
 <title>Sadri Villa Dashboard</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f4f6fb;
-  display:none;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 
-/* NAVBAR */
+/* LOADER */
+.loader{
+  position:fixed;
+  inset:0;
+  background:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:2000;
+}
+.loader div{
+  width:50px;height:50px;
+  border:5px solid #eee;
+  border-top:5px solid #38bdf8;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* NAVBAR (same height as index) */
 .navbar{
-  background:#fff;
-  padding:10px 25px;
+  position:fixed;
+  top:0;left:0;right:0;
+  height:50px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  z-index:1000;
+  padding:0 20px;
 }
 
-.nav-left{
+.brand{
+  height:50px;
   display:flex;
   align-items:center;
   gap:15px;
 }
 
-#siteLogo{
+.brand img{
   height:50px;
   width:auto;
   object-fit:contain;
@@ -37,167 +58,111 @@ body{
 }
 
 .nav-title{
-  font-size:18px;
-  font-weight:bold;
+  font-weight:700;
 }
 
 /* PROFILE */
-.profile-wrapper{
-  position:relative;
-  cursor:pointer;
-}
-
+.profile-wrapper{position:relative;cursor:pointer}
 #profilePhoto{
-  width:45px;
-  height:45px;
-  border-radius:50%;
+  width:40px;height:40px;border-radius:50%;
   object-fit:cover;
-  border:2px solid #ddd;
+  border:2px solid #38bdf8;
 }
 
 #profileCard{
-  position:absolute;
-  top:60px;
-  right:0;
-  background:#fff;
-  border-radius:12px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.2);
-  width:200px;
-  display:none;
-  overflow:hidden;
+  position:absolute;top:55px;right:0;
+  background:#fff;border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,.2);
+  width:200px;display:none;overflow:hidden;
 }
-
 #profileCard a{
-  display:block;
-  padding:12px;
-  text-decoration:none;
-  color:#333;
+  display:block;padding:12px;
+  text-decoration:none;color:#333;
   border-bottom:1px solid #eee;
 }
-
-#profileCard a:hover{
-  background:#f2f2f2;
-}
-
-#profileCard.show{
-  display:block;
-}
+#profileCard a:hover{background:#f1f5f9}
+#profileCard.show{display:block}
 
 /* DASHBOARD */
-.dashboard{
-  padding:30px;
-}
+.dashboard{padding:80px 30px 40px}
 
+/* CARDS */
 .card{
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  margin-bottom:20px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+  background:#fff;padding:20px;border-radius:20px;
+  margin-bottom:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,.05);
 }
 
-/* SLIDER */
-.slider{
+/* PROGRESS */
+.progress-container{
+  background:#eee;height:18px;border-radius:20px;overflow:hidden;margin-top:10px
+}
+#bar{height:100%;width:0%;transition:.4s}
+
+/* SLIDER (same as index) */
+.gallery{
+  background:#f1f5f9;
+  padding:40px 0;
   overflow:hidden;
-  position:relative;
 }
-
-.slider-track{
+.track{
   display:flex;
-  gap:15px;
-  animation:scroll 25s linear infinite;
+  gap:20px;
+  width:max-content;
 }
-
-.slider img{
-  height:170px;
-  border-radius:12px;
-  cursor:pointer;
-  transition:transform .3s;
+.track.scrolling{animation:scroll linear infinite}
+.track:hover{animation-play-state:paused}
+.track img{
+  width:300px;height:200px;
+  object-fit:cover;border-radius:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,.15);
+  transition:.3s;cursor:pointer
 }
-
-.slider img:hover{
-  transform:scale(1.05);
-}
-
+.track img:hover{transform:scale(1.03)}
 @keyframes scroll{
-  from{transform:translateX(0);}
-  to{transform:translateX(-50%);}
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
 }
 
-/* MODAL */
+/* IMAGE MODAL */
 .modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;justify-content:center;align-items:center
 }
-
 .modal-content{
-  background:#fff;
-  padding:20px;
-  border-radius:15px;
-  text-align:center;
+  background:#fff;padding:20px;border-radius:20px;text-align:center
 }
-
-.modal-content img{
-  max-width:400px;
-  border-radius:12px;
-}
-
+.modal-content img{max-width:500px;border-radius:15px}
 .download-btn{
-  display:inline-block;
-  margin-top:10px;
-  padding:8px 15px;
-  background:#4caf50;
-  color:#fff;
-  border-radius:6px;
-  text-decoration:none;
+  display:inline-block;margin-top:10px;
+  padding:8px 15px;background:#38bdf8;
+  color:white;border-radius:8px;text-decoration:none
 }
 
 /* LOGOUT MODAL */
 .logout-modal{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.5);
-  display:none;
-  justify-content:center;
-  align-items:center;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;justify-content:center;align-items:center
 }
-
 .logout-card{
-  background:#fff;
-  padding:30px;
-  border-radius:15px;
-  text-align:center;
-  width:300px;
+  background:white;padding:30px;border-radius:20px;text-align:center;width:300px
 }
-
 .logout-card button{
-  margin:10px;
-  padding:8px 15px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+  margin:10px;padding:8px 15px;border:none;border-radius:8px;cursor:pointer
 }
-
-.confirm{background:#e53935;color:#fff;}
-.cancel{background:#ccc;}
+.confirm{background:#e53935;color:white}
+.cancel{background:#ccc}
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
+<div class="loader" id="loader"><div></div></div>
+
 <div class="navbar">
-  <div class="nav-left">
+  <div class="brand">
     <img id="siteLogo">
     <div class="nav-title" id="welcomeName">Sadri Villa</div>
   </div>
@@ -208,27 +173,37 @@ body{
       <a href="profile.html">Profile</a>
       <a href="change-password.html">Change Password</a>
       <a href="https://maps.app.goo.gl/CMSPhzq4hsGffxke6" target="_blank">Villa Map</a>
-      <a href="#" id="logoutBtn" style="color:red;">Logout</a>
+      <a href="#" id="logoutBtn" style="color:red">Logout</a>
     </div>
   </div>
 </div>
 
 <div class="dashboard">
 
+  <!-- PROFILE COMPLETION -->
+  <div class="card">
+    <h3>Profile Completion</h3>
+    <div class="progress-container">
+      <div id="bar"></div>
+    </div>
+    <p><span id="percent">0%</span></p>
+    <p id="groupInfo"></p>
+  </div>
+
+  <!-- USER INFO -->
   <div class="card">
     <p><strong>Member Since:</strong> <span id="memberDays"></span></p>
     <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
   </div>
 
-  <!-- GALLERY AT BOTTOM -->
-  <div class="card slider">
-    <h3>Gallery</h3>
-    <div class="slider-track" id="sliderTrack"></div>
-  </div>
+  <!-- GALLERY -->
+  <section class="gallery">
+    <div class="track" id="galleryTrack"></div>
+  </section>
 
 </div>
 
-<!-- IMAGE MODAL -->
+<!-- IMAGE POPUP -->
 <div class="modal" id="imgModal">
   <div class="modal-content">
     <img id="modalImg">
@@ -251,25 +226,25 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+const app=initializeApp({
+  apiKey:"AIzaSy...",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.appspot.com"
-};
-
-const app=initializeApp(firebaseConfig);
+  projectId:"sadri-villa-14c06"
+});
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-const profilePhoto=document.getElementById("profilePhoto");
-const profileCard=document.getElementById("profileCard");
-profilePhoto.onclick=(e)=>{e.stopPropagation();profileCard.classList.toggle("show");};
-document.onclick=()=>profileCard.classList.remove("show");
+const loader=document.getElementById("loader");
+const body=document.body;
+
+function formatDate(date){
+  const d=new Date(date);
+  const options={day:'2-digit',month:'short',year:'numeric'};
+  return d.toLocaleDateString('en-GB',options);
+}
 
 onAuthStateChanged(auth,user=>{
   if(!user){location.href="login.html";return;}
-  document.body.style.display="block";
 
   onSnapshot(doc(db,"users",user.uid),snap=>{
     if(!snap.exists())return;
@@ -278,20 +253,37 @@ onAuthStateChanged(auth,user=>{
     document.getElementById("welcomeName").innerText=
       "Sadri Villa – Welcome "+(data.fullName||"Member");
 
-    if(data.profilePhoto){
-      profilePhoto.src=data.profilePhoto+"?v="+Date.now();
-    }
+    if(data.profilePhoto)
+      document.getElementById("profilePhoto").src=data.profilePhoto+"?v="+Date.now();
 
     const created=data.createdAt?new Date(data.createdAt):null;
     document.getElementById("memberDays").innerText=
-      created && !isNaN(created)
+      created&&!isNaN(created)
         ? Math.floor((Date.now()-created)/86400000)+" days"
         : "0 days";
 
     document.getElementById("lastLogin").innerText=
-      data.lastLogin
-        ? new Date(data.lastLogin).toLocaleDateString("en-IN")
-        : "First login";
+      data.lastLogin?formatDate(data.lastLogin):"First login";
+
+    /* PROFILE COMPLETION */
+    let total=2,filled=0;
+    if(data.fullName)filled++;
+    if(data.phone)filled++;
+    const percent=Math.round((filled/total)*100);
+
+    const bar=document.getElementById("bar");
+    bar.style.width=percent+"%";
+    document.getElementById("percent").innerText=percent+"%";
+
+    if(percent<=30)bar.style.background="#e53935";
+    else if(percent<=70)bar.style.background="#38bdf8";
+    else bar.style.background="#22c55e";
+
+    document.getElementById("groupInfo").innerText=
+      `Completed ${filled} of ${total} basic fields`;
+
+    loader.style.display="none";
+    body.style.display="block";
   });
 
   onSnapshot(doc(db,"siteSettings","home"),snap=>{
@@ -304,14 +296,14 @@ onAuthStateChanged(auth,user=>{
       logo.style.display="block";
     }
 
-    const track=document.getElementById("sliderTrack");
-    track.innerHTML="";
     const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
+    const track=document.getElementById("galleryTrack");
+    track.innerHTML="";
     const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
     list.forEach(i=>{
       const img=document.createElement("img");
-      img.src=i.url+"?v="+Date.now();
+      img.src=i.url;
       img.onclick=()=>{
         document.getElementById("modalImg").src=i.url;
         document.getElementById("downloadLink").href=i.url;
@@ -319,24 +311,37 @@ onAuthStateChanged(auth,user=>{
       };
       track.appendChild(img);
     });
+
+    if(imgs.length>1){
+      track.classList.add("scrolling");
+      requestAnimationFrame(()=>{
+        const width=track.scrollWidth/2;
+        track.style.animationDuration=(width/80)+"s";
+      });
+    }
   });
 });
 
-/* IMAGE MODAL CLOSE */
+/* PROFILE DROPDOWN */
+document.getElementById("profilePhoto").onclick=(e)=>{
+  e.stopPropagation();
+  document.getElementById("profileCard").classList.toggle("show");
+};
+document.onclick=()=>document.getElementById("profileCard").classList.remove("show");
+
+/* IMAGE MODAL */
 document.getElementById("imgModal").onclick=()=>{
   document.getElementById("imgModal").style.display="none";
 };
 
-/* LOGOUT MODAL */
+/* LOGOUT */
 document.getElementById("logoutBtn").onclick=(e)=>{
   e.preventDefault();
   document.getElementById("logoutModal").style.display="flex";
 };
-
 document.getElementById("cancelLogout").onclick=()=>{
   document.getElementById("logoutModal").style.display="none";
 };
-
 document.getElementById("confirmLogout").onclick=async()=>{
   await signOut(auth);
   location.href="login.html";
