@@ -428,12 +428,138 @@ function showToast(msg,type="success"){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-window.exportXLSX=()=>{
-  const ws=XLSX.utils.json_to_sheet(users);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Users");
-  XLSX.writeFile(wb,"users_export.xlsx");
+window.exportXLSX = () => {
+
+  showLoader();
+
+  try{
+
+    // =============================
+    // Collect All Dynamic Fields
+    // =============================
+    const adminFieldSet = new Set();
+    const customFieldSet = new Set();
+
+    users.forEach(u=>{
+      Object.keys(u.adminFields || {}).forEach(k=>adminFieldSet.add(k));
+      Object.keys(u.userCustomFields || {}).forEach(k=>customFieldSet.add(k));
+    });
+
+    const adminFields = Array.from(adminFieldSet);
+    const customFields = Array.from(customFieldSet);
+
+    // =============================
+    // Create Header Row
+    // =============================
+    const header = [
+      "Full Name",
+      "Email",
+      "Phone",
+      "Role",
+      "Approved",
+      "Created At",
+      ...adminFields.map(f=>"ADMIN - "+formatLabel(f)),
+      ...customFields.map(f=>"CUSTOM - "+formatLabel(f)),
+    ];
+
+    const data = [];
+
+    users.forEach(u=>{
+
+      const row = [
+        u.fullName || "-",
+        u.email || "-",
+        u.phone || "-",
+        u.role || "-",
+        u.approved ? "Yes" : "No",
+        formatDate(u.createdAt)
+      ];
+
+      adminFields.forEach(f=>{
+        row.push(u.adminFields?.[f] || "-");
+      });
+
+      customFields.forEach(f=>{
+        row.push(u.userCustomFields?.[f]?.value || "-");
+      });
+
+      data.push(row);
+    });
+
+    // =============================
+    // Build Sheet
+    // =============================
+    const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+
+    // Column width
+    ws["!cols"] = header.map(()=>({wch:22}));
+
+    // Enable filter
+    ws["!autofilter"] = {
+      ref: XLSX.utils.encode_range({
+        s: {r:0,c:0},
+        e: {r:data.length,c:header.length-1}
+      })
+    };
+
+    // =============================
+    // Styling (Advanced)
+    // =============================
+    const range = XLSX.utils.decode_range(ws["!ref"]);
+
+    for(let R = range.s.r; R <= range.e.r; ++R){
+      for(let C = range.s.c; C <= range.e.c; ++C){
+
+        const cellAddress = XLSX.utils.encode_cell({r:R,c:C});
+        if(!ws[cellAddress]) continue;
+
+        ws[cellAddress].s = {
+          border: {
+            top:{style:"thin"},
+            bottom:{style:"thin"},
+            left:{style:"thin"},
+            right:{style:"thin"}
+          },
+          alignment:{vertical:"center",horizontal:"left"}
+        };
+
+        // Header row style
+        if(R === 0){
+          ws[cellAddress].s.fill = {
+            patternType:"solid",
+            fgColor:{rgb:"2563EB"}
+          };
+          ws[cellAddress].s.font = {
+            bold:true,
+            color:{rgb:"FFFFFF"}
+          };
+        }
+      }
+    }
+
+    // =============================
+    // Workbook
+    // =============================
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "All Users");
+
+    XLSX.writeFile(wb, "SadriVilla_All_Users.xlsx");
+
+    showToast("Professional Excel Export Complete");
+
+  }catch(e){
+    showToast("Export Failed","error");
+  }
+
+  hideLoader();
 };
+function formatLabel(key){
+  return key
+    .replace(/([A-Z])/g," $1")
+    .replace(/_/g," ")
+    .replace(/\b\w/g,l=>l.toUpperCase());
+}
+
 </script>
 
 </body>
