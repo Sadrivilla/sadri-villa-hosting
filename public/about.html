@@ -2,412 +2,342 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>About Sadri Villa | Heritage & Humanity</title>
+<title>My Profile | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
 
 <style>
-/* ===== BASE ===== */
-html,body{
-  margin:0;
-  min-height:100%;
-  font-family:Arial,sans-serif;
-}
-body{
-  display:flex;
-  flex-direction:column;
-  background:linear-gradient(180deg,#0f1e4a,#1e3a8a);
-  color:#e5e7eb;
-}
-a{text-decoration:none;color:inherit}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#eef6ff}
 
-/* ================= NAVBAR (MATCH INDEX) ================= */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:50px;
+/* BUTTON */
+.btn{
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  color:#fff;border:none;padding:10px 18px;
+  border-radius:14px;font-weight:bold;cursor:pointer;
+  transition:.25s;
+}
+.btn:hover{transform:translateY(-2px)}
+
+.wrap{max-width:1100px;margin:auto;padding:24px}
+.card{
+  background:#fff;border-radius:26px;padding:28px;
+  box-shadow:0 20px 45px rgba(0,0,0,.12);
+}
+
+.top-row{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(0,0,0,.08);
-  z-index:1000;
-  padding:0;
+  margin-bottom:20px;
 }
 
-.brand{
-  height:50px;
-  display:flex;
-  align-items:center;
-}
-.brand img{
-  height:50px;
-  width:auto;
-  object-fit:contain;
+h2{text-align:center;margin:0 0 24px}
+
+.section{margin-bottom:28px}
+.section h3{color:#2563eb;margin-bottom:14px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+
+.block{
+  background:#f8fbff;border:1px solid #c7d2fe;
+  padding:14px;border-radius:14px;margin-bottom:10px;
 }
 
-/* NAV LINKS */
-.nav-links{
-  display:flex;
-  gap:20px;
-  align-items:center;
-  padding-right:20px;
+label{font-size:13px;font-weight:bold}
+input{
+  width:100%;margin-top:6px;padding:12px;
+  border-radius:12px;border:1.5px solid #d1d5db
 }
 
-/* SAME STYLE FOR ALL NAV BUTTONS */
-.nav-links a,
-.nav-btn{
-  padding:8px 18px;
-  border-radius:25px;
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:white;
-  font-weight:700;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:none;
-  outline:none;
+/* PROFILE PHOTO */
+.photo-section{text-align:center;margin-bottom:30px}
+#photoPreview{
+  width:120px;height:120px;border-radius:50%;
+  object-fit:cover;border:4px solid #38bdf8;
+  display:block;margin:0 auto 12px;
+  background:#e0f2fe;
   cursor:pointer;
-  transition:all .3s ease;
 }
 
-.nav-links a:hover,
-.nav-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(0,0,0,.2);
-}
-
-/* HAMBURGER */
-.hamburger{
-  display:none;
-  flex-direction:column;
-  gap:5px;
-  cursor:pointer;
-  padding-right:20px;
-}
-.hamburger span{
-  width:25px;
-  height:3px;
-  background:#081634;
-  border-radius:3px;
-}
-
-/* MOBILE MENU */
-.mobile-menu{
+/* IMAGE POPUP */
+.image-modal{
   position:fixed;
-  top:50px;
-  right:-100%;
-  width:260px;
-  height:100%;
-  background:#081634;
-  padding:30px;
-  transition:.4s;
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  z-index:999;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
 }
-.mobile-menu a{
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-}
-.mobile-menu.active{right:0}
-
-@media(max-width:900px){
-  .nav-links{display:none}
-  .hamburger{display:flex}
-}
-
-
-/* ===== CONTENT ===== */
-main{
-  flex:1;
-}
-
-/* ===== HERO ===== */
-.hero{
-  padding:120px 18px 80px;
+.image-modal-content{
   text-align:center;
 }
-.hero h1{font-size:40px}
-.hero h1 span{color:#38bdf8}
-.hero p{
-  max-width:760px;
-  margin:14px auto;
-  line-height:1.7;
-  color:#c7d2fe;
-}
-
-/* ===== VISION ===== */
-.vision{
-  max-width:700px;
-  margin:40px auto;
-  padding:26px;
-  border-radius:18px;
-  background:rgba(255,255,255,.08);
-}
-
-/* ===== CARDS ===== */
-.keypoints{
-  max-width:1000px;
-  margin:60px auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:24px;
-}
-.keycard{
-  background:rgba(255,255,255,.08);
+.image-modal-content img{
+  max-width:90vw;
+  max-height:75vh;
   border-radius:20px;
-  padding:26px;
-  min-height:210px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+
+/* CUSTOM FIELD ROW */
+.row{
   display:flex;
-  flex-direction:column;
-  box-shadow:0 14px 35px rgba(0,0,0,.3);
-}
-.keycard .icon{font-size:28px;margin-bottom:10px}
-.keycard h4{margin:6px 0;color:#fff}
-.keycard p{
-  margin-top:auto;
-  color:#c7d2fe;
-  font-size:14px;
-  line-height:1.6;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
 }
 
-/* ===== SCROLL ANIMATION ===== */
-.animate{
-  opacity:0;
-  transform:translateY(35px);
-  transition:all .7s ease;
+.loader{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:9999
 }
-.animate.show{
-  opacity:1;
-  transform:translateY(0);
+.loader div{
+  width:60px;height:60px;border:6px solid #e5e7eb;
+  border-top:6px solid #38bdf8;border-radius:50%;
+  animation:spin 1s linear infinite
 }
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== DESKTOP HOVER GLOW ===== */
-@media(min-width:769px){
-  .keycard:hover{
-    transform:translateY(-8px);
-    box-shadow:
-      0 0 0 1px #38bdf8,
-      0 28px 55px rgba(56,189,248,.35);
-  }
+.popup{
+  position:fixed;bottom:30px;left:50%;
+  transform:translateX(-50%);
+  padding:14px 24px;border-radius:12px;
+  color:#fff;font-weight:bold;display:none;
 }
-
-/* ===== FOOTER (MATCH INDEX) ===== */
-.footer{
-  background:#0b122f;
-  padding:36px 20px;
-}
-.footer-grid{
-  max-width:1100px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:30px;
-}
-.footer h4{margin-bottom:10px;color:#fff}
-.footer p,.footer a{color:#c7d2fe;font-size:14px}
-.footer-bottom{
-  text-align:center;
-  margin-top:30px;
-  font-size:13px;
-  color:#94a3b8;
-}
-
-/* ===== MOBILE ===== */
-@media(max-width:768px){
-  .hero{padding-top:95px}
-  .hero h1{font-size:28px}
-
-  .nav-right{display:none}
-  .menu-btn{display:block}
-}
+.success{background:#22c55e}
+.error{background:#ef4444}
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <div class="brand">
-    <img id="siteLogo" style="display:none" alt="Sadri Villa">
-  </div>
+<div class="wrap">
+<div class="card">
 
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <button class="nav-btn" onclick="location.href='login.html'">Login</button>
-    <button class="nav-btn" onclick="location.href='signup.html'">Sign Up</button>
-  </div>
+<div class="top-row">
+  <button class="btn" onclick="location.href='dashboard.html'">← Back</button>
+  <h2>👤 My Profile</h2>
+  <div></div>
+</div>
 
-  <div class="hamburger" onclick="toggleMenu(event)">
-    <span></span><span></span><span></span>
+<!-- PROFILE PHOTO -->
+<div class="photo-section">
+  <img id="photoPreview"
+   src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+  <input type="file" id="photoInput" accept="image/*">
+  <br><br>
+  <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
+</div>
+
+<div class="section">
+  <h3>User Details</h3>
+  <div class="grid" id="staticWrap"></div>
+</div>
+
+<div class="section">
+  <h3>Admin Fields</h3>
+  <div class="grid" id="adminWrap"></div>
+</div>
+
+<div class="section">
+  <h3>Your Custom Fields</h3>
+  <div id="userWrap"></div>
+  <button class="btn" onclick="addUserCustom()">➕ Add Custom Field</button>
+</div>
+
+<br>
+<button class="btn" onclick="saveProfile()">💾 Save Profile</button>
+
+</div>
+</div>
+
+<!-- IMAGE POPUP -->
+<div class="image-modal" id="imageModal">
+  <div class="image-modal-content">
+    <img id="largeProfileImage">
+    <br><br>
+    <button class="btn" onclick="closeImageModal()">Close</button>
   </div>
 </div>
 
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="login.html">Login</a>
-  <a href="signup.html">Sign Up</a>
-</div>
-
-
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
-</div>
-
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html" onclick="closeMenu()">Home</a>
-  <a href="login.html" onclick="closeMenu()">Login</a>
-  <a href="signup.html" onclick="closeMenu()">Sign Up</a>
-</div>
-
-<main>
-<section class="hero">
-  <h1>About <span>Sadri Villa</span></h1>
-  <p>A living heritage of the Sadri family in Fazilpur, Bihar — serving humanity for more than 150 years.</p>
-   <p>Sadri Villa is not merely a historic residence; it is a living legacy of honor, sacrifice, and humanity.
-
-Located in Shahpur Baghauni village of Tajpur block, Samastipur district, Bihar, the villa has stood proudly for over 150 years, witnessing generations of change while preserving timeless values.
-
-Founded by a respected freedom fighter and doctor, Sadri Villa carries the spirit of patriotism and service within its walls.
-
-What began as a family residence evolved into a sanctuary of compassion for the community.
-
-For decades, the Sadri family has opened its doors to those in need, offering shelter with dignity and kindness.
-
-More than 100 underprivileged families have celebrated their wedding ceremonies here, free of cost, beginning new chapters of life with hope and respect.
-
-The villa reflects architectural grace from a bygone era, standing as a symbol of cultural pride.
-
-Every brick carries stories of resilience, sacrifice, and unwavering commitment to society.
-
-Sadri Villa believes that true heritage is not measured by age, but by impact.
-
-It is a place where tradition meets responsibility, and history embraces humanity.
-
-The peaceful surroundings and welcoming atmosphere make it more than a monument — it is a home for the community.
-
-Generations of the Sadri family have upheld values of integrity, compassion, and unity.
-
-The mission of Sadri Villa is simple yet profound: preserve heritage while serving humanity.
-
-Even today, the legacy continues with the same dedication that inspired its foundation.
-
-Sadri Villa stands as a bridge between the past and the future — a timeless symbol of service, dignity, and hope.</p>
-
-  <div class="vision animate">
-    <h2>Our Vision</h2>
-    <p>To serve humanity with compassion by preserving heritage and supporting economically weaker families.</p>
-  </div>
-
-  <!-- CARDS -->
-  <div class="keypoints">
-   <div class="keycard"><div class="icon">🏛</div><h4>Heritage Legacy</h4><p>150+ years of cultural and family heritage.</p></div>
-    <div class="keycard"><div class="icon">❤️</div><h4>Social Welfare</h4><p>Free marriages and shelter for the needy.</p></div>
-    <div class="keycard"><div class="icon">🤝</div><h4>Community Service</h4><p>Serving people with dignity and respect.</p></div>
-   <div class="keycard"><div class="icon">🛏</div><h4>Free Shelter</h4><p>Safe temporary accommodation in hard times.</p></div>
-    <div class="keycard"><div class="icon">📜</div><h4>Family Values</h4><p>A Sadri family legacy rooted in Fazilpur.</p></div>
-   <div class="keycard"><div class="icon">🌱</div><h4>Future Vision</h4><p>Preserving heritage for future generations.</p></div>
-  </div>
-</section>
-</main>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-grid">
-    <div>
-      <h4>Sadri Villa</h4>
-      <p>A living heritage serving humanity.</p>
-    </div>
-    <div>
-      <h4>Quick Links</h4>
-      <a href="login.html">Login</a><br>
-      <a href="signup.html">Sign Up</a><br>
-      <a href="about.html">About</a>
-    </div>
-    
-   <div>
-      <h4>Contact</h4>
-      <p>📍 Fazilpur, Samastipur</p>
-      <p>📧 <a href="mailto:sadrivillafazilpur@gmail.com">sadrivillafazilpur@gmail.com</a></p>
-      <a href="https://maps.google.com?q=Sadri+Villa+Fazilpur" target="_blank">
-        🗺️ Villa Map
-      </a>
-    </div>
-    <div class="footer-col">
-      <h4>Near Us</h4>
-    <a href="https://maps.app.goo.gl/PTyPhUnafXD2xgxcA" target="_blank">
-        Mosque
-    <p><a href="https://maps.app.goo.gl/P6fXKqgPnXYKYXPe7" target="_blank">
-        Clinic<p>
-     <p><a href="https://maps.app.goo.gl/KMxLCyrREXyiy7Jv7" target="_blank">
-        Super Market<p>
-      <p><a href="https://maps.app.goo.gl/X66PzhR31MWzHMiX8" target="_blank">
-        Collage<p>
-    </div>
-
-  </div>
-  <div class="footer-bottom">
-    © 2026 Sadri Villa. All rights reserved.
-  </div>
-</footer>
-
-<script>
-function toggleMenu(e){
-  e.stopPropagation();
-  document.getElementById("mobileMenu").classList.toggle("active");
-}
-document.addEventListener("click",function(){
-  document.getElementById("mobileMenu").classList.remove("active");
-});
-</script>
-<script>
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add("show");
-      observer.unobserve(entry.target);
-    }
-  });
-},{threshold:0.15});
-
-document.querySelectorAll(".animate").forEach(el=>{
-  observer.observe(el);
-});
-</script>
+<div class="loader" id="loader"><div></div></div>
+<div class="popup success" id="successPopup">Profile updated successfully</div>
+<div class="popup error" id="errorPopup">Something went wrong</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage,ref,uploadBytes,getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const app = initializeApp({
+const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
+  projectId:"sadri-villa-14c06",
+  storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 
-const db = getFirestore(app);
-const siteLogo = document.getElementById("siteLogo");
+const auth=getAuth(app);
+const db=getFirestore(app);
+const storage=getStorage(app);
 
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists()) return;
+let uid,adminValues={},userCustom={},baseUser={};
 
-  const data = snap.data();
+const loader=document.getElementById("loader");
+const photoInput=document.getElementById("photoInput");
+const photoPreview=document.getElementById("photoPreview");
 
-  if(data.logo?.url){
-    const v = Date.now();   // prevent cache
-    siteLogo.onload = () => siteLogo.style.display="block";
-    siteLogo.src = data.logo.url + "?v=" + v;
+const showSuccess=()=>{
+  const p=document.getElementById("successPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
+};
+const showError=()=>{
+  const p=document.getElementById("errorPopup");
+  p.style.display="block";
+  setTimeout(()=>p.style.display="none",2000);
+};
+
+/* IMAGE PREVIEW */
+photoInput.onchange=e=>{
+  const file=e.target.files[0];
+  if(file)photoPreview.src=URL.createObjectURL(file);
+};
+
+/* IMAGE POPUP */
+photoPreview.onclick=()=>{
+  document.getElementById("largeProfileImage").src=photoPreview.src;
+  document.getElementById("imageModal").style.display="flex";
+};
+window.closeImageModal=()=>{
+  document.getElementById("imageModal").style.display="none";
+};
+document.getElementById("imageModal").onclick=e=>{
+  if(e.target.id==="imageModal") closeImageModal();
+};
+
+onAuthStateChanged(auth,async user=>{
+  if(!user)return location.href="login.html";
+  uid=user.uid;
+
+  const snap=await getDoc(doc(db,"users",uid));
+  baseUser=snap.data()||{};
+
+  if(baseUser.profilePhoto)
+    photoPreview.src=baseUser.profilePhoto;
+
+  document.getElementById("staticWrap").innerHTML=`
+    <div class="block"><label>Full Name</label>
+      <input id="fullName" value="${baseUser.fullName||""}">
+    </div>
+    <div class="block"><label>Mobile</label>
+      <input id="phone" value="${baseUser.phone||""}">
+    </div>
+  `;
+
+  /* ADMIN FIELDS */
+  const fs=await getDocs(collection(db,"profileFields"));
+  adminValues=baseUser.adminFields||{};
+  fs.forEach(d=>{
+    const f=d.data();
+    document.getElementById("adminWrap").innerHTML+=`
+      <div class="block">
+        <label>${f.label||d.id}</label>
+        <input data-admin="${d.id}" value="${adminValues[d.id]||""}">
+      </div>
+    `;
+  });
+
+  /* CUSTOM FIELDS */
+  userCustom=baseUser.userCustomFields||{};
+  Object.entries(userCustom).forEach(([k,v])=>{
+    drawUserCustom(k,v.value,v.showOnDashboard);
+  });
+});
+
+/* ADD CUSTOM */
+window.addUserCustom=()=>drawUserCustom();
+
+function drawUserCustom(k="",v="",s=false){
+  document.getElementById("userWrap").innerHTML+=`
+    <div class="block">
+      <input class="ckey" placeholder="Field name" value="${k}">
+      <input class="cval" placeholder="Value" value="${v}">
+      <div class="row">
+        <span>
+          <input type="checkbox" class="cshow" ${s?"checked":""}>
+          Show on Dashboard
+        </span>
+        <button class="btn" onclick="this.closest('.block').remove()">Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+/* SAVE PHOTO */
+window.savePhoto=async()=>{
+  try{
+    const file=photoInput.files[0];
+    if(!file)return alert("Select image first");
+
+    loader.style.display="flex";
+
+    const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
+    await uploadBytes(storageRef,file);
+    const url=await getDownloadURL(storageRef);
+
+    await setDoc(doc(db,"users",uid),{
+      profilePhoto:url
+    },{merge:true});
+
+    loader.style.display="none";
+    showSuccess();
+  }catch(e){
+    loader.style.display="none";
+    showError();
   }
-});
+};
+
+/* SAVE PROFILE */
+window.saveProfile=async()=>{
+  try{
+    const fullName=document.getElementById("fullName").value.trim();
+    const phone=document.getElementById("phone").value.trim();
+
+    adminValues={};
+    document.querySelectorAll("[data-admin]").forEach(i=>{
+      adminValues[i.dataset.admin]=i.value.trim();
+    });
+
+    userCustom={};
+    document.querySelectorAll("#userWrap .block").forEach(b=>{
+      const k=b.querySelector(".ckey").value.trim();
+      if(k){
+        userCustom[k]={
+          value:b.querySelector(".cval").value.trim(),
+          showOnDashboard:b.querySelector(".cshow").checked
+        };
+      }
+    });
+
+    loader.style.display="flex";
+
+    await setDoc(doc(db,"users",uid),{
+      fullName,
+      phone,
+      adminFields:adminValues,
+      userCustomFields:userCustom,
+      updatedAt:new Date().toISOString()
+    },{merge:true});
+
+    loader.style.display="none";
+    showSuccess();
+  }catch(e){
+    loader.style.display="none";
+    showError();
+  }
+};
 </script>
 
 </body>
