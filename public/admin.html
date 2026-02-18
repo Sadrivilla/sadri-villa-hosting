@@ -268,7 +268,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
   import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
-import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
 
 
 const app=initializeApp({
@@ -568,7 +568,6 @@ function formatLabel(key){
 
   showLoader();
 
-  try {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -616,7 +615,7 @@ function formatLabel(key){
     ]);
 
     // ===== Table =====
-    autoTable(doc,{
+doc.autoTable({
       startY:40,
       head:[header],
       body:body,
@@ -631,9 +630,7 @@ function formatLabel(key){
 
     showToast("PDF Export Complete");
 
-  } catch(e) {
-    showToast("PDF Export Failed","error");
-  }
+ 
 
   hideLoader();
 };
