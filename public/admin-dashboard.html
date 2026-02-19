@@ -348,6 +348,8 @@ let approvalChartInstance = null;
 let ageChartInstance = null;
 let profileChartInstance = null;
 let cachedUsers = [];
+  let unsubscribeSiteSettings = null;
+
 
 /* ADMIN CHECK */
 onAuthStateChanged(auth, async user => {
@@ -375,6 +377,8 @@ onAuthStateChanged(auth, async user => {
   document.getElementById("welcomeName").innerText =
     "Sadri Villa – Welcome " + (data.fullName || "Admin");
 
+
+
   // ✅ Set profile photo
   if (data.profilePhoto) {
     document.getElementById("profilePhoto").src =
@@ -383,42 +387,67 @@ onAuthStateChanged(auth, async user => {
 
   loadDashboard();
   listenPendingRealtime();
-});
-  /* SLIDER LOAD */
-onSnapshot(doc(db,"siteSettings","home"),snap=>{
-  if(!snap.exists()) return;
+/* 🔥 REALTIME SITE SETTINGS (Logo + Slider) */
+if (!unsubscribeSiteSettings) {
 
-  const data = snap.data();
-  const imgs = (data.sliderImages || []).filter(i=>i.enabled !== false);
+  unsubscribeSiteSettings = onSnapshot(
+    doc(db, "siteSettings", "home"),
+    snap => {
 
-  const track = document.getElementById("galleryTrack");
-  track.innerHTML = "";
+      if (!snap.exists()) return;
 
-  const list = imgs.length > 1 ? [...imgs, ...imgs] : imgs;
+      const data = snap.data();
 
-  list.forEach(i=>{
-    const img = document.createElement("img");
-    img.src = i.url;
-    img.onclick = ()=>{
-      document.getElementById("modalImg").src = i.url;
-      document.getElementById("imgModal").style.display = "flex";
-    };
-    track.appendChild(img);
-  });
+      // ✅ LOGO
+      const logo = document.getElementById("siteLogo");
 
-  if(imgs.length > 1){
-    track.classList.add("scrolling");
-    requestAnimationFrame(()=>{
-      const width = track.scrollWidth / 2;
-      track.style.animationDuration = (width / 80) + "s";
-    });
-  }
-});
+      if (data.logoUrl) {
+        logo.src = data.logoUrl + "?v=" + Date.now();
+        logo.style.display = "block";
+      } else {
+        logo.style.display = "none";
+      }
 
-/* Close modal */
-document.getElementById("imgModal").onclick=()=>{
-  document.getElementById("imgModal").style.display="none";
-};
+      // ✅ SLIDER
+      const imgs = (data.sliderImages || []).filter(i => i.enabled !== false);
+      const track = document.getElementById("galleryTrack");
+
+      track.innerHTML = "";
+      track.classList.remove("scrolling");
+
+      const list = imgs.length > 1 ? [...imgs, ...imgs] : imgs;
+
+      list.forEach(i => {
+        const img = document.createElement("img");
+        img.src = i.url;
+
+        img.onclick = () => {
+          document.getElementById("modalImg").src = i.url;
+          document.getElementById("imgModal").style.display = "flex";
+        };
+
+        track.appendChild(img);
+      });
+
+      if (imgs.length > 1) {
+        track.classList.add("scrolling");
+
+        requestAnimationFrame(() => {
+          const width = track.scrollWidth / 2;
+          track.style.animationDuration = (width / 80) + "s";
+        });
+      }
+
+    }
+  );
+
+}
+}); 
+ 
+
+
+
+
 
 
 
@@ -534,6 +563,10 @@ window.showAllApprovals = () => {
 
 window.showAllProfiles = () => {
   alert("Profile list feature coming soon");
+};
+// Close image modal
+document.getElementById("imgModal").onclick = () => {
+  document.getElementById("imgModal").style.display = "none";
 };
 
 
