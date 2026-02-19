@@ -88,8 +88,25 @@ button:hover{
   <label>Email</label>
   <input id="email" type="email" placeholder="admin@email.com">
 
-  <label>Temporary Password</label>
+  <label>Phone Number</label>
+<input id="phone" placeholder="10 digit mobile number">
+
+<label>Password</label>
+<div style="position:relative">
   <input id="password" type="password" placeholder="Min 6 characters">
+  <span id="eyePass" style="position:absolute;right:14px;top:14px;cursor:pointer">👁</span>
+</div>
+
+<div style="height:6px;background:#e5e7eb;border-radius:6px;margin-top:6px">
+  <span id="strengthBar" style="display:block;height:100%;width:0%"></span>
+</div>
+
+<label>Confirm Password</label>
+<div style="position:relative">
+  <input id="confirmPassword" type="password" placeholder="Re-enter password">
+  <span id="eyeConfirm" style="position:absolute;right:14px;top:14px;cursor:pointer">👁</span>
+</div>
+
 
   <button onclick="createAdmin()">Create Admin</button>
 
@@ -121,6 +138,41 @@ const app = initializeApp({
 
 const auth = getAuth();
 const db = getFirestore();
+  /* ===== INPUT REFERENCES ===== */
+const phoneInput = document.getElementById("phone");
+const passwordInput = document.getElementById("password");
+const confirmInput = document.getElementById("confirmPassword");
+const strengthBar = document.getElementById("strengthBar");
+
+/* ===== PASSWORD STRENGTH ===== */
+passwordInput.oninput = () => {
+  let s = 0;
+  const p = passwordInput.value;
+
+  if (p.length >= 6) s++;
+  if (/[A-Z]/.test(p)) s++;
+  if (/[0-9]/.test(p)) s++;
+  if (/[^A-Za-z0-9]/.test(p)) s++;
+
+  strengthBar.style.width =
+    s <= 1 ? "25%" :
+    s <= 3 ? "60%" :
+    "100%";
+
+  strengthBar.style.background =
+    s <= 1 ? "#ef4444" :
+    s <= 3 ? "#f59e0b" :
+    "#22c55e";
+};
+
+/* ===== EYE TOGGLE ===== */
+document.getElementById("eyePass").onclick = () => toggle(passwordInput);
+document.getElementById("eyeConfirm").onclick = () => toggle(confirmInput);
+
+function toggle(input){
+  input.type = input.type === "password" ? "text" : "password";
+}
+
 
 /* ===== ADMIN ACCESS CONTROL ===== */
 onAuthStateChanged(auth, async (user) => {
@@ -162,46 +214,60 @@ onSnapshot(doc(db,"siteSettings","home"), snap => {
 window.createAdmin = async () => {
 
   const msg = document.getElementById("msg");
-  msg.textContent="";
-  msg.className="msg";
+  msg.textContent = "";
+  msg.className = "msg";
 
-  const nameEl = document.getElementById("name");
-  const emailEl = document.getElementById("email");
-  const passEl = document.getElementById("password");
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = phoneInput.value.trim();
+  const password = passwordInput.value;
+  const confirmPassword = confirmInput.value;
 
-  const name = nameEl.value.trim();
-  const email = emailEl.value.trim();
-  const password = passEl.value;
-
-  if(!name || !email || password.length < 6){
-    msg.textContent="Please fill all fields correctly";
+  /* ===== VALIDATION ===== */
+  if (!name || !email || !phone || password.length < 6) {
+    msg.textContent = "Please fill all fields correctly";
     msg.classList.add("error");
     return;
   }
 
-  try{
-    const cred = await createUserWithEmailAndPassword(auth,email,password);
-
-    await setDoc(doc(db,"users",cred.user.uid),{
-      fullName:name,
-      email,
-      role:"admin",
-      approved:true,
-      createdAt: serverTimestamp()
-    });
-
-    msg.textContent="Admin created successfully.";
-    msg.classList.add("success");
-
-    nameEl.value="";
-    emailEl.value="";
-    passEl.value="";
-  }
-  catch(err){
-    msg.textContent=err.message;
+  if (!/^[0-9]{10}$/.test(phone)) {
+    msg.textContent = "Invalid phone number";
     msg.classList.add("error");
+    return;
   }
+
+  if (password !== confirmPassword) {
+    msg.textContent = "Passwords do not match";
+    msg.classList.add("error");
+    return;
+  }
+
+ try {
+
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+  // ✅ First save admin data
+  await setDoc(doc(db, "users", cred.user.uid), {
+    fullName: name,
+    email,
+    phone,
+    role: "admin",
+    approved: true,
+    createdAt: new Date().toISOString()
+  });
+
+  // ✅ THEN logout the newly created admin
+  await auth.signOut();
+
+  // ✅ Reload so original admin session returns
+  location.reload();
+
+} catch (err) {
+  msg.textContent = err.message;
+  msg.classList.add("error");
+}
 };
+
 </script>
 
 <script>
