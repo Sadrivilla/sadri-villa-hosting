@@ -283,18 +283,33 @@ onAuthStateChanged(auth, async user => {
 
   const snap = await getDoc(doc(db, "users", user.uid));
 
-  if (!snap.exists() || snap.data().role !== "admin") {
+  if (!snap.exists()) {
+    location.href = "dashboard.html";
+    return;
+  }
+
+  const data = snap.data();
+
+  if (data.role !== "admin") {
     alert("Access denied");
     location.href = "dashboard.html";
     return;
   }
 
-document.getElementById("welcomeName").innerText =
-  "Sadri Villa – Welcome " + (snap.data().fullName || "Admin");
+  // ✅ Set welcome text
+  document.getElementById("welcomeName").innerText =
+    "Sadri Villa – Welcome " + (data.fullName || "Admin");
+
+  // ✅ Set profile photo
+  if (data.profilePhoto) {
+    document.getElementById("profilePhoto").src =
+      data.profilePhoto + "?v=" + Date.now();
+  }
 
   loadDashboard();
   listenPendingRealtime();
 });
+
 
 /* LOAD DASHBOARD */
 async function loadDashboard(){
