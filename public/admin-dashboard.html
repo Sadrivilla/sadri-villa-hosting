@@ -164,6 +164,69 @@ canvas {
 #profileCard.show{
   display:block;
 }
+  /* SLIDER */
+.gallery{
+  width:100vw;
+  margin-left:calc(-50vw + 50%);
+  background:#f1f5f9;
+  padding:40px 0;
+  overflow:hidden;
+}
+
+.track{
+  display:flex;
+  gap:20px;
+  width:max-content;
+}
+
+.track.scrolling{
+  animation:scroll linear infinite;
+}
+
+.track:hover{
+  animation-play-state:paused;
+}
+
+.track img{
+  width:320px;
+  height:220px;
+  object-fit:cover;
+  border-radius:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,.15);
+  transition:.3s;
+  cursor:pointer;
+}
+
+.track img:hover{
+  transform:scale(1.03);
+}
+
+@keyframes scroll{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:#fff;
+  padding:20px;
+  border-radius:20px;
+}
+
+.modal-content img{
+  max-width:500px;
+  border-radius:15px;
+}
+
 
 
 </style>
@@ -240,6 +303,18 @@ canvas {
   </div>
 
 </div>
+  <!-- EDGE TO EDGE SLIDER -->
+<section class="gallery">
+  <div class="track" id="galleryTrack"></div>
+</section>
+
+<!-- IMAGE POPUP -->
+<div class="modal" id="imgModal">
+  <div class="modal-content">
+    <img id="modalImg">
+  </div>
+</div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -309,6 +384,42 @@ onAuthStateChanged(auth, async user => {
   loadDashboard();
   listenPendingRealtime();
 });
+  /* SLIDER LOAD */
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists()) return;
+
+  const data = snap.data();
+  const imgs = (data.sliderImages || []).filter(i=>i.enabled !== false);
+
+  const track = document.getElementById("galleryTrack");
+  track.innerHTML = "";
+
+  const list = imgs.length > 1 ? [...imgs, ...imgs] : imgs;
+
+  list.forEach(i=>{
+    const img = document.createElement("img");
+    img.src = i.url;
+    img.onclick = ()=>{
+      document.getElementById("modalImg").src = i.url;
+      document.getElementById("imgModal").style.display = "flex";
+    };
+    track.appendChild(img);
+  });
+
+  if(imgs.length > 1){
+    track.classList.add("scrolling");
+    requestAnimationFrame(()=>{
+      const width = track.scrollWidth / 2;
+      track.style.animationDuration = (width / 80) + "s";
+    });
+  }
+});
+
+/* Close modal */
+document.getElementById("imgModal").onclick=()=>{
+  document.getElementById("imgModal").style.display="none";
+};
+
 
 
 /* LOAD DASHBOARD */
