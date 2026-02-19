@@ -401,12 +401,13 @@ if (!unsubscribeSiteSettings) {
       // ✅ LOGO
       const logo = document.getElementById("siteLogo");
 
-      if (data.logoUrl) {
-        logo.src = data.logoUrl + "?v=" + Date.now();
-        logo.style.display = "block";
-      } else {
-        logo.style.display = "none";
-      }
+if (data.logo && data.logo.url) {
+  logo.src = data.logo.url + "?v=" + Date.now();
+  logo.style.display = "block";
+} else {
+  logo.style.display = "none";
+}
+
 
       // ✅ SLIDER
       const imgs = (data.sliderImages || []).filter(i => i.enabled !== false);
