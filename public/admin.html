@@ -234,6 +234,7 @@ th{background:#f8fafc;text-align:left}
   <th>Name</th>
   <th>UID</th>
   <th>Email</th>
+  <th>Phone</th>
   <th>Role</th>
   <th>Created</th>
   <th>Status</th>
@@ -296,15 +297,34 @@ onAuthStateChanged(auth,async user=>{
 onSnapshot(collection(db,"users"),snap=>{
   users=[];
   snap.forEach(d=>users.push({uid:d.id,...d.data()}));
-  users.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+users.sort((a,b)=>{
+  const dateA = a.createdAt?.seconds
+    ? a.createdAt.seconds * 1000
+    : new Date(a.createdAt || 0).getTime();
+
+  const dateB = b.createdAt?.seconds
+    ? b.createdAt.seconds * 1000
+    : new Date(b.createdAt || 0).getTime();
+
+  return dateB - dateA;
+});
   render();
 });
 
 function formatDate(v){
-  if(!v)return "-";
-  if(v.seconds)return new Date(v.seconds*1000).toLocaleDateString("en-IN");
-  return "-";
+  if(!v) return "-";
+
+  // Firestore Timestamp
+  if (v.seconds) {
+    return new Date(v.seconds * 1000)
+      .toLocaleString("en-IN");
+  }
+
+  // ISO string (signup & add-admin)
+  return new Date(v)
+    .toLocaleString("en-IN");
 }
+
 
 window.render=()=>{
   const tbody=document.getElementById("tbody");
@@ -329,6 +349,7 @@ window.render=()=>{
       <td>${u.fullName||"-"}</td>
       <td><button class="uid-btn" onclick="copyUID('${u.uid}')">Copy UID</button></td>
       <td>${u.email||"-"}</td>
+      <td>${u.phone||"-"}</td>
       <td>
         <select class="role-select"
           onchange="confirmRoleChange('${u.uid}','${u.role}',this)">
