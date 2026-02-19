@@ -269,7 +269,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
   import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
-import "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+
 
 
 const app=initializeApp({
@@ -636,7 +637,7 @@ function formatLabel(key){
     ]);
 
     // ===== Table =====
-doc.autoTable({
+autoTable(doc, {
       startY:40,
       head:[header],
       body:body,
