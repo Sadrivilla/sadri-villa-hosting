@@ -18,28 +18,8 @@ canvas {
 }
 
 
-.header{
-  margin:20px;padding:22px;border-radius:22px;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
-  color:#fff;display:flex;justify-content:space-between;align-items:center
-}
-.header-left{display:flex;gap:12px;align-items:center}
-.header button{
-  padding:10px 16px;border:none;border-radius:14px;
-  background:#fff;color:#4f46e5;font-weight:600;cursor:pointer
-}
 
-.profile-wrap{position:relative}
-.profile-icon{
-  width:44px;height:44px;border-radius:50%;
-  border:2px solid #fff;cursor:pointer
-}
-.profile-menu{
-  position:absolute;right:0;top:54px;background:#fff;
-  border-radius:14px;width:200px;
-  box-shadow:0 20px 40px rgba(0,0,0,.25);
-  display:none;overflow:hidden;z-index:3000
-}
+
 .profile-menu div{padding:12px;border-bottom:1px solid #e5e7eb}
 .profile-menu button{
   width:100%;border:none;background:#fff;
@@ -48,11 +28,12 @@ canvas {
 .profile-menu button:hover{background:#f3f4f6}
 
 .container{
-  padding:20px;
+  padding:120px 20px 40px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
   gap:22px
 }
+
 .card{
   background:#fff;padding:22px;border-radius:20px;
   box-shadow:0 12px 28px rgba(0,0,0,.08);
@@ -62,7 +43,7 @@ canvas {
 .list-item{font-size:13px;padding:4px 0}
 
 #pendingAlertIcon{
-  position:fixed;top:16px;right:16px;
+  position:fixed;top:70px;right:16px;
   width:48px;height:48px;border-radius:50%;
   background:#fff;display:none;
   align-items:center;justify-content:center;
@@ -76,6 +57,115 @@ canvas {
   font-size:12px;font-weight:bold;
   padding:3px 7px;border-radius:999px
 }
+  /* ADMIN NAVBAR */
+.admin-navbar{
+  position:fixed;
+  top:50px; /* below main navbar */
+  left:0;
+  right:0;
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  gap:20px;
+  padding:10px 20px;
+  overflow-x:auto;
+  z-index:999;
+}
+
+.admin-navbar a{
+  text-decoration:none;
+  color:#4f46e5;
+  font-weight:600;
+  white-space:nowrap;
+  padding:6px 10px;
+  border-radius:8px;
+  transition:.2s;
+}
+
+.admin-navbar a:hover{
+  background:#eef2ff;
+}
+  .admin-navbar::-webkit-scrollbar {
+  height: 6px;
+}
+.admin-navbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+   /* MAIN NAVBAR */
+.navbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:50px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  z-index:1000;
+  padding:0 20px;
+}
+  
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.brand img{
+  height:40px;
+  display:none;
+}
+
+.nav-title{
+  font-weight:700;
+}
+
+.profile-wrapper{
+  position:relative;
+  cursor:pointer;
+}
+
+#profilePhoto{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #38bdf8;
+}
+
+#profileCard{
+  position:absolute;
+  top:55px;
+  right:0;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,.2);
+  width:200px;
+  display:none;
+  overflow:hidden;
+}
+
+#profileCard a{
+  display:block;
+  padding:12px;
+  text-decoration:none;
+  color:#333;
+  border-bottom:1px solid #eee;
+}
+
+#profileCard a:hover{
+  background:#f1f5f9;
+}
+
+#profileCard.show{
+  display:block;
+}
+
+
 </style>
 </head>
 
@@ -85,25 +175,38 @@ canvas {
 <div id="pendingAlertIcon" onclick="location.href='admin-approval-requests.html'">
   🔔 <span id="pendingBadge">0</span>
 </div>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <h2>Admin Dashboard</h2>
-    <button onclick="location.href='admin.html'">👥 Admin Panel</button>
-    <button onclick="location.href='admin-profile-fields.html'">🧩 Profile Fields</button>
-    <button onclick="location.href='dashboard.html'">⬅ User Dashboard</button>
+  <!-- MAIN NAVBAR (Same as dashboard.html) -->
+<div class="navbar">
+  <div class="brand">
+    <img id="siteLogo">
+    <div class="nav-title" id="welcomeName">Sadri Villa – Admin</div>
   </div>
 
-  <div class="profile-wrap">
-    <img src="images/default-user.png" class="profile-icon" onclick="toggleMenu()">
-    <div class="profile-menu" id="profileMenu">
-      <div><b id="pName">Admin</b><br><small>Admin</small></div>
-      <button onclick="location.href='profile.html'">👤 Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
+  <div class="profile-wrapper">
+    <img id="profilePhoto"
+     src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+    <div id="profileCard">
+      <a href="profile.html">Profile</a>
+      <a href="change-password.html">Change Password</a>
+      <a href="#" id="logoutBtn" style="color:red">Logout</a>
     </div>
   </div>
 </div>
+<!-- ADMIN NAVBAR -->
+<div class="admin-navbar">
+  <a href="admin.html">👥 Admin Panel</a>
+  <a href="admin-profile.html">🧩 Profile Fields</a>
+  <a href="admin-logo.html">🖼 Logo</a>
+  <a href="admin-hero.html">🖼 Hero</a>
+  <a href="admin-slider.html">🎞 Slider</a>
+  <a href="admin-list.html">📋 Admin List</a>
+  <a href="add-admin.html">➕ Add Admin</a>
+  <a href="admin-logs.html">📜 Logs</a>
+  <a href="dashboard.html">⬅ User Dashboard</a>
+</div>
+
+
+
 
 <!-- DASHBOARD -->
 <div class="container">
@@ -186,7 +289,8 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  pName.innerText = snap.data().fullName || "Admin";
+document.getElementById("welcomeName").innerText =
+  "Sadri Villa – Welcome " + (snap.data().fullName || "Admin");
 
   loadDashboard();
   listenPendingRealtime();
@@ -306,15 +410,23 @@ window.showAllProfiles = () => {
   alert("Profile list feature coming soon");
 };
 
-/* MENU */
-window.toggleMenu = () =>
-  profileMenu.style.display =
-    profileMenu.style.display==="block"?"none":"block";
 
-window.logout = async()=>{
+
+  // PROFILE DROPDOWN
+document.getElementById("profilePhoto").onclick=(e)=>{
+  e.stopPropagation();
+  document.getElementById("profileCard").classList.toggle("show");
+};
+document.onclick=()=>document.getElementById("profileCard").classList.remove("show");
+
+// LOGOUT
+document.getElementById("logoutBtn").onclick=async(e)=>{
+  e.preventDefault();
   await signOut(auth);
   location.href="login.html";
 };
+ 
+
 </script>
 
 
