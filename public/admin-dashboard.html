@@ -545,6 +545,28 @@ function listenPendingRealtime(){
 
   onSnapshot(q, snapshot => {
 
+    let count = 0;
+
+    snapshot.forEach(docSnap=>{
+      const data = docSnap.data();
+
+      if(data.approvalReminder === true){
+        count++;
+      }
+    });
+
+    if(count > 0){
+      document.getElementById("pendingBadge").innerText = count;
+      document.getElementById("pendingAlertIcon").style.display = "flex";
+    } else {
+      document.getElementById("pendingAlertIcon").style.display = "none";
+    }
+
+  });
+}
+
+  onSnapshot(q, snapshot => {
+
     const pendingCount = snapshot.size;
 
     if(pendingCount > 0){
