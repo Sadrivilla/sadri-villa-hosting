@@ -540,8 +540,7 @@ function listenPendingRealtime(){
 
   const q = query(
     collection(db,"users"),
-    where("approved","!=",true),
-    where("approvalReminder","==",true)
+    where("approved","==",false)
   );
 
   onSnapshot(q, snapshot => {
@@ -549,14 +548,14 @@ function listenPendingRealtime(){
     const pendingCount = snapshot.size;
 
     if(pendingCount > 0){
-      pendingBadge.innerText = pendingCount;
-      pendingAlertIcon.style.display = "flex";
+      document.getElementById("pendingBadge").innerText = pendingCount;
+      document.getElementById("pendingAlertIcon").style.display = "flex";
     } else {
-      pendingAlertIcon.style.display = "none";
+      document.getElementById("pendingAlertIcon").style.display = "none";
     }
+
   });
 }
-
 /* BUTTONS */
 window.showAllApprovals = () => {
   location.href="admin-approval-requests.html";
