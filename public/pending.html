@@ -59,15 +59,10 @@ button:disabled{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth,
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-  getFirestore, 
-  doc, 
-  updateDoc 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, updateDoc, onSnapshot } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
 const app = initializeApp({
@@ -75,22 +70,66 @@ const app = initializeApp({
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* AUTH CHECK */
-let currentUser = null;
+const resendBtn = document.getElementById("resendBtn");
+const msg = document.getElementById("msg");
 
+let currentUser = null;
+let countdownStarted = false;
+
+/* AUTH CHECK */
 onAuthStateChanged(auth, user => {
+
   if(!user){
     location.href = "login.html";
     return;
   }
+
   currentUser = user;
+  const userRef = doc(db,"users",user.uid);
+
+  // 🔥 Listen real-time for approval
+  onSnapshot(userRef, (snap) => {
+
+    const data = snap.data();
+    if(!data) return;
+
+    if(data.approved === true && !countdownStarted){
+
+      countdownStarted = true;
+
+      let seconds = 5;
+
+      document.querySelector(".card").innerHTML = `
+        <h2 style="color:#16a34a">
+          🎉 Congratulations ${data.fullName || "User"}!
+        </h2>
+        <p>You are approved by admin.</p>
+        <p>Redirecting to login page in 
+        <b id="count">${seconds}</b> seconds...</p>
+      `;
+
+      const interval = setInterval(() => {
+        seconds--;
+        document.getElementById("count").textContent = seconds;
+
+        if(seconds <= 0){
+          clearInterval(interval);
+          location.href = "login.html";
+        }
+      }, 1000);
+    }
+
+  });
+
 });
 
 /* RESEND REQUEST */
-resendBtn.onclick = async () => {
+resendBtn.addEventListener("click", async () => {
+
   if(!currentUser) return;
 
   resendBtn.disabled = true;
@@ -108,14 +147,15 @@ resendBtn.onclick = async () => {
 
     msg.textContent = "Approval request resent to admin.";
     msg.className = "msg success";
+
   }catch(e){
+
     msg.textContent = "Something went wrong. Please try again.";
     msg.className = "msg error";
   }
 
   resendBtn.disabled = false;
-};
+});
 </script>
-
 </body>
 </html>
