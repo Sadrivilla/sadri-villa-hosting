@@ -42,21 +42,8 @@ canvas {
 .card h3{margin-top:0}
 .list-item{font-size:13px;padding:4px 0}
 
-#pendingAlertIcon{
-  position:fixed;top:70px;right:16px;
-  width:48px;height:48px;border-radius:50%;
-  background:#fff;display:none;
-  align-items:center;justify-content:center;
-  font-size:22px;cursor:pointer;
-  box-shadow:0 12px 30px rgba(0,0,0,.25);
-  z-index:4000
-}
-#pendingBadge{
-  position:absolute;top:-6px;right:-6px;
-  background:#dc2626;color:#fff;
-  font-size:12px;font-weight:bold;
-  padding:3px 7px;border-radius:999px
-}
+
+
   /* ADMIN NAVBAR */
 .admin-navbar{
   position:fixed;
@@ -226,7 +213,38 @@ canvas {
   max-width:500px;
   border-radius:15px;
 }
+/* RIGHT NAV SECTION */
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
 
+/* BELL */
+.bell{
+  position:relative;
+  font-size:20px;
+  cursor:pointer;
+  display:none; /* hidden until count > 0 */
+  transition:.2s ease;
+}
+
+.bell:hover{
+  transform:scale(1.1);
+}
+
+/* BADGE */
+.bell-badge{
+  position:absolute;
+  top:-6px;
+  right:-10px;
+  background:#dc2626;
+  color:#fff;
+  font-size:11px;
+  font-weight:bold;
+  padding:3px 6px;
+  border-radius:50%;
+}
 
 
 </style>
@@ -234,15 +252,19 @@ canvas {
 
 <body>
 
-<!-- 🔔 ALERT -->
-<div id="pendingAlertIcon" onclick="location.href='admin-approval-requests.html'">
-  🔔 <span id="pendingBadge">0</span>
-</div>
   <!-- MAIN NAVBAR (Same as dashboard.html) -->
 <div class="navbar">
   <div class="brand">
     <img id="siteLogo">
     <div class="nav-title" id="welcomeName">Sadri Villa – Admin</div>
+  </div>
+  <div class="nav-right">
+
+  <!-- 🔔 BELL (BEFORE PROFILE) -->
+  <div id="pendingAlertIcon" class="bell"
+       onclick="location.href='admin-approval-requests.html'">
+    🔔
+    <span id="pendingBadge" class="bell-badge">0</span>
   </div>
 
   <div class="profile-wrapper">
@@ -534,7 +556,6 @@ function renderProfileChart(){
     }
   );
 }
-
 /* REALTIME BELL */
 function listenPendingRealtime(){
 
@@ -549,35 +570,26 @@ function listenPendingRealtime(){
 
     snapshot.forEach(docSnap=>{
       const data = docSnap.data();
-
       if(data.approvalReminder === true){
         count++;
       }
     });
 
-    if(count > 0){
-      document.getElementById("pendingBadge").innerText = count;
-      document.getElementById("pendingAlertIcon").style.display = "flex";
-    } else {
-      document.getElementById("pendingAlertIcon").style.display = "none";
-    }
+    const bell = document.getElementById("pendingAlertIcon");
+    const badge = document.getElementById("pendingBadge");
+
+bell.style.display = "block";
+
+if(count > 0){
+  badge.innerText = count;
+  badge.style.display = "block";
+} else {
+  badge.style.display = "none";
+}
 
   });
 }
 
-  onSnapshot(q, snapshot => {
-
-    const pendingCount = snapshot.size;
-
-    if(pendingCount > 0){
-      document.getElementById("pendingBadge").innerText = pendingCount;
-      document.getElementById("pendingAlertIcon").style.display = "flex";
-    } else {
-      document.getElementById("pendingAlertIcon").style.display = "none";
-    }
-
-  });
-}
 /* BUTTONS */
 window.showAllApprovals = () => {
   location.href="admin-approval-requests.html";
