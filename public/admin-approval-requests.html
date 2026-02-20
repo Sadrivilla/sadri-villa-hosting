@@ -159,11 +159,10 @@ onAuthStateChanged(auth, async user=>{
 /* REALTIME REQUESTS */
 function initRealtimeRequests(){
 
-  const q = query(
-    collection(db,"users"),
-    where("approved","!=",true),
-    where("approvalReminder","==",true)
-  );
+const q = query(
+  collection(db,"users"),
+  where("approved","==",false)
+);
 
   onSnapshot(q, snapshot=>{
     list.innerHTML="";
@@ -196,11 +195,11 @@ function initRealtimeRequests(){
 window.approveUser = async (uid,name,btn)=>{
   btn.disabled=true;
 
-  await updateDoc(doc(db,"users",uid),{
-    approved:true,
-    approvalReminder:false,
-    approvedAt:new Date().toISOString()
-  });
+ await updateDoc(doc(db,"users",uid),{
+  approved:true,
+  approvalReminder:false,
+  approvedAt:new Date().toISOString()
+});
 
   showMessage(`✅ User <b>${name}</b> approved successfully`);
 };
