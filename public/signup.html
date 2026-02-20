@@ -400,14 +400,16 @@ createBtn.onclick=async()=>{
     passwordInput.value
   );
 
-  await setDoc(doc(db,"users",cred.user.uid),{
-    fullName:nameInput.value.trim(),
-    phone:phoneInput.value.trim(),
-    email:emailInput.value.trim(),
-    role:"user",
-    approved:false,
-    createdAt:new Date().toISOString()
-  });
+ await setDoc(doc(db,"users",cred.user.uid),{
+  fullName:nameInput.value.trim(),
+  phone:phoneInput.value.trim(),
+  email:emailInput.value.trim(),
+  role:"user",
+
+  approved:false,
+  approvalReminder:true,     // ✅ IMPORTANT
+  createdAt:new Date().toISOString()
+});
 
   localStorage.removeItem("signupStep");
   msg.className="msg success";
