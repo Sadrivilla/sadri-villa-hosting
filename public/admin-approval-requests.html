@@ -177,24 +177,30 @@ const q = query(
 
       const card = document.createElement("div");
       card.className="card";
-   card.innerHTML = `
+  card.innerHTML=`
   <h3>${u.fullName || "User"}</h3>
 
   <p><b>Email:</b> ${u.email || "—"}</p>
   <p><b>Mobile:</b> ${u.phone || "—"}</p>
 
-  <p>
-    <small>
-      🕒 Requested: 
-      ${u.approvalRequestedAt 
-        ? new Date(u.approvalRequestedAt)
-            .toLocaleString("en-IN",{
-              dateStyle:"medium",
-              timeStyle:"short"
-            })
-        : "Not Available"}
-    </small>
-  </p>
+  ${u.approvalRequests && u.approvalRequests.length > 0 
+    ? `
+    <p><small><b>Approval Requests:</b></small></p>
+    <ul style="padding-left:18px;margin-top:5px;">
+      ${u.approvalRequests.map((time,i)=>`
+        <li>
+          ${i+1}️⃣ 
+          ${new Date(time).toLocaleString("en-IN",{
+            timeZone:"Asia/Kolkata",
+            dateStyle:"medium",
+            timeStyle:"short"
+          })}
+        </li>
+      `).join("")}
+    </ul>
+    `
+    : "<p><small>No request history</small></p>"
+  }
 
   <span class="badge pending">Pending</span><br>
 
