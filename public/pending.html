@@ -53,6 +53,8 @@ button:disabled{
   <h2>⏳ Approval Pending</h2>
   <p>Your account is waiting for admin approval.</p>
 
+  <p id="requestInfo" style="margin-top:10px;font-size:14px;color:#6b7280;"></p>
+
   <button id="resendBtn">Resend Approval Request</button>
   <div id="msg" class="msg"></div>
 </div>
@@ -61,8 +63,14 @@ button:disabled{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, updateDoc, onSnapshot } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getFirestore, 
+  doc, 
+  updateDoc, 
+  onSnapshot,
+  arrayUnion,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
 const app = initializeApp({
@@ -76,6 +84,9 @@ const db = getFirestore(app);
 
 const resendBtn = document.getElementById("resendBtn");
 const msg = document.getElementById("msg");
+const requestInfo = document.getElementById("requestInfo");
+
+const MAX_REQUESTS = 3;
 
 let currentUser = null;
 let countdownStarted = false;
@@ -91,16 +102,49 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
   const userRef = doc(db,"users",user.uid);
 
-  // 🔥 Listen real-time for approval
+  // 🔥 Real-time listener
   onSnapshot(userRef, (snap) => {
 
     const data = snap.data();
     if(!data) return;
 
+    const requests = data.approvalRequests || [];
+    const count = requests.length;
+    const remaining = MAX_REQUESTS - count;
+
+    // ===== REQUEST INFO DISPLAY =====
+    if(count > 0){
+
+      const lastTime = new Date(requests[requests.length - 1])
+        .toLocaleString("en-IN",{
+          timeZone:"Asia/Kolkata",
+          dateStyle:"medium",
+          timeStyle:"short"
+        });
+
+      requestInfo.innerHTML = `
+        You have requested <b>${count}</b> time(s).<br>
+        Last request: ${lastTime}<br>
+        ${remaining > 0 
+          ? `You have <b>${remaining}</b> request(s) left.` 
+          : `<span style="color:#dc2626">Maximum requests reached.</span>`}
+      `;
+
+    } else {
+
+      requestInfo.innerHTML = `
+        You have not sent any reminder yet.<br>
+        You have <b>${MAX_REQUESTS}</b> request(s) available.
+      `;
+    }
+
+    // Disable button if max reached
+    resendBtn.disabled = remaining <= 0;
+
+    // ===== APPROVAL SUCCESS =====
     if(data.approved === true && !countdownStarted){
 
       countdownStarted = true;
-
       let seconds = 5;
 
       document.querySelector(".card").innerHTML = `
@@ -132,24 +176,32 @@ resendBtn.addEventListener("click", async () => {
 
   if(!currentUser) return;
 
+  const userSnap = await getDoc(doc(db,"users",currentUser.uid));
+  const data = userSnap.data();
+  const requests = data.approvalRequests || [];
+
+  if(requests.length >= MAX_REQUESTS){
+    msg.textContent = "Maximum 3 approval requests allowed.";
+    msg.className = "msg error";
+    resendBtn.disabled = true;
+    return;
+  }
+
   resendBtn.disabled = true;
   msg.textContent = "Sending request...";
   msg.className = "msg";
 
   try{
-import { arrayUnion } from 
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-await updateDoc(doc(db,"users",currentUser.uid),{
-  approvalReminder:true,
-  approvalRequests: arrayUnion(new Date().toISOString())
-});
+    await updateDoc(doc(db,"users",currentUser.uid),{
+      approvalReminder:true,
+      approvalRequests: arrayUnion(new Date().toISOString())
+    });
 
     msg.textContent = "Approval request resent to admin.";
     msg.className = "msg success";
 
   }catch(e){
-
     msg.textContent = "Something went wrong. Please try again.";
     msg.className = "msg error";
   }
@@ -157,5 +209,6 @@ await updateDoc(doc(db,"users",currentUser.uid),{
   resendBtn.disabled = false;
 });
 </script>
+
 </body>
 </html>
