@@ -119,7 +119,7 @@ input[readonly]{
 <div class="card">
 
 <div class="top-row">
-  <button class="btn" onclick="location.href='dashboard.html'">← Back</button>
+  <button class="btn" id="backBtn">Back</button>
   <h2>👤 My Profile</h2>
   <div></div>
 </div>
@@ -208,6 +208,14 @@ onAuthStateChanged(auth,async user=>{
     photoPreview.src=baseUser.profilePhoto;
 
   const roleValue = baseUser.role || "user";
+  // Back button role-based redirect
+document.getElementById("backBtn").onclick = () => {
+  if(roleValue === "admin"){
+    location.href = "admin-dashboard.html";
+  } else {
+    location.href = "dashboard.html";
+  }
+};
 
   document.getElementById("staticWrap").innerHTML=`
     <div class="block"><label>Full Name</label>
