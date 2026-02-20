@@ -10,8 +10,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+  
 :root{--bg:#eef2ff}
-body{margin:0;font-family:Arial;background:var(--bg)}
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  overflow-x:hidden;
+}
 
 canvas {
   max-height: 260px;
@@ -28,10 +34,10 @@ canvas {
 .profile-menu button:hover{background:#f3f4f6}
 
 .container{
-  padding:120px 20px 40px;
+  padding:140px 20px 40px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
-  gap:22px
+  gap:22px;
 }
 
 .card{
@@ -153,8 +159,7 @@ canvas {
 }
   /* SLIDER */
 .gallery{
-  width:100vw;
-  margin-left:calc(-50vw + 50%);
+  width:100%;
   background:#f1f5f9;
   padding:40px 0;
   overflow:hidden;
@@ -258,25 +263,30 @@ canvas {
     <img id="siteLogo">
     <div class="nav-title" id="welcomeName">Sadri Villa – Admin</div>
   </div>
+
   <div class="nav-right">
 
-  <!-- 🔔 BELL (BEFORE PROFILE) -->
-  <div id="pendingAlertIcon" class="bell"
-       onclick="location.href='admin-approval-requests.html'">
-    🔔
-    <span id="pendingBadge" class="bell-badge">0</span>
-  </div>
-
-  <div class="profile-wrapper">
-    <img id="profilePhoto"
-     src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
-    <div id="profileCard">
-      <a href="profile.html">Profile</a>
-      <a href="change-password.html">Change Password</a>
-      <a href="#" id="logoutBtn" style="color:red">Logout</a>
+    <!-- 🔔 BELL -->
+    <div id="pendingAlertIcon" class="bell"
+         onclick="location.href='admin-approval-requests.html'">
+      🔔
+      <span id="pendingBadge" class="bell-badge">0</span>
     </div>
-  </div>
-</div>
+
+    <div class="profile-wrapper">
+      <img id="profilePhoto"
+       src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+      <div id="profileCard">
+        <a href="profile.html">Profile</a>
+        <a href="change-password.html">Change Password</a>
+        <a href="#" id="logoutBtn" style="color:red">Logout</a>
+      </div>
+    </div>
+
+  </div> <!-- CLOSE nav-right -->
+
+</div> <!-- CLOSE navbar -->
+
 <!-- ADMIN NAVBAR -->
 <div class="admin-navbar">
   <a href="admin.html">👥 Admin Panel</a>
