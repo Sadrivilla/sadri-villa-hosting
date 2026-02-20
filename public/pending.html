@@ -137,13 +137,13 @@ resendBtn.addEventListener("click", async () => {
   msg.className = "msg";
 
   try{
-    await updateDoc(
-      doc(db,"users",currentUser.uid),
-      {
-        approvalReminder: true,
-        approvalRequestedAt: new Date().toISOString()
-      }
-    );
+import { arrayUnion } from 
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+await updateDoc(doc(db,"users",currentUser.uid),{
+  approvalReminder:true,
+  approvalRequests: arrayUnion(new Date().toISOString())
+});
 
     msg.textContent = "Approval request resent to admin.";
     msg.className = "msg success";
