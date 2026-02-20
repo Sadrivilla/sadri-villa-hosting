@@ -177,15 +177,32 @@ const q = query(
 
       const card = document.createElement("div");
       card.className="card";
-      card.innerHTML=`
-        <h3>${u.fullName || "User"}</h3>
-        <p><b>Email:</b> ${u.email || "—"}</p>
-        <p><b>Mobile:</b> ${u.phone || "—"}</p>
-        <span class="badge pending">Pending</span><br>
-        <button class="approve-btn" onclick="approveUser('${u.id}','${u.fullName || "User"}',this)">
-          Approve
-        </button>
-      `;
+   card.innerHTML = `
+  <h3>${u.fullName || "User"}</h3>
+
+  <p><b>Email:</b> ${u.email || "—"}</p>
+  <p><b>Mobile:</b> ${u.phone || "—"}</p>
+
+  <p>
+    <small>
+      🕒 Requested: 
+      ${u.approvalRequestedAt 
+        ? new Date(u.approvalRequestedAt)
+            .toLocaleString("en-IN",{
+              dateStyle:"medium",
+              timeStyle:"short"
+            })
+        : "Not Available"}
+    </small>
+  </p>
+
+  <span class="badge pending">Pending</span><br>
+
+  <button class="approve-btn"
+    onclick="approveUser('${u.id}','${u.fullName || "User"}',this)">
+    Approve
+  </button>
+`;
       list.appendChild(card);
     });
   });
