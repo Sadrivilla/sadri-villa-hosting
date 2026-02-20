@@ -261,6 +261,9 @@ th{background:#f8fafc;text-align:left}
 <div class="toast" id="toast"></div>
 
 <script type="module">
+  import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm";
+import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/+esm";
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -589,17 +592,15 @@ function formatLabel(key){
 
   showLoader();
 
-  const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-
   const pageWidth = doc.internal.pageSize.getWidth();
 
   doc.setFontSize(18);
-  doc.text("Sadri Villa - Users Report", pageWidth/2, 20, {align:"center"});
+  doc.text("Sadri Villa - Users Report", pageWidth/2, 20, { align: "center" });
 
   doc.setFontSize(10);
   doc.text("Generated: " + new Date().toLocaleString(),
-    pageWidth-14, 30, {align:"right"});
+    pageWidth - 14, 30, { align: "right" });
 
   const header = [
     "Full Name",
@@ -610,7 +611,7 @@ function formatLabel(key){
     "Created At"
   ];
 
-  const body = users.map(u=>[
+  const body = users.map(u => [
     u.fullName || "-",
     u.email || "-",
     u.phone || "-",
@@ -619,14 +620,14 @@ function formatLabel(key){
     formatDate(u.createdAt)
   ]);
 
-  doc.autoTable({
-    startY:40,
-    head:[header],
-    body:body,
-    theme:"grid",
-    headStyles:{
-      fillColor:[37,99,235],
-      textColor:255
+  autoTable(doc, {
+    startY: 40,
+    head: [header],
+    body: body,
+    theme: "grid",
+    headStyles: {
+      fillColor: [37, 99, 235],
+      textColor: 255
     }
   });
 
@@ -636,74 +637,8 @@ function formatLabel(key){
   showToast("PDF Export Complete");
 };
 
-
-    // ===== Title =====
-    doc.setFontSize(18);
-    doc.text("Sadri Villa - Users Report", pageWidth/2, 20, {align:"center"});
-
-    doc.setFontSize(10);
-    doc.text("Generated: " + new Date().toLocaleString(),
-      pageWidth-14, 30, {align:"right"});
-
-    // ===== Prepare Table Data =====
-    const adminFieldSet = new Set();
-    const customFieldSet = new Set();
-
-    users.forEach(u=>{
-      Object.keys(u.adminFields || {}).forEach(k=>adminFieldSet.add(k));
-      Object.keys(u.userCustomFields || {}).forEach(k=>customFieldSet.add(k));
-    });
-
-    const adminFields = Array.from(adminFieldSet);
-    const customFields = Array.from(customFieldSet);
-
-    const header = [
-      "Full Name",
-      "Email",
-      "Phone",
-      "Role",
-      "Approved",
-      "Created At",
-      ...adminFields.map(f=>"ADMIN - "+formatLabel(f)),
-      ...customFields.map(f=>"CUSTOM - "+formatLabel(f)),
-    ];
-
-    const body = users.map(u=>[
-      u.fullName || "-",
-      u.email || "-",
-      u.phone || "-",
-      u.role || "-",
-      u.approved ? "Yes" : "No",
-      formatDate(u.createdAt),
-      ...adminFields.map(f=>u.adminFields?.[f] || "-"),
-      ...customFields.map(f=>u.userCustomFields?.[f]?.value || "-")
-    ]);
-
-    // ===== Table =====
-autoTable(doc, {
-      startY:40,
-      head:[header],
-      body:body,
-      theme:"grid",
-      headStyles:{
-        fillColor:[37,99,235],
-        textColor:255
-      }
-    });
-
-    doc.save("SadriVilla_All_Users.pdf");
-
-    showToast("PDF Export Complete");
-
- 
-
-  hideLoader();
-};
-
-
 </script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
+
 
 </body>
 </html>
