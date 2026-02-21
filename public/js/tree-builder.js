@@ -20,13 +20,13 @@ async function buildTree() {
 
   let rootNode = null;
 
-  members.forEach(m => {
-    if (m.fatherId) {
-      memberMap[m.fatherId].children.push(memberMap[m.id]);
-    } else {
-      rootNode = memberMap[m.id];
-    }
-  });
+ members.forEach(m => {
+  if (m.fatherId) {
+    memberMap[m.fatherId].children.push(memberMap[m.id]);
+  } else {
+    rootNode = memberMap[m.id];
+  }
+});
 
   const chart_config = {
     chart: {
