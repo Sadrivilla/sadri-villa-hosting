@@ -92,18 +92,21 @@ window.addMember = async function () {
   }
 
   // 🔄 EDIT MODE
-  if (editingId) {
+if (editingId) {
 
-    await updateDoc(doc(db, "family_members", editingId), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      surname,
-      title: title || ""
-    });
+  await updateDoc(doc(db, "family_members", editingId), {
+    name,
+    fatherId: fatherId || null,
+    generation,
+    surname,
+    title: title || ""
+  });
 
-    alert("Member Updated Successfully.");
-    editingId = null;
+  // 🔄 Recalculate all descendants
+  await updateChildrenGenerations(editingId, generation);
+
+  alert("Member Updated Successfully.");
+  editingId = null;
 
   } 
   // ➕ ADD MODE
@@ -190,3 +193,24 @@ window.deleteMember = async function (id) {
   alert("Member Deleted Successfully.");
   location.reload();
 };
+async function updateChildrenGenerations(parentId, parentGeneration) {
+
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  for (const docSnap of snapshot.docs) {
+
+    const data = docSnap.data();
+
+    if (data.fatherId === parentId) {
+
+      const newGeneration = parentGeneration + 1;
+
+      await updateDoc(doc(db, "family_members", docSnap.id), {
+        generation: newGeneration
+      });
+
+      // Recursively update grandchildren
+      await updateChildrenGenerations(docSnap.id, newGeneration);
+    }
+  }
+}
