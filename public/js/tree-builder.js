@@ -14,9 +14,13 @@ async function buildTree() {
 
   const memberMap = {};
   members.forEach(m => memberMap[m.id] = {
-      text: { name: m.name },
-      children: []
-  });
+  text: {
+    name: m.name,
+    title: "Gen " + m.generation
+  },
+  HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
+  children: []
+};
 
   let rootNode = null;
 
