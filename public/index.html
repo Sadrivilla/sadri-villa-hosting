@@ -318,6 +318,56 @@ footer{
   .hero h1{font-size:34px}
   .hero p{font-size:16px}
 }
+  /* ================= IMAGE + TEXT SECTION ================= */
+.villa-sections{
+  padding:100px 20px;
+  background:#ffffff;
+}
+
+.villa-section{
+  max-width:1200px;
+  margin:80px auto;
+  display:flex;
+  align-items:center;
+  gap:60px;
+}
+
+.villa-section.reverse{
+  flex-direction:row-reverse;
+}
+
+.villa-img{
+  flex:1;
+}
+
+.villa-img img{
+  width:100%;
+  border-radius:25px;
+  box-shadow:0 25px 60px rgba(0,0,0,.15);
+}
+
+.villa-text{
+  flex:1;
+}
+
+.villa-text h2{
+  font-size:36px;
+  margin-bottom:15px;
+  color:#0f172a;
+}
+
+.villa-text p{
+  font-size:18px;
+  line-height:1.7;
+  color:#475569;
+}
+
+@media(max-width:900px){
+  .villa-section{
+    flex-direction:column !important;
+    text-align:center;
+  }
+}
 </style>
 </head>
 
@@ -363,6 +413,8 @@ footer{
 </div>
 
 </section>
+  <!-- IMAGE + TEXT DYNAMIC SECTION -->
+<section class="villa-sections" id="villaSections"></section>
 
 <!-- CARDS -->
 <!-- CARDS -->
@@ -467,7 +519,7 @@ footer{
 <!-- FIREBASE REALTIME -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -542,6 +594,8 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     img.src=i.url;
     galleryTrack.appendChild(img);
   });
+  
+   
 
   if(imgs.length>1){
     galleryTrack.classList.add("scrolling");
@@ -551,6 +605,39 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     });
   }
 });
+  /* ================= VILLA SECTIONS ================= */
+
+const sectionContainer = document.getElementById("villaSections");
+
+const sectionQuery = query(
+  collection(db,"villaSections"),
+  orderBy("order")
+);
+
+onSnapshot(sectionQuery, snapshot => {
+  sectionContainer.innerHTML = "";
+
+  snapshot.forEach((docSnap, index) => {
+    const data = docSnap.data();
+    if (data.enabled === false) return;
+
+    const div = document.createElement("div");
+    div.className = "villa-section " + (index % 2 ? "reverse" : "");
+
+    div.innerHTML = `
+      <div class="villa-img">
+        <img src="${data.imageUrl || 'https://via.placeholder.com/800x500'}" alt="${data.title}">
+      </div>
+      <div class="villa-text">
+        <h2>${data.title}</h2>
+        <p>${data.description}</p>
+      </div>
+    `;
+
+    sectionContainer.appendChild(div);
+  });
+});
+
 </script>
 
 <script>
