@@ -8,29 +8,32 @@ async function buildTree() {
   const snapshot = await getDocs(collection(db, "family_members"));
   const members = [];
 
-  snapshot.forEach(doc => {
-    members.push({ id: doc.id, ...doc.data() });
+  snapshot.forEach(docSnap => {
+    members.push({ id: docSnap.id, ...docSnap.data() });
   });
 
   const memberMap = {};
-  members.forEach(m => memberMap[m.id] = {
-  text: {
-    name: m.name,
-    title: "Gen " + m.generation
-  },
-  HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
-  children: []
-};
+
+  members.forEach(m => {
+    memberMap[m.id] = {
+      text: {
+        name: m.name,
+        title: "Gen " + m.generation
+      },
+      HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
+      children: []
+    };
+  });
 
   let rootNode = null;
 
-members.forEach(m => {
-  if (m.fatherId && memberMap[m.fatherId]) {
-    memberMap[m.fatherId].children.push(memberMap[m.id]);
-  } else {
-    rootNode = memberMap[m.id];
-  }
-});
+  members.forEach(m => {
+    if (m.fatherId && memberMap[m.fatherId]) {
+      memberMap[m.fatherId].children.push(memberMap[m.id]);
+    } else {
+      rootNode = memberMap[m.id];
+    }
+  });
 
   const chart_config = {
     chart: {
