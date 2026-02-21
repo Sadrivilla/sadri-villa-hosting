@@ -1,5 +1,12 @@
-import { collection, getDocs, addDoc, serverTimestamp, doc, getDoc }
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  serverTimestamp, 
+  doc, 
+  getDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
 
@@ -22,7 +29,33 @@ async function loadFathers() {
 
 loadFathers();
 
+async function loadMembers() {
 
+  const snapshot = await getDocs(collection(db, "family_members"));
+  const container = document.getElementById("memberList");
+
+  container.innerHTML = "";
+
+  snapshot.forEach(docSnap => {
+
+    const data = docSnap.data();
+
+    const div = document.createElement("div");
+    div.style.marginBottom = "10px";
+
+    div.innerHTML = `
+      ${data.name} (Gen ${data.generation})
+      <button onclick="deleteMember('${docSnap.id}')" 
+      style="margin-left:10px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
+      Delete
+      </button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+loadMembers();
 // Add Member
 window.addMember = async function () {
 
@@ -62,5 +95,17 @@ window.addMember = async function () {
   });
 
   alert("Member Added Successfully!");
+  location.reload();
+};
+
+
+// Delete Member
+window.deleteMember = async function (id) {
+
+  if (!confirm("Are you sure you want to delete this member?")) return;
+
+  await deleteDoc(doc(db, "family_members", id));
+
+  alert("Member Deleted");
   location.reload();
 };
