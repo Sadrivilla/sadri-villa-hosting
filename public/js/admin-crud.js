@@ -5,10 +5,12 @@ import {
   serverTimestamp, 
   doc, 
   getDoc,
-  deleteDoc
+  deleteDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
+let editingId = null;
 
 // Load fathers into dropdown
 async function loadFathers() {
@@ -43,19 +45,26 @@ async function loadMembers() {
     const div = document.createElement("div");
     div.style.marginBottom = "10px";
 
-    div.innerHTML = `
-      ${data.name} (Gen ${data.generation})
-      <button onclick="deleteMember('${docSnap.id}')" 
-      style="margin-left:10px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
-      Delete
-      </button>
-    `;
+ div.innerHTML = `
+  ${data.name} (Gen ${data.generation})
+  
+  <button onclick="editMember('${docSnap.id}')" 
+  style="margin-left:10px;background:orange;color:white;border:none;padding:5px 10px;border-radius:5px;">
+  Edit
+  </button>
+
+  <button onclick="deleteMember('${docSnap.id}')" 
+  style="margin-left:5px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
+  Delete
+  </button>
+`;
 
     container.appendChild(div);
   });
 }
 
 loadMembers();
+// Add Member
 // Add Member
 window.addMember = async function () {
 
@@ -82,22 +91,61 @@ window.addMember = async function () {
     generation = fatherSnap.data().generation + 1;
   }
 
-  await addDoc(collection(db, "family_members"), {
-    name,
-    fatherId: fatherId || null,
-    generation,
-    surname,
-    title: title || "",
-    isRoot: fatherId ? false : true,
-    isAlive: false,
-    branchId: "main-root",
-    createdAt: serverTimestamp()
-  });
+  // 🔄 EDIT MODE
+  if (editingId) {
 
-  alert("Member Added Successfully!");
+    await updateDoc(doc(db, "family_members", editingId), {
+      name,
+      fatherId: fatherId || null,
+      generation,
+      surname,
+      title: title || ""
+    });
+
+    alert("Member Updated Successfully.");
+    editingId = null;
+
+  } 
+  // ➕ ADD MODE
+  else {
+
+    await addDoc(collection(db, "family_members"), {
+      name,
+      fatherId: fatherId || null,
+      generation,
+      surname,
+      title: title || "",
+      isRoot: fatherId ? false : true,
+      isAlive: false,
+      branchId: "main-root",
+      createdAt: serverTimestamp()
+    });
+
+    alert("Member Added Successfully!");
+  }
+
   location.reload();
 };
+window.editMember = async function(id) {
 
+  const snap = await getDoc(doc(db, "family_members", id));
+
+  if (!snap.exists()) {
+    alert("Member not found.");
+    return;
+  }
+
+  const data = snap.data();
+
+  document.getElementById("name").value = data.name;
+  document.getElementById("surname").value = data.surname || "";
+  document.getElementById("title").value = data.title || "";
+  document.getElementById("fatherSelect").value = data.fatherId || "";
+
+  editingId = id;
+
+  document.querySelector("button").textContent = "Update Member";
+};
 
 // Delete Member
 window.deleteMember = async function (id) {
