@@ -26,15 +26,26 @@ loadFathers();
 // Add Member
 window.addMember = async function () {
 
-  const name = document.getElementById("name").value;
+  const name = document.getElementById("name").value.trim();
   const fatherId = document.getElementById("fatherSelect").value;
-  const surname = document.getElementById("surname").value;
-  const title = document.getElementById("title").value;
+  const surname = document.getElementById("surname").value.trim();
+  const title = document.getElementById("title").value.trim();
+
+  if (!name) {
+    alert("Name is required!");
+    return;
+  }
 
   let generation = 1;
 
   if (fatherId) {
     const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+
+    if (!fatherSnap.exists()) {
+      alert("Invalid father selected.");
+      return;
+    }
+
     generation = fatherSnap.data().generation + 1;
   }
 
@@ -49,6 +60,10 @@ window.addMember = async function () {
     branchId: "main-root",
     createdAt: serverTimestamp()
   });
+
+  alert("Member Added Successfully!");
+  location.reload();
+};
 
   alert("Member Added Successfully!");
   location.reload();
