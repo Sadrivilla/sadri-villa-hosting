@@ -23,7 +23,7 @@
       width: 100%;
       padding: 10px;
       margin-top: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 30px;
     }
 
     button {
@@ -38,10 +38,23 @@
     button:hover {
       background: #062c6e;
     }
+  #notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: white;
+  display: none;
+  font-weight: bold;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
   </style>
 </head>
 
 <body>
+  <div id="notification"></div>
 
 <div class="card">
   <h3>Add Family Member</h3>
@@ -56,16 +69,19 @@
 
   <input type="text" id="title" placeholder="Title (Optional)">
 
-<button onclick="addMember()">Add Member</button>
+<div style="display:flex; gap:10px;">
+  <button onclick="addMember()">Add Member</button>
 
-<button onclick="updateMember()" 
-style="background:orange;margin-left:10px;">
-Update Member
-</button>
+  <button onclick="updateMember()" 
+  style="background:orange;">
+  Update Member
+  </button>
 </div>
-<hr>
-<h3>Existing Members</h3>
-<div id="memberList" style="max-width:500px;margin:auto;"></div>
+</div>
+<div class="card" style="margin-top:30px;">
+  <h3>Existing Members</h3>
+  <div id="memberList"></div>
+</div>
 <script type="module" src="js/admin-crud.js"></script>
 
 </body>
