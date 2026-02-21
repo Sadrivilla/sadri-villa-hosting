@@ -65,7 +65,6 @@ async function loadMembers() {
 
 loadMembers();
 // Add Member
-// Add Member
 window.addMember = async function () {
 
   const name = document.getElementById("name").value.trim();
@@ -80,19 +79,56 @@ window.addMember = async function () {
 
   let generation = 1;
 
-  if (fatherId) {
-    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+if (fatherId) {
+  const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
 
-    if (!fatherSnap.exists()) {
-      alert("Invalid father selected.");
-      return;
-    }
-
-    generation = fatherSnap.data().generation + 1;
+  if (!fatherSnap.exists()) {
+    alert("Invalid father selected.");
+    return;
   }
 
-  // 🔄 EDIT MODE
-if (editingId) {
+  generation = fatherSnap.data().generation + 1;
+}
+
+  await addDoc(collection(db, "family_members"), {
+    name,
+    fatherId: fatherId || null,
+    generation,
+    surname,
+    title: title || "",
+    isRoot: fatherId ? false : true,
+    isAlive: false,
+    branchId: "main-root",
+    createdAt: serverTimestamp()
+  });
+
+  alert("Member Added Successfully!");
+  location.reload();
+};
+window.updateMember = async function () {
+
+  if (!editingId) {
+    alert("Please click Edit on a member first.");
+    return;
+  }
+
+  const name = document.getElementById("name").value.trim();
+  const fatherId = document.getElementById("fatherSelect").value;
+  const surname = document.getElementById("surname").value.trim();
+  const title = document.getElementById("title").value.trim();
+
+  let generation = 1;
+
+if (fatherId) {
+  const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+
+  if (!fatherSnap.exists()) {
+    alert("Invalid father selected.");
+    return;
+  }
+
+  generation = fatherSnap.data().generation + 1;
+}
 
   await updateDoc(doc(db, "family_members", editingId), {
     name,
@@ -102,31 +138,11 @@ if (editingId) {
     title: title || ""
   });
 
-  // 🔄 Recalculate all descendants
   await updateChildrenGenerations(editingId, generation);
 
-  alert("Member Updated Successfully.");
+  alert("Member Updated Successfully!");
+
   editingId = null;
-
-  } 
-  // ➕ ADD MODE
-  else {
-
-    await addDoc(collection(db, "family_members"), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      surname,
-      title: title || "",
-      isRoot: fatherId ? false : true,
-      isAlive: false,
-      branchId: "main-root",
-      createdAt: serverTimestamp()
-    });
-
-    alert("Member Added Successfully!");
-  }
-
   location.reload();
 };
 window.editMember = async function(id) {
@@ -147,7 +163,6 @@ window.editMember = async function(id) {
 
   editingId = id;
 
-  document.querySelector("button").textContent = "Update Member";
 };
 
 // Delete Member
