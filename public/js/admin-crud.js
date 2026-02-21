@@ -64,7 +64,3 @@ window.addMember = async function () {
   alert("Member Added Successfully!");
   location.reload();
 };
-
-  alert("Member Added Successfully!");
-  location.reload();
-};
