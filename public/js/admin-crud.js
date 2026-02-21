@@ -11,12 +11,38 @@ import {
 
 import { db } from "./firebase.js";
 let editingId = null;
+function showMessage(message, type = "success") {
+
+  const box = document.getElementById("notification");
+
+  box.textContent = message;
+  box.style.display = "block";
+
+  if (type === "success") {
+    box.style.backgroundColor = "#28a745";
+  } 
+  else if (type === "error") {
+    box.style.backgroundColor = "#dc3545";
+  } 
+  else if (type === "warning") {
+    box.style.backgroundColor = "#ffc107";
+    box.style.color = "black";
+  }
+
+  setTimeout(() => {
+    box.style.display = "none";
+    box.style.color = "white";
+  }, 3000);
+}
 
 // Load fathers into dropdown
 async function loadFathers() {
 
   const snapshot = await getDocs(collection(db, "family_members"));
   const select = document.getElementById("fatherSelect");
+
+  // Clear existing options first
+  select.innerHTML = '<option value="">-- Select Father (Leave empty for Root) --</option>';
 
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
@@ -73,7 +99,7 @@ window.addMember = async function () {
   const title = document.getElementById("title").value.trim();
 
   if (!name) {
-    alert("Name is required!");
+showMessage("Name is required!", "error");
     return;
   }
 
@@ -83,7 +109,7 @@ if (fatherId) {
   const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
 
   if (!fatherSnap.exists()) {
-    alert("Invalid father selected.");
+showMessage("Invalid father selected.", "error");
     return;
   }
 
@@ -102,15 +128,17 @@ if (fatherId) {
     createdAt: serverTimestamp()
   });
 
-  alert("Member Added Successfully!");
-  location.reload();
+showMessage("Member Added Successfully!", "success");
+clearForm();
+loadMembers();
+loadFathers();
 };
 window.updateMember = async function () {
 
   if (!editingId) {
-    alert("Please click Edit on a member first.");
-    return;
-  }
+  showMessage("Please click Edit on a member first.", "warning");
+  return;
+}
 
   const name = document.getElementById("name").value.trim();
   const fatherId = document.getElementById("fatherSelect").value;
@@ -122,10 +150,10 @@ window.updateMember = async function () {
 if (fatherId) {
   const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
 
-  if (!fatherSnap.exists()) {
-    alert("Invalid father selected.");
-    return;
-  }
+if (!fatherSnap.exists()) {
+  showMessage("Invalid father selected.", "error");
+  return;
+}
 
   generation = fatherSnap.data().generation + 1;
 }
@@ -139,18 +167,19 @@ if (fatherId) {
   });
 
   await updateChildrenGenerations(editingId, generation);
-
-  alert("Member Updated Successfully!");
-
-  editingId = null;
-  location.reload();
+  
+showMessage("Member Updated Successfully!", "success");
+editingId = null;
+clearForm();
+loadMembers();
+loadFathers();
 };
 window.editMember = async function(id) {
 
   const snap = await getDoc(doc(db, "family_members", id));
 
   if (!snap.exists()) {
-    alert("Member not found.");
+showMessage("Member not found.", "error");
     return;
   }
 
@@ -174,7 +203,7 @@ window.deleteMember = async function (id) {
   const memberSnap = await getDoc(doc(db, "family_members", id));
 
   if (!memberSnap.exists()) {
-    alert("Member not found.");
+showMessage("Member not found.", "error");
     return;
   }
 
@@ -182,7 +211,7 @@ window.deleteMember = async function (id) {
 
   // 🚫 Prevent deleting root
   if (memberData.isRoot === true) {
-    alert("You cannot delete the root ancestor.");
+showMessage("You cannot delete the root ancestor.", "warning");
     return;
   }
 
@@ -198,15 +227,16 @@ window.deleteMember = async function (id) {
   });
 
   if (hasChildren) {
-    alert("Cannot delete this member because they have children.");
+showMessage("Cannot delete this member because they have children.", "warning");
     return;
   }
 
   // ✅ Safe to delete
   await deleteDoc(doc(db, "family_members", id));
 
-  alert("Member Deleted Successfully.");
-  location.reload();
+showMessage("Member Deleted Successfully.", "success");
+loadMembers();
+loadFathers();
 };
 async function updateChildrenGenerations(parentId, parentGeneration) {
 
@@ -229,3 +259,10 @@ async function updateChildrenGenerations(parentId, parentGeneration) {
     }
   }
 }
+function clearForm() {
+  document.getElementById("name").value = "";
+  document.getElementById("surname").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("fatherSelect").value = "";
+}
+
