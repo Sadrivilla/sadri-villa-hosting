@@ -104,8 +104,41 @@ window.deleteMember = async function (id) {
 
   if (!confirm("Are you sure you want to delete this member?")) return;
 
+  // Get member details
+  const memberSnap = await getDoc(doc(db, "family_members", id));
+
+  if (!memberSnap.exists()) {
+    alert("Member not found.");
+    return;
+  }
+
+  const memberData = memberSnap.data();
+
+  // 🚫 Prevent deleting root
+  if (memberData.isRoot === true) {
+    alert("You cannot delete the root ancestor.");
+    return;
+  }
+
+  // 🔍 Check if member has children
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  let hasChildren = false;
+
+  snapshot.forEach(docSnap => {
+    if (docSnap.data().fatherId === id) {
+      hasChildren = true;
+    }
+  });
+
+  if (hasChildren) {
+    alert("Cannot delete this member because they have children.");
+    return;
+  }
+
+  // ✅ Safe to delete
   await deleteDoc(doc(db, "family_members", id));
 
-  alert("Member Deleted");
+  alert("Member Deleted Successfully.");
   location.reload();
 };
