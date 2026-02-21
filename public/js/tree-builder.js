@@ -20,8 +20,8 @@ async function buildTree() {
 
   let rootNode = null;
 
- members.forEach(m => {
-  if (m.fatherId) {
+members.forEach(m => {
+  if (m.fatherId && memberMap[m.fatherId]) {
     memberMap[m.fatherId].children.push(memberMap[m.id]);
   } else {
     rootNode = memberMap[m.id];
