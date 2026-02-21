@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Digital Shajra</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f6f1e7;
+      padding: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #0b3d91;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #062c6e;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h3>Add Family Member</h3>
+
+  <input type="text" id="name" placeholder="Full Name">
+
+  <select id="fatherSelect">
+    <option value="">-- Select Father (Leave empty for Root) --</option>
+  </select>
+
+  <input type="text" id="surname" placeholder="Surname">
+
+  <input type="text" id="title" placeholder="Title (Optional)">
+
+  <button onclick="addMember()">Add Member</button>
+</div>
+
+<script type="module" src="js/admin-crud.js"></script>
+
+</body>
+</html>
