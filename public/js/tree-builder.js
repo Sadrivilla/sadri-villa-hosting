@@ -116,22 +116,27 @@ window.exportTreePDF = async function () {
 
   const { jsPDF } = window.jspdf;
 
-  const treeElement = document.getElementById("tree");
+  const tree = document.getElementById("tree");
 
-  const canvas = await html2canvas(treeElement, {
-    scale: 3
+  const canvas = await html2canvas(tree, {
+    scale: 2
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF("l", "mm", "a4");
+  // ✅ A3 Landscape size
+  const pdf = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a3"
+  });
 
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-  pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
+  pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
 
-  pdf.save("Digital-Shajra-Sadri.pdf");
+  pdf.save("Digital-Shajra-A3.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL
