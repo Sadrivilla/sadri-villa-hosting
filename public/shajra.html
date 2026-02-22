@@ -3,11 +3,7 @@
 <head>
   <title>Digital Shajra - Sadri Villa</title>
 
-  <link rel="stylesheet"
-   href="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.css">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.min.js"></script>
+ 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,38 +13,34 @@
       background: #f6f1e7;
     }
 
- #tree {
-  width: 100%;
-  min-height: 1000px;
+
+    /* ===== SVG TREE STYLING ===== */
+
+#treeSvg {
+  min-width: 1000px;
 }
 
-    .node-name {
-      font-weight: bold;
-    }
-
-.node {
-  padding: 12px;
-  border-radius: 10px;
-  border: 2px solid #111;          /* Black glossy border */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  background: #ffffff;
-}
-    .root-node {
-  background: #0b3d91 !important;
-  color: white !important;
-  border-radius: 8px;
-  padding: 10px;
+#treeSvg[data-mode="classic"] .node-box {
+  fill: white;
+  stroke: black;
+  stroke-width: 1;
 }
 
-.normal-node {
-  background: white !important;
-  border-radius: 8px;
-  padding: 10px;
+#treeSvg[data-mode="modern"] .node-box {
+  fill: #eef2ff;
+  stroke: #1e40af;
+  stroke-width: 2;
+  filter: drop-shadow(3px 4px 4px rgba(0,0,0,0.2));
 }
-    .highlight-node {
-  background: #facc15 !important;
-  color: black !important;
-  border: 2px solid #eab308 !important;
+
+.connector {
+  stroke: #333;
+  stroke-width: 2;
+}
+
+.node-text {
+  font-size: 14px;
+  font-family: Arial;
 }
   </style>
 </head>
@@ -63,15 +55,9 @@
     placeholder="Search by Name or Surname..."
     style="padding:8px 12px; width:280px; border-radius:6px; border:1px solid #ccc;">
 
-  <button onclick="searchTree()" 
-    style="padding:8px 12px; border:none; background:#0b3d91; color:white; border-radius:6px;">
-    Search
-  </button>
 
-  <button onclick="resetTreeSearch()" 
-    style="padding:8px 12px; border:none; background:#64748b; color:white; border-radius:6px;">
-    Reset
-  </button>
+
+
 
 </div>
 
@@ -94,8 +80,23 @@
 
 </div>
 
-<div id="tree"></div>
+<!-- TREE VIEW AREA -->
+<div style="overflow:auto; width:100%; height:80vh; border:1px solid #ccc; background:white;">
+<svg id="treeSvg" data-mode="classic"></svg>
+</div>
 
+<!-- VIEW MODE TOGGLE -->
+<div style="text-align:center; margin:15px 0;">
+  <button onclick="setMode('classic')" 
+    style="padding:8px 12px; margin-right:5px;">
+    Classic View
+  </button>
+
+  <button onclick="setMode('modern')" 
+    style="padding:8px 12px;">
+    Modern View
+  </button>
+</div>
 <script type="module" src="js/tree-builder.js"></script>
 
 </body>
