@@ -119,7 +119,7 @@ window.exportTreePDF = async function () {
   const treeElement = document.getElementById("tree");
 
   const canvas = await html2canvas(treeElement, {
-    scale: 2
+    scale: 3
   });
 
   const imgData = canvas.toDataURL("image/png");
