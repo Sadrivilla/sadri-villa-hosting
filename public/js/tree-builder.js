@@ -3,126 +3,21 @@ from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
 
-async function buildTree() {
+
+// =======================================
+// 🌳 RENDER SVG TREE
+// =======================================
+
+async function renderTree() {
 
   const snapshot = await getDocs(collection(db, "family_members"));
   const members = [];
 
-  snapshot.forEach(docSnap => {
-    members.push({ id: docSnap.id, ...docSnap.data() });
-  });
-
-  const memberMap = {};
-
-  // ✅ STEP 1: Create all nodes
-  members.forEach(m => {
-
-    memberMap[m.id] = {
-      text: {
-        name: m.name,
-        title: (m.surname ? m.surname + " | " : "") + "Gen " + m.generation
-      },
-      HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
-      children: []
-    };
-
-  });
-
-  let rootNode = null;
-
-  // ✅ STEP 2: Link children to fathers
-  members.forEach(m => {
-
-    if (m.fatherId && memberMap[m.fatherId]) {
-      memberMap[m.fatherId].children.push(memberMap[m.id]);
-    } else {
-      rootNode = memberMap[m.id];
-    }
-
-  });
-
-  const chart_config = {
-    chart: {
-      container: "#tree"
-    },
-    nodeStructure: rootNode
-  };
-
-  new Treant(chart_config);
-}
-
-buildTree();
-
-
-// =======================================
-// 🔎 SEARCH BY NAME OR SURNAME
-// =======================================
-
-window.searchTree = function () {
-
-  const value = document
-    .getElementById("treeSearch")
-    .value
-    .toLowerCase()
-    .trim();
-
-  if (!value) return;
-
-  const nodes = document.querySelectorAll(".node");
-
-  let found = false;
-
-  nodes.forEach(node => {
-
-    node.classList.remove("highlight-node");
-
-    const text = node.innerText.toLowerCase();
-
-    if (text.includes(value)) {
-
-      node.classList.add("highlight-node");
-
-      node.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-      found = true;
-    }
-  });
-
-  if (!found) {
-    alert("No member found.");
-  }
-};
-
-
-// =======================================
-// 🔁 RESET SEARCH
-// =======================================
-
-window.resetTreeSearch = function () {
-
-  document.getElementById("treeSearch").value = "";
-
-  document.querySelectorAll(".node")
-    .forEach(node => node.classList.remove("highlight-node"));
-};
-// =======================================
-// 📄 DYNAMIC LARGE PAGE VERTICAL TREE
-// =======================================
-
-window.exportTreePDF = async function () {
-
-  const { jsPDF } = window.jspdf;
-  const snapshot = await getDocs(collection(db, "family_members"));
-
-  const members = [];
   snapshot.forEach(doc => {
     members.push({ id: doc.id, ...doc.data() });
   });
 
-  // -------- Build Tree --------
+  // Build tree structure
   const map = {};
   members.forEach(m => {
     map[m.id] = { ...m, children: [] };
@@ -138,6 +33,184 @@ window.exportTreePDF = async function () {
     }
   });
 
+  if (!root) {
+    console.error("Root not found");
+    return;
+  }
+
+  const boxWidth = 150;
+  const boxHeight = 60;
+  const siblingGap = 40;
+  const levelGap = 120;
+
+  // -------- Measure Subtree Width --------
+  function measure(node) {
+
+    if (!node.children || node.children.length === 0) {
+      node.subtreeWidth = boxWidth;
+      return boxWidth;
+    }
+
+    let total = 0;
+
+    node.children.forEach(child => {
+      total += measure(child);
+    });
+
+    total += siblingGap * (node.children.length - 1);
+
+    node.subtreeWidth = Math.max(total, boxWidth);
+
+    return node.subtreeWidth;
+  }
+
+  // -------- Assign X Y Positions --------
+  function assign(node, centerX, y) {
+
+    node.x = centerX - boxWidth / 2;
+    node.y = y;
+
+    if (!node.children || node.children.length === 0) return;
+
+    let startX = centerX - node.subtreeWidth / 2;
+
+    node.children.forEach(child => {
+
+      const childCenter =
+        startX + child.subtreeWidth / 2;
+
+      assign(child, childCenter, y + levelGap);
+
+      startX += child.subtreeWidth + siblingGap;
+    });
+  }
+
+  measure(root);
+  assign(root, root.subtreeWidth / 2 + 100, 80);
+
+  drawSVG(root);
+}
+
+
+// =======================================
+// 🖌 DRAW SVG
+// =======================================
+
+function drawSVG(root) {
+
+  const svg = document.getElementById("treeSvg");
+  svg.innerHTML = "";
+
+  function calculateHeight(node) {
+
+    let max = node.y + 200;
+
+    if (node.children) {
+      node.children.forEach(child => {
+        max = Math.max(max, calculateHeight(child));
+      });
+    }
+
+    return max;
+  }
+
+  const totalHeight = calculateHeight(root);
+
+  svg.setAttribute("width", root.subtreeWidth + 200);
+  svg.setAttribute("height", totalHeight + 100);
+
+  function draw(node) {
+
+    if (node.children) {
+      node.children.forEach(child => {
+
+        const parentCenterX = node.x + 75;
+        const parentBottomY = node.y + 60;
+
+        const childCenterX = child.x + 75;
+        const childTopY = child.y;
+
+        const line = document.createElementNS(
+          "http://www.w3.org/2000/svg", "line"
+        );
+
+        line.setAttribute("x1", parentCenterX);
+        line.setAttribute("y1", parentBottomY);
+        line.setAttribute("x2", childCenterX);
+        line.setAttribute("y2", childTopY);
+        line.setAttribute("class", "connector");
+
+        svg.appendChild(line);
+
+        draw(child);
+      });
+    }
+
+    const rect = document.createElementNS(
+      "http://www.w3.org/2000/svg", "rect"
+    );
+
+    rect.setAttribute("x", node.x);
+    rect.setAttribute("y", node.y);
+    rect.setAttribute("width", 150);
+    rect.setAttribute("height", 60);
+    rect.setAttribute("rx", 10);
+    rect.setAttribute("class", "node-box");
+
+    svg.appendChild(rect);
+
+    const text = document.createElementNS(
+      "http://www.w3.org/2000/svg", "text"
+    );
+
+    text.setAttribute("x", node.x + 75);
+    text.setAttribute("y", node.y + 30);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("class", "node-text");
+
+    text.textContent = node.name + " | Gen " + node.generation;
+
+    svg.appendChild(text);
+  }
+
+  draw(root);
+}
+
+
+// =======================================
+// 📄 VECTOR PDF EXPORT (UNCHANGED)
+// =======================================
+
+window.exportTreePDF = async function () {
+
+  const { jsPDF } = window.jspdf;
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  const members = [];
+  snapshot.forEach(doc => {
+    members.push({ id: doc.id, ...doc.data() });
+  });
+
+  const map = {};
+  members.forEach(m => {
+    map[m.id] = { ...m, children: [] };
+  });
+
+  let root = null;
+
+  members.forEach(m => {
+    if (m.fatherId && map[m.fatherId]) {
+      map[m.fatherId].children.push(map[m.id]);
+    } else {
+      root = map[m.id];
+    }
+  });
+
+  if (!root) {
+    console.error("Root not found");
+    return;
+  }
+
   const boxWidth = 65;
   const boxHeight = 20;
   const siblingGap = 20;
@@ -146,7 +219,6 @@ window.exportTreePDF = async function () {
 
   let maxDepth = 0;
 
-  // -------- Measure Subtree Width --------
   function measure(node, depth = 0) {
 
     maxDepth = Math.max(maxDepth, depth);
@@ -174,7 +246,6 @@ window.exportTreePDF = async function () {
   const totalWidth = root.subtreeWidth + margin * 2;
   const totalHeight = (maxDepth + 1) * levelGap + margin * 2;
 
-  // -------- Create CUSTOM SIZE PAGE --------
   const pdf = new jsPDF({
     orientation: totalWidth > totalHeight ? "landscape" : "portrait",
     unit: "mm",
@@ -183,7 +254,6 @@ window.exportTreePDF = async function () {
 
   pdf.setFontSize(9);
 
-  // -------- Draw Tree --------
   function draw(node, centerX, topY) {
 
     const x = centerX - boxWidth / 2;
@@ -214,16 +284,13 @@ window.exportTreePDF = async function () {
       startX += child.subtreeWidth + siblingGap;
     });
 
-    // Vertical from parent
     pdf.line(centerX, y + boxHeight, centerX, connectorY);
 
-    // Long horizontal connector
     const minX = Math.min(...childCenters);
     const maxX = Math.max(...childCenters);
 
     pdf.line(minX, connectorY, maxX, connectorY);
 
-    // Draw children
     node.children.forEach((child, index) => {
       const childCenterX = childCenters[index];
       pdf.line(childCenterX, connectorY, childCenterX, childrenY);
@@ -235,8 +302,10 @@ window.exportTreePDF = async function () {
 
   pdf.save("Sadri-Digital-Shajra-Full-Blueprint.pdf");
 };
+
+
 // =======================================
-// 📊 EXPORT EXCEL (PROFESSIONAL)
+// 📊 EXCEL EXPORT
 // =======================================
 
 window.exportExcel = async function () {
@@ -258,7 +327,6 @@ window.exportExcel = async function () {
 
   const worksheet = XLSX.utils.json_to_sheet(data);
 
-  // Auto column width
   worksheet["!cols"] = [
     { wch: 25 },
     { wch: 20 },
@@ -272,3 +340,10 @@ window.exportExcel = async function () {
 
   XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
 };
+
+
+// =======================================
+// 🚀 START TREE
+// =======================================
+
+renderTree();
