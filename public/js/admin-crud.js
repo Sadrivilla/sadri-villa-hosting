@@ -1,12 +1,14 @@
 import { 
-  collection, 
+  collection,
   getDocs, 
   addDoc, 
   serverTimestamp, 
   doc, 
   getDoc,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
@@ -154,7 +156,16 @@ if (!fatherSnap.exists()) {
   showMessage("Invalid father selected.", "error");
   return;
 }
-
+  // Prevent self assignment
+if (fatherId === editingId) {
+  showMessage("A member cannot be their own father.", "error");
+  return;
+}
+// Prevent circular relationship
+if (await isDescendant(editingId, fatherId)) {
+  showMessage("Invalid relationship: Cannot assign descendant as father.", "error");
+  return;
+}
   generation = fatherSnap.data().generation + 1;
 }
 
@@ -215,21 +226,18 @@ showMessage("You cannot delete the root ancestor.", "warning");
     return;
   }
 
-  // 🔍 Check if member has children
-  const snapshot = await getDocs(collection(db, "family_members"));
+  // 🔍 Check if member has children (Optimized)
+const q = query(
+  collection(db, "family_members"),
+  where("fatherId", "==", id)
+);
 
-  let hasChildren = false;
+const childrenSnapshot = await getDocs(q);
 
-  snapshot.forEach(docSnap => {
-    if (docSnap.data().fatherId === id) {
-      hasChildren = true;
-    }
-  });
-
-  if (hasChildren) {
-showMessage("Cannot delete this member because they have children.", "warning");
-    return;
-  }
+if (!childrenSnapshot.empty) {
+  showMessage("Cannot delete this member because they have children.", "warning");
+  return;
+}
 
   // ✅ Safe to delete
   await deleteDoc(doc(db, "family_members", id));
@@ -238,6 +246,30 @@ showMessage("Member Deleted Successfully.", "success");
 loadMembers();
 loadFathers();
 };
+async function isDescendant(childId, potentialFatherId) {
+
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  const members = {};
+  snapshot.forEach(docSnap => {
+    members[docSnap.id] = docSnap.data();
+  });
+
+  async function check(currentId) {
+    for (const id in members) {
+      if (members[id].fatherId === currentId) {
+        if (id === potentialFatherId) {
+          return true;
+        }
+        const result = await check(id);
+        if (result) return true;
+      }
+    }
+    return false;
+  }
+
+  return await check(childId);
+}
 async function updateChildrenGenerations(parentId, parentGeneration) {
 
   const snapshot = await getDocs(collection(db, "family_members"));
