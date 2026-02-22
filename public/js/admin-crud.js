@@ -61,34 +61,52 @@ loadFathers();
 
 async function loadMembers() {
 
+  const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
+  const generationValue = document.getElementById("generationFilter")?.value;
+
   const snapshot = await getDocs(collection(db, "family_members"));
   const container = document.getElementById("memberList");
 
   container.innerHTML = "";
 
+  const generations = new Set();
+
   snapshot.forEach(docSnap => {
 
     const data = docSnap.data();
+    generations.add(data.generation);
+
+    // 🔎 Search filter
+    if (searchValue && !data.name.toLowerCase().includes(searchValue)) {
+      return;
+    }
+
+    // 🎯 Generation filter
+    if (generationValue && data.generation != generationValue) {
+      return;
+    }
 
     const div = document.createElement("div");
     div.style.marginBottom = "10px";
 
- div.innerHTML = `
-  ${data.name} (Gen ${data.generation})
-  
-  <button onclick="editMember('${docSnap.id}')" 
-  style="margin-left:10px;background:orange;color:white;border:none;padding:5px 10px;border-radius:5px;">
-  Edit
-  </button>
+    div.innerHTML = `
+      ${data.name} (Gen ${data.generation})
 
-  <button onclick="deleteMember('${docSnap.id}')" 
-  style="margin-left:5px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
-  Delete
-  </button>
-`;
+      <button onclick="editMember('${docSnap.id}')" 
+      style="margin-left:10px;background:orange;color:white;border:none;padding:5px 10px;border-radius:5px;">
+      Edit
+      </button>
+
+      <button onclick="deleteMember('${docSnap.id}')" 
+      style="margin-left:5px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
+      Delete
+      </button>
+    `;
 
     container.appendChild(div);
   });
+
+  populateGenerationFilter(generations);
 }
 
 loadMembers();
@@ -297,4 +315,41 @@ function clearForm() {
   document.getElementById("title").value = "";
   document.getElementById("fatherSelect").value = "";
 }
+function populateGenerationFilter(generations) {
+
+  const select = document.getElementById("generationFilter");
+  if (!select) return;
+
+  const currentValue = select.value;
+
+  select.innerHTML = '<option value="">All Generations</option>';
+
+  Array.from(generations)
+    .sort((a, b) => a - b)
+    .forEach(gen => {
+      const option = document.createElement("option");
+      option.value = gen;
+      option.textContent = "Generation " + gen;
+      select.appendChild(option);
+    });
+
+  select.value = currentValue;
+}
+document.addEventListener("input", function(e) {
+  if (e.target.id === "searchInput") {
+    loadMembers();
+  }
+});
+
+document.addEventListener("change", function(e) {
+  if (e.target.id === "generationFilter") {
+    loadMembers();
+  }
+});
+
+window.resetFilters = function() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("generationFilter").value = "";
+  loadMembers();
+};
 
