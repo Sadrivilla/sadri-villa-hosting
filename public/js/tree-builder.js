@@ -108,3 +108,28 @@ window.resetTreeSearch = function () {
   document.querySelectorAll(".node")
     .forEach(node => node.classList.remove("highlight-node"));
 };
+// =======================================
+// 📄 EXPORT TREE AS PDF
+// =======================================
+
+window.exportTreePDF = async function () {
+
+  const { jsPDF } = window.jspdf;
+
+  const treeElement = document.getElementById("tree");
+
+  const canvas = await html2canvas(treeElement, {
+    scale: 2
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("l", "mm", "a4");
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
+
+  pdf.save("Digital-Shajra-Sadri.pdf");
+};
