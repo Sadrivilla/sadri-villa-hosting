@@ -109,22 +109,21 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 EXPORT TREE AS PDF
+// 📄 EXPORT TREE AS A3 PDF (AUTO FIT)
 // =======================================
 
 window.exportTreePDF = async function () {
 
   const { jsPDF } = window.jspdf;
-
   const tree = document.getElementById("tree");
 
   const canvas = await html2canvas(tree, {
-    scale: 2
+    scale: 3,         // higher quality
+    useCORS: true
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  // ✅ A3 Landscape size
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -134,36 +133,59 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  // If tree is very tall → add extra pages
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
 
   pdf.save("Digital-Shajra-A3.pdf");
 };
 // =======================================
-// 📊 EXPORT EXCEL
+// 📊 EXPORT EXCEL (PROFESSIONAL)
 // =======================================
 
 window.exportExcel = async function () {
 
   const snapshot = await getDocs(collection(db, "family_members"));
-
   const data = [];
 
   snapshot.forEach(docSnap => {
     const m = docSnap.data();
 
     data.push({
-      Name: m.name || "",
-      Surname: m.surname || "",
-      Generation: m.generation || "",
-      FatherID: m.fatherId || "",
-      Alive: m.isAlive ? "Yes" : "No"
+      "Full Name": m.name || "",
+      "Surname": m.surname || "",
+      "Generation": m.generation || "",
+      "Father ID": m.fatherId || "Root",
+      "Alive Status": m.isAlive ? "Yes" : "No"
     });
   });
 
   const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Family Members");
+  // Auto column width
+  worksheet["!cols"] = [
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 20 },
+    { wch: 15 }
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sadri Family");
 
   XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
 };
