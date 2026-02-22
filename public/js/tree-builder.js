@@ -2,6 +2,19 @@ import { collection, getDocs }
 from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
+// =======================================
+// 🎨 MODE TOGGLE (Classic / Modern)
+// =======================================
+
+window.setMode = function(mode) {
+
+  const svg = document.getElementById("treeSvg");
+
+  if (!svg) return;
+
+  svg.setAttribute("data-mode", mode);
+
+};
 
 
 // =======================================
@@ -341,9 +354,5 @@ window.exportExcel = async function () {
   XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
 };
 
-
-// =======================================
-// 🚀 START TREE
-// =======================================
 
 renderTree();
