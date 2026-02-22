@@ -8,7 +8,9 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/treant-js/1.0/Treant.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial;
@@ -72,6 +74,19 @@
 </div>
 
 <h2 style="text-align:center;">Digital Shajra-e-Sadri</h2>
+    <div style="text-align:center; margin:15px 0;">
+  
+  <button onclick="exportTreePDF()" 
+    style="padding:10px 15px; background:#0b3d91; color:white; border:none; border-radius:6px;">
+    📄 Export Tree PDF
+  </button>
+
+  <button onclick="exportExcel()" 
+    style="padding:10px 15px; background:#16a34a; color:white; border:none; border-radius:6px;">
+    📥 Export Excel
+  </button>
+
+</div>
   <div style="text-align:center; margin:15px 0;">
 
 
