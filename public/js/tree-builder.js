@@ -109,7 +109,7 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 VECTOR HORIZONTAL GENEALOGY PDF
+// 📄 VECTOR VERTICAL GENEALOGY PDF
 // =======================================
 
 window.exportTreePDF = async function () {
@@ -122,7 +122,7 @@ window.exportTreePDF = async function () {
     members.push({ id: doc.id, ...doc.data() });
   });
 
-  // ---------- Build Tree Map ----------
+  // ---------- Build Tree ----------
   const map = {};
   members.forEach(m => {
     map[m.id] = { ...m, children: [] };
@@ -138,14 +138,9 @@ window.exportTreePDF = async function () {
     }
   });
 
-  // ---------- Layout Settings ----------
-  const boxWidth = 60;
-  const boxHeight = 18;
-  const horizontalSpacing = 90;
-  const verticalSpacing = 28;
-
+  // ---------- PDF Setup ----------
   const pdf = new jsPDF({
-    orientation: "landscape",
+    orientation: "portrait",
     unit: "mm",
     format: "a3"
   });
@@ -153,80 +148,89 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  let currentPage = 1;
+  const boxWidth = 60;
+  const boxHeight = 20;
 
-  // ---------- Recursive Layout ----------
-  function drawNode(node, genIndex, yStart) {
+  const levelSpacing = 40;   // vertical distance between generations
+  const siblingSpacing = 15; // horizontal space between siblings
 
-    const x = genIndex * horizontalSpacing + 20;
+  let currentYStart = 20;
 
-    // If new generation exceeds page width → add new page
-    if (x + boxWidth > pageWidth) {
-      pdf.addPage();
-      currentPage++;
-    }
+  // ---------- Measure Subtree Width ----------
+  function measureWidth(node) {
+    if (!node.children || node.children.length === 0)
+      return boxWidth;
 
-    let totalHeight = 0;
-
-    // Calculate total children height
+    let total = 0;
     node.children.forEach(child => {
-      totalHeight += boxHeight + verticalSpacing;
+      total += measureWidth(child) + siblingSpacing;
     });
 
-    if (totalHeight > 0)
-      totalHeight -= verticalSpacing;
+    return total - siblingSpacing;
+  }
 
-    let y = yStart;
+  // ---------- Draw Node Recursively ----------
+  function drawNode(node, centerX, topY) {
 
-    // If children exist, center father
-    if (node.children.length > 0) {
-      const childrenTop = yStart;
-      const childrenBottom = yStart + totalHeight;
-      y = (childrenTop + childrenBottom) / 2 - boxHeight / 2;
+    // Add page if height exceeds
+    if (topY + boxHeight > pageHeight - 20) {
+      pdf.addPage();
+      topY = 20;
     }
 
-    // Draw box
+    const x = centerX - boxWidth / 2;
+    const y = topY;
+
+    // Draw Box
     pdf.rect(x, y, boxWidth, boxHeight);
 
-    // Add name text
-    pdf.setFontSize(8);
-    pdf.text(
-      node.name,
-      x + 3,
-      y + 6
-    );
+    pdf.setFontSize(9);
+    pdf.text(node.name, x + 4, y + 7);
+    pdf.text("Gen " + node.generation, x + 4, y + 14);
 
-    pdf.text(
-      "Gen " + node.generation,
-      x + 3,
-      y + 12
-    );
+    if (!node.children || node.children.length === 0)
+      return;
 
-    // Draw children recursively
-    let childY = yStart;
+    const totalWidth = measureWidth(node);
+    let startX = centerX - totalWidth / 2;
+
+    const childY = y + levelSpacing;
 
     node.children.forEach(child => {
 
-      const childCenterY = childY + boxHeight / 2;
+      const childWidth = measureWidth(child);
+      const childCenterX = startX + childWidth / 2;
 
-      // Draw connecting line
+      // Draw vertical line down
+      pdf.line(centerX, y + boxHeight, centerX, y + boxHeight + 10);
+
+      // Draw horizontal connector
       pdf.line(
-        x + boxWidth,
-        y + boxHeight / 2,
-        x + boxWidth + 10,
-        childCenterY
+        childCenterX,
+        y + boxHeight + 10,
+        centerX,
+        y + boxHeight + 10
       );
 
-      drawNode(child, genIndex + 1, childY);
+      // Draw vertical to child
+      pdf.line(
+        childCenterX,
+        y + boxHeight + 10,
+        childCenterX,
+        childY
+      );
 
-      childY += boxHeight + verticalSpacing;
+      drawNode(child, childCenterX, childY);
+
+      startX += childWidth + siblingSpacing;
     });
   }
 
-  // Start drawing from root
-  drawNode(root, 0, 20);
+  // ---------- Start Drawing ----------
+  const rootCenterX = pageWidth / 2;
+  drawNode(root, rootCenterX, 20);
 
-  pdf.save("Sadri-Digital-Shajra-Vector.pdf");
+  pdf.save("Sadri-Digital-Shajra-Vertical-Vector.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
