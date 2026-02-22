@@ -109,7 +109,7 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 PROFESSIONAL VERTICAL TREE (25 SIBLINGS SAFE)
+// 📄 DYNAMIC LARGE PAGE VERTICAL TREE
 // =======================================
 
 window.exportTreePDF = async function () {
@@ -138,24 +138,18 @@ window.exportTreePDF = async function () {
     }
   });
 
-  const pdf = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a3"
-  });
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-
   const boxWidth = 65;
   const boxHeight = 20;
-  const levelGap = 50;
   const siblingGap = 20;
+  const levelGap = 50;
+  const margin = 30;
 
-  pdf.setFontSize(9);
+  let maxDepth = 0;
 
-  // -------- Measure Subtree Width Properly --------
-  function measure(node) {
+  // -------- Measure Subtree Width --------
+  function measure(node, depth = 0) {
+
+    maxDepth = Math.max(maxDepth, depth);
 
     if (!node.children || node.children.length === 0) {
       node.subtreeWidth = boxWidth;
@@ -165,7 +159,7 @@ window.exportTreePDF = async function () {
     let total = 0;
 
     node.children.forEach(child => {
-      total += measure(child);
+      total += measure(child, depth + 1);
     });
 
     total += siblingGap * (node.children.length - 1);
@@ -175,13 +169,26 @@ window.exportTreePDF = async function () {
     return node.subtreeWidth;
   }
 
-  // -------- Draw Tree Centered --------
+  measure(root);
+
+  const totalWidth = root.subtreeWidth + margin * 2;
+  const totalHeight = (maxDepth + 1) * levelGap + margin * 2;
+
+  // -------- Create CUSTOM SIZE PAGE --------
+  const pdf = new jsPDF({
+    orientation: totalWidth > totalHeight ? "landscape" : "portrait",
+    unit: "mm",
+    format: [totalWidth, totalHeight]
+  });
+
+  pdf.setFontSize(9);
+
+  // -------- Draw Tree --------
   function draw(node, centerX, topY) {
 
     const x = centerX - boxWidth / 2;
     const y = topY;
 
-    // Draw box
     pdf.rect(x, y, boxWidth, boxHeight);
 
     const text = pdf.splitTextToSize(
@@ -194,51 +201,39 @@ window.exportTreePDF = async function () {
     if (!node.children || node.children.length === 0)
       return;
 
+    const connectorY = y + boxHeight + 10;
     const childrenY = y + levelGap;
 
     let startX = centerX - node.subtreeWidth / 2;
 
-    // Draw vertical line down from parent
-    pdf.line(
-      centerX,
-      y + boxHeight,
-      centerX,
-      y + boxHeight + 10
-    );
-
-    const connectorY = y + boxHeight + 10;
+    let childCenters = [];
 
     node.children.forEach(child => {
-
-      const childCenterX =
-        startX + child.subtreeWidth / 2;
-
-      // Horizontal connector
-      pdf.line(
-        childCenterX,
-        connectorY,
-        centerX,
-        connectorY
-      );
-
-      // Vertical down to child
-      pdf.line(
-        childCenterX,
-        connectorY,
-        childCenterX,
-        childrenY
-      );
-
-      draw(child, childCenterX, childrenY);
-
+      const childCenterX = startX + child.subtreeWidth / 2;
+      childCenters.push(childCenterX);
       startX += child.subtreeWidth + siblingGap;
+    });
+
+    // Vertical from parent
+    pdf.line(centerX, y + boxHeight, centerX, connectorY);
+
+    // Long horizontal connector
+    const minX = Math.min(...childCenters);
+    const maxX = Math.max(...childCenters);
+
+    pdf.line(minX, connectorY, maxX, connectorY);
+
+    // Draw children
+    node.children.forEach((child, index) => {
+      const childCenterX = childCenters[index];
+      pdf.line(childCenterX, connectorY, childCenterX, childrenY);
+      draw(child, childCenterX, childrenY);
     });
   }
 
-  measure(root);
-  draw(root, pageWidth / 2, 25);
+  draw(root, totalWidth / 2, margin);
 
-  pdf.save("Sadri-Digital-Shajra-Proper-Alignment.pdf");
+  pdf.save("Sadri-Digital-Shajra-Full-Blueprint.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
