@@ -14,12 +14,11 @@ async function buildTree() {
 
   const memberMap = {};
 
-  members.forEach(m => {
-    memberMap[m.id] = {
-      text: {
-        name: m.name,
-        title: "Gen " + m.generation
-      },
+  memberMap[m.id] = {
+  text: {
+    name: m.name,
+    title: (m.surname ? m.surname + " | " : "") + "Gen " + m.generation
+  },
       HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
       children: []
     };
@@ -46,3 +45,57 @@ async function buildTree() {
 }
 
 buildTree();
+// =======================================
+// 🔎 SEARCH BY NAME OR SURNAME
+// =======================================
+
+window.searchTree = function () {
+
+  const value = document
+    .getElementById("treeSearch")
+    .value
+    .toLowerCase()
+    .trim();
+
+  if (!value) return;
+
+  const nodes = document.querySelectorAll(".node");
+
+  let found = false;
+
+  nodes.forEach(node => {
+
+    node.classList.remove("highlight-node");
+
+    const text = node.innerText.toLowerCase();
+
+    if (text.includes(value)) {
+
+      node.classList.add("highlight-node");
+
+      node.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+      found = true;
+    }
+  });
+
+  if (!found) {
+    alert("No member found.");
+  }
+};
+
+
+// =======================================
+// 🔁 RESET SEARCH
+// =======================================
+
+window.resetTreeSearch = function () {
+
+  document.getElementById("treeSearch").value = "";
+
+  document.querySelectorAll(".node")
+    .forEach(node => node.classList.remove("highlight-node"));
+};
