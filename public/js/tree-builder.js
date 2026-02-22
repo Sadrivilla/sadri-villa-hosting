@@ -109,7 +109,7 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 EXPORT TREE AS A3 PDF (AUTO FIT)
+// 📄 PROFESSIONAL FULL TREE PDF EXPORT
 // =======================================
 
 window.exportTreePDF = async function () {
@@ -117,13 +117,21 @@ window.exportTreePDF = async function () {
   const { jsPDF } = window.jspdf;
   const tree = document.getElementById("tree");
 
+  // 🔥 Get full tree dimensions (not visible area)
+  const fullWidth = tree.scrollWidth;
+  const fullHeight = tree.scrollHeight;
+
   const canvas = await html2canvas(tree, {
-    scale: 3,         // higher quality
-    useCORS: true
+    width: fullWidth,
+    height: fullHeight,
+    scrollX: 0,
+    scrollY: 0,
+    scale: 2
   });
 
   const imgData = canvas.toDataURL("image/png");
 
+  // A3 Landscape
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -133,24 +141,18 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  // Maintain aspect ratio
+  const ratio = Math.min(
+    pageWidth / canvas.width,
+    pageHeight / canvas.height
+  );
 
-  let heightLeft = imgHeight;
-  let position = 0;
+  const imgWidth = canvas.width * ratio;
+  const imgHeight = canvas.height * ratio;
 
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
 
-  // If tree is very tall → add extra pages
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  pdf.save("Digital-Shajra-A3.pdf");
+  pdf.save("Digital-Shajra-A3-Full.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
