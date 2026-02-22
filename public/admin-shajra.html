@@ -79,8 +79,21 @@
 </div>
 </div>
 <div class="card" style="margin-top:30px;">
-  <h3>Existing Members</h3>
-  <div id="memberList"></div>
+<h3>Existing Members</h3>
+
+<div style="margin-bottom:15px; display:flex; gap:10px;">
+  <input type="text" id="searchInput" placeholder="Search by name..." style="flex:1;">
+
+  <select id="generationFilter">
+    <option value="">All Generations</option>
+  </select>
+
+  <button onclick="resetFilters()" style="background:gray;">
+    Reset
+  </button>
+</div>
+
+<div id="memberList"></div>
 </div>
 <script type="module" src="js/admin-crud.js"></script>
 
