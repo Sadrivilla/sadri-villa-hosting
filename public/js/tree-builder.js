@@ -14,24 +14,31 @@ async function buildTree() {
 
   const memberMap = {};
 
-  memberMap[m.id] = {
-  text: {
-    name: m.name,
-    title: (m.surname ? m.surname + " | " : "") + "Gen " + m.generation
-  },
+  // ✅ STEP 1: Create all nodes
+  members.forEach(m => {
+
+    memberMap[m.id] = {
+      text: {
+        name: m.name,
+        title: (m.surname ? m.surname + " | " : "") + "Gen " + m.generation
+      },
       HTMLclass: m.generation === 1 ? "root-node" : "normal-node",
       children: []
     };
+
   });
 
   let rootNode = null;
 
+  // ✅ STEP 2: Link children to fathers
   members.forEach(m => {
+
     if (m.fatherId && memberMap[m.fatherId]) {
       memberMap[m.fatherId].children.push(memberMap[m.id]);
     } else {
       rootNode = memberMap[m.id];
     }
+
   });
 
   const chart_config = {
@@ -45,6 +52,8 @@ async function buildTree() {
 }
 
 buildTree();
+
+
 // =======================================
 // 🔎 SEARCH BY NAME OR SURNAME
 // =======================================
