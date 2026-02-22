@@ -133,3 +133,32 @@ window.exportTreePDF = async function () {
 
   pdf.save("Digital-Shajra-Sadri.pdf");
 };
+// =======================================
+// 📊 EXPORT EXCEL
+// =======================================
+
+window.exportExcel = async function () {
+
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  const data = [];
+
+  snapshot.forEach(docSnap => {
+    const m = docSnap.data();
+
+    data.push({
+      Name: m.name || "",
+      Surname: m.surname || "",
+      Generation: m.generation || "",
+      FatherID: m.fatherId || "",
+      Alive: m.isAlive ? "Yes" : "No"
+    });
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Family Members");
+
+  XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
+};
