@@ -41,12 +41,41 @@
   border-radius: 8px;
   padding: 10px;
 }
+    .highlight-node {
+  background: #facc15 !important;
+  color: black !important;
+  border: 2px solid #eab308 !important;
+}
   </style>
 </head>
 
 <body>
+  <div style="text-align:center; margin-bottom:20px;">
+  
+<div style="text-align:center; margin:20px 0;">
+
+  <input type="text" 
+    id="treeSearch" 
+    placeholder="Search by Name or Surname..."
+    style="padding:8px 12px; width:280px; border-radius:6px; border:1px solid #ccc;">
+
+  <button onclick="searchTree()" 
+    style="padding:8px 12px; border:none; background:#0b3d91; color:white; border-radius:6px;">
+    Search
+  </button>
+
+  <button onclick="resetTreeSearch()" 
+    style="padding:8px 12px; border:none; background:#64748b; color:white; border-radius:6px;">
+    Reset
+  </button>
+
+</div>
 
 <h2 style="text-align:center;">Digital Shajra-e-Sadri</h2>
+  <div style="text-align:center; margin:15px 0;">
+
+
+</div>
 
 <div id="tree"></div>
 
