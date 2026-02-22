@@ -109,7 +109,7 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 FIXED VECTOR VERTICAL TREE (A3 LANDSCAPE)
+// 📄 PROFESSIONAL VERTICAL TREE (25 SIBLINGS SAFE)
 // =======================================
 
 window.exportTreePDF = async function () {
@@ -137,7 +137,6 @@ window.exportTreePDF = async function () {
     }
   });
 
-  // A3 LANDSCAPE
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -147,84 +146,82 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const levelSpacing = 45;
-  const siblingSpacing = 20;
-  const padding = 4;
+  const boxWidth = 70;
+  const boxHeight = 20;
+  const siblingSpacing = 10;
+  const levelSpacing = 50;
+
+  const maxPerRow = 5; // 👈 handles 25 siblings = 5 rows
 
   pdf.setFontSize(9);
 
-  // 🔹 Dynamic box size based on text
-  function getBoxSize(node) {
-    const nameLines = pdf.splitTextToSize(node.name, 80);
-    const genText = "Gen " + node.generation;
-    const textHeight = (nameLines.length + 1) * 5;
+  function drawBox(centerX, y, text) {
+    const x = centerX - boxWidth / 2;
 
-    return {
-      width: 80,
-      height: textHeight + padding
-    };
+    pdf.rect(x, y, boxWidth, boxHeight);
+
+    const lines = pdf.splitTextToSize(text, boxWidth - 6);
+    pdf.text(lines, x + 3, y + 8);
   }
 
-  function measureWidth(node) {
-    const box = getBoxSize(node);
+  function drawNode(node, centerX, y) {
 
-    if (!node.children || node.children.length === 0)
-      return box.width;
-
-    let total = 0;
-    node.children.forEach(child => {
-      total += measureWidth(child) + siblingSpacing;
-    });
-
-    return total - siblingSpacing;
-  }
-
-  function drawNode(node, centerX, topY) {
-
-    const box = getBoxSize(node);
-
-    if (topY + box.height > pageHeight - 20) {
+    if (y + boxHeight > pageHeight - 20) {
       pdf.addPage();
-      topY = 20;
+      y = 20;
     }
 
-    const x = centerX - box.width / 2;
-    const y = topY;
-
-    pdf.rect(x, y, box.width, box.height);
-
-    const nameLines = pdf.splitTextToSize(node.name, box.width - 6);
-    pdf.text(nameLines, x + 3, y + 6);
-
-    pdf.text("Gen " + node.generation, x + 3, y + box.height - 4);
+    drawBox(centerX, y, node.name + "\nGen " + node.generation);
 
     if (!node.children || node.children.length === 0)
       return;
 
-    const totalWidth = measureWidth(node);
-    let startX = centerX - totalWidth / 2;
+    const totalChildren = node.children.length;
+    const rows = Math.ceil(totalChildren / maxPerRow);
 
-    const connectorY = y + box.height + 8;
-    pdf.line(centerX, y + box.height, centerX, connectorY);
+    const startY = y + levelSpacing;
 
-    node.children.forEach(child => {
+    let childIndex = 0;
 
-      const childWidth = measureWidth(child);
-      const childCenterX = startX + childWidth / 2;
+    for (let r = 0; r < rows; r++) {
 
-      pdf.line(childCenterX, connectorY, centerX, connectorY);
+      const itemsInRow = Math.min(maxPerRow, totalChildren - childIndex);
 
-      pdf.line(childCenterX, connectorY, childCenterX, topY + levelSpacing);
+      const rowWidth =
+        itemsInRow * boxWidth +
+        (itemsInRow - 1) * siblingSpacing;
 
-      drawNode(child, childCenterX, topY + levelSpacing);
+      let startX = centerX - rowWidth / 2;
 
-      startX += childWidth + siblingSpacing;
-    });
+      for (let c = 0; c < itemsInRow; c++) {
+
+        const child = node.children[childIndex];
+
+        const childCenterX = startX + boxWidth / 2;
+
+        // Connector
+        pdf.line(
+          centerX,
+          y + boxHeight,
+          childCenterX,
+          startY - 10
+        );
+
+        drawNode(
+          child,
+          childCenterX,
+          startY + r * (boxHeight + 20)
+        );
+
+        startX += boxWidth + siblingSpacing;
+        childIndex++;
+      }
+    }
   }
 
   drawNode(root, pageWidth / 2, 25);
 
-  pdf.save("Sadri-Digital-Shajra-A3-Vertical.pdf");
+  pdf.save("Sadri-Digital-Shajra-A3-Professional.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
