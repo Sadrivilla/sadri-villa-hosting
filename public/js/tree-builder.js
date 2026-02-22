@@ -109,27 +109,40 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 FULL SIZE MULTI-PAGE TREE PDF EXPORT
+// 📄 VECTOR HORIZONTAL GENEALOGY PDF
 // =======================================
 
 window.exportTreePDF = async function () {
 
   const { jsPDF } = window.jspdf;
-  const tree = document.getElementById("tree");
+  const snapshot = await getDocs(collection(db, "family_members"));
 
-  const fullWidth = tree.scrollWidth;
-  const fullHeight = tree.scrollHeight;
-
-  const canvas = await html2canvas(tree, {
-    width: fullWidth,
-    height: fullHeight,
-    scrollX: 0,
-    scrollY: 0,
-    scale: 2,
-    useCORS: true
+  const members = [];
+  snapshot.forEach(doc => {
+    members.push({ id: doc.id, ...doc.data() });
   });
 
-  const imgData = canvas.toDataURL("image/png");
+  // ---------- Build Tree Map ----------
+  const map = {};
+  members.forEach(m => {
+    map[m.id] = { ...m, children: [] };
+  });
+
+  let root = null;
+
+  members.forEach(m => {
+    if (m.fatherId && map[m.fatherId]) {
+      map[m.fatherId].children.push(map[m.id]);
+    } else {
+      root = map[m.id];
+    }
+  });
+
+  // ---------- Layout Settings ----------
+  const boxWidth = 60;
+  const boxHeight = 18;
+  const horizontalSpacing = 90;
+  const verticalSpacing = 28;
 
   const pdf = new jsPDF({
     orientation: "landscape",
@@ -140,25 +153,80 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  let currentPage = 1;
 
-  let heightLeft = imgHeight;
-  let position = 0;
+  // ---------- Recursive Layout ----------
+  function drawNode(node, genIndex, yStart) {
 
-  // First Page
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+    const x = genIndex * horizontalSpacing + 20;
 
-  // Extra Pages if needed
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    // If new generation exceeds page width → add new page
+    if (x + boxWidth > pageWidth) {
+      pdf.addPage();
+      currentPage++;
+    }
+
+    let totalHeight = 0;
+
+    // Calculate total children height
+    node.children.forEach(child => {
+      totalHeight += boxHeight + verticalSpacing;
+    });
+
+    if (totalHeight > 0)
+      totalHeight -= verticalSpacing;
+
+    let y = yStart;
+
+    // If children exist, center father
+    if (node.children.length > 0) {
+      const childrenTop = yStart;
+      const childrenBottom = yStart + totalHeight;
+      y = (childrenTop + childrenBottom) / 2 - boxHeight / 2;
+    }
+
+    // Draw box
+    pdf.rect(x, y, boxWidth, boxHeight);
+
+    // Add name text
+    pdf.setFontSize(8);
+    pdf.text(
+      node.name,
+      x + 3,
+      y + 6
+    );
+
+    pdf.text(
+      "Gen " + node.generation,
+      x + 3,
+      y + 12
+    );
+
+    // Draw children recursively
+    let childY = yStart;
+
+    node.children.forEach(child => {
+
+      const childCenterY = childY + boxHeight / 2;
+
+      // Draw connecting line
+      pdf.line(
+        x + boxWidth,
+        y + boxHeight / 2,
+        x + boxWidth + 10,
+        childCenterY
+      );
+
+      drawNode(child, genIndex + 1, childY);
+
+      childY += boxHeight + verticalSpacing;
+    });
   }
 
-  pdf.save("Digital-Shajra-Full-Multipage.pdf");
+  // Start drawing from root
+  drawNode(root, 0, 20);
+
+  pdf.save("Sadri-Digital-Shajra-Vector.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
