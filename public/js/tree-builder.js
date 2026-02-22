@@ -109,7 +109,7 @@ window.resetTreeSearch = function () {
     .forEach(node => node.classList.remove("highlight-node"));
 };
 // =======================================
-// 📄 PROFESSIONAL FULL TREE PDF EXPORT
+// 📄 FULL SIZE MULTI-PAGE TREE PDF EXPORT
 // =======================================
 
 window.exportTreePDF = async function () {
@@ -117,7 +117,6 @@ window.exportTreePDF = async function () {
   const { jsPDF } = window.jspdf;
   const tree = document.getElementById("tree");
 
-  // 🔥 Get full tree dimensions (not visible area)
   const fullWidth = tree.scrollWidth;
   const fullHeight = tree.scrollHeight;
 
@@ -126,12 +125,12 @@ window.exportTreePDF = async function () {
     height: fullHeight,
     scrollX: 0,
     scrollY: 0,
-    scale: 2
+    scale: 2,
+    useCORS: true
   });
 
   const imgData = canvas.toDataURL("image/png");
 
-  // A3 Landscape
   const pdf = new jsPDF({
     orientation: "landscape",
     unit: "mm",
@@ -141,18 +140,25 @@ window.exportTreePDF = async function () {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  // Maintain aspect ratio
-  const ratio = Math.min(
-    pageWidth / canvas.width,
-    pageHeight / canvas.height
-  );
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
-  const imgWidth = canvas.width * ratio;
-  const imgHeight = canvas.height * ratio;
+  let heightLeft = imgHeight;
+  let position = 0;
 
-  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  // First Page
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
 
-  pdf.save("Digital-Shajra-A3-Full.pdf");
+  // Extra Pages if needed
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save("Digital-Shajra-Full-Multipage.pdf");
 };
 // =======================================
 // 📊 EXPORT EXCEL (PROFESSIONAL)
