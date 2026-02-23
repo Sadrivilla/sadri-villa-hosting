@@ -9,11 +9,17 @@ import { db } from "./firebase.js";
 window.setMode = function(mode) {
 
   const svg = document.getElementById("treeSvg");
-
   if (!svg) return;
 
   svg.setAttribute("data-mode", mode);
 
+  if(mode === "modern") {
+    svg.setAttribute("data-modern", "true");
+  } else {
+    svg.removeAttribute("data-modern");
+  }
+
+  renderTree(); // 🔥 THIS WAS MISSING
 };
 
 
@@ -151,105 +157,102 @@ svg.appendChild(defs);
   svg.setAttribute("width", root.subtreeWidth + 200);
   svg.setAttribute("height", totalHeight + 100);
 
-  function draw(node) {
-
-    if (node.children) {
-      node.children.forEach(child => {
-
-        const parentCenterX = node.x + 75;
-        const parentBottomY = node.y + 60;
-
-        const childCenterX = child.x + 75;
-        const childTopY = child.y;
-
-        if (node.children && node.children.length > 0) {
+function draw(node) {
 
   const parentCenterX = node.x + 75;
   const parentBottomY = node.y + 60;
 
-  const connectorY = parentBottomY + 25;
+  // ===== CONNECTORS (PDF STYLE) =====
+  if (node.children && node.children.length > 0) {
 
-  // 1️⃣ Vertical line down from parent
-  const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  vLine.setAttribute("x1", parentCenterX);
-  vLine.setAttribute("y1", parentBottomY);
-  vLine.setAttribute("x2", parentCenterX);
-  vLine.setAttribute("y2", connectorY);
-  vLine.setAttribute("class", "connector");
-  svg.appendChild(vLine);
+    const connectorY = parentBottomY + 25;
 
-  let childCenters = [];
+    // 1️⃣ Vertical from parent
+    const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    vLine.setAttribute("x1", parentCenterX);
+    vLine.setAttribute("y1", parentBottomY);
+    vLine.setAttribute("x2", parentCenterX);
+    vLine.setAttribute("y2", connectorY);
+    vLine.setAttribute("class", "connector");
+    svg.appendChild(vLine);
 
-  node.children.forEach(child => {
-    childCenters.push(child.x + 75);
-  });
+    let childCenters = node.children.map(child => child.x + 75);
 
-  const minX = Math.min(...childCenters);
-  const maxX = Math.max(...childCenters);
+    const minX = Math.min(...childCenters);
+    const maxX = Math.max(...childCenters);
 
-  // 2️⃣ Horizontal line connecting children
-  const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  hLine.setAttribute("x1", minX);
-  hLine.setAttribute("y1", connectorY);
-  hLine.setAttribute("x2", maxX);
-  hLine.setAttribute("y2", connectorY);
-  hLine.setAttribute("class", "connector");
-  svg.appendChild(hLine);
+    // 2️⃣ Horizontal line
+    const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    hLine.setAttribute("x1", minX);
+    hLine.setAttribute("y1", connectorY);
+    hLine.setAttribute("x2", maxX);
+    hLine.setAttribute("y2", connectorY);
+    hLine.setAttribute("class", "connector");
+    svg.appendChild(hLine);
 
-  // 3️⃣ Vertical lines down to children
-  node.children.forEach(child => {
+    // 3️⃣ Vertical to children + arrow
+    node.children.forEach(child => {
 
-    const childCenterX = child.x + 75;
-    const childTopY = child.y;
+      const childCenterX = child.x + 75;
+      const childTopY = child.y;
 
-    const childLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    childLine.setAttribute("x1", childCenterX);
-    childLine.setAttribute("y1", connectorY);
-    childLine.setAttribute("x2", childCenterX);
-    childLine.setAttribute("y2", childTopY);
-    childLine.setAttribute("class", "connector");
-    childLine.setAttribute("marker-end", "url(#arrow)");
-    svg.appendChild(childLine);
+      const childLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      childLine.setAttribute("x1", childCenterX);
+      childLine.setAttribute("y1", connectorY);
+      childLine.setAttribute("x2", childCenterX);
+      childLine.setAttribute("y2", childTopY);
+      childLine.setAttribute("class", "connector");
+      childLine.setAttribute("marker-end", "url(#arrow)");
+      svg.appendChild(childLine);
 
-    draw(child);
-  });
-
-}
-
-        draw(child);
-      });
-    }
-
-    const rect = document.createElementNS(
-      "http://www.w3.org/2000/svg", "rect"
-    );
-
-    rect.setAttribute("x", node.x);
-    rect.setAttribute("y", node.y);
-    rect.setAttribute("width", 150);
-    rect.setAttribute("height", 60);
-    rect.setAttribute("rx", 10);
-    rect.setAttribute("class", "node-box");
-
-    svg.appendChild(rect);
-
-    const text = document.createElementNS(
-      "http://www.w3.org/2000/svg", "text"
-    );
-
-    text.setAttribute("x", node.x + 75);
-    text.setAttribute("y", node.y + 30);
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("class", "node-text");
-
-    text.textContent = node.name + " | Gen " + node.generation;
-
-    svg.appendChild(text);
+      draw(child);
+    });
   }
 
-  draw(root);
-}
+  // ===== NODE BOX =====
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
+  rect.setAttribute("x", node.x);
+  rect.setAttribute("y", node.y);
+  rect.setAttribute("width", 150);
+  rect.setAttribute("height", 60);
+  rect.setAttribute("rx", 10);
+  rect.setAttribute("class", "node-box");
+
+  // 🎨 Generation Color Logic
+  let color;
+
+  switch(node.generation) {
+    case 1: color = "#fef3c7"; break;
+    case 2: color = "#dbeafe"; break;
+    case 3: color = "#dcfce7"; break;
+    case 4: color = "#fce7f3"; break;
+    case 5: color = "#ede9fe"; break;
+    default: color = "#ffffff";
+  }
+
+  if(svg.getAttribute("data-modern") === "true") {
+    rect.setAttribute("fill", "#eef2ff");
+  } else {
+    rect.setAttribute("fill", color);
+  }
+
+  svg.appendChild(rect);
+
+  // ===== TEXT =====
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+
+  text.setAttribute("x", node.x + 75);
+  text.setAttribute("y", node.y + 30);
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("class", "node-text");
+
+  text.textContent = node.name + " | Gen " + node.generation;
+
+  svg.appendChild(text);
+}
+draw(root);
+}
 
 // =======================================
 // 📄 VECTOR PDF EXPORT (UNCHANGED)
