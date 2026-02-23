@@ -37,19 +37,19 @@ async function renderTree() {
   });
 
   // Build tree structure
-  const map = {};
-  members.forEach(m => {
-    map[m.id] = { ...m, children: [] };
-  });
+window.memberMap = {};
+ members.forEach(m => {
+  memberMap[m.id] = { ...m, children: [] };
+});
 
   let root = null;
 
   members.forEach(m => {
-    if (m.fatherId && map[m.fatherId]) {
-      map[m.fatherId].children.push(map[m.id]);
-    } else {
-      root = map[m.id];
-    }
+if (m.fatherId && memberMap[m.fatherId]) {
+  memberMap[m.fatherId].children.push(memberMap[m.id]);
+} else {
+  root = memberMap[m.id];
+}
   });
 
   if (!root) {
@@ -243,12 +243,6 @@ rect.addEventListener("click", () => {
   openProfileModal(node);
 });
 
-rect.style.cursor = "pointer";
-
-rect.addEventListener("click", () => {
-  openProfileModal(node);
-});
-
 svg.appendChild(rect);
   // ===== TEXT =====
   const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -279,19 +273,19 @@ window.exportTreePDF = async function () {
     members.push({ id: doc.id, ...doc.data() });
   });
 
-  const map = {};
-  members.forEach(m => {
-    map[m.id] = { ...m, children: [] };
-  });
+const localMap = {};
+members.forEach(m => {
+  localMap[m.id] = { ...m, children: [] };
+});
 
   let root = null;
 
   members.forEach(m => {
-    if (m.fatherId && map[m.fatherId]) {
-      map[m.fatherId].children.push(map[m.id]);
-    } else {
-      root = map[m.id];
-    }
+   if (m.fatherId && localMap[m.fatherId]) {
+  localMap[m.fatherId].children.push(localMap[m.id]);
+} else {
+  root = localMap[m.id];
+}
   });
 
   if (!root) {
@@ -449,10 +443,11 @@ window.openProfileModal = function(node) {
   document.getElementById("modalDob").textContent = node.dob || "N/A";
 
   // Father Name
-  let fatherName = "Root";
-  if (node.fatherId && node.fatherName) {
-    fatherName = node.fatherName;
-  }
+let fatherName = "Root";
+
+if (node.fatherId && window.memberMap[node.fatherId]) {
+  fatherName = window.memberMap[node.fatherId].name;
+}
   document.getElementById("modalFather").textContent = fatherName;
 
   // Children
