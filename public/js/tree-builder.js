@@ -217,8 +217,8 @@ function draw(node) {
   rect.setAttribute("width", 150);
   rect.setAttribute("height", 60);
   rect.setAttribute("rx", 10);
-  rect.setAttribute("class", "node-box");
-
+rect.setAttribute("class", "node-box");
+rect.__nodeId = node.id;
   // 🎨 Generation Color Logic
   let color;
 
@@ -430,24 +430,30 @@ renderTree();
 // ===============================
 
 // ===============================
+// PROFILE NAVIGATION STACK
+// ===============================
+
+window.profileStack = [];
+// ===============================
 // OPEN PROFILE MODAL
 // ===============================
 
-window.openProfileModal = function(node) {
+// ===============================
+// RENDER PROFILE DATA
+// ===============================
 
-  // Basic Info (same as node)
+function renderProfile(node) {
+
   document.getElementById("modalName").textContent = node.name;
   document.getElementById("modalGeneration").textContent = node.generation;
-
-  // Date of Birth
   document.getElementById("modalDob").textContent = node.dob || "N/A";
 
   // Father Name
-let fatherName = "Root";
+  let fatherName = "Root";
+  if (node.fatherId && window.memberMap[node.fatherId]) {
+    fatherName = window.memberMap[node.fatherId].name;
+  }
 
-if (node.fatherId && window.memberMap[node.fatherId]) {
-  fatherName = window.memberMap[node.fatherId].name;
-}
   document.getElementById("modalFather").textContent = fatherName;
 
   // Children
@@ -458,19 +464,89 @@ if (node.fatherId && window.memberMap[node.fatherId]) {
   container.innerHTML = "";
 
   children.forEach(child => {
+
     const box = document.createElement("div");
     box.className = "child-box";
     box.textContent = child.name;
+
+    // 🔥 CLICK CHILD TO OPEN PROFILE
+    box.style.cursor = "pointer";
+    box.addEventListener("click", () => {
+      openProfileModal(child);
+    });
+
     container.appendChild(box);
   });
 
+highlightNode(node.id);
+
+// Show or hide Back button
+const backBtn = document.querySelector("button[onclick='goBackProfile()']");
+if (profileStack.length > 1) {
+  backBtn.style.display = "inline-block";
+} else {
+  backBtn.style.display = "none";
+}
   document.getElementById("profileModal").style.display = "flex";
+}
+// ===============================
+// HIGHLIGHT CURRENT NODE
+// ===============================
+
+function highlightNode(id) {
+
+  // Remove old highlight
+  document.querySelectorAll(".node-box").forEach(rect => {
+    rect.classList.remove("active-node");
+  });
+
+  // Add highlight to current
+  document.querySelectorAll(".node-box").forEach(rect => {
+    if (rect.__nodeId === id) {
+      rect.classList.add("active-node");
+    }
+  });
+}
+// ===============================
+// GO BACK PROFILE
+// ===============================
+
+window.goBackProfile = function() {
+
+  profileStack.pop(); // remove current
+
+  if (profileStack.length > 0) {
+    const previous = profileStack[profileStack.length - 1];
+    renderProfile(previous);
+  }
 };
+
+// ===============================
+// OPEN PROFILE MODAL
+// ===============================
+
+window.openProfileModal = function(node) {
+
+  profileStack.push(node);
+
+  renderProfile(node);
+};
+// ===============================
+// CLOSE PROFILE MODAL
+// ===============================
 
 window.closeProfileModal = function() {
-  document.getElementById("profileModal").style.display = "none";
-};
 
+  document.getElementById("profileModal").style.display = "none";
+
+  // Clear highlight when modal closes
+  document.querySelectorAll(".node-box").forEach(rect => {
+    rect.classList.remove("active-node");
+  });
+
+  // Reset stack
+  profileStack = [];
+};
 // CLICK OUTSIDE TO CLOSE
 document.addEventListener("click", function(e) {
   const modal = document.getElementById("profileModal");
