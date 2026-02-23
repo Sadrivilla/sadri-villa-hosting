@@ -1,3 +1,6 @@
+import { getStorage, ref, uploadBytes, getDownloadURL } 
+from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+const storage = getStorage();
 import { 
   collection,
   getDocs, 
@@ -137,23 +140,58 @@ showMessage("Invalid father selected.", "error");
   generation = fatherSnap.data().generation + 1;
 }
 
-await addDoc(collection(db, "family_members"), {
-  name,
-  fatherId: fatherId || null,
-  generation,
-  surname,
-  title: title || "",
-  dob: dob || "",   // ✅ Added
-  isRoot: fatherId ? false : true,
-  isAlive: false,
-  branchId: "main-root",
-  createdAt: serverTimestamp()
-});
+window.addMember = async function () {
 
-showMessage("Member Added Successfully!", "success");
-clearForm();
-loadMembers();
-loadFathers();
+  const name = document.getElementById("name").value.trim();
+  const fatherId = document.getElementById("fatherSelect").value;
+  const surname = document.getElementById("surname").value.trim();
+  const title = document.getElementById("title").value.trim();
+  const file = document.getElementById("profileImage").files[0];
+
+  if (!name) {
+    showMessage("Name is required!", "error");
+    return;
+  }
+
+  let generation = 1;
+
+  if (fatherId) {
+    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+    generation = fatherSnap.data().generation + 1;
+  }
+
+  // First create member without image
+  const docRef = await addDoc(collection(db, "family_members"), {
+    name,
+    fatherId: fatherId || null,
+    generation,
+    surname,
+    title: title || "",
+    profileImage: "",
+    isRoot: fatherId ? false : true,
+    isAlive: false,
+    branchId: "main-root",
+    createdAt: serverTimestamp()
+  });
+
+  // Upload profile image if selected
+  if (file) {
+
+    const imageRef = ref(storage, "profiles/" + docRef.id + ".jpg");
+
+    await uploadBytes(imageRef, file);
+
+    const downloadURL = await getDownloadURL(imageRef);
+
+    await updateDoc(doc(db, "family_members", docRef.id), {
+      profileImage: downloadURL
+    });
+  }
+
+  showMessage("Member Added Successfully!", "success");
+  clearForm();
+  loadMembers();
+  loadFathers();
 };
 window.updateMember = async function () {
 
@@ -189,22 +227,54 @@ if (await isDescendant(editingId, fatherId)) {
   generation = fatherSnap.data().generation + 1;
 }
 
-await updateDoc(doc(db, "family_members", editingId), {
-  name,
-  fatherId: fatherId || null,
-  generation,
-  surname,
-  title: title || "",
-  dob: dob || ""   // ✅ Added
-});
+window.updateMember = async function () {
 
-  await updateChildrenGenerations(editingId, generation);
-  
-showMessage("Member Updated Successfully!", "success");
-editingId = null;
-clearForm();
-loadMembers();
-loadFathers();
+  if (!editingId) {
+    showMessage("Please click Edit first.", "warning");
+    return;
+  }
+
+  const name = document.getElementById("name").value.trim();
+  const fatherId = document.getElementById("fatherSelect").value;
+  const surname = document.getElementById("surname").value.trim();
+  const title = document.getElementById("title").value.trim();
+  const file = document.getElementById("profileImage").files[0];
+
+  let generation = 1;
+
+  if (fatherId) {
+    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+    generation = fatherSnap.data().generation + 1;
+  }
+
+  await updateDoc(doc(db, "family_members", editingId), {
+    name,
+    fatherId: fatherId || null,
+    generation,
+    surname,
+    title: title || ""
+  });
+
+  // Overwrite image if new file selected
+  if (file) {
+
+    const imageRef = ref(storage, "profiles/" + editingId + ".jpg");
+
+    await uploadBytes(imageRef, file);
+
+    const downloadURL = await getDownloadURL(imageRef);
+
+    await updateDoc(doc(db, "family_members", editingId), {
+      profileImage: downloadURL
+    });
+  }
+
+  showMessage("Member Updated Successfully!", "success");
+
+  editingId = null;
+  clearForm();
+  loadMembers();
+  loadFathers();
 };
 window.editMember = async function(id) {
 
