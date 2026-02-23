@@ -40,6 +40,15 @@
       dominant-baseline: middle;
       pointer-events: none;
     }
+    .node-text {
+  font-size: 14px;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+    .active-node {
+  stroke: red !important;
+  stroke-width: 4 !important;
+}
 
     /* ===== MODAL ===== */
 
@@ -164,8 +173,25 @@
     <button onclick="closeProfileModal()" class="modal-close">✖</button>
 
     <div class="modal-body">
-      <h3 id="modalName"></h3>
-      <p>Generation: <strong id="modalGeneration"></strong></p>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+  <h3 id="modalName"></h3>
+
+  <button id="backProfileBtn"
+    onclick="goBackProfile()"
+    style="
+      display:none;
+      background:#0b3d91;
+      color:white;
+      border:none;
+      padding:5px 10px;
+      border-radius:6px;
+      cursor:pointer;
+    ">
+    ⬅ Back
+  </button>
+</div>
+
+<p>Generation: <strong id="modalGeneration"></strong></p>
       <hr>
       <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
       <p><strong>Father Name:</strong> <span id="modalFather"></span></p>
