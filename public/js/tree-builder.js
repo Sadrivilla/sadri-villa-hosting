@@ -252,8 +252,15 @@ svg.appendChild(rect);
   text.setAttribute("text-anchor", "middle");
   text.setAttribute("class", "node-text");
 
-  text.textContent = node.name + " | Gen " + node.generation;
+let age = calculateAge(node.dob);
 
+let nodeLabel = node.name;
+
+if (age !== null) {
+  nodeLabel += " (" + age + ")";
+}
+
+text.textContent = nodeLabel + " | Gen " + node.generation;
   svg.appendChild(text);
 }
 draw(root);
@@ -441,13 +448,53 @@ window.profileStack = [];
 // ===============================
 // RENDER PROFILE DATA
 // ===============================
+// ===============================
+// FORMAT DATE + CALCULATE AGE
+// ===============================
 
+function formatDate(dateString) {
+
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+
+  const options = { day: "2-digit", month: "long", year: "numeric" };
+  return date.toLocaleDateString("en-GB", options);
+}
+
+function calculateAge(dateString) {
+
+  if (!dateString) return null;
+
+  const dob = new Date(dateString);
+  const today = new Date();
+
+  let age = today.getFullYear() - dob.getFullYear();
+
+  const m = today.getMonth() - dob.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  return age;
+}
 function renderProfile(node) {
 
   document.getElementById("modalName").textContent = node.name;
   document.getElementById("modalGeneration").textContent = node.generation;
-  document.getElementById("modalDob").textContent = node.dob || "N/A";
+const formattedDob = formatDate(node.dob);
+const age = calculateAge(node.dob);
 
+document.getElementById("modalDob").textContent = formattedDob;
+
+let nameDisplay = node.name;
+
+if (age !== null) {
+  nameDisplay += " (Age " + age + ")";
+}
+
+document.getElementById("modalName").textContent = nameDisplay;
   // Father Name
   let fatherName = "Root";
   if (node.fatherId && window.memberMap[node.fatherId]) {
