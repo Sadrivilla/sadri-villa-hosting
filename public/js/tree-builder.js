@@ -510,8 +510,31 @@ const age = calculateAge(node.dob);
 
 document.getElementById("modalDob").textContent = formattedDob;
 
-document.getElementById("modalName").textContent = node.name;
-document.getElementById("modalGeneration").textContent = node.generation;
+
+  // ===============================
+// PROFILE IMAGE + SPINNER
+// ===============================
+
+const profileImg = document.getElementById("modalProfileImage");
+const spinner = document.getElementById("imageSpinner");
+
+if (profileImg && spinner) {
+
+  spinner.style.display = "block";
+
+  if (node.profileImage) {
+
+profileImg.onload = () => spinner.style.display = "none";
+profileImg.onerror = () => spinner.style.display = "none";
+
+    profileImg.src = node.profileImage;
+
+  } else {
+    spinner.style.display = "none";
+    profileImg.src = "https://via.placeholder.com/80";
+  }
+
+}
 
 let dobLine = formattedDob;
 
@@ -626,3 +649,31 @@ document.addEventListener("click", function(e) {
     closeProfileModal();
   }
 });
+
+// ===============================
+// IMAGE ZOOM FUNCTION
+// ===============================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  const profileImg = document.getElementById("modalProfileImage");
+
+  if (profileImg) {
+    profileImg.addEventListener("click", function() {
+
+      const zoomModal = document.getElementById("imageZoomModal");
+      const zoomImg = document.getElementById("zoomedImage");
+
+      if (!zoomModal || !zoomImg) return;
+
+      zoomImg.src = this.src;
+      zoomModal.style.display = "flex";
+    });
+  }
+
+});
+
+window.closeImageZoom = function() {
+  const zoomModal = document.getElementById("imageZoomModal");
+  if (zoomModal) zoomModal.style.display = "none";
+};
