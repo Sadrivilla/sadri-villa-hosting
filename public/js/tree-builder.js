@@ -113,6 +113,25 @@ function drawSVG(root) {
 
   const svg = document.getElementById("treeSvg");
   svg.innerHTML = "";
+  // 🔺 Arrow Marker Definition
+const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+marker.setAttribute("id", "arrow");
+marker.setAttribute("markerWidth", "10");
+marker.setAttribute("markerHeight", "10");
+marker.setAttribute("refX", "5");
+marker.setAttribute("refY", "3");
+marker.setAttribute("orient", "auto");
+marker.setAttribute("markerUnits", "strokeWidth");
+
+const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+path.setAttribute("d", "M0,0 L0,6 L6,3 z");
+path.setAttribute("fill", "#333");
+
+marker.appendChild(path);
+defs.appendChild(marker);
+svg.appendChild(defs);
 
   function calculateHeight(node) {
 
@@ -189,6 +208,7 @@ function drawSVG(root) {
     childLine.setAttribute("x2", childCenterX);
     childLine.setAttribute("y2", childTopY);
     childLine.setAttribute("class", "connector");
+    childLine.setAttribute("marker-end", "url(#arrow)");
     svg.appendChild(childLine);
 
     draw(child);
