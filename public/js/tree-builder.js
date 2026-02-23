@@ -143,17 +143,58 @@ function drawSVG(root) {
         const childCenterX = child.x + 75;
         const childTopY = child.y;
 
-        const line = document.createElementNS(
-          "http://www.w3.org/2000/svg", "line"
-        );
+        if (node.children && node.children.length > 0) {
 
-        line.setAttribute("x1", parentCenterX);
-        line.setAttribute("y1", parentBottomY);
-        line.setAttribute("x2", childCenterX);
-        line.setAttribute("y2", childTopY);
-        line.setAttribute("class", "connector");
+  const parentCenterX = node.x + 75;
+  const parentBottomY = node.y + 60;
 
-        svg.appendChild(line);
+  const connectorY = parentBottomY + 25;
+
+  // 1️⃣ Vertical line down from parent
+  const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  vLine.setAttribute("x1", parentCenterX);
+  vLine.setAttribute("y1", parentBottomY);
+  vLine.setAttribute("x2", parentCenterX);
+  vLine.setAttribute("y2", connectorY);
+  vLine.setAttribute("class", "connector");
+  svg.appendChild(vLine);
+
+  let childCenters = [];
+
+  node.children.forEach(child => {
+    childCenters.push(child.x + 75);
+  });
+
+  const minX = Math.min(...childCenters);
+  const maxX = Math.max(...childCenters);
+
+  // 2️⃣ Horizontal line connecting children
+  const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  hLine.setAttribute("x1", minX);
+  hLine.setAttribute("y1", connectorY);
+  hLine.setAttribute("x2", maxX);
+  hLine.setAttribute("y2", connectorY);
+  hLine.setAttribute("class", "connector");
+  svg.appendChild(hLine);
+
+  // 3️⃣ Vertical lines down to children
+  node.children.forEach(child => {
+
+    const childCenterX = child.x + 75;
+    const childTopY = child.y;
+
+    const childLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    childLine.setAttribute("x1", childCenterX);
+    childLine.setAttribute("y1", connectorY);
+    childLine.setAttribute("x2", childCenterX);
+    childLine.setAttribute("y2", childTopY);
+    childLine.setAttribute("class", "connector");
+    svg.appendChild(childLine);
+
+    draw(child);
+  });
+
+}
 
         draw(child);
       });
