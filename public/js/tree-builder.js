@@ -126,13 +126,13 @@ const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
 marker.setAttribute("id", "arrow");
 marker.setAttribute("markerWidth", "10");
 marker.setAttribute("markerHeight", "10");
-marker.setAttribute("refX", "5");
+marker.setAttribute("refX", "6");
 marker.setAttribute("refY", "3");
 marker.setAttribute("orient", "auto");
 marker.setAttribute("markerUnits", "strokeWidth");
 
 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-path.setAttribute("d", "M0,0 L0,6 L6,3 z");
+path.setAttribute("d", "M0,0 L0,6 L8,3 z");
 path.setAttribute("fill", "#333");
 
 marker.appendChild(path);
