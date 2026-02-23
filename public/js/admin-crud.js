@@ -1,5 +1,6 @@
-import { getStorage, ref, uploadBytes, getDownloadURL } 
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } 
 from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
 const storage = getStorage();
 import { 
   collection,
@@ -114,167 +115,157 @@ async function loadMembers() {
 
 loadMembers();
 // Add Member
-window.addMember = async function () {
-
-  const name = document.getElementById("name").value.trim();
-  const fatherId = document.getElementById("fatherSelect").value;
-  const surname = document.getElementById("surname").value.trim();
-  const title = document.getElementById("title").value.trim();
-  const dob = document.getElementById("dob").value;
-
-  if (!name) {
-showMessage("Name is required!", "error");
-    return;
-  }
-
-  let generation = 1;
-
-if (fatherId) {
-  const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-
-  if (!fatherSnap.exists()) {
-showMessage("Invalid father selected.", "error");
-    return;
-  }
-
-  generation = fatherSnap.data().generation + 1;
-}
 
 window.addMember = async function () {
 
-  const name = document.getElementById("name").value.trim();
-  const fatherId = document.getElementById("fatherSelect").value;
-  const surname = document.getElementById("surname").value.trim();
-  const title = document.getElementById("title").value.trim();
-  const file = document.getElementById("profileImage").files[0];
+  try {
 
-  if (!name) {
-    showMessage("Name is required!", "error");
-    return;
-  }
+    const name = document.getElementById("name").value.trim();
+    const fatherId = document.getElementById("fatherSelect").value;
+    const surname = document.getElementById("surname").value.trim();
+    const title = document.getElementById("title").value.trim();
+    const dob = document.getElementById("dob").value;
+    const file = document.getElementById("profileImage").files[0];
 
-  let generation = 1;
+    if (!name) {
+      showMessage("Name is required!", "error");
+      return;
+    }
 
-  if (fatherId) {
-    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-    generation = fatherSnap.data().generation + 1;
-  }
+    if (file && file.size > 2 * 1024 * 1024) {
+      showMessage("Image must be under 2MB.", "error");
+      return;
+    }
 
-  // First create member without image
-  const docRef = await addDoc(collection(db, "family_members"), {
-    name,
-    fatherId: fatherId || null,
-    generation,
-    surname,
-    title: title || "",
-    profileImage: "",
-    isRoot: fatherId ? false : true,
-    isAlive: false,
-    branchId: "main-root",
-    createdAt: serverTimestamp()
-  });
+    let generation = 1;
 
-  // Upload profile image if selected
-  if (file) {
+    if (fatherId) {
+      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+      generation = fatherSnap.data().generation + 1;
+    }
 
-    const imageRef = ref(storage, "profiles/" + docRef.id + ".jpg");
+    showMessage("Creating member...", "warning");
 
-    await uploadBytes(imageRef, file);
-
-    const downloadURL = await getDownloadURL(imageRef);
-
-    await updateDoc(doc(db, "family_members", docRef.id), {
-      profileImage: downloadURL
+    const docRef = await addDoc(collection(db, "family_members"), {
+      name,
+      fatherId: fatherId || null,
+      generation,
+      surname,
+      title: title || "",
+      dob: dob || "",
+      profileImage: "",
+      isRoot: fatherId ? false : true,
+      isAlive: false,
+      branchId: "main-root",
+      createdAt: serverTimestamp()
     });
-  }
 
-  showMessage("Member Added Successfully!", "success");
-  clearForm();
-  loadMembers();
-  loadFathers();
+    // Upload image if exists
+    if (file) {
+
+      showMessage("Uploading image...", "warning");
+
+const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
+      await uploadBytes(imageRef, file);
+
+      const downloadURL = await getDownloadURL(imageRef);
+
+      await updateDoc(doc(db, "family_members", docRef.id), {
+        profileImage: downloadURL
+      });
+    }
+
+    showMessage("Member Added Successfully!", "success");
+
+    clearForm();
+    loadMembers();
+    loadFathers();
+
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message, "error");
+  }
 };
-window.updateMember = async function () {
 
-  if (!editingId) {
-  showMessage("Please click Edit on a member first.", "warning");
-  return;
-}
-
-  const name = document.getElementById("name").value.trim();
-  const fatherId = document.getElementById("fatherSelect").value;
-  const surname = document.getElementById("surname").value.trim();
-  const title = document.getElementById("title").value.trim();
-
-  let generation = 1;
-
-if (fatherId) {
-  const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-
-if (!fatherSnap.exists()) {
-  showMessage("Invalid father selected.", "error");
-  return;
-}
-  // Prevent self assignment
-if (fatherId === editingId) {
-  showMessage("A member cannot be their own father.", "error");
-  return;
-}
-// Prevent circular relationship
-if (await isDescendant(editingId, fatherId)) {
-  showMessage("Invalid relationship: Cannot assign descendant as father.", "error");
-  return;
-}
-  generation = fatherSnap.data().generation + 1;
-}
 
 window.updateMember = async function () {
 
-  if (!editingId) {
-    showMessage("Please click Edit first.", "warning");
-    return;
-  }
+  try {
 
-  const name = document.getElementById("name").value.trim();
-  const fatherId = document.getElementById("fatherSelect").value;
-  const surname = document.getElementById("surname").value.trim();
-  const title = document.getElementById("title").value.trim();
-  const file = document.getElementById("profileImage").files[0];
+    if (!editingId) {
+      showMessage("Please click Edit first.", "warning");
+      return;
+    }
 
-  let generation = 1;
+    const name = document.getElementById("name").value.trim();
+    const fatherId = document.getElementById("fatherSelect").value;
+    const surname = document.getElementById("surname").value.trim();
+    const title = document.getElementById("title").value.trim();
+    const dob = document.getElementById("dob").value;
+    const file = document.getElementById("profileImage").files[0];
 
-  if (fatherId) {
-    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-    generation = fatherSnap.data().generation + 1;
-  }
+    if (!name) {
+      showMessage("Name is required!", "error");
+      return;
+    }
 
-  await updateDoc(doc(db, "family_members", editingId), {
-    name,
-    fatherId: fatherId || null,
-    generation,
-    surname,
-    title: title || ""
-  });
+    let generation = 1;
 
-  // Overwrite image if new file selected
-  if (file) {
+    if (fatherId) {
+      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+      generation = fatherSnap.data().generation + 1;
+    }
 
-    const imageRef = ref(storage, "profiles/" + editingId + ".jpg");
-
-    await uploadBytes(imageRef, file);
-
-    const downloadURL = await getDownloadURL(imageRef);
+    showMessage("Updating member...", "warning");
 
     await updateDoc(doc(db, "family_members", editingId), {
-      profileImage: downloadURL
+      name,
+      fatherId: fatherId || null,
+      generation,
+      surname,
+      title: title || "",
+      dob: dob || ""
     });
+
+    // Replace image if new file selected
+    if (file) {
+
+      if (file.size > 2 * 1024 * 1024) {
+        showMessage("Image must be under 2MB.", "error");
+        return;
+      }
+
+      showMessage("Uploading new image...", "warning");
+
+
+     const imageRef = ref(storage, "profilePhotos/" + editingId + "/profile.jpg");
+
+// Delete old image first
+try {
+  await deleteObject(imageRef);
+} catch (e) {
+  // ignore if not exists
+}
+      await uploadBytes(imageRef, file);
+
+      const downloadURL = await getDownloadURL(imageRef);
+
+      await updateDoc(doc(db, "family_members", editingId), {
+        profileImage: downloadURL
+      });
+    }
+
+    showMessage("Member Updated Successfully!", "success");
+
+    editingId = null;
+    clearForm();
+    loadMembers();
+    loadFathers();
+
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message, "error");
   }
-
-  showMessage("Member Updated Successfully!", "success");
-
-  editingId = null;
-  clearForm();
-  loadMembers();
-  loadFathers();
 };
 window.editMember = async function(id) {
 
@@ -329,6 +320,13 @@ const childrenSnapshot = await getDocs(q);
 if (!childrenSnapshot.empty) {
   showMessage("Cannot delete this member because they have children.", "warning");
   return;
+}
+  // Delete profile image from storage
+try {
+  const imageRef = ref(storage, "profilePhotos/" + id + "/profile.jpg");
+  await deleteObject(imageRef);
+} catch (e) {
+  // ignore if no image
 }
 
   // ✅ Safe to delete
@@ -389,6 +387,7 @@ function clearForm() {
   document.getElementById("title").value = "";
   document.getElementById("fatherSelect").value = "";
   document.getElementById("dob").value = "";
+  document.getElementById("profileImage").value = "";
 }
 function populateGenerationFilter(generations) {
 
