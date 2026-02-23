@@ -481,8 +481,8 @@ function renderProfile(node) {
 highlightNode(node.id);
 
 // Show or hide Back button
-const backBtn = document.querySelector("button[onclick='goBackProfile()']");
-if (profileStack.length > 1) {
+const backBtn = document.getElementById("backProfileBtn");
+  if (profileStack.length > 1) {
   backBtn.style.display = "inline-block";
 } else {
   backBtn.style.display = "none";
