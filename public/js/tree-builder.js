@@ -243,6 +243,12 @@ rect.addEventListener("click", () => {
   openProfileModal(node);
 });
 
+rect.style.cursor = "pointer";
+
+rect.addEventListener("click", () => {
+  openProfileModal(node);
+});
+
 svg.appendChild(rect);
   // ===== TEXT =====
   const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -429,18 +435,39 @@ renderTree();
 // PROFILE MODAL FUNCTIONS
 // ===============================
 
+// ===============================
+// OPEN PROFILE MODAL
+// ===============================
+
 window.openProfileModal = function(node) {
 
+  // Basic Info (same as node)
   document.getElementById("modalName").textContent = node.name;
   document.getElementById("modalGeneration").textContent = node.generation;
 
-  document.getElementById("modalEmail").textContent = node.email || "N/A";
-  document.getElementById("modalSurname").textContent = node.surname || "N/A";
-  document.getElementById("modalAlive").textContent = node.isAlive ? "Yes" : "No";
-  document.getElementById("modalFather").textContent = node.fatherId || "Root";
+  // Date of Birth
+  document.getElementById("modalDob").textContent = node.dob || "N/A";
 
-  const firstLetter = node.name ? node.name.charAt(0).toUpperCase() : "👤";
-  document.getElementById("modalAvatar").textContent = firstLetter;
+  // Father Name
+  let fatherName = "Root";
+  if (node.fatherId && node.fatherName) {
+    fatherName = node.fatherName;
+  }
+  document.getElementById("modalFather").textContent = fatherName;
+
+  // Children
+  const children = node.children || [];
+  document.getElementById("modalChildrenCount").textContent = children.length;
+
+  const container = document.getElementById("modalChildrenList");
+  container.innerHTML = "";
+
+  children.forEach(child => {
+    const box = document.createElement("div");
+    box.className = "child-box";
+    box.textContent = child.name;
+    container.appendChild(box);
+  });
 
   document.getElementById("profileModal").style.display = "flex";
 };
@@ -448,3 +475,11 @@ window.openProfileModal = function(node) {
 window.closeProfileModal = function() {
   document.getElementById("profileModal").style.display = "none";
 };
+
+// CLICK OUTSIDE TO CLOSE
+document.addEventListener("click", function(e) {
+  const modal = document.getElementById("profileModal");
+  if (e.target === modal) {
+    closeProfileModal();
+  }
+});
