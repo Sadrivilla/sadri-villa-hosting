@@ -117,6 +117,7 @@ window.addMember = async function () {
   const fatherId = document.getElementById("fatherSelect").value;
   const surname = document.getElementById("surname").value.trim();
   const title = document.getElementById("title").value.trim();
+  const dob = document.getElementById("dob").value;
 
   if (!name) {
 showMessage("Name is required!", "error");
@@ -136,17 +137,18 @@ showMessage("Invalid father selected.", "error");
   generation = fatherSnap.data().generation + 1;
 }
 
-  await addDoc(collection(db, "family_members"), {
-    name,
-    fatherId: fatherId || null,
-    generation,
-    surname,
-    title: title || "",
-    isRoot: fatherId ? false : true,
-    isAlive: false,
-    branchId: "main-root",
-    createdAt: serverTimestamp()
-  });
+await addDoc(collection(db, "family_members"), {
+  name,
+  fatherId: fatherId || null,
+  generation,
+  surname,
+  title: title || "",
+  dob: dob || "",   // ✅ Added
+  isRoot: fatherId ? false : true,
+  isAlive: false,
+  branchId: "main-root",
+  createdAt: serverTimestamp()
+});
 
 showMessage("Member Added Successfully!", "success");
 clearForm();
@@ -187,13 +189,14 @@ if (await isDescendant(editingId, fatherId)) {
   generation = fatherSnap.data().generation + 1;
 }
 
-  await updateDoc(doc(db, "family_members", editingId), {
-    name,
-    fatherId: fatherId || null,
-    generation,
-    surname,
-    title: title || ""
-  });
+await updateDoc(doc(db, "family_members", editingId), {
+  name,
+  fatherId: fatherId || null,
+  generation,
+  surname,
+  title: title || "",
+  dob: dob || ""   // ✅ Added
+});
 
   await updateChildrenGenerations(editingId, generation);
   
@@ -218,6 +221,7 @@ showMessage("Member not found.", "error");
   document.getElementById("surname").value = data.surname || "";
   document.getElementById("title").value = data.title || "";
   document.getElementById("fatherSelect").value = data.fatherId || "";
+  document.getElementById("dob").value = data.dob || "";
 
   editingId = id;
 
@@ -314,6 +318,7 @@ function clearForm() {
   document.getElementById("surname").value = "";
   document.getElementById("title").value = "";
   document.getElementById("fatherSelect").value = "";
+  document.getElementById("dob").value = "";
 }
 function populateGenerationFilter(generations) {
 
