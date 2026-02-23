@@ -3,149 +3,77 @@
 <head>
   <title>Digital Shajra - Sadri Villa</title>
 
- 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
     body {
       font-family: Arial;
       background: #f6f1e7;
     }
 
+    #treeSvg {
+      min-width: 1000px;
+      display: block;
+    }
 
-    /* ===== SVG TREE STYLING ===== */
+    #treeSvg[data-mode="classic"] .node-box {
+      stroke: #000;
+      stroke-width: 1;
+    }
 
-#treeSvg {
-  min-width: 1000px;
-  display: block;
-}
-#treeSvg[data-mode="classic"] .node-box {
-  stroke: #000;
-  stroke-width: 1;
-}
+    #treeSvg[data-mode="modern"] .node-box {
+      fill: #eef2ff;
+      stroke: #1e40af;
+      stroke-width: 2;
+      filter: drop-shadow(3px 4px 4px rgba(0,0,0,0.2));
+    }
 
+    .connector {
+      stroke: #333;
+      stroke-width: 2;
+    }
 
-#treeSvg[data-mode="modern"] .node-box {
-  fill: #eef2ff;
-  stroke: #1e40af;
-  stroke-width: 2;
-  filter: drop-shadow(3px 4px 4px rgba(0,0,0,0.2));
-}
+    .node-text {
+      font-size: 14px;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }
 
-.connector {
-  stroke: #333;
-  stroke-width: 2;
-}
+    /* ===== MODAL ===== */
 
-.node-text {
-  font-size: 14px;
-  font-family: Arial;
-  dominant-baseline: middle;
-  pointer-events: none;
-}
-  </style>
-</head>
-
-<body>
-  <div style="text-align:center; margin-bottom:20px;">
-  
-<div style="text-align:center; margin:20px 0;">
-
-  <input type="text" 
-    id="treeSearch" 
-    placeholder="Search by Name or Surname..."
-    style="padding:8px 12px; width:280px; border-radius:6px; border:1px solid #ccc;">
-
-
-
-
-
-</div>
-
-<h2 style="text-align:center;">Digital Shajra-e-Sadri</h2>
-    <div style="text-align:center; margin:15px 0;">
-  
-  <button onclick="exportTreePDF()" 
-    style="padding:10px 15px; background:#0b3d91; color:white; border:none; border-radius:6px;">
-    📄 Export Tree PDF
-  </button>
-
-  <button onclick="exportExcel()" 
-    style="padding:10px 15px; background:#16a34a; color:white; border:none; border-radius:6px;">
-    📥 Export Excel
-  </button>
-
-</div>
-  <div style="text-align:center; margin:15px 0;">
-
-
-</div>
-
-<!-- TREE VIEW AREA -->
-<div style="overflow:auto; width:100%; height:80vh; border:1px solid #ccc; background:white;">
-<svg id="treeSvg" data-mode="classic"></svg>
-</div>
-
-<!-- VIEW MODE TOGGLE -->
-<div style="text-align:center; margin:15px 0;">
-  <button onclick="setMode('classic')" 
-    style="padding:8px 12px; margin-right:5px;">
-    Classic View
-  </button>
-
-  <button onclick="setMode('modern')" 
-    style="padding:8px 12px;">
-    Modern View
-  </button>
-</div>
-    <!-- PROFILE MODAL -->
-<div id="profileModal" style="
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
-">
-
-  <div style="
-    background:white;
-    width:500px;
-    border-radius:12px;
-    overflow:hidden;
-    position:relative;
-    font-family:Arial;
-  ">
-
-    <!-- HEADER -->
-    <div style="
-      height:120px;
-      background:linear-gradient(135deg,#2563eb,#1e40af);
-    "></div>
-
-    <!-- AVATAR -->
-    <div id="modalAvatar" style="
-      position:absolute;
-      top:70px;
-      left:30px;
-      width:80px;
-      height:80px;
-      background:#ddd;
-      border-radius:50%;
-      border:4px solid white;
-      display:flex;
-      align-items:center;
+    .modal-overlay {
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.6);
       justify-content:center;
-      font-size:30px;
-    ">👤</div>
+      align-items:center;
+      z-index:1000;
+      animation: fadeIn 0.3s ease;
+    }
 
-    <!-- CLOSE BUTTON -->
-    <button onclick="closeProfileModal()" style="
+    .modal-card {
+      background:white;
+      width:520px;
+      border-radius:12px;
+      overflow:hidden;
+      position:relative;
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-header {
+      background:#0b3d91;
+      color:white;
+      padding:15px;
+      text-align:center;
+    }
+
+    .modal-close {
       position:absolute;
       top:10px;
       right:10px;
@@ -155,24 +83,99 @@
       width:30px;
       height:30px;
       cursor:pointer;
-    ">✖</button>
+    }
 
-    <!-- CONTENT -->
-    <div style="padding:70px 25px 25px 25px;">
+    .modal-body {
+      padding:20px;
+    }
 
-      <h2 id="modalName"></h2>
-      <p>Generation: <strong id="modalGeneration"></strong></p>
+    .children-container {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
 
-      <hr>
+    .child-box {
+      background:#e0e7ff;
+      padding:6px 10px;
+      border-radius:6px;
+      font-size:13px;
+    }
 
-      <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-      <p><strong>Surname:</strong> <span id="modalSurname"></span></p>
-      <p><strong>Alive:</strong> <span id="modalAlive"></span></p>
-      <p><strong>Father ID:</strong> <span id="modalFather"></span></p>
+    @keyframes fadeIn {
+      from {opacity:0;}
+      to {opacity:1;}
+    }
 
+    @keyframes slideUp {
+      from {transform:translateY(20px); opacity:0;}
+      to {transform:translateY(0); opacity:1;}
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div style="text-align:center; margin:20px 0;">
+  <input type="text" 
+    id="treeSearch" 
+    placeholder="Search by Name or Surname..."
+    style="padding:8px 12px; width:280px; border-radius:6px; border:1px solid #ccc;">
+</div>
+
+<h2 style="text-align:center;">Digital Shajra-e-Sadri</h2>
+
+<div style="text-align:center; margin:15px 0;">
+  <button onclick="exportTreePDF()" 
+    style="padding:10px 15px; background:#0b3d91; color:white; border:none; border-radius:6px;">
+    📄 Export Tree PDF
+  </button>
+
+  <button onclick="exportExcel()" 
+    style="padding:10px 15px; background:#16a34a; color:white; border:none; border-radius:6px;">
+    📥 Export Excel
+  </button>
+</div>
+
+<div style="overflow:auto; width:100%; height:80vh; border:1px solid #ccc; background:white;">
+  <svg id="treeSvg" data-mode="classic"></svg>
+</div>
+
+<div style="text-align:center; margin:15px 0;">
+  <button onclick="setMode('classic')" style="padding:8px 12px; margin-right:5px;">
+    Classic View
+  </button>
+
+  <button onclick="setMode('modern')" style="padding:8px 12px;">
+    Modern View
+  </button>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal-overlay">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h2>Digital Shajra-e-Sadri</h2>
     </div>
+
+    <button onclick="closeProfileModal()" class="modal-close">✖</button>
+
+    <div class="modal-body">
+      <h3 id="modalName"></h3>
+      <p>Generation: <strong id="modalGeneration"></strong></p>
+      <hr>
+      <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
+      <p><strong>Father Name:</strong> <span id="modalFather"></span></p>
+      <p><strong>Children Count:</strong> <span id="modalChildrenCount"></span></p>
+      <div id="modalChildrenList" class="children-container"></div>
+    </div>
+
   </div>
 </div>
+
 <script type="module" src="js/tree-builder.js"></script>
 
 </body>
