@@ -1,7 +1,12 @@
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-const storage = getStorage();
+import { db, storage } from "./firebase.js";
+
 import { 
   collection,
   getDocs, 
@@ -15,7 +20,6 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import { db } from "./firebase.js";
 let editingId = null;
 function showMessage(message, type = "success") {
 
