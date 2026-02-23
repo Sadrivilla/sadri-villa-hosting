@@ -254,13 +254,35 @@ svg.appendChild(rect);
 
 let age = calculateAge(node.dob);
 
-let nodeLabel = node.name;
+// First line → Name
+let firstLine = node.name;
+
+// Second line → (Age) Gen
+let secondLine = "";
 
 if (age !== null) {
-  nodeLabel += " (" + age + ")";
+  secondLine = "(" + age + ") Gen " + node.generation;
+} else {
+  secondLine = "Gen " + node.generation;
 }
 
-text.textContent = nodeLabel + " | Gen " + node.generation;
+// Clear default text
+text.textContent = "";
+
+// Create tspan for first line
+const tspan1 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+tspan1.setAttribute("x", node.x + 75);
+tspan1.setAttribute("dy", "-5");
+tspan1.textContent = firstLine;
+
+// Create tspan for second line
+const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+tspan2.setAttribute("x", node.x + 75);
+tspan2.setAttribute("dy", "18");
+tspan2.textContent = secondLine;
+
+text.appendChild(tspan1);
+text.appendChild(tspan2);
   svg.appendChild(text);
 }
 draw(root);
@@ -488,13 +510,16 @@ const age = calculateAge(node.dob);
 
 document.getElementById("modalDob").textContent = formattedDob;
 
-let nameDisplay = node.name;
+document.getElementById("modalName").textContent = node.name;
+document.getElementById("modalGeneration").textContent = node.generation;
+
+let dobLine = formattedDob;
 
 if (age !== null) {
-  nameDisplay += " (Age " + age + ")";
+  dobLine += " (Age " + age + ")";
 }
 
-document.getElementById("modalName").textContent = nameDisplay;
+document.getElementById("modalDob").textContent = dobLine;
   // Father Name
   let fatherName = "Root";
   if (node.fatherId && window.memberMap[node.fatherId]) {
