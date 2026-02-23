@@ -237,8 +237,13 @@ function draw(node) {
     rect.setAttribute("fill", color);
   }
 
-  svg.appendChild(rect);
+rect.style.cursor = "pointer";
 
+rect.addEventListener("click", () => {
+  openProfileModal(node);
+});
+
+svg.appendChild(rect);
   // ===== TEXT =====
   const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
@@ -420,3 +425,26 @@ window.exportExcel = async function () {
 
 
 renderTree();
+// ===============================
+// PROFILE MODAL FUNCTIONS
+// ===============================
+
+window.openProfileModal = function(node) {
+
+  document.getElementById("modalName").textContent = node.name;
+  document.getElementById("modalGeneration").textContent = node.generation;
+
+  document.getElementById("modalEmail").textContent = node.email || "N/A";
+  document.getElementById("modalSurname").textContent = node.surname || "N/A";
+  document.getElementById("modalAlive").textContent = node.isAlive ? "Yes" : "No";
+  document.getElementById("modalFather").textContent = node.fatherId || "Root";
+
+  const firstLetter = node.name ? node.name.charAt(0).toUpperCase() : "👤";
+  document.getElementById("modalAvatar").textContent = firstLetter;
+
+  document.getElementById("profileModal").style.display = "flex";
+};
+
+window.closeProfileModal = function() {
+  document.getElementById("profileModal").style.display = "none";
+};
