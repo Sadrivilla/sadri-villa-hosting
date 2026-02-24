@@ -7,17 +7,12 @@
   </url>
 
   <url>
+    <loc>https://sadrivilla.in/shajra.html</loc>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
     <loc>https://sadrivilla.in/about.html</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://sadrivilla.in/gallery.html</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://sadrivilla.in/contact.html</loc>
     <priority>0.8</priority>
   </url>
 
