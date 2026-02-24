@@ -15,5 +15,9 @@
     <loc>https://sadrivilla.in/about.html</loc>
     <priority>0.8</priority>
   </url>
+   <url>
+    <loc>https://sadrivilla.in/history-of-sadri-villa.html</loc>
+    <priority>0.8</priority>
+  </url>
 
 </urlset>
