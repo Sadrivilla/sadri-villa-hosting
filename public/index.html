@@ -349,7 +349,7 @@ footer{
 
 .villa-section{
   max-width:1200px;
-  margin:80px auto;
+  margin:0 auto;
   display:flex;
   align-items:center;
   gap:60px;
@@ -365,6 +365,9 @@ footer{
 
 .villa-img img{
   width:100%;
+  height:auto;
+  max-height:500px;      /* prevent huge vertical stretch */
+  object-fit:contain;
   border-radius:25px;
   box-shadow:0 25px 60px rgba(0,0,0,.15);
 }
@@ -387,8 +390,17 @@ footer{
 
 @media(max-width:900px){
   .villa-section{
-    flex-direction:row !important;
-    text-align:left;
+    flex-direction:column;
+    gap:30px;
+  }
+}
+.villa-wrapper{
+  padding:clamp(40px, 6vw, 80px) 20px;
+}
+
+@media(max-width:900px){
+  .villa-wrapper{
+    padding:40px 15px; /* smaller spacing on mobile */
   }
 }
 
@@ -676,10 +688,11 @@ onSnapshot(sectionQuery, snapshot => {
     if (data.enabled === false) return;
 
 const wrapper = document.createElement("div");
+wrapper.className = "villa-wrapper";
 wrapper.style.background = data.backgroundColor || "#ffffff";
-wrapper.style.padding = "100px 20px";
 
-const div = document.createElement("div");
+
+  const div = document.createElement("div");
 div.className = "villa-section " + (index % 2 ? "reverse" : "");
 
 div.style.color = data.textColor || "#0f172a";
