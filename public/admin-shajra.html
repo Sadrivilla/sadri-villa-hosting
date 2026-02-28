@@ -44,7 +44,18 @@ body{
   display:flex;
   gap:15px;
   align-items:center;
-  position:relative;
+}
+
+.filter-row > div:first-child{
+  flex:2;   /* search bigger */
+}
+
+.filter-row select{
+  flex:1;   /* generation smaller */
+}
+
+.filter-row button{
+  flex:0;   /* reset fixed */
 }
 
 input, select{
