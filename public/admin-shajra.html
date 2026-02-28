@@ -44,11 +44,7 @@ body{
   display:flex;
   gap:15px;
   align-items:center;
-}
-
-.filter-row input,
-.filter-row select{
-  flex:1;
+  position:relative;
 }
 
 input, select{
@@ -89,7 +85,27 @@ input, select{
   gap:10px;
 }
 
-/* MODAL */
+#pagination{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin-top:20px;
+  flex-wrap:wrap;
+}
+
+.page-btn{
+  padding:6px 10px;
+  border:2px solid #000;
+  cursor:pointer;
+  border-radius:6px;
+  background:white;
+}
+
+.active-page{
+  background:black;
+  color:white;
+}
+
 .modal{
   display:none;
   position:fixed;
@@ -108,16 +124,6 @@ input, select{
   border:3px solid #000;
 }
 
-.preview-img{
-  width:100px;
-  height:100px;
-  object-fit:cover;
-  border-radius:50%;
-  border:2px solid #000;
-  margin-top:10px;
-  display:none;
-}
-
 #notification{
   position:fixed;
   top:20px;
@@ -130,7 +136,6 @@ input, select{
   z-index:9999;
 }
 
-/* Loader */
 #loader{
   display:none;
   position:fixed;
@@ -153,6 +158,20 @@ input, select{
 @keyframes spin{
   100%{ transform:rotate(360deg); }
 }
+
+#searchDropdown{
+  position:absolute;
+  top:45px;
+  left:0;
+  right:0;
+  background:white;
+  border:2px solid #000;
+  border-radius:8px;
+  max-height:200px;
+  overflow-y:auto;
+  display:none;
+  z-index:999;
+}
 </style>
 </head>
 
@@ -166,19 +185,23 @@ input, select{
 </div>
 
 <div class="card filter-row">
-  <input type="text" id="searchInput" placeholder="Search member...">
+  <div style="flex:1; position:relative;">
+    <input type="text" id="searchInput" placeholder="Search member...">
+    <div id="searchDropdown"></div>
+  </div>
+
   <select id="generationFilter">
     <option value="">All Generations</option>
   </select>
+
   <button class="btn gray" onclick="resetFilters()">Reset</button>
 </div>
 
 <div id="memberList"></div>
+<div id="pagination"></div>
 
-<!-- ADD / EDIT MODAL -->
 <div id="memberModal" class="modal">
   <div class="modal-content">
-
     <h3 id="modalTitle">Add Member</h3>
 
     <label>Full Name</label>
@@ -196,18 +219,12 @@ input, select{
     <label>Title</label>
     <input type="text" id="title">
 
-    <label>Profile Image</label>
-    <input type="file" id="profileImage">
-    <img id="imagePreview" class="preview-img">
-
     <br><br>
     <button class="btn primary" onclick="saveMember()">Save</button>
     <button class="btn gray" onclick="closeModal()">Cancel</button>
-
   </div>
 </div>
 
-<!-- Loader -->
 <div id="loader">
   <div class="loader-circle"></div>
 </div>
