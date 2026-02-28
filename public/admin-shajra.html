@@ -2,102 +2,216 @@
 <html>
 <head>
   <title>Admin - Digital Shajra</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body {
-      font-family: Arial;
-      background: #f6f1e7;
-      padding: 40px;
+    body{
+      font-family: Arial, sans-serif;
+      background:#f6f1e7;
+      margin:0;
+      padding:30px;
     }
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    h2{margin:0;}
+
+    .hidden{display:none;}
+
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:20px;
     }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      margin-bottom: 30px;
+    .left-group{
+      display:flex;
+      align-items:center;
+      gap:15px;
     }
 
-    button {
-      padding: 10px 20px;
-      background: #0b3d91;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+    .btn{
+      padding:10px 18px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:14px;
     }
 
-    button:hover {
-      background: #062c6e;
+    .primary{background:#000;color:white;}
+    .danger{background:#c0392b;color:white;}
+    .gray{background:gray;color:white;}
+
+    .card{
+      background:white;
+      padding:25px;
+      border-radius:14px;
+      border:3px solid #000;
+      margin-bottom:20px;
     }
-  #notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px 20px;
-  border-radius: 8px;
-  color: white;
-  display: none;
-  font-weight: bold;
-  z-index: 9999;
-  transition: opacity 0.3s ease;
-}
+
+    input, select{
+      padding:12px;
+      border-radius:8px;
+      border:2px solid #000;
+      font-size:14px;
+      width:100%;
+      margin-bottom:15px;
+      box-sizing:border-box;
+    }
+
+    input[type="date"]{
+      appearance:auto;
+    }
+
+    .filter-row{
+      display:flex;
+      gap:15px;
+      align-items:center;
+    }
+
+    .filter-row input{flex:2;}
+    .filter-row select{flex:1;}
+
+    .member-card{
+      display:flex;
+      align-items:center;
+      gap:20px;
+    }
+
+    .profile-img{
+      width:70px;
+      height:70px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid #000;
+    }
+
+    .member-details{flex:1;}
+
+    .actions{display:flex;gap:10px;}
+
+    .preview-img{
+      width:100px;
+      height:100px;
+      border-radius:50%;
+      object-fit:cover;
+      border:2px solid #000;
+      display:none;
+      margin-bottom:15px;
+    }
+
+    #notification{
+      position:fixed;
+      top:20px;
+      right:20px;
+      padding:15px 20px;
+      border-radius:10px;
+      color:white;
+      display:none;
+      font-weight:bold;
+      z-index:9999;
+      min-width:250px;
+      text-align:center;
+    }
+
   </style>
 </head>
 
 <body>
-  <div id="notification"></div>
 
-<div class="card">
-  <h3>Add Family Member</h3>
+<div id="notification"></div>
 
-  <input type="text" id="name" placeholder="Full Name">
+<!-- MEMBER LIST PAGE -->
+<div id="memberListPage">
 
-  <select id="fatherSelect">
-    <option value="">-- Select Father (Leave empty for Root) --</option>
-  </select>
+  <div class="top-bar">
+    <h2>Family Members</h2>
+    <button class="btn primary" onclick="showAddPage()">+ Add Member</button>
+  </div>
 
-  <input type="text" id="surname" placeholder="Surname">
+  <div class="card">
+    <div class="filter-row">
+      <input type="text" id="searchInput" placeholder="Search member...">
+      <select id="generationFilter">
+        <option value="">All Generations</option>
+      </select>
+      <button class="btn gray" onclick="resetFilters()">Reset</button>
+    </div>
+  </div>
 
-<input type="date" id="dob">
+  <div id="memberList"></div>
 
-<input type="text" id="title" placeholder="Title (Optional)">
-  <input type="file" id="profileImage" accept="image/*">
-
-<div style="display:flex; gap:10px;">
-  <button onclick="addMember()">Add Member</button>
-
-  <button onclick="updateMember()" 
-  style="background:orange;">
-  Update Member
-  </button>
-</div>
-</div>
-<div class="card" style="margin-top:30px;">
-<h3>Existing Members</h3>
-
-<div style="margin-bottom:15px; display:flex; gap:10px;">
-  <input type="text" id="searchInput" placeholder="Search by name..." style="flex:1;">
-
-  <select id="generationFilter">
-    <option value="">All Generations</option>
-  </select>
-
-  <button onclick="resetFilters()" style="background:gray;">
-    Reset
-  </button>
 </div>
 
-<div id="memberList"></div>
+<!-- ADD MEMBER PAGE -->
+<div id="addMemberPage" class="hidden">
+
+  <div class="top-bar">
+    <div class="left-group">
+      <button class="btn gray" onclick="showListPage()">← Back</button>
+      <h2>Add Member</h2>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <input type="text" id="name" placeholder="Full Name">
+
+    <select id="fatherSelect">
+      <option value="">-- Select Father (Leave empty for Root) --</option>
+    </select>
+
+    <input type="text" id="surname" placeholder="Surname">
+
+    <input type="date" id="dob">
+
+    <input type="text" id="title" placeholder="Title (Optional)">
+
+    <input type="file" id="profileImage" accept="image/*">
+    <img id="imagePreview" class="preview-img">
+
+    <div style="display:flex; gap:15px;">
+      <button class="btn primary" onclick="addMember()">Save Member</button>
+    </div>
+
+  </div>
+
 </div>
+
+<script>
+function showAddPage(){
+  document.getElementById("memberListPage").classList.add("hidden");
+  document.getElementById("addMemberPage").classList.remove("hidden");
+}
+
+function showListPage(){
+  document.getElementById("addMemberPage").classList.add("hidden");
+  document.getElementById("memberListPage").classList.remove("hidden");
+}
+
+document.getElementById("profileImage").addEventListener("change",function(e){
+  const file=e.target.files[0];
+  const preview=document.getElementById("imagePreview");
+  if(file){
+    preview.src=URL.createObjectURL(file);
+    preview.style.display="block";
+  }
+});
+
+window.showMessage=function(message,type="success"){
+  const box=document.getElementById("notification");
+  box.innerText=message;
+  box.style.display="block";
+
+  if(type==="success") box.style.background="#16a34a";
+  else if(type==="error") box.style.background="#dc2626";
+  else box.style.background="#f59e0b";
+
+  setTimeout(()=> box.style.display="none",3000);
+};
+</script>
+
 <script type="module" src="js/admin-crud.js"></script>
 
 </body>
