@@ -8,7 +8,13 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import { db } from "./firebase.js";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+import { db, storage } from "./firebase.js";
 
 let allMembers = [];
 let editingId = null;
@@ -22,6 +28,26 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("generationFilter").addEventListener("change", () => {
     currentPage = 1;
     renderMembers();
+  });
+
+  document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("searchDropdown");
+    const searchInput = document.getElementById("searchInput");
+
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  document.getElementById("profileImage")?.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById("imagePreview");
+
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = "block";
+      preview.innerText = "";
+    }
   });
 
   document.getElementById("memberModal").addEventListener("click", (e) => {
@@ -70,33 +96,32 @@ function renderMembers() {
   const paginated = filtered.slice(start, start + perPage);
 
   paginated.forEach(member => {
+
     const fatherName = member.fatherId
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
       : "-";
 
-    const initials = member.name.substring(0, 2).toUpperCase();
+    const initials = member.name
+      ? member.name.substring(0, 2).toUpperCase()
+      : "?";
 
- let imageHtml = "";
+    let imageHtml = "";
 
-if (member.profileImage && member.profileImage.trim() !== "") {
-  imageHtml = `
-    <img src="${member.profileImage}" 
-         class="profile-img"
-         onerror="this.style.display='none';">
-  `;
-} else {
-  imageHtml = `
-    <div class="profile-img" style="
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#ddd;
-      font-weight:bold;
-      font-size:22px;">
-      ${initials}
-    </div>
-  `;
-}
+    if (member.profileImage && member.profileImage.trim() !== "") {
+      imageHtml = `
+        <img src="${member.profileImage}"
+             class="profile-img"
+             onerror="this.style.display='none'">
+      `;
+    } else {
+      imageHtml = `
+        <div class="profile-img"
+             style="display:flex;align-items:center;justify-content:center;
+             background:#ddd;font-weight:bold;font-size:22px;">
+          ${initials}
+        </div>
+      `;
+    }
 
     container.innerHTML += `
       <div class="member-card">
@@ -143,6 +168,7 @@ function populateSearchDropdown() {
 window.selectSearch = function (name) {
   document.getElementById("searchInput").value = name;
   document.getElementById("searchDropdown").style.display = "none";
+  currentPage = 1;
   renderMembers();
 };
 
@@ -178,13 +204,29 @@ window.openAddModal = function () {
   editingId = null;
   document.getElementById("modalTitle").innerText = "Add Member";
   document.getElementById("memberModal").style.display = "flex";
+  clearForm();
 };
 
 window.closeModal = function () {
   document.getElementById("memberModal").style.display = "none";
+  clearForm();
+};
+
+function clearForm() {
   document.getElementById("name").value = "";
   document.getElementById("fatherSelect").value = "";
-};
+  document.getElementById("surname").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("dob").value = "";
+  document.getElementById("profileImage").value = "";
+
+  const preview = document.getElementById("imagePreview");
+  if (preview) {
+    preview.src = "";
+    preview.style.display = "none";
+    preview.innerText = "";
+  }
+}
 
 /* ================= SAVE ================= */
 
@@ -192,6 +234,7 @@ window.saveMember = async function () {
 
   const name = document.getElementById("name").value.trim();
   const fatherId = document.getElementById("fatherSelect").value;
+  const file = document.getElementById("profileImage")?.files[0];
 
   if (!name) return alert("Name required");
 
@@ -201,18 +244,28 @@ window.saveMember = async function () {
     generation = father.generation + 1;
   }
 
+  let imageUrl = "";
+
+  if (file) {
+    const imageRef = ref(storage, "profilePhotos/" + Date.now());
+    await uploadBytes(imageRef, file);
+    imageUrl = await getDownloadURL(imageRef);
+  }
+
   if (!editingId) {
     await addDoc(collection(db, "family_members"), {
       name,
       fatherId: fatherId || null,
       generation,
+      profileImage: imageUrl,
       createdAt: serverTimestamp()
     });
   } else {
     await updateDoc(doc(db, "family_members", editingId), {
       name,
       fatherId: fatherId || null,
-      generation
+      generation,
+      ...(imageUrl && { profileImage: imageUrl })
     });
   }
 
@@ -223,13 +276,29 @@ window.saveMember = async function () {
 /* ================= EDIT ================= */
 
 window.editMember = function (id) {
+
   const member = allMembers.find(m => m.id === id);
+  if (!member) return;
+
   editingId = id;
 
   document.getElementById("modalTitle").innerText = "Edit Member";
   document.getElementById("memberModal").style.display = "flex";
-  document.getElementById("name").value = member.name;
+
+  document.getElementById("name").value = member.name || "";
   document.getElementById("fatherSelect").value = member.fatherId || "";
+  document.getElementById("surname").value = member.surname || "";
+  document.getElementById("title").value = member.title || "";
+  document.getElementById("dob").value = member.dob || "";
+
+  const preview = document.getElementById("imagePreview");
+
+  if (member.profileImage) {
+    preview.src = member.profileImage;
+    preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
+  }
 };
 
 /* ================= DELETE ================= */
