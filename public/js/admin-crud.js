@@ -76,14 +76,27 @@ function renderMembers() {
 
     const initials = member.name.substring(0, 2).toUpperCase();
 
-    const imageHtml = `
-      <div class="profile-img" style="
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        background:#ddd;
-        font-weight:bold;
-        font-size:22px;">${initials}</div>`;
+ let imageHtml = "";
+
+if (member.profileImage && member.profileImage.trim() !== "") {
+  imageHtml = `
+    <img src="${member.profileImage}" 
+         class="profile-img"
+         onerror="this.style.display='none';">
+  `;
+} else {
+  imageHtml = `
+    <div class="profile-img" style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#ddd;
+      font-weight:bold;
+      font-size:22px;">
+      ${initials}
+    </div>
+  `;
+}
 
     container.innerHTML += `
       <div class="member-card">
