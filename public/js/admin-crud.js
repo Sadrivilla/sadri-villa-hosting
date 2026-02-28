@@ -21,51 +21,48 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 let editingId = null;
+
+/* ================= NOTIFICATION ================= */
+
 function showMessage(message, type = "success") {
 
   const box = document.getElementById("notification");
+  if (!box) return;
 
   box.textContent = message;
   box.style.display = "block";
 
-  if (type === "success") {
-    box.style.backgroundColor = "#28a745";
-  } 
-  else if (type === "error") {
-    box.style.backgroundColor = "#dc3545";
-  } 
-  else if (type === "warning") {
-    box.style.backgroundColor = "#ffc107";
-    box.style.color = "black";
-  }
+  if (type === "success") box.style.backgroundColor = "#16a34a";
+  else if (type === "error") box.style.backgroundColor = "#dc2626";
+  else box.style.backgroundColor = "#f59e0b";
 
   setTimeout(() => {
     box.style.display = "none";
-    box.style.color = "white";
   }, 3000);
 }
 
-// Load fathers into dropdown
+/* ================= LOAD FATHERS ================= */
+
 async function loadFathers() {
 
   const snapshot = await getDocs(collection(db, "family_members"));
   const select = document.getElementById("fatherSelect");
+  if (!select) return;
 
-  // Clear existing options first
   select.innerHTML = '<option value="">-- Select Father (Leave empty for Root) --</option>';
 
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
-
     const option = document.createElement("option");
     option.value = docSnap.id;
     option.textContent = data.name;
-
     select.appendChild(option);
   });
 }
 
 loadFathers();
+
+/* ================= LOAD MEMBERS ================= */
 
 async function loadMembers() {
 
@@ -74,6 +71,7 @@ async function loadMembers() {
 
   const snapshot = await getDocs(collection(db, "family_members"));
   const container = document.getElementById("memberList");
+  if (!container) return;
 
   container.innerHTML = "";
 
@@ -84,31 +82,35 @@ async function loadMembers() {
     const data = docSnap.data();
     generations.add(data.generation);
 
-    // 🔎 Search filter
-    if (searchValue && !data.name.toLowerCase().includes(searchValue)) {
-      return;
-    }
+    if (searchValue && !data.name.toLowerCase().includes(searchValue)) return;
+    if (generationValue && data.generation != generationValue) return;
 
-    // 🎯 Generation filter
-    if (generationValue && data.generation != generationValue) {
-      return;
-    }
+    const imageUrl = data.profileImage || "https://via.placeholder.com/70";
 
     const div = document.createElement("div");
-    div.style.marginBottom = "10px";
 
     div.innerHTML = `
-      ${data.name} (Gen ${data.generation})
+      <div class="card member-card">
 
-      <button onclick="editMember('${docSnap.id}')" 
-      style="margin-left:10px;background:orange;color:white;border:none;padding:5px 10px;border-radius:5px;">
-      Edit
-      </button>
+        <img src="${imageUrl}" class="profile-img">
 
-      <button onclick="deleteMember('${docSnap.id}')" 
-      style="margin-left:5px;background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
-      Delete
-      </button>
+        <div class="member-details">
+          <strong>${data.name}</strong><br>
+          Generation: ${data.generation}<br>
+          DOB: ${data.dob || '-'}
+        </div>
+
+        <div class="actions">
+          <button onclick="editMember('${docSnap.id}')" class="btn primary">
+            Edit
+          </button>
+
+          <button onclick="deleteMember('${docSnap.id}')" class="btn danger">
+            Delete
+          </button>
+        </div>
+
+      </div>
     `;
 
     container.appendChild(div);
@@ -118,7 +120,8 @@ async function loadMembers() {
 }
 
 loadMembers();
-// Add Member
+
+/* ================= ADD MEMBER ================= */
 
 window.addMember = async function () {
 
@@ -164,14 +167,9 @@ window.addMember = async function () {
       createdAt: serverTimestamp()
     });
 
-    // Upload image if exists
     if (file) {
-
-      showMessage("Uploading image...", "warning");
-
-const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
+      const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
       await uploadBytes(imageRef, file);
-
       const downloadURL = await getDownloadURL(imageRef);
 
       await updateDoc(doc(db, "family_members", docRef.id), {
@@ -191,92 +189,13 @@ const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
   }
 };
 
+/* ================= EDIT MEMBER ================= */
 
-window.updateMember = async function () {
-
-  try {
-
-    if (!editingId) {
-      showMessage("Please click Edit first.", "warning");
-      return;
-    }
-
-    const name = document.getElementById("name").value.trim();
-    const fatherId = document.getElementById("fatherSelect").value;
-    const surname = document.getElementById("surname").value.trim();
-    const title = document.getElementById("title").value.trim();
-    const dob = document.getElementById("dob").value;
-    const file = document.getElementById("profileImage").files[0];
-
-    if (!name) {
-      showMessage("Name is required!", "error");
-      return;
-    }
-
-    let generation = 1;
-
-    if (fatherId) {
-      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-      generation = fatherSnap.data().generation + 1;
-    }
-
-    showMessage("Updating member...", "warning");
-
-    await updateDoc(doc(db, "family_members", editingId), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      surname,
-      title: title || "",
-      dob: dob || ""
-    });
-
-    // Replace image if new file selected
-    if (file) {
-
-      if (file.size > 2 * 1024 * 1024) {
-        showMessage("Image must be under 2MB.", "error");
-        return;
-      }
-
-      showMessage("Uploading new image...", "warning");
-
-
-     const imageRef = ref(storage, "profilePhotos/" + editingId + "/profile.jpg");
-
-// Delete old image first
-try {
-  await deleteObject(imageRef);
-} catch (e) {
-  // ignore if not exists
-}
-      await uploadBytes(imageRef, file);
-
-      const downloadURL = await getDownloadURL(imageRef);
-
-      await updateDoc(doc(db, "family_members", editingId), {
-        profileImage: downloadURL
-      });
-    }
-
-    showMessage("Member Updated Successfully!", "success");
-
-    editingId = null;
-    clearForm();
-    loadMembers();
-    loadFathers();
-
-  } catch (error) {
-    console.error(error);
-    showMessage(error.message, "error");
-  }
-};
 window.editMember = async function(id) {
 
   const snap = await getDoc(doc(db, "family_members", id));
-
   if (!snap.exists()) {
-showMessage("Member not found.", "error");
+    showMessage("Member not found.", "error");
     return;
   }
 
@@ -290,101 +209,104 @@ showMessage("Member not found.", "error");
 
   editingId = id;
 
+  showMessage("Now update details and click Save Member.", "warning");
 };
 
-// Delete Member
+/* ================= UPDATE MEMBER ================= */
+
+window.updateMember = async function () {
+
+  if (!editingId) {
+    showMessage("Click Edit first.", "warning");
+    return;
+  }
+
+  try {
+
+    const name = document.getElementById("name").value.trim();
+    const fatherId = document.getElementById("fatherSelect").value;
+    const surname = document.getElementById("surname").value.trim();
+    const title = document.getElementById("title").value.trim();
+    const dob = document.getElementById("dob").value;
+    const file = document.getElementById("profileImage").files[0];
+
+    let generation = 1;
+
+    if (fatherId) {
+      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+      generation = fatherSnap.data().generation + 1;
+    }
+
+    await updateDoc(doc(db, "family_members", editingId), {
+      name,
+      fatherId: fatherId || null,
+      generation,
+      surname,
+      title: title || "",
+      dob: dob || ""
+    });
+
+    if (file) {
+      const imageRef = ref(storage, "profilePhotos/" + editingId + "/profile.jpg");
+
+      try { await deleteObject(imageRef); } catch(e){}
+
+      await uploadBytes(imageRef, file);
+      const downloadURL = await getDownloadURL(imageRef);
+
+      await updateDoc(doc(db, "family_members", editingId), {
+        profileImage: downloadURL
+      });
+    }
+
+    showMessage("Member Updated Successfully!", "success");
+
+    editingId = null;
+    clearForm();
+    loadMembers();
+
+  } catch (error) {
+    showMessage(error.message, "error");
+  }
+};
+
+/* ================= DELETE MEMBER ================= */
+
 window.deleteMember = async function (id) {
 
   if (!confirm("Are you sure you want to delete this member?")) return;
 
-  // Get member details
   const memberSnap = await getDoc(doc(db, "family_members", id));
-
-  if (!memberSnap.exists()) {
-showMessage("Member not found.", "error");
-    return;
-  }
+  if (!memberSnap.exists()) return;
 
   const memberData = memberSnap.data();
 
-  // 🚫 Prevent deleting root
   if (memberData.isRoot === true) {
-showMessage("You cannot delete the root ancestor.", "warning");
+    showMessage("Cannot delete root ancestor.", "warning");
     return;
   }
 
-  // 🔍 Check if member has children (Optimized)
-const q = query(
-  collection(db, "family_members"),
-  where("fatherId", "==", id)
-);
+  const q = query(collection(db, "family_members"), where("fatherId", "==", id));
+  const childrenSnapshot = await getDocs(q);
 
-const childrenSnapshot = await getDocs(q);
+  if (!childrenSnapshot.empty) {
+    showMessage("Cannot delete member with children.", "warning");
+    return;
+  }
 
-if (!childrenSnapshot.empty) {
-  showMessage("Cannot delete this member because they have children.", "warning");
-  return;
-}
-  // Delete profile image from storage
-try {
-  const imageRef = ref(storage, "profilePhotos/" + id + "/profile.jpg");
-  await deleteObject(imageRef);
-} catch (e) {
-  // ignore if no image
-}
+  try {
+    const imageRef = ref(storage, "profilePhotos/" + id + "/profile.jpg");
+    await deleteObject(imageRef);
+  } catch(e){}
 
-  // ✅ Safe to delete
   await deleteDoc(doc(db, "family_members", id));
 
-showMessage("Member Deleted Successfully.", "success");
-loadMembers();
-loadFathers();
+  showMessage("Member Deleted Successfully.", "success");
+  loadMembers();
 };
-async function isDescendant(childId, potentialFatherId) {
 
-  const snapshot = await getDocs(collection(db, "family_members"));
+/* ================= HELPERS ================= */
 
-  const members = {};
-  snapshot.forEach(docSnap => {
-    members[docSnap.id] = docSnap.data();
-  });
-
-  async function check(currentId) {
-    for (const id in members) {
-      if (members[id].fatherId === currentId) {
-        if (id === potentialFatherId) {
-          return true;
-        }
-        const result = await check(id);
-        if (result) return true;
-      }
-    }
-    return false;
-  }
-
-  return await check(childId);
-}
-async function updateChildrenGenerations(parentId, parentGeneration) {
-
-  const snapshot = await getDocs(collection(db, "family_members"));
-
-  for (const docSnap of snapshot.docs) {
-
-    const data = docSnap.data();
-
-    if (data.fatherId === parentId) {
-
-      const newGeneration = parentGeneration + 1;
-
-      await updateDoc(doc(db, "family_members", docSnap.id), {
-        generation: newGeneration
-      });
-
-      // Recursively update grandchildren
-      await updateChildrenGenerations(docSnap.id, newGeneration);
-    }
-  }
-}
 function clearForm() {
   document.getElementById("name").value = "";
   document.getElementById("surname").value = "";
@@ -393,13 +315,13 @@ function clearForm() {
   document.getElementById("dob").value = "";
   document.getElementById("profileImage").value = "";
 }
+
 function populateGenerationFilter(generations) {
 
   const select = document.getElementById("generationFilter");
   if (!select) return;
 
   const currentValue = select.value;
-
   select.innerHTML = '<option value="">All Generations</option>';
 
   Array.from(generations)
@@ -413,16 +335,13 @@ function populateGenerationFilter(generations) {
 
   select.value = currentValue;
 }
-document.addEventListener("input", function(e) {
-  if (e.target.id === "searchInput") {
-    loadMembers();
-  }
+
+document.addEventListener("input", e => {
+  if (e.target.id === "searchInput") loadMembers();
 });
 
-document.addEventListener("change", function(e) {
-  if (e.target.id === "generationFilter") {
-    loadMembers();
-  }
+document.addEventListener("change", e => {
+  if (e.target.id === "generationFilter") loadMembers();
 });
 
 window.resetFilters = function() {
@@ -430,4 +349,3 @@ window.resetFilters = function() {
   document.getElementById("generationFilter").value = "";
   loadMembers();
 };
-
