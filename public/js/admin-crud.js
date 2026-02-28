@@ -21,6 +21,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 let editingId = null;
+let allMembers = [];
+let currentPage = 1;
+const perPage = 8;
 
 /* ================= NOTIFICATION ================= */
 
@@ -36,9 +39,7 @@ function showMessage(message, type = "success") {
   else if (type === "error") box.style.backgroundColor = "#dc2626";
   else box.style.backgroundColor = "#f59e0b";
 
-  setTimeout(() => {
-    box.style.display = "none";
-  }, 3000);
+  setTimeout(() => box.style.display = "none", 3000);
 }
 
 /* ================= LOAD FATHERS ================= */
@@ -66,222 +67,203 @@ loadFathers();
 
 async function loadMembers() {
 
+  const snapshot = await getDocs(collection(db, "family_members"));
+  allMembers = [];
+
+  snapshot.forEach(docSnap => {
+    allMembers.push({ id: docSnap.id, ...docSnap.data() });
+  });
+
+  renderMembers();
+  populateGenerationFilter();
+}
+
+function renderMembers() {
+
+  const container = document.getElementById("memberList");
+  const pagination = document.getElementById("pagination");
+  if (!container) return;
+
   const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const generationValue = document.getElementById("generationFilter")?.value;
 
-  const snapshot = await getDocs(collection(db, "family_members"));
-  const container = document.getElementById("memberList");
-  if (!container) return;
-
   container.innerHTML = "";
+  pagination.innerHTML = "";
 
-  const generations = new Set();
+  const filtered = allMembers.filter(m => {
+    if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
+    if (generationValue && m.generation != generationValue) return false;
+    return true;
+  });
 
-  snapshot.forEach(docSnap => {
+  const totalPages = Math.ceil(filtered.length / perPage);
+  if (currentPage > totalPages) currentPage = 1;
 
-    const data = docSnap.data();
-    generations.add(data.generation);
+  const start = (currentPage - 1) * perPage;
+  const pageMembers = filtered.slice(start, start + perPage);
 
-    if (searchValue && !data.name.toLowerCase().includes(searchValue)) return;
-    if (generationValue && data.generation != generationValue) return;
+  pageMembers.forEach(member => {
 
-    const imageUrl = data.profileImage || "https://via.placeholder.com/70";
+    const father = member.fatherId 
+      ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
+      : "-";
+
+    const imageUrl = member.profileImage || "https://via.placeholder.com/100";
 
     const div = document.createElement("div");
+    div.className = "member-card";
 
     div.innerHTML = `
-      <div class="card member-card">
+      <img src="${imageUrl}" class="profile-img">
+      <strong>${member.name}</strong><br>
+      Father: ${father}<br>
+      Generation: ${member.generation}<br>
+      Surname: ${member.surname || "-"}<br>
+      DOB: ${member.dob || "-"}<br>
+      Title: ${member.title || "-"}<br>
 
-        <img src="${imageUrl}" class="profile-img">
-
-        <div class="member-details">
-          <strong>${data.name}</strong><br>
-          Generation: ${data.generation}<br>
-          DOB: ${data.dob || '-'}
-        </div>
-
-        <div class="actions">
-          <button onclick="editMember('${docSnap.id}')" class="btn primary">
-            Edit
-          </button>
-
-          <button onclick="deleteMember('${docSnap.id}')" class="btn danger">
-            Delete
-          </button>
-        </div>
-
+      <div class="actions">
+        <button onclick="editMember('${member.id}')" class="btn primary">Edit</button>
+        <button onclick="deleteMember('${member.id}')" class="btn danger">Delete</button>
       </div>
     `;
 
     container.appendChild(div);
   });
 
-  populateGenerationFilter(generations);
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("div");
+    btn.className = "page-btn" + (i === currentPage ? " active-page" : "");
+    btn.innerText = i;
+    btn.onclick = () => {
+      currentPage = i;
+      renderMembers();
+    };
+    pagination.appendChild(btn);
+  }
 }
 
 loadMembers();
 
-/* ================= ADD MEMBER ================= */
+/* ================= SAVE (ADD + UPDATE) ================= */
 
-window.addMember = async function () {
+window.saveMember = async function () {
+
+  const name = document.getElementById("name").value.trim();
+  const fatherId = document.getElementById("fatherSelect").value;
+  const surname = document.getElementById("surname").value.trim();
+  const title = document.getElementById("title").value.trim();
+  const dob = document.getElementById("dob").value;
+  const file = document.getElementById("profileImage").files[0];
+
+  if (!name) {
+    showMessage("Name is required!", "error");
+    return;
+  }
+
+  let generation = 1;
+
+  if (fatherId) {
+    const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
+    generation = fatherSnap.data().generation + 1;
+  }
 
   try {
 
-    const name = document.getElementById("name").value.trim();
-    const fatherId = document.getElementById("fatherSelect").value;
-    const surname = document.getElementById("surname").value.trim();
-    const title = document.getElementById("title").value.trim();
-    const dob = document.getElementById("dob").value;
-    const file = document.getElementById("profileImage").files[0];
+    if (!editingId) {
 
-    if (!name) {
-      showMessage("Name is required!", "error");
-      return;
-    }
-
-    if (file && file.size > 2 * 1024 * 1024) {
-      showMessage("Image must be under 2MB.", "error");
-      return;
-    }
-
-    let generation = 1;
-
-    if (fatherId) {
-      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-      generation = fatherSnap.data().generation + 1;
-    }
-
-    showMessage("Creating member...", "warning");
-
-    const docRef = await addDoc(collection(db, "family_members"), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      surname,
-      title: title || "",
-      dob: dob || "",
-      profileImage: "",
-      isRoot: fatherId ? false : true,
-      isAlive: false,
-      branchId: "main-root",
-      createdAt: serverTimestamp()
-    });
-
-    if (file) {
-      const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
-      await uploadBytes(imageRef, file);
-      const downloadURL = await getDownloadURL(imageRef);
-
-      await updateDoc(doc(db, "family_members", docRef.id), {
-        profileImage: downloadURL
+      const docRef = await addDoc(collection(db, "family_members"), {
+        name,
+        fatherId: fatherId || null,
+        generation,
+        surname,
+        title,
+        dob,
+        profileImage: "",
+        isRoot: fatherId ? false : true,
+        createdAt: serverTimestamp()
       });
+
+      if (file) {
+        const imageRef = ref(storage, "profilePhotos/" + docRef.id + "/profile.jpg");
+        await uploadBytes(imageRef, file);
+        const downloadURL = await getDownloadURL(imageRef);
+
+        await updateDoc(doc(db, "family_members", docRef.id), {
+          profileImage: downloadURL
+        });
+      }
+
+      showMessage("Member Added Successfully!");
+
+    } else {
+
+      await updateDoc(doc(db, "family_members", editingId), {
+        name,
+        fatherId: fatherId || null,
+        generation,
+        surname,
+        title,
+        dob
+      });
+
+      if (file) {
+        const imageRef = ref(storage, "profilePhotos/" + editingId + "/profile.jpg");
+        try { await deleteObject(imageRef); } catch(e){}
+        await uploadBytes(imageRef, file);
+        const downloadURL = await getDownloadURL(imageRef);
+
+        await updateDoc(doc(db, "family_members", editingId), {
+          profileImage: downloadURL
+        });
+      }
+
+      showMessage("Member Updated Successfully!");
     }
 
-    showMessage("Member Added Successfully!", "success");
-
+    editingId = null;
     clearForm();
+    document.getElementById("memberModal").style.display = "none";
+    document.body.style.overflow = "auto";
+
     loadMembers();
     loadFathers();
 
   } catch (error) {
-    console.error(error);
     showMessage(error.message, "error");
   }
 };
 
-/* ================= EDIT MEMBER ================= */
+/* ================= EDIT ================= */
 
 window.editMember = async function(id) {
 
-  const snap = await getDoc(doc(db, "family_members", id));
-  if (!snap.exists()) {
-    showMessage("Member not found.", "error");
-    return;
-  }
-
-  const data = snap.data();
-
-  document.getElementById("name").value = data.name;
-  document.getElementById("surname").value = data.surname || "";
-  document.getElementById("title").value = data.title || "";
-  document.getElementById("fatherSelect").value = data.fatherId || "";
-  document.getElementById("dob").value = data.dob || "";
+  const member = allMembers.find(m => m.id === id);
+  if (!member) return;
 
   editingId = id;
 
-  showMessage("Now update details and click Save Member.", "warning");
+  document.getElementById("modalTitle").innerText = "Edit Member";
+  document.getElementById("name").value = member.name;
+  document.getElementById("surname").value = member.surname || "";
+  document.getElementById("title").value = member.title || "";
+  document.getElementById("dob").value = member.dob || "";
+  document.getElementById("fatherSelect").value = member.fatherId || "";
+
+  document.getElementById("memberModal").style.display = "block";
+  document.body.style.overflow = "hidden";
 };
 
-/* ================= UPDATE MEMBER ================= */
-
-window.updateMember = async function () {
-
-  if (!editingId) {
-    showMessage("Click Edit first.", "warning");
-    return;
-  }
-
-  try {
-
-    const name = document.getElementById("name").value.trim();
-    const fatherId = document.getElementById("fatherSelect").value;
-    const surname = document.getElementById("surname").value.trim();
-    const title = document.getElementById("title").value.trim();
-    const dob = document.getElementById("dob").value;
-    const file = document.getElementById("profileImage").files[0];
-
-    let generation = 1;
-
-    if (fatherId) {
-      const fatherSnap = await getDoc(doc(db, "family_members", fatherId));
-      generation = fatherSnap.data().generation + 1;
-    }
-
-    await updateDoc(doc(db, "family_members", editingId), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      surname,
-      title: title || "",
-      dob: dob || ""
-    });
-
-    if (file) {
-      const imageRef = ref(storage, "profilePhotos/" + editingId + "/profile.jpg");
-
-      try { await deleteObject(imageRef); } catch(e){}
-
-      await uploadBytes(imageRef, file);
-      const downloadURL = await getDownloadURL(imageRef);
-
-      await updateDoc(doc(db, "family_members", editingId), {
-        profileImage: downloadURL
-      });
-    }
-
-    showMessage("Member Updated Successfully!", "success");
-
-    editingId = null;
-    clearForm();
-    loadMembers();
-
-  } catch (error) {
-    showMessage(error.message, "error");
-  }
-};
-
-/* ================= DELETE MEMBER ================= */
+/* ================= DELETE ================= */
 
 window.deleteMember = async function (id) {
 
-  if (!confirm("Are you sure you want to delete this member?")) return;
+  if (!confirm("Delete this member?")) return;
 
-  const memberSnap = await getDoc(doc(db, "family_members", id));
-  if (!memberSnap.exists()) return;
+  const member = allMembers.find(m => m.id === id);
+  if (!member) return;
 
-  const memberData = memberSnap.data();
-
-  if (memberData.isRoot === true) {
+  if (member.isRoot) {
     showMessage("Cannot delete root ancestor.", "warning");
     return;
   }
@@ -301,7 +283,7 @@ window.deleteMember = async function (id) {
 
   await deleteDoc(doc(db, "family_members", id));
 
-  showMessage("Member Deleted Successfully.", "success");
+  showMessage("Member Deleted Successfully!");
   loadMembers();
 };
 
@@ -316,36 +298,40 @@ function clearForm() {
   document.getElementById("profileImage").value = "";
 }
 
-function populateGenerationFilter(generations) {
+function populateGenerationFilter() {
 
   const select = document.getElementById("generationFilter");
   if (!select) return;
 
-  const currentValue = select.value;
+  const gens = [...new Set(allMembers.map(m => m.generation))].sort((a,b)=>a-b);
+
   select.innerHTML = '<option value="">All Generations</option>';
 
-  Array.from(generations)
-    .sort((a, b) => a - b)
-    .forEach(gen => {
-      const option = document.createElement("option");
-      option.value = gen;
-      option.textContent = "Generation " + gen;
-      select.appendChild(option);
-    });
-
-  select.value = currentValue;
+  gens.forEach(gen => {
+    const option = document.createElement("option");
+    option.value = gen;
+    option.textContent = "Generation " + gen;
+    select.appendChild(option);
+  });
 }
 
 document.addEventListener("input", e => {
-  if (e.target.id === "searchInput") loadMembers();
+  if (e.target.id === "searchInput") {
+    currentPage = 1;
+    renderMembers();
+  }
 });
 
 document.addEventListener("change", e => {
-  if (e.target.id === "generationFilter") loadMembers();
+  if (e.target.id === "generationFilter") {
+    currentPage = 1;
+    renderMembers();
+  }
 });
 
 window.resetFilters = function() {
   document.getElementById("searchInput").value = "";
   document.getElementById("generationFilter").value = "";
-  loadMembers();
+  currentPage = 1;
+  renderMembers();
 };
