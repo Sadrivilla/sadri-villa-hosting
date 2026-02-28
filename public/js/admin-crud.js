@@ -22,8 +22,6 @@ import {
 
 let editingId = null;
 let allMembers = [];
-let currentPage = 1;
-const perPage = 8;
 
 /* ================= NOTIFICATION ================= */
 
@@ -42,28 +40,7 @@ function showMessage(message, type = "success") {
   setTimeout(() => box.style.display = "none", 3000);
 }
 
-/* ================= LOAD FATHERS ================= */
-
-async function loadFathers() {
-
-  const snapshot = await getDocs(collection(db, "family_members"));
-  const select = document.getElementById("fatherSelect");
-  if (!select) return;
-
-  select.innerHTML = '<option value="">-- Select Father (Leave empty for Root) --</option>';
-
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
-    const option = document.createElement("option");
-    option.value = docSnap.id;
-    option.textContent = data.name;
-    select.appendChild(option);
-  });
-}
-
-loadFathers();
-
-/* ================= LOAD MEMBERS ================= */
+/* ================= LOAD DATA ================= */
 
 async function loadMembers() {
 
@@ -74,21 +51,27 @@ async function loadMembers() {
     allMembers.push({ id: docSnap.id, ...docSnap.data() });
   });
 
+  // Sort generation wise
+  allMembers.sort((a,b)=>a.generation - b.generation);
+
   renderMembers();
   populateGenerationFilter();
+  loadSearchDropdown();
 }
+
+loadMembers();
+
+/* ================= RENDER MEMBERS ================= */
 
 function renderMembers() {
 
   const container = document.getElementById("memberList");
-  const pagination = document.getElementById("pagination");
   if (!container) return;
 
   const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const generationValue = document.getElementById("generationFilter")?.value;
 
   container.innerHTML = "";
-  pagination.innerHTML = "";
 
   const filtered = allMembers.filter(m => {
     if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
@@ -96,13 +79,7 @@ function renderMembers() {
     return true;
   });
 
-  const totalPages = Math.ceil(filtered.length / perPage);
-  if (currentPage > totalPages) currentPage = 1;
-
-  const start = (currentPage - 1) * perPage;
-  const pageMembers = filtered.slice(start, start + perPage);
-
-  pageMembers.forEach(member => {
+  filtered.forEach(member => {
 
     const father = member.fatherId 
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
@@ -118,36 +95,52 @@ function renderMembers() {
       <strong>${member.name}</strong><br>
       Father: ${father}<br>
       Generation: ${member.generation}<br>
-      Surname: ${member.surname || "-"}<br>
       DOB: ${member.dob || "-"}<br>
-      Title: ${member.title || "-"}<br>
 
       <div class="actions">
-        <button onclick="editMember('${member.id}')" class="btn primary">Edit</button>
+        <button onclick="openEdit('${member.id}')" class="btn primary">Edit</button>
         <button onclick="deleteMember('${member.id}')" class="btn danger">Delete</button>
       </div>
     `;
 
     container.appendChild(div);
   });
-
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("div");
-    btn.className = "page-btn" + (i === currentPage ? " active-page" : "");
-    btn.innerText = i;
-    btn.onclick = () => {
-      currentPage = i;
-      renderMembers();
-    };
-    pagination.appendChild(btn);
-  }
 }
 
-loadMembers();
+/* ================= SEARCH DROPDOWN ================= */
 
-/* ================= SAVE (ADD + UPDATE) ================= */
+function loadSearchDropdown(){
 
-window.saveMember = async function () {
+  const dropdown = document.getElementById("searchDropdown");
+  if(!dropdown) return;
+
+  dropdown.innerHTML = "";
+
+  allMembers.forEach(m=>{
+    const item = document.createElement("div");
+    item.className="dropdown-item";
+    item.innerText=m.name;
+    item.onclick=()=>{
+      document.getElementById("searchInput").value=m.name;
+      dropdown.style.display="none";
+      renderMembers();
+    };
+    dropdown.appendChild(item);
+  });
+}
+
+document.getElementById("searchInput")?.addEventListener("focus",()=>{
+  const dropdown = document.getElementById("searchDropdown");
+  if(dropdown) dropdown.style.display="block";
+});
+
+document.getElementById("searchInput")?.addEventListener("input",()=>{
+  renderMembers();
+});
+
+/* ================= ADD MEMBER ================= */
+
+window.saveMember = async function(){
 
   const name = document.getElementById("name").value.trim();
   const fatherId = document.getElementById("fatherSelect").value;
@@ -223,11 +216,8 @@ window.saveMember = async function () {
 
     editingId = null;
     clearForm();
-    document.getElementById("memberModal").style.display = "none";
-    document.body.style.overflow = "auto";
-
+    closeModal();
     loadMembers();
-    loadFathers();
 
   } catch (error) {
     showMessage(error.message, "error");
@@ -236,22 +226,27 @@ window.saveMember = async function () {
 
 /* ================= EDIT ================= */
 
-window.editMember = async function(id) {
+window.openEdit = function(id){
 
-  const member = allMembers.find(m => m.id === id);
-  if (!member) return;
+  const member = allMembers.find(m=>m.id===id);
+  if(!member) return;
 
   editingId = id;
 
-  document.getElementById("modalTitle").innerText = "Edit Member";
-  document.getElementById("name").value = member.name;
-  document.getElementById("surname").value = member.surname || "";
-  document.getElementById("title").value = member.title || "";
-  document.getElementById("dob").value = member.dob || "";
-  document.getElementById("fatherSelect").value = member.fatherId || "";
+  document.getElementById("modalTitle").innerText="Edit Member";
+  document.getElementById("name").value=member.name;
+  document.getElementById("surname").value=member.surname || "";
+  document.getElementById("title").value=member.title || "";
+  document.getElementById("dob").value=member.dob || "";
+  document.getElementById("fatherSelect").value=member.fatherId || "";
 
-  document.getElementById("memberModal").style.display = "block";
-  document.body.style.overflow = "hidden";
+  if(member.profileImage){
+    const preview=document.getElementById("imagePreview");
+    preview.src=member.profileImage;
+    preview.style.display="block";
+  }
+
+  openModal();
 };
 
 /* ================= DELETE ================= */
@@ -260,8 +255,8 @@ window.deleteMember = async function (id) {
 
   if (!confirm("Delete this member?")) return;
 
-  const member = allMembers.find(m => m.id === id);
-  if (!member) return;
+  const member = allMembers.find(m=>m.id===id);
+  if(!member) return;
 
   if (member.isRoot) {
     showMessage("Cannot delete root ancestor.", "warning");
@@ -290,48 +285,41 @@ window.deleteMember = async function (id) {
 /* ================= HELPERS ================= */
 
 function clearForm() {
-  document.getElementById("name").value = "";
-  document.getElementById("surname").value = "";
-  document.getElementById("title").value = "";
-  document.getElementById("fatherSelect").value = "";
-  document.getElementById("dob").value = "";
-  document.getElementById("profileImage").value = "";
+  document.getElementById("name").value="";
+  document.getElementById("surname").value="";
+  document.getElementById("title").value="";
+  document.getElementById("fatherSelect").value="";
+  document.getElementById("dob").value="";
+  document.getElementById("profileImage").value="";
+  document.getElementById("imagePreview").style.display="none";
 }
 
-function populateGenerationFilter() {
+function populateGenerationFilter(){
 
-  const select = document.getElementById("generationFilter");
-  if (!select) return;
+  const select=document.getElementById("generationFilter");
+  if(!select) return;
 
-  const gens = [...new Set(allMembers.map(m => m.generation))].sort((a,b)=>a-b);
+  const gens=[...new Set(allMembers.map(m=>m.generation))].sort((a,b)=>a-b);
 
-  select.innerHTML = '<option value="">All Generations</option>';
+  select.innerHTML='<option value="">All Generations</option>';
 
-  gens.forEach(gen => {
-    const option = document.createElement("option");
-    option.value = gen;
-    option.textContent = "Generation " + gen;
+  gens.forEach(gen=>{
+    const option=document.createElement("option");
+    option.value=gen;
+    option.textContent="Generation "+gen;
     select.appendChild(option);
   });
 }
 
-document.addEventListener("input", e => {
-  if (e.target.id === "searchInput") {
-    currentPage = 1;
-    renderMembers();
-  }
+document.addEventListener("change", e=>{
+  if(e.target.id==="generationFilter") renderMembers();
 });
 
-document.addEventListener("change", e => {
-  if (e.target.id === "generationFilter") {
-    currentPage = 1;
-    renderMembers();
-  }
-});
+/* ================= CLOSE MODAL OUTSIDE CLICK ================= */
 
-window.resetFilters = function() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("generationFilter").value = "";
-  currentPage = 1;
-  renderMembers();
+window.onclick=function(e){
+  const modal=document.getElementById("memberModal");
+  if(e.target===modal){
+    closeModal();
+  }
 };
