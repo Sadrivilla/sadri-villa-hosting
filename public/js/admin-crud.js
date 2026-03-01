@@ -8,13 +8,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
-
-import { db, storage } from "./firebase.js";
+import { db } from "./firebase.js";
 
 let allMembers = [];
 let editingId = null;
@@ -49,7 +43,7 @@ function showMessage(message, type = "success") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-/* ================= AGE CALCULATION ================= */
+/* ================= AGE ================= */
 
 function calculateAge(dob) {
   if (!dob) return null;
@@ -71,15 +65,50 @@ function calculateAge(dob) {
 
 function createsCycle(memberId, newFatherId) {
   let current = newFatherId;
+
   while (current) {
     if (current === memberId) return true;
+
     const parent = allMembers.find(m => m.id === current);
     current = parent ? parent.fatherId : null;
   }
+
   return false;
 }
 
-/* ================= LOAD ================= */
+/* ================= INIT ================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  loadMembers();
+
+  document.getElementById("generationFilter")
+    ?.addEventListener("change", () => {
+      currentPage = 1;
+      renderMembers();
+    });
+
+  document.getElementById("searchInput")
+    ?.addEventListener("input", () => {
+      currentPage = 1;
+      renderMembers();
+    });
+
+  document.getElementById("confirmDeleteBtn")
+    ?.addEventListener("click", confirmDelete);
+
+  /* OUTSIDE CLICK CLOSE */
+  document.querySelectorAll(".modal").forEach(modal => {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  });
+
+});
+
+/* ================= LOAD MEMBERS ================= */
 
 async function loadMembers() {
 
@@ -104,6 +133,7 @@ async function loadMembers() {
 /* ================= DROPDOWNS ================= */
 
 function populateGenerationFilter() {
+
   const select = document.getElementById("generationFilter");
   select.innerHTML = `<option value="">All Generations</option>`;
 
@@ -116,6 +146,7 @@ function populateGenerationFilter() {
 }
 
 function populateFatherDropdown() {
+
   const select = document.getElementById("fatherSelect");
   select.innerHTML = `<option value="">Select Father</option>`;
 
@@ -137,12 +168,17 @@ function renderMembers() {
   container.innerHTML = "";
   pagination.innerHTML = "";
 
-  const searchValue = document.getElementById("searchInput").value.toLowerCase();
-  const generationValue = document.getElementById("generationFilter").value;
+  const searchValue =
+    document.getElementById("searchInput").value.toLowerCase();
+
+  const generationValue =
+    document.getElementById("generationFilter").value;
 
   let filtered = allMembers.filter(m => {
-    if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
-    if (generationValue && m.generation != generationValue) return false;
+    if (searchValue && !m.name.toLowerCase().includes(searchValue))
+      return false;
+    if (generationValue && m.generation != generationValue)
+      return false;
     return true;
   });
 
@@ -179,7 +215,7 @@ function renderMembers() {
   }
 }
 
-/* ================= GLOBAL ================= */
+/* ================= GLOBAL FUNCTIONS ================= */
 
 window.goToPage = function(page){
   currentPage = page;
@@ -255,6 +291,7 @@ window.saveMember = async function(){
     }
 
     let generation = 1;
+
     if (fatherId) {
       const father = allMembers.find(m => m.id === fatherId);
       if (!father) {
@@ -292,7 +329,7 @@ window.saveMember = async function(){
     await loadMembers();
     closeModal();
 
-  } catch (err) {
+  } catch {
     showMessage("Error saving member.", "error");
   }
 
