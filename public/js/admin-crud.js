@@ -186,7 +186,6 @@ async function loadMembers() {
     allMembers.push({ id: docSnap.id, ...docSnap.data() });
   });
 
-  allMembers.sort((a, b) => a.generation - b.generation);
 
   populateGenerationFilter();
   populateFatherDropdown();
@@ -272,6 +271,13 @@ function renderMembers() {
       return false;
     return true;
   });
+  // ALWAYS SORT BEFORE DISPLAY
+filtered.sort((a, b) => {
+  if (a.generation !== b.generation) {
+    return a.generation - b.generation;
+  }
+  return a.name.localeCompare(b.name);
+});
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const start = (currentPage - 1) * perPage;
@@ -279,9 +285,9 @@ function renderMembers() {
 
   paginated.forEach(member => {
 
-    const fatherName = member.fatherId
-      ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
-      : "-";
+   const fatherName = member.fatherId
+  ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
+  : "ROOT";
 
     const age = calculateAge(member.dob);
 
@@ -509,6 +515,20 @@ showMessage("Member updated successfully.");
 
 window.deleteMember = function(id){
 
+  const member = allMembers.find(m => m.id === id);
+
+  if (!member) {
+    showMessage("Member not found.", "error");
+    return;
+  }
+
+  /* PREVENT ROOT DELETE */
+  if (!member.fatherId) {
+    showMessage("Root member cannot be deleted.", "error");
+    return;
+  }
+
+  /* PREVENT DELETE IF HAS CHILDREN */
   const hasChildren = allMembers.some(m => m.fatherId === id);
 
   if (hasChildren) {
@@ -526,9 +546,13 @@ async function confirmDelete(){
 
   try{
     showLoader();
+
     await deleteDoc(doc(db, "family_members", deleteTargetId));
+
     await loadMembers();
+
     showMessage("Member deleted successfully.");
+
   }catch{
     showMessage("Delete failed.", "error");
   }
