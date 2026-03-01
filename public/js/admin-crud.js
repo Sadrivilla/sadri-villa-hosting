@@ -66,21 +66,28 @@ function previewImage(e) {
   reader.readAsDataURL(file);
 }
 
-function updateInitials() {
-  const name = document.getElementById("name").value.trim();
+function setImagePreview(url) {
   const box = document.getElementById("profilePreviewBox");
+  if (!box) return;
 
-  if (!document.getElementById("profileImage").files.length) {
+  if (url) {
+    box.style.backgroundImage = `url(${url})`;
+    box.style.backgroundSize = "cover";
+    box.style.backgroundPosition = "center";
+    box.innerText = "";
+  } else {
     box.style.backgroundImage = "none";
-    box.innerText = name ? name.substring(0, 2).toUpperCase() : "?";
+    box.innerText = "?";
   }
 }
 
 /* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
   loadMembers();
 
+  /* SEARCH */
   const searchInput = document.getElementById("searchInput");
   const searchDropdown = document.getElementById("searchDropdown");
 
@@ -103,15 +110,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* IMAGE */
   document.getElementById("profileImage")
     ?.addEventListener("change", previewImage);
 
-  document.getElementById("name")
-    ?.addEventListener("input", updateInitials);
-
+  /* DELETE CONFIRM */
   document.getElementById("confirmDeleteBtn")
     ?.addEventListener("click", confirmDelete);
 
+  /* OUTSIDE MODAL CLOSE */
   document.querySelectorAll(".modal").forEach(modal => {
     modal.addEventListener("click", function (e) {
       if (e.target === modal) {
@@ -121,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ================= LOAD MEMBERS ================= */
+/* ================= LOAD ================= */
 
 async function loadMembers() {
 
@@ -141,37 +148,6 @@ async function loadMembers() {
   renderMembers();
 
   hideLoader();
-}
-
-/* ================= SEARCH DROPDOWN ================= */
-
-function populateSearchDropdown() {
-
-  const dropdown = document.getElementById("searchDropdown");
-  const value =
-    document.getElementById("searchInput").value.toLowerCase();
-
-  dropdown.innerHTML = "";
-
-  const filtered = allMembers.filter(m =>
-    m.name.toLowerCase().includes(value)
-  );
-
-  filtered.forEach(m => {
-    const div = document.createElement("div");
-    div.style.padding = "8px";
-    div.style.cursor = "pointer";
-    div.innerText = m.name;
-
-    div.onclick = function() {
-      document.getElementById("searchInput").value = m.name;
-      dropdown.style.display = "none";
-      currentPage = 1;
-      renderMembers();
-    };
-
-    dropdown.appendChild(div);
-  });
 }
 
 /* ================= DROPDOWNS ================= */
@@ -200,35 +176,34 @@ function populateFatherDropdown() {
   });
 }
 
-/* ================= TREE VALIDATION ================= */
+/* ================= SEARCH DROPDOWN ================= */
 
-function createsCycle(memberId, newFatherId) {
-  let current = newFatherId;
-  while (current) {
-    if (current === memberId) return true;
-    const parent = allMembers.find(m => m.id === current);
-    current = parent ? parent.fatherId : null;
-  }
-  return false;
-}
+function populateSearchDropdown() {
 
-async function updateChildrenGenerations(parentId) {
+  const dropdown = document.getElementById("searchDropdown");
+  const value = document.getElementById("searchInput").value.toLowerCase();
 
-  const children = allMembers.filter(m => m.fatherId === parentId);
+  dropdown.innerHTML = "";
 
-  for (let child of children) {
+  const filtered = allMembers.filter(m =>
+    m.name.toLowerCase().includes(value)
+  );
 
-    const parent = allMembers.find(m => m.id === parentId);
-    const newGeneration = parent.generation + 1;
+  filtered.forEach(m => {
+    const div = document.createElement("div");
+    div.style.padding = "8px";
+    div.style.cursor = "pointer";
+    div.innerText = m.name;
 
-    await updateDoc(doc(db, "family_members", child.id), {
-      generation: newGeneration
-    });
+    div.onclick = function() {
+      document.getElementById("searchInput").value = m.name;
+      dropdown.style.display = "none";
+      currentPage = 1;
+      renderMembers();
+    };
 
-    child.generation = newGeneration;
-
-    await updateChildrenGenerations(child.id);
-  }
+    dropdown.appendChild(div);
+  });
 }
 
 /* ================= RENDER ================= */
@@ -241,12 +216,14 @@ function renderMembers() {
   container.innerHTML = "";
   pagination.innerHTML = "";
 
-  const searchValue =
-    document.getElementById("searchInput").value.toLowerCase();
+  const searchValue = document.getElementById("searchInput").value.toLowerCase();
+  const generationValue = document.getElementById("generationFilter").value;
 
-  let filtered = allMembers.filter(m =>
-    m.name.toLowerCase().includes(searchValue)
-  );
+  let filtered = allMembers.filter(m => {
+    if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
+    if (generationValue && m.generation != generationValue) return false;
+    return true;
+  });
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const start = (currentPage - 1) * perPage;
@@ -258,19 +235,14 @@ function renderMembers() {
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
       : "-";
 
-    const initials = member.name
-      ? member.name.substring(0, 2).toUpperCase()
-      : "?";
-
     const imageHtml = member.profileImage
       ? `<div class="profile-img"
            style="background-image:url('${member.profileImage}');
-                  background-size:cover;
-                  background-position:center;"></div>`
+           background-size:cover;background-position:center;"></div>`
       : `<div class="profile-img"
            style="display:flex;align-items:center;
-                  justify-content:center;background:#ddd;font-weight:bold;">
-           ${initials}
+           justify-content:center;background:#ddd;font-weight:bold;">
+           ${member.name.substring(0,2).toUpperCase()}
          </div>`;
 
     container.innerHTML += `
@@ -278,8 +250,7 @@ function renderMembers() {
         ${imageHtml}
         <strong>${member.name}</strong><br>
         Father: ${fatherName}<br>
-        Generation: ${member.generation}<br>
-        DOB: ${member.dob || "-"}
+        Generation: ${member.generation}
         <div class="actions">
           <button onclick="editMember('${member.id}')" class="btn primary">Edit</button>
           <button onclick="deleteMember('${member.id}')" class="btn danger">Delete</button>
@@ -290,24 +261,39 @@ function renderMembers() {
   for (let i = 1; i <= totalPages; i++) {
     pagination.innerHTML += `
       <div class="page-btn ${i === currentPage ? "active-page" : ""}"
-           onclick="goToPage(${i})">${i}</div>`;
+      onclick="goToPage(${i})">${i}</div>`;
   }
 }
 
-/* ================= GLOBAL FUNCTIONS ================= */
+/* ================= GLOBAL ================= */
 
 window.goToPage = function(page){
   currentPage = page;
   renderMembers();
 };
 
-window.openAddModal = function(){
-  editingId = null;
-  document.getElementById("memberModal").style.display = "flex";
+window.resetFilters = function(){
+  document.getElementById("searchInput").value = "";
+  document.getElementById("generationFilter").value = "";
+  currentPage = 1;
+  renderMembers();
 };
 
-window.closeModal = function(){
-  document.getElementById("memberModal").style.display = "none";
+window.openAddModal = function(){
+
+  editingId = null;
+
+  document.getElementById("modalTitle").innerText = "Add Member";
+  document.getElementById("memberModal").style.display = "flex";
+
+  document.getElementById("name").value = "";
+  document.getElementById("fatherSelect").value = "";
+  document.getElementById("surname").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("dob").value = "";
+  document.getElementById("profileImage").value = "";
+
+  setImagePreview(null);
 };
 
 window.editMember = function(id){
@@ -317,12 +303,92 @@ window.editMember = function(id){
 
   editingId = id;
 
-  document.getElementById("memberModal").style.display = "flex";
   document.getElementById("modalTitle").innerText = "Edit Member";
+  document.getElementById("memberModal").style.display = "flex";
 
   document.getElementById("name").value = member.name || "";
   document.getElementById("fatherSelect").value = member.fatherId || "";
+  document.getElementById("surname").value = member.surname || "";
+  document.getElementById("title").value = member.title || "";
+  document.getElementById("dob").value = member.dob || "";
+
+  setImagePreview(member.profileImage || null);
 };
+
+window.closeModal = function(){
+  document.getElementById("memberModal").style.display = "none";
+};
+
+/* ================= SAVE ================= */
+
+window.saveMember = async function(){
+
+  try {
+
+    showLoader();
+
+    const name = document.getElementById("name").value.trim();
+    const fatherId = document.getElementById("fatherSelect").value;
+    const file = document.getElementById("profileImage").files[0];
+
+    if (!name) {
+      showMessage("Name is required.", "warning");
+      hideLoader();
+      return;
+    }
+
+    let generation = 1;
+    if (fatherId) {
+      const father = allMembers.find(m => m.id === fatherId);
+      generation = father ? father.generation + 1 : 1;
+    }
+
+    let imageURL = null;
+
+    if (file) {
+      const imageRef = ref(storage, "profiles/" + Date.now());
+      await uploadBytes(imageRef, file);
+      imageURL = await getDownloadURL(imageRef);
+    }
+
+    if (!editingId) {
+
+      await addDoc(collection(db, "family_members"), {
+        name,
+        fatherId: fatherId || null,
+        generation,
+        profileImage: imageURL || "",
+        createdAt: serverTimestamp()
+      });
+
+      showMessage("Member added successfully.");
+
+    } else {
+
+      const updateData = {
+        name,
+        fatherId: fatherId || null,
+        generation
+      };
+
+      if (imageURL) updateData.profileImage = imageURL;
+
+      await updateDoc(doc(db, "family_members", editingId), updateData);
+
+      showMessage("Member updated successfully.");
+    }
+
+    await loadMembers();
+    closeModal();
+
+  } catch (err) {
+    showMessage("Error saving member.", "error");
+  }
+
+  hideLoader();
+};
+
+/* ================= DELETE ================= */
 
 window.deleteMember = function(id){
 
@@ -337,6 +403,20 @@ window.deleteMember = function(id){
   document.getElementById("deleteModal").style.display = "flex";
 };
 
-window.closeDeleteModal = function(){
+async function confirmDelete(){
+
+  if(!deleteTargetId) return;
+
+  try{
+    showLoader();
+    await deleteDoc(doc(db, "family_members", deleteTargetId));
+    await loadMembers();
+    showMessage("Member deleted successfully.");
+  }catch{
+    showMessage("Delete failed.", "error");
+  }
+
+  hideLoader();
   document.getElementById("deleteModal").style.display = "none";
-};
+  deleteTargetId = null;
+}
