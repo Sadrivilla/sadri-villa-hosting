@@ -24,29 +24,27 @@ const perPage = 30;
 /* ================= LOADER ================= */
 
 function showLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "flex";
+  document.getElementById("loader").style.display = "flex";
 }
 
 function hideLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.style.display = "none";
+  document.getElementById("loader").style.display = "none";
 }
 
 /* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
   loadMembers();
 
   const searchInput = document.getElementById("searchInput");
   const dropdown = document.getElementById("searchDropdown");
 
-  searchInput?.addEventListener("click", () => {
+  searchInput.addEventListener("click", () => {
+    populateSearchDropdown();
     dropdown.style.display = "block";
   });
 
-  searchInput?.addEventListener("input", handleSearch);
+  searchInput.addEventListener("input", handleSearch);
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#searchInput") &&
@@ -66,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
       currentPage = 1;
       renderMembers();
     });
-
 });
 
 /* ================= LOAD MEMBERS ================= */
@@ -76,7 +73,6 @@ async function loadMembers() {
   const snapshot = await getDocs(collection(db, "family_members"));
 
   allMembers = [];
-
   snapshot.forEach(docSnap => {
     allMembers.push({ id: docSnap.id, ...docSnap.data() });
   });
@@ -85,39 +81,61 @@ async function loadMembers() {
 
   populateGenerationFilter();
   populateFatherDropdown();
-  populateSearchDropdown();
+  renderMembers();
+}
+
+/* ================= SEARCH ================= */
+
+function populateSearchDropdown() {
+
+  const dropdown = document.getElementById("searchDropdown");
+  dropdown.innerHTML = "";
+
+  allMembers.forEach(m => {
+    dropdown.innerHTML += `
+      <div style="padding:8px;cursor:pointer;"
+           onclick="selectSearch('${m.name.replace(/'/g,"")}')">
+        ${m.name}
+      </div>`;
+  });
+}
+
+window.selectSearch = function(name) {
+  document.getElementById("searchInput").value = name;
+  document.getElementById("searchDropdown").style.display = "none";
+  currentPage = 1;
+  renderMembers();
+};
+
+function handleSearch() {
+  currentPage = 1;
   renderMembers();
 }
 
 /* ================= PROFILE PREVIEW ================= */
 
 function previewImage(e) {
-
   const file = e.target.files[0];
   const box = document.getElementById("profilePreviewBox");
-  if (!file || !box) return;
+
+  if (!file) return;
 
   const reader = new FileReader();
-
-  reader.onload = function (event) {
+  reader.onload = function(event) {
     box.style.backgroundImage = `url(${event.target.result})`;
     box.style.backgroundSize = "cover";
     box.innerText = "";
   };
-
   reader.readAsDataURL(file);
 }
 
 function updateInitials() {
-
-  const name = document.getElementById("name")?.value.trim();
+  const name = document.getElementById("name").value.trim();
   const box = document.getElementById("profilePreviewBox");
 
-  if (!box) return;
-
-  if (!document.getElementById("profileImage")?.files.length) {
+  if (!document.getElementById("profileImage").files.length) {
     box.style.backgroundImage = "none";
-    box.innerText = name ? name.substring(0, 2).toUpperCase() : "?";
+    box.innerText = name ? name.substring(0,2).toUpperCase() : "?";
   }
 }
 
@@ -128,9 +146,7 @@ function isDescendant(childId, potentialFatherId) {
   let current = allMembers.find(m => m.id === potentialFatherId);
 
   while (current) {
-
     if (current.fatherId === childId) return true;
-
     current = allMembers.find(m => m.id === current.fatherId);
   }
 
@@ -162,16 +178,14 @@ function renderMembers() {
   const container = document.getElementById("memberList");
   const pagination = document.getElementById("pagination");
 
-  if (!container || !pagination) return;
-
   container.innerHTML = "";
   pagination.innerHTML = "";
 
   const searchValue =
-    document.getElementById("searchInput")?.value.toLowerCase() || "";
+    document.getElementById("searchInput").value.toLowerCase();
 
   const generationValue =
-    document.getElementById("generationFilter")?.value || "";
+    document.getElementById("generationFilter").value;
 
   let filtered = allMembers.filter(m => {
     if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
@@ -189,9 +203,7 @@ function renderMembers() {
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
       : "-";
 
-    const initials = member.name
-      ? member.name.substring(0, 2).toUpperCase()
-      : "?";
+    const initials = member.name.substring(0,2).toUpperCase();
 
     const imageHtml = member.profileImage
       ? `<div class="profile-img"
@@ -199,8 +211,7 @@ function renderMembers() {
                   background-size:cover;"></div>`
       : `<div class="profile-img"
            style="display:flex;align-items:center;
-                  justify-content:center;
-                  background:#ddd;font-weight:bold;">
+                  justify-content:center;background:#ddd;font-weight:bold;">
            ${initials}
          </div>`;
 
@@ -215,166 +226,55 @@ function renderMembers() {
           <button onclick="editMember('${member.id}')" class="btn primary">Edit</button>
           <button onclick="deleteMember('${member.id}')" class="btn danger">Delete</button>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
-  for (let i = 1; i <= totalPages; i++) {
+  for (let i=1;i<=totalPages;i++){
     pagination.innerHTML += `
-      <div class="page-btn ${i === currentPage ? "active-page" : ""}"
+      <div class="page-btn ${i===currentPage?"active-page":""}"
            onclick="goToPage(${i})">${i}</div>`;
   }
 }
 
-window.goToPage = function(page) {
+window.goToPage = function(page){
   currentPage = page;
   renderMembers();
 };
 
 /* ================= DROPDOWNS ================= */
 
-function populateFatherDropdown() {
+function populateFatherDropdown(){
 
   const select = document.getElementById("fatherSelect");
-  if (!select) return;
-
   select.innerHTML = '<option value="">-- Select Father --</option>';
 
-  allMembers.forEach(m => {
-
-    if (editingId && m.id === editingId) return;
-    if (editingId && isDescendant(editingId, m.id)) return;
-
+  allMembers.forEach(m=>{
     select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
   });
 }
 
-function populateGenerationFilter() {
+function populateGenerationFilter(){
 
   const select = document.getElementById("generationFilter");
-  if (!select) return;
 
-  const gens = [...new Set(allMembers.map(m => m.generation))]
+  const gens=[...new Set(allMembers.map(m=>m.generation))]
     .sort((a,b)=>a-b);
 
-  select.innerHTML = '<option value="">All Generations</option>';
+  select.innerHTML='<option value="">All Generations</option>';
 
-  gens.forEach(g => {
-    select.innerHTML += `<option value="${g}">Generation ${g}</option>`;
+  gens.forEach(g=>{
+    select.innerHTML+=`<option value="${g}">Generation ${g}</option>`;
   });
 }
 
-/* ================= SAVE ================= */
+/* ================= MODAL ================= */
 
-window.saveMember = async function() {
-
-  try {
-
-    showLoader();
-
-    const name = document.getElementById("name").value.trim();
-    const fatherId = document.getElementById("fatherSelect").value;
-    const dob = document.getElementById("dob").value;
-    const surname = document.getElementById("surname").value;
-    const title = document.getElementById("title").value;
-    const file = document.getElementById("profileImage").files[0];
-
-    if (!name) {
-      hideLoader();
-      alert("Name required");
-      return;
-    }
-
-    if (editingId && fatherId === editingId) {
-      hideLoader();
-      alert("Member cannot be their own father.");
-      return;
-    }
-
-    if (editingId && isDescendant(editingId, fatherId)) {
-      hideLoader();
-      alert("Invalid father selection (loop detected).");
-      return;
-    }
-
-    let generation = 1;
-
-    if (fatherId) {
-      const father = allMembers.find(m => m.id === fatherId);
-      generation = father ? father.generation + 1 : 1;
-    }
-
-    let imageURL = null;
-
-    if (file) {
-      const imageRef = ref(storage, "profiles/" + Date.now());
-      await uploadBytes(imageRef, file);
-      imageURL = await getDownloadURL(imageRef);
-    }
-
-    if (!editingId) {
-
-      await addDoc(collection(db, "family_members"), {
-        name,
-        fatherId: fatherId || null,
-        generation,
-        surname: surname || "",
-        title: title || "",
-        dob: dob || "",
-        profileImage: imageURL || "",
-        createdAt: serverTimestamp()
-      });
-
-    } else {
-
-      const existing = allMembers.find(m => m.id === editingId);
-
-      const updateData = {
-        name,
-        fatherId: fatherId || null,
-        generation,
-        surname: surname || "",
-        title: title || "",
-        dob: dob || ""
-      };
-
-      if (imageURL !== null) {
-        updateData.profileImage = imageURL;
-      } else {
-        updateData.profileImage = existing.profileImage || "";
-      }
-
-      await updateDoc(doc(db, "family_members", editingId), updateData);
-
-      await updateChildrenGenerations(editingId, generation);
-    }
-
-    await loadMembers();
-    document.getElementById("memberModal").style.display = "none";
-
-  } catch (error) {
-    console.error(error);
-    alert("Error saving member.");
-  }
-
-  hideLoader();
+window.openAddModal = function(){
+  editingId = null;
+  document.getElementById("memberModal").style.display="flex";
+  document.getElementById("modalTitle").innerText="Add Member";
 };
 
-/* ================= DELETE ================= */
-
-window.deleteMember = async function(id) {
-
-  if (!confirm("Delete this member?")) return;
-
-  const hasChildren = allMembers.some(m => m.fatherId === id);
-
-  if (hasChildren) {
-    alert("Cannot delete member with children.");
-    return;
-  }
-
-  showLoader();
-  await deleteDoc(doc(db, "family_members", id));
-  await loadMembers();
-  hideLoader();
+window.closeModal = function(){
+  document.getElementById("memberModal").style.display="none";
 };
