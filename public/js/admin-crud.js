@@ -20,6 +20,17 @@ let allMembers = [];
 let editingId = null;
 let currentPage = 1;
 const perPage = 30;
+/* ================= LOADER ================= */
+
+function showLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.style.display = "flex";
+}
+
+function hideLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.style.display = "none";
+}
 
 /* ================= INIT ================= */
 
@@ -274,50 +285,68 @@ modal.addEventListener("click", function(e) {
 
 window.saveMember = async function () {
 
-  const name = document.getElementById("name").value.trim();
-  const fatherId = document.getElementById("fatherSelect").value;
-  const file = document.getElementById("profileImage").files[0];
+  try {
 
-  if (!name) return alert("Name required");
+    showLoader();
 
-  let generation = 1;
-  if (fatherId) {
-    const father = allMembers.find(m => m.id === fatherId);
-    generation = father.generation + 1;
-  }
+    const name = document.getElementById("name").value.trim();
+    const fatherId = document.getElementById("fatherSelect").value;
+    const file = document.getElementById("profileImage").files[0];
 
-  let imageURL = null;
-
-  if (file) {
-    const imageRef = ref(storage, "profiles/" + Date.now());
-    await uploadBytes(imageRef, file);
-    imageURL = await getDownloadURL(imageRef);
-  }
-
-  if (!editingId) {
-    await addDoc(collection(db, "family_members"), {
-      name,
-      fatherId: fatherId || null,
-      generation,
-      profileImage: imageURL || "",
-      createdAt: serverTimestamp()
-    });
-  } else {
-    const updateData = {
-      name,
-      fatherId: fatherId || null,
-      generation
-    };
-
-    if (imageURL !== null) {
-      updateData.profileImage = imageURL;
+    if (!name) {
+      hideLoader();
+      alert("Name required");
+      return;
     }
 
-    await updateDoc(doc(db, "family_members", editingId), updateData);
+    let generation = 1;
+    if (fatherId) {
+      const father = allMembers.find(m => m.id === fatherId);
+      generation = father.generation + 1;
+    }
+
+    let imageURL = null;
+
+    if (file) {
+      const imageRef = ref(storage, "profiles/" + Date.now());
+      await uploadBytes(imageRef, file);
+      imageURL = await getDownloadURL(imageRef);
+    }
+
+    if (!editingId) {
+
+      await addDoc(collection(db, "family_members"), {
+        name,
+        fatherId: fatherId || null,
+        generation,
+        profileImage: imageURL || "",
+        createdAt: serverTimestamp()
+      });
+
+    } else {
+
+      const updateData = {
+        name,
+        fatherId: fatherId || null,
+        generation
+      };
+
+      if (imageURL !== null) {
+        updateData.profileImage = imageURL;
+      }
+
+      await updateDoc(doc(db, "family_members", editingId), updateData);
+    }
+
+    closeModal();
+    await loadMembers();
+
+  } catch (error) {
+    console.error(error);
+    alert("Error occurred");
   }
 
-  closeModal();
-  loadMembers();
+  hideLoader();
 };
 
 /* ================= EDIT ================= */
@@ -351,11 +380,24 @@ window.editMember = function (id) {
 /* ================= DELETE ================= */
 
 window.deleteMember = async function (id) {
-  if (!confirm("Delete this member?")) return;
-  await deleteDoc(doc(db, "family_members", id));
-  loadMembers();
-};
 
+  if (!confirm("Delete this member?")) return;
+
+  try {
+
+    showLoader();
+
+    await deleteDoc(doc(db, "family_members", id));
+
+    await loadMembers();
+
+  } catch (error) {
+    console.error(error);
+    alert("Delete failed");
+  }
+
+  hideLoader();
+};
 /* ================= RESET ================= */
 
 window.resetFilters = function () {
