@@ -13,12 +13,19 @@ body{
 }
 
 .top-bar{
+  position:relative;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:flex-end; /* button stays right */
   margin-bottom:20px;
 }
 
+.top-bar h2{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  margin:0;
+}
 .btn{
   padding:8px 14px;
   border:none;
@@ -217,7 +224,7 @@ input, select{
 <div id="toastContainer"></div>
 
 <div class="top-bar">
-  <h2>Family Members</h2>
+  <h2>Add/Manage Family Members For Family Tree</h2>
   <button class="btn primary" onclick="openAddModal()">+ Add Member</button>
 </div>
 
