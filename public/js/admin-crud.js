@@ -98,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("confirmDeleteBtn")
     ?.addEventListener("click", confirmDelete);
 
-  /* OUTSIDE CLICK CLOSE */
   document.querySelectorAll(".modal").forEach(modal => {
     modal.addEventListener("click", function (e) {
       if (e.target === modal) {
@@ -159,20 +158,34 @@ function populateFatherDropdown() {
 /* ================= CIRCULAR CHECK ================= */
 
 function createsCycle(memberId, newFatherId) {
-
   let current = newFatherId;
-
   while (current) {
-
-    if (current === memberId) {
-      return true;
-    }
-
+    if (current === memberId) return true;
     const parent = allMembers.find(m => m.id === current);
     current = parent ? parent.fatherId : null;
   }
-
   return false;
+}
+
+/* ================= AUTO UPDATE GENERATION ================= */
+
+async function updateChildrenGenerations(parentId) {
+
+  const children = allMembers.filter(m => m.fatherId === parentId);
+
+  for (let child of children) {
+
+    const parent = allMembers.find(m => m.id === parentId);
+    const newGeneration = parent.generation + 1;
+
+    await updateDoc(doc(db, "family_members", child.id), {
+      generation: newGeneration
+    });
+
+    child.generation = newGeneration;
+
+    await updateChildrenGenerations(child.id);
+  }
 }
 
 /* ================= RENDER ================= */
@@ -266,14 +279,8 @@ window.saveMember = async function(){
       return;
     }
 
-    if (fatherId && !allMembers.some(m => m.id === fatherId)) {
-      showMessage("Selected father does not exist.", "error");
-      hideLoader();
-      return;
-    }
-
     if (editingId && fatherId && createsCycle(editingId, fatherId)) {
-      showMessage("Invalid hierarchy: circular relationship detected.", "error");
+      showMessage("Circular relationship detected.", "error");
       hideLoader();
       return;
     }
@@ -302,6 +309,12 @@ window.saveMember = async function(){
         fatherId: fatherId || null,
         generation
       });
+
+      const member = allMembers.find(m => m.id === editingId);
+      member.generation = generation;
+      member.fatherId = fatherId;
+
+      await updateChildrenGenerations(editingId);
 
       showMessage("Member updated successfully.");
     }
@@ -337,12 +350,9 @@ async function confirmDelete(){
 
   try{
     showLoader();
-
     await deleteDoc(doc(db, "family_members", deleteTargetId));
     await loadMembers();
-
     showMessage("Member deleted successfully.");
-
   }catch{
     showMessage("Delete failed.", "error");
   }
