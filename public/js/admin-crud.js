@@ -72,6 +72,30 @@ function createsCycle(memberId, newFatherId) {
   }
   return false;
 }
+/* ================= AUTO UPDATE CHILD GENERATION ================= */
+
+async function updateChildrenGenerations(parentId) {
+
+  const parent = allMembers.find(m => m.id === parentId);
+  if (!parent) return;
+
+  const children = allMembers.filter(m => m.fatherId === parentId);
+
+  for (let child of children) {
+
+    const newGeneration = parent.generation + 1;
+
+    await updateDoc(doc(db, "family_members", child.id), {
+      generation: newGeneration
+    });
+
+    // Update locally
+    child.generation = newGeneration;
+
+    // Recursive update
+    await updateChildrenGenerations(child.id);
+  }
+}
 
 /* ================= IMAGE PREVIEW ================= */
 
@@ -352,6 +376,29 @@ window.saveMember = async function(){
       hideLoader();
       return;
     }
+    /* FUTURE DOB CHECK */
+if (dob) {
+  const today = new Date();
+  const birth = new Date(dob);
+
+  if (birth > today) {
+    showMessage("DOB cannot be in the future.", "error");
+    hideLoader();
+    return;
+  }
+}
+    /* DUPLICATE NAME UNDER SAME FATHER */
+const duplicate = allMembers.find(m =>
+  m.name.toLowerCase() === name.toLowerCase() &&
+  (m.fatherId || "") === (fatherId || "") &&
+  m.id !== editingId
+);
+
+if (duplicate) {
+  showMessage("Same name already exists under this father.", "error");
+  hideLoader();
+  return;
+}
 
     if (editingId && fatherId === editingId) {
       showMessage("Member cannot be father of himself.", "error");
@@ -365,16 +412,42 @@ window.saveMember = async function(){
       return;
     }
 
-    let generation = 1;
-    if (fatherId) {
-      const father = allMembers.find(m => m.id === fatherId);
-      if (!father) {
-        showMessage("Selected father does not exist.", "error");
-        hideLoader();
-        return;
-      }
-      generation = father.generation + 1;
+ let generation = 1;
+let father = null;
+
+if (fatherId) {
+  father = allMembers.find(m => m.id === fatherId);
+
+  if (!father) {
+    showMessage("Selected father does not exist.", "error");
+    hideLoader();
+    return;
+  }
+
+  generation = father.generation + 1;
+
+  /* FATHER GENERATION VALIDATION (Edit only) */
+  if (editingId) {
+    const currentMember = allMembers.find(m => m.id === editingId);
+
+    if (father.generation >= currentMember.generation) {
+      showMessage("Father must be from older generation.", "error");
+      hideLoader();
+      return;
     }
+  }
+}
+    /* FATHER DOB VALIDATION */
+if (father && dob && father.dob) {
+  const fatherDate = new Date(father.dob);
+  const childDate = new Date(dob);
+
+  if (fatherDate >= childDate) {
+    showMessage("Father must be older than child.", "error");
+    hideLoader();
+    return;
+  }
+}
 
     let imageURL = null;
 
@@ -408,9 +481,19 @@ window.saveMember = async function(){
 
       if (imageURL) updateData.profileImage = imageURL;
 
-      await updateDoc(doc(db, "family_members", editingId), updateData);
+     await updateDoc(doc(db, "family_members", editingId), updateData);
 
-      showMessage("Member updated successfully.");
+/* UPDATE LOCAL MEMBER */
+const updatedMember = allMembers.find(m => m.id === editingId);
+if (updatedMember) {
+  updatedMember.generation = generation;
+  updatedMember.fatherId = fatherId || null;
+}
+
+/* AUTO UPDATE CHILDREN */
+await updateChildrenGenerations(editingId);
+
+showMessage("Member updated successfully.");
     }
 
     await loadMembers();
