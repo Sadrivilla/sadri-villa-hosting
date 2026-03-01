@@ -76,6 +76,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("confirmDeleteBtn")
     ?.addEventListener("click", confirmDelete);
+  
+  /* ===== ADD THIS PART ===== */
+
+  document.querySelectorAll(".modal").forEach(modal => {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+  });
+
+});
 });
 
 /* ================= LOAD MEMBERS ================= */
