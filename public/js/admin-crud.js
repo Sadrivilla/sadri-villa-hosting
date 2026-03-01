@@ -261,6 +261,14 @@ window.openAddModal = function () {
 window.closeModal = function () {
   document.getElementById("memberModal").style.display = "none";
 };
+/* Close modal when clicking outside content */
+const modal = document.getElementById("memberModal");
+
+modal.addEventListener("click", function(e) {
+  if (e.target === modal) {
+    closeModal();
+  }
+});
 
 /* ================= SAVE MEMBER ================= */
 
