@@ -30,6 +30,25 @@ function showLoader() {
 function hideLoader() {
   document.getElementById("loader").style.display = "none";
 }
+function showMessage(msg, type = "success") {
+
+  const box = document.getElementById("notification");
+
+  box.innerText = msg;
+  box.style.display = "block";
+
+  if (type === "error") {
+    box.style.background = "#dc2626";
+  } else if (type === "warning") {
+    box.style.background = "#f59e0b";
+  } else {
+    box.style.background = "#16a34a";
+  }
+
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 3000);
+}
 
 /* ================= INIT ================= */
 
@@ -283,11 +302,11 @@ window.saveMember = async function() {
     const dob = document.getElementById("dob").value;
     const file = document.getElementById("profileImage").files[0];
 
-    if (!name) {
-      alert("Name required");
-      hideLoader();
-      return;
-    }
+ if (!name) {
+  showMessage("Name is required.", "warning");
+  hideLoader();
+  return;
+}
 
     let generation = 1;
 
@@ -353,18 +372,28 @@ window.saveMember = async function() {
 
 window.deleteMember = async function(id) {
 
-  if (!confirm("Delete this member?")) return;
-
   const hasChildren = allMembers.some(m => m.fatherId === id);
 
   if (hasChildren) {
-    alert("Cannot delete member with children.");
+    showMessage("Cannot delete member with children.", "error");
     return;
   }
 
-  showLoader();
-  await deleteDoc(doc(db, "family_members", id));
-  await loadMembers();
+  try {
+
+    showLoader();
+
+    await deleteDoc(doc(db, "family_members", id));
+
+    await loadMembers();
+
+    showMessage("Member deleted successfully.", "success");
+
+  } catch (error) {
+    console.error(error);
+    showMessage("Delete failed.", "error");
+  }
+
   hideLoader();
 };
 
