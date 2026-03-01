@@ -37,6 +37,8 @@ function showMessage(message, type = "success") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
 
+  container.innerHTML = ""; // Clear previous message
+
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
 
@@ -44,9 +46,16 @@ function showMessage(message, type = "success") {
   if (type === "error") icon = "❌";
   if (type === "warning") icon = "⚠";
 
-  toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+  toast.innerHTML = `
+    <div style="font-size:22px;margin-bottom:5px;">${icon}</div>
+    <div>${message}</div>
+  `;
+
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 2500);
 }
 
 /* ================= AGE ================= */
