@@ -24,35 +24,32 @@ const perPage = 30;
 document.addEventListener("DOMContentLoaded", () => {
   loadMembers();
 
-  document.getElementById("searchInput").addEventListener("input", handleSearch);
-  document.getElementById("generationFilter").addEventListener("change", () => {
-    currentPage = 1;
-    renderMembers();
+  const searchInput = document.getElementById("searchInput");
+  const dropdown = document.getElementById("searchDropdown");
+
+  /* Show dropdown on click */
+  searchInput.addEventListener("click", () => {
+    dropdown.style.display = "block";
   });
 
-  document.addEventListener("click", function (e) {
-    const dropdown = document.getElementById("searchDropdown");
-    const searchInput = document.getElementById("searchInput");
+  /* Filter on typing */
+  searchInput.addEventListener("input", handleSearch);
 
-    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+  /* Hide dropdown on outside click */
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#searchInput") &&
+        !e.target.closest("#searchDropdown")) {
       dropdown.style.display = "none";
     }
   });
 
-  document.getElementById("profileImage")?.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById("imagePreview");
+  /* Image preview */
+  document.getElementById("profileImage")
+    .addEventListener("change", previewImage);
 
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-      preview.style.display = "block";
-      preview.innerText = "";
-    }
-  });
-
-  document.getElementById("memberModal").addEventListener("click", (e) => {
-    if (e.target.id === "memberModal") closeModal();
-  });
+  /* Update initials live */
+  document.getElementById("name")
+    .addEventListener("input", updateInitials);
 });
 
 /* ================= LOAD ================= */
@@ -73,6 +70,35 @@ async function loadMembers() {
   renderMembers();
 }
 
+/* ================= PROFILE PREVIEW ================= */
+
+function previewImage(e) {
+  const file = e.target.files[0];
+  const box = document.getElementById("profilePreviewBox");
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      box.style.backgroundImage = `url(${event.target.result})`;
+      box.style.backgroundSize = "cover";
+      box.innerText = "";
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function updateInitials() {
+  const name = document.getElementById("name").value.trim();
+  const box = document.getElementById("profilePreviewBox");
+
+  if (!document.getElementById("profileImage").files.length) {
+    box.style.backgroundImage = "none";
+    box.innerText = name
+      ? name.substring(0, 2).toUpperCase()
+      : "?";
+  }
+}
+
 /* ================= RENDER ================= */
 
 function renderMembers() {
@@ -82,12 +108,17 @@ function renderMembers() {
   container.innerHTML = "";
   pagination.innerHTML = "";
 
-  const searchValue = document.getElementById("searchInput").value.toLowerCase();
-  const generationValue = document.getElementById("generationFilter").value;
+  const searchValue =
+    document.getElementById("searchInput").value.toLowerCase();
+
+  const generationValue =
+    document.getElementById("generationFilter").value;
 
   let filtered = allMembers.filter(m => {
-    if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
-    if (generationValue && m.generation != generationValue) return false;
+    if (searchValue && !m.name.toLowerCase().includes(searchValue))
+      return false;
+    if (generationValue && m.generation != generationValue)
+      return false;
     return true;
   });
 
@@ -96,32 +127,22 @@ function renderMembers() {
   const paginated = filtered.slice(start, start + perPage);
 
   paginated.forEach(member => {
-
     const fatherName = member.fatherId
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
       : "-";
 
-    const initials = member.name
-      ? member.name.substring(0, 2).toUpperCase()
-      : "?";
+    const initials = member.name.substring(0, 2).toUpperCase();
 
-    let imageHtml = "";
-
-    if (member.profileImage && member.profileImage.trim() !== "") {
-      imageHtml = `
-        <img src="${member.profileImage}"
-             class="profile-img"
-             onerror="this.style.display='none'">
-      `;
-    } else {
-      imageHtml = `
-        <div class="profile-img"
-             style="display:flex;align-items:center;justify-content:center;
-             background:#ddd;font-weight:bold;font-size:22px;">
-          ${initials}
-        </div>
-      `;
-    }
+    let imageHtml = member.profileImage
+      ? `<div class="profile-img"
+           style="background-image:url('${member.profileImage}');
+                  background-size:cover;"></div>`
+      : `<div class="profile-img"
+           style="display:flex;align-items:center;
+                  justify-content:center;
+                  background:#ddd;font-weight:bold;">
+           ${initials}
+         </div>`;
 
     container.innerHTML += `
       <div class="member-card">
@@ -141,8 +162,7 @@ function renderMembers() {
   for (let i = 1; i <= totalPages; i++) {
     pagination.innerHTML += `
       <div class="page-btn ${i === currentPage ? "active-page" : ""}"
-           onclick="goToPage(${i})">${i}</div>
-    `;
+           onclick="goToPage(${i})">${i}</div>`;
   }
 }
 
@@ -160,15 +180,13 @@ function populateSearchDropdown() {
   allMembers.forEach(m => {
     dropdown.innerHTML += `
       <div style="padding:8px;cursor:pointer;"
-           onclick="selectSearch('${m.name}')">${m.name}</div>
-    `;
+           onclick="selectSearch('${m.name}')">${m.name}</div>`;
   });
 }
 
 window.selectSearch = function (name) {
   document.getElementById("searchInput").value = name;
   document.getElementById("searchDropdown").style.display = "none";
-  currentPage = 1;
   renderMembers();
 };
 
@@ -182,7 +200,8 @@ function handleSearch() {
 
 function populateGenerationFilter() {
   const select = document.getElementById("generationFilter");
-  const gens = [...new Set(allMembers.map(m => m.generation))].sort((a,b)=>a-b);
+  const gens = [...new Set(allMembers.map(m => m.generation))]
+    .sort((a,b)=>a-b);
 
   select.innerHTML = '<option value="">All Generations</option>';
   gens.forEach(g => {
@@ -204,29 +223,13 @@ window.openAddModal = function () {
   editingId = null;
   document.getElementById("modalTitle").innerText = "Add Member";
   document.getElementById("memberModal").style.display = "flex";
-  clearForm();
+  document.getElementById("profilePreviewBox").innerText = "?";
+  document.getElementById("profilePreviewBox").style.backgroundImage = "none";
 };
 
 window.closeModal = function () {
   document.getElementById("memberModal").style.display = "none";
-  clearForm();
 };
-
-function clearForm() {
-  document.getElementById("name").value = "";
-  document.getElementById("fatherSelect").value = "";
-  document.getElementById("surname").value = "";
-  document.getElementById("title").value = "";
-  document.getElementById("dob").value = "";
-  document.getElementById("profileImage").value = "";
-
-  const preview = document.getElementById("imagePreview");
-  if (preview) {
-    preview.src = "";
-    preview.style.display = "none";
-    preview.innerText = "";
-  }
-}
 
 /* ================= SAVE ================= */
 
@@ -234,7 +237,7 @@ window.saveMember = async function () {
 
   const name = document.getElementById("name").value.trim();
   const fatherId = document.getElementById("fatherSelect").value;
-  const file = document.getElementById("profileImage")?.files[0];
+  const file = document.getElementById("profileImage").files[0];
 
   if (!name) return alert("Name required");
 
@@ -244,12 +247,12 @@ window.saveMember = async function () {
     generation = father.generation + 1;
   }
 
-  let imageUrl = "";
+  let imageURL = "";
 
   if (file) {
-    const imageRef = ref(storage, "profilePhotos/" + Date.now());
+    const imageRef = ref(storage, "profiles/" + Date.now());
     await uploadBytes(imageRef, file);
-    imageUrl = await getDownloadURL(imageRef);
+    imageURL = await getDownloadURL(imageRef);
   }
 
   if (!editingId) {
@@ -257,7 +260,7 @@ window.saveMember = async function () {
       name,
       fatherId: fatherId || null,
       generation,
-      profileImage: imageUrl,
+      profileImage: imageURL,
       createdAt: serverTimestamp()
     });
   } else {
@@ -265,7 +268,7 @@ window.saveMember = async function () {
       name,
       fatherId: fatherId || null,
       generation,
-      ...(imageUrl && { profileImage: imageUrl })
+      profileImage: imageURL
     });
   }
 
@@ -276,7 +279,6 @@ window.saveMember = async function () {
 /* ================= EDIT ================= */
 
 window.editMember = function (id) {
-
   const member = allMembers.find(m => m.id === id);
   if (!member) return;
 
@@ -287,34 +289,17 @@ window.editMember = function (id) {
 
   document.getElementById("name").value = member.name || "";
   document.getElementById("fatherSelect").value = member.fatherId || "";
-  document.getElementById("surname").value = member.surname || "";
-  document.getElementById("title").value = member.title || "";
-  document.getElementById("dob").value = member.dob || "";
 
-  const preview = document.getElementById("imagePreview");
+  const box = document.getElementById("profilePreviewBox");
 
   if (member.profileImage) {
-    preview.src = member.profileImage;
-    preview.style.display = "block";
+    box.style.backgroundImage = `url(${member.profileImage})`;
+    box.style.backgroundSize = "cover";
+    box.innerText = "";
   } else {
-    preview.style.display = "none";
+    box.style.backgroundImage = "none";
+    box.innerText = member.name
+      ? member.name.substring(0, 2).toUpperCase()
+      : "?";
   }
-};
-
-/* ================= DELETE ================= */
-
-window.deleteMember = async function (id) {
-  if (!confirm("Delete this member?")) return;
-  await deleteDoc(doc(db, "family_members", id));
-  loadMembers();
-};
-
-/* ================= RESET ================= */
-
-window.resetFilters = function () {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("generationFilter").value = "";
-  document.getElementById("searchDropdown").style.display = "none";
-  currentPage = 1;
-  renderMembers();
 };
