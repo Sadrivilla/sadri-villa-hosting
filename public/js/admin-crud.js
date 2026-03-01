@@ -27,7 +27,6 @@ let deleteTargetId = null;
 function showLoader() {
   document.getElementById("loader").style.display = "flex";
 }
-
 function hideLoader() {
   document.getElementById("loader").style.display = "none";
 }
@@ -47,8 +46,36 @@ function showMessage(message, type = "success") {
 
   toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
   container.appendChild(toast);
-
   setTimeout(() => toast.remove(), 3000);
+}
+
+/* ================= IMAGE PREVIEW ================= */
+
+function previewImage(e) {
+  const file = e.target.files[0];
+  const box = document.getElementById("profilePreviewBox");
+  if (!file || !box) return;
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    box.style.backgroundImage = `url(${event.target.result})`;
+    box.style.backgroundSize = "cover";
+    box.style.backgroundPosition = "center";
+    box.innerText = "";
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ================= INITIALS ================= */
+
+function updateInitials() {
+  const name = document.getElementById("name").value.trim();
+  const box = document.getElementById("profilePreviewBox");
+
+  if (!document.getElementById("profileImage").files.length) {
+    box.style.backgroundImage = "none";
+    box.innerText = name ? name.substring(0, 2).toUpperCase() : "?";
+  }
 }
 
 /* ================= INIT ================= */
@@ -62,31 +89,23 @@ document.addEventListener("DOMContentLoaded", () => {
       renderMembers();
     });
 
-  document.getElementById("generationFilter")
-    .addEventListener("change", () => {
-      currentPage = 1;
-      renderMembers();
-    });
-
   document.getElementById("profileImage")
-    .addEventListener("change", previewImage);
+    ?.addEventListener("change", previewImage);
 
   document.getElementById("name")
-    .addEventListener("input", updateInitials);
+    ?.addEventListener("input", updateInitials);
 
   document.getElementById("confirmDeleteBtn")
     ?.addEventListener("click", confirmDelete);
-  
-  /* ===== ADD THIS PART ===== */
 
+  /* OUTSIDE CLICK CLOSE */
   document.querySelectorAll(".modal").forEach(modal => {
     modal.addEventListener("click", function (e) {
       if (e.target === modal) {
         modal.style.display = "none";
       }
+    });
   });
-
-});
 });
 
 /* ================= LOAD MEMBERS ================= */
@@ -111,10 +130,9 @@ async function loadMembers() {
   hideLoader();
 }
 
-/* ================= GENERATION DROPDOWN ================= */
+/* ================= DROPDOWNS ================= */
 
 function populateGenerationFilter() {
-
   const select = document.getElementById("generationFilter");
   select.innerHTML = `<option value="">All Generations</option>`;
 
@@ -126,10 +144,7 @@ function populateGenerationFilter() {
   });
 }
 
-/* ================= FATHER DROPDOWN ================= */
-
 function populateFatherDropdown() {
-
   const select = document.getElementById("fatherSelect");
   select.innerHTML = `<option value="">Select Father</option>`;
 
@@ -141,7 +156,26 @@ function populateFatherDropdown() {
   });
 }
 
-/* ================= RENDER MEMBERS ================= */
+/* ================= CIRCULAR CHECK ================= */
+
+function createsCycle(memberId, newFatherId) {
+
+  let current = newFatherId;
+
+  while (current) {
+
+    if (current === memberId) {
+      return true;
+    }
+
+    const parent = allMembers.find(m => m.id === current);
+    current = parent ? parent.fatherId : null;
+  }
+
+  return false;
+}
+
+/* ================= RENDER ================= */
 
 function renderMembers() {
 
@@ -154,16 +188,9 @@ function renderMembers() {
   const searchValue =
     document.getElementById("searchInput").value.toLowerCase();
 
-  const generationValue =
-    document.getElementById("generationFilter").value;
-
-  let filtered = allMembers.filter(m => {
-    if (searchValue && !m.name.toLowerCase().includes(searchValue))
-      return false;
-    if (generationValue && m.generation != generationValue)
-      return false;
-    return true;
-  });
+  let filtered = allMembers.filter(m =>
+    m.name.toLowerCase().includes(searchValue)
+  );
 
   const totalPages = Math.ceil(filtered.length / perPage);
   const start = (currentPage - 1) * perPage;
@@ -216,55 +243,6 @@ window.goToPage = function(page){
   renderMembers();
 };
 
-/* ================= RESET FILTER ================= */
-
-window.resetFilters = function(){
-  document.getElementById("searchInput").value = "";
-  document.getElementById("generationFilter").value = "";
-  currentPage = 1;
-  renderMembers();
-};
-
-/* ================= ADD / EDIT MODAL ================= */
-
-window.openAddModal = function(){
-  editingId = null;
-  document.getElementById("memberModal").style.display = "flex";
-  document.getElementById("modalTitle").innerText = "Add Member";
-
-  document.getElementById("name").value = "";
-  document.getElementById("fatherSelect").value = "";
-  document.getElementById("surname").value = "";
-  document.getElementById("title").value = "";
-  document.getElementById("dob").value = "";
-  document.getElementById("profileImage").value = "";
-
-  document.getElementById("profilePreviewBox").innerText = "?";
-};
-
-window.closeModal = function(){
-  document.getElementById("memberModal").style.display = "none";
-};
-
-/* ================= EDIT ================= */
-
-window.editMember = function(id){
-
-  const member = allMembers.find(m => m.id === id);
-  if (!member) return;
-
-  editingId = id;
-
-  document.getElementById("memberModal").style.display = "flex";
-  document.getElementById("modalTitle").innerText = "Edit Member";
-
-  document.getElementById("name").value = member.name || "";
-  document.getElementById("fatherSelect").value = member.fatherId || "";
-  document.getElementById("surname").value = member.surname || "";
-  document.getElementById("title").value = member.title || "";
-  document.getElementById("dob").value = member.dob || "";
-};
-
 /* ================= SAVE ================= */
 
 window.saveMember = async function(){
@@ -275,13 +253,27 @@ window.saveMember = async function(){
 
     const name = document.getElementById("name").value.trim();
     const fatherId = document.getElementById("fatherSelect").value;
-    const surname = document.getElementById("surname").value;
-    const title = document.getElementById("title").value;
-    const dob = document.getElementById("dob").value;
-    const file = document.getElementById("profileImage").files[0];
 
     if (!name) {
       showMessage("Name is required.", "warning");
+      hideLoader();
+      return;
+    }
+
+    if (editingId && fatherId === editingId) {
+      showMessage("Member cannot be father of himself.", "error");
+      hideLoader();
+      return;
+    }
+
+    if (fatherId && !allMembers.some(m => m.id === fatherId)) {
+      showMessage("Selected father does not exist.", "error");
+      hideLoader();
+      return;
+    }
+
+    if (editingId && fatherId && createsCycle(editingId, fatherId)) {
+      showMessage("Invalid hierarchy: circular relationship detected.", "error");
       hideLoader();
       return;
     }
@@ -292,36 +284,13 @@ window.saveMember = async function(){
       generation = father ? father.generation + 1 : 1;
     }
 
-    let imageURL = null;
-
-    if (file) {
-      const imageRef = ref(storage, "profiles/" + Date.now());
-      await uploadBytes(imageRef, file);
-      imageURL = await getDownloadURL(imageRef);
-    }
-
     if (!editingId) {
 
-      const docRef = await addDoc(collection(db, "family_members"), {
+      await addDoc(collection(db, "family_members"), {
         name,
         fatherId: fatherId || null,
         generation,
-        surname: surname || "",
-        title: title || "",
-        dob: dob || "",
-        profileImage: imageURL || "",
         createdAt: serverTimestamp()
-      });
-
-      allMembers.push({
-        id: docRef.id,
-        name,
-        fatherId,
-        generation,
-        surname,
-        title,
-        dob,
-        profileImage: imageURL || ""
       });
 
       showMessage("Member added successfully.");
@@ -330,27 +299,15 @@ window.saveMember = async function(){
 
       await updateDoc(doc(db, "family_members", editingId), {
         name,
-        fatherId,
-        generation,
-        surname,
-        title,
-        dob,
-        profileImage: imageURL || ""
+        fatherId: fatherId || null,
+        generation
       });
-
-      allMembers = allMembers.map(m =>
-        m.id === editingId
-          ? { ...m, name, fatherId, generation, surname, title, dob, profileImage: imageURL || m.profileImage }
-          : m
-      );
 
       showMessage("Member updated successfully.");
     }
 
-    populateGenerationFilter();
-    populateFatherDropdown();
-    renderMembers();
-    closeModal();
+    await loadMembers();
+    document.getElementById("memberModal").style.display = "none";
 
   } catch {
     showMessage("Error saving member.", "error");
@@ -374,25 +331,15 @@ window.deleteMember = function(id){
   document.getElementById("deleteModal").style.display = "flex";
 };
 
-window.closeDeleteModal = function(){
-  document.getElementById("deleteModal").style.display = "none";
-};
-
 async function confirmDelete(){
 
   if(!deleteTargetId) return;
 
   try{
-
     showLoader();
 
     await deleteDoc(doc(db, "family_members", deleteTargetId));
-
-    allMembers = allMembers.filter(m => m.id !== deleteTargetId);
-
-    populateGenerationFilter();
-    populateFatherDropdown();
-    renderMembers();
+    await loadMembers();
 
     showMessage("Member deleted successfully.");
 
@@ -401,6 +348,6 @@ async function confirmDelete(){
   }
 
   hideLoader();
-  closeDeleteModal();
+  document.getElementById("deleteModal").style.display = "none";
   deleteTargetId = null;
-}
+};
