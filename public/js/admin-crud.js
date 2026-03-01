@@ -20,6 +20,7 @@ let allMembers = [];
 let editingId = null;
 let currentPage = 1;
 const perPage = 30;
+
 /* ================= LOADER ================= */
 
 function showLoader() {
@@ -35,20 +36,18 @@ function hideLoader() {
 /* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
   loadMembers();
 
   const searchInput = document.getElementById("searchInput");
   const dropdown = document.getElementById("searchDropdown");
 
-  /* Show dropdown on click */
-  searchInput.addEventListener("click", () => {
+  searchInput?.addEventListener("click", () => {
     dropdown.style.display = "block";
   });
 
-  /* Filter while typing */
-  searchInput.addEventListener("input", handleSearch);
+  searchInput?.addEventListener("input", handleSearch);
 
-  /* Hide dropdown outside click */
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#searchInput") &&
         !e.target.closest("#searchDropdown")) {
@@ -56,28 +55,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /* Image preview */
   document.getElementById("profileImage")
     ?.addEventListener("change", previewImage);
 
-  /* Initials live update */
   document.getElementById("name")
     ?.addEventListener("input", updateInitials);
 
-  /* Generation filter */
   document.getElementById("generationFilter")
     ?.addEventListener("change", () => {
       currentPage = 1;
       renderMembers();
     });
+
 });
 
 /* ================= LOAD MEMBERS ================= */
 
 async function loadMembers() {
+
   const snapshot = await getDocs(collection(db, "family_members"));
 
   allMembers = [];
+
   snapshot.forEach(docSnap => {
     allMembers.push({ id: docSnap.id, ...docSnap.data() });
   });
@@ -93,20 +92,24 @@ async function loadMembers() {
 /* ================= PROFILE PREVIEW ================= */
 
 function previewImage(e) {
+
   const file = e.target.files[0];
   const box = document.getElementById("profilePreviewBox");
   if (!file || !box) return;
 
   const reader = new FileReader();
+
   reader.onload = function (event) {
     box.style.backgroundImage = `url(${event.target.result})`;
     box.style.backgroundSize = "cover";
     box.innerText = "";
   };
+
   reader.readAsDataURL(file);
 }
 
 function updateInitials() {
+
   const name = document.getElementById("name")?.value.trim();
   const box = document.getElementById("profilePreviewBox");
 
@@ -118,7 +121,41 @@ function updateInitials() {
   }
 }
 
-/* ================= RENDER MEMBERS ================= */
+/* ================= TREE VALIDATION ================= */
+
+function isDescendant(childId, potentialFatherId) {
+
+  let current = allMembers.find(m => m.id === potentialFatherId);
+
+  while (current) {
+
+    if (current.fatherId === childId) return true;
+
+    current = allMembers.find(m => m.id === current.fatherId);
+  }
+
+  return false;
+}
+
+async function updateChildrenGenerations(parentId, parentGeneration) {
+
+  const children = allMembers.filter(m => m.fatherId === parentId);
+
+  for (let child of children) {
+
+    const newGen = parentGeneration + 1;
+
+    await updateDoc(doc(db, "family_members", child.id), {
+      generation: newGen
+    });
+
+    child.generation = newGen;
+
+    await updateChildrenGenerations(child.id, newGen);
+  }
+}
+
+/* ================= RENDER ================= */
 
 function renderMembers() {
 
@@ -137,10 +174,8 @@ function renderMembers() {
     document.getElementById("generationFilter")?.value || "";
 
   let filtered = allMembers.filter(m => {
-    if (searchValue && !m.name.toLowerCase().includes(searchValue))
-      return false;
-    if (generationValue && m.generation != generationValue)
-      return false;
+    if (searchValue && !m.name.toLowerCase().includes(searchValue)) return false;
+    if (generationValue && m.generation != generationValue) return false;
     return true;
   });
 
@@ -158,7 +193,7 @@ function renderMembers() {
       ? member.name.substring(0, 2).toUpperCase()
       : "?";
 
-    let imageHtml = member.profileImage
+    const imageHtml = member.profileImage
       ? `<div class="profile-img"
            style="background-image:url('${member.profileImage}');
                   background-size:cover;"></div>`
@@ -184,7 +219,6 @@ function renderMembers() {
     `;
   });
 
-  /* Pagination */
   for (let i = 1; i <= totalPages; i++) {
     pagination.innerHTML += `
       <div class="page-btn ${i === currentPage ? "active-page" : ""}"
@@ -192,44 +226,31 @@ function renderMembers() {
   }
 }
 
-window.goToPage = function (page) {
+window.goToPage = function(page) {
   currentPage = page;
   renderMembers();
 };
 
-/* ================= SEARCH ================= */
+/* ================= DROPDOWNS ================= */
 
-function populateSearchDropdown() {
-  const dropdown = document.getElementById("searchDropdown");
-  if (!dropdown) return;
+function populateFatherDropdown() {
 
-  dropdown.innerHTML = "";
+  const select = document.getElementById("fatherSelect");
+  if (!select) return;
+
+  select.innerHTML = '<option value="">-- Select Father --</option>';
 
   allMembers.forEach(m => {
-    dropdown.innerHTML += `
-      <div style="padding:8px;cursor:pointer;"
-           onclick="selectSearch('${m.name.replace(/'/g,"")}')">
-        ${m.name}
-      </div>`;
+
+    if (editingId && m.id === editingId) return;
+    if (editingId && isDescendant(editingId, m.id)) return;
+
+    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
   });
 }
 
-window.selectSearch = function (name) {
-  document.getElementById("searchInput").value = name;
-  document.getElementById("searchDropdown").style.display = "none";
-  currentPage = 1;
-  renderMembers();
-};
-
-function handleSearch() {
-  document.getElementById("searchDropdown").style.display = "block";
-  currentPage = 1;
-  renderMembers();
-}
-
-/* ================= DROPDOWNS ================= */
-
 function populateGenerationFilter() {
+
   const select = document.getElementById("generationFilter");
   if (!select) return;
 
@@ -237,53 +258,15 @@ function populateGenerationFilter() {
     .sort((a,b)=>a-b);
 
   select.innerHTML = '<option value="">All Generations</option>';
+
   gens.forEach(g => {
     select.innerHTML += `<option value="${g}">Generation ${g}</option>`;
   });
 }
 
-function populateFatherDropdown() {
-  const select = document.getElementById("fatherSelect");
-  if (!select) return;
+/* ================= SAVE ================= */
 
-  select.innerHTML = '<option value="">-- Select Father --</option>';
-  allMembers.forEach(m => {
-    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-  });
-}
-
-/* ================= MODAL ================= */
-
-window.openAddModal = function () {
-  editingId = null;
-
-  document.getElementById("memberModal").style.display = "flex";
-  document.getElementById("modalTitle").innerText = "Add Member";
-
-  document.getElementById("name").value = "";
-  document.getElementById("fatherSelect").value = "";
-  document.getElementById("profileImage").value = "";
-
-  const box = document.getElementById("profilePreviewBox");
-  box.style.backgroundImage = "none";
-  box.innerText = "?";
-};
-
-window.closeModal = function () {
-  document.getElementById("memberModal").style.display = "none";
-};
-/* Close modal when clicking outside content */
-const modal = document.getElementById("memberModal");
-
-modal.addEventListener("click", function(e) {
-  if (e.target === modal) {
-    closeModal();
-  }
-});
-
-/* ================= SAVE MEMBER ================= */
-
-window.saveMember = async function () {
+window.saveMember = async function() {
 
   try {
 
@@ -291,6 +274,9 @@ window.saveMember = async function () {
 
     const name = document.getElementById("name").value.trim();
     const fatherId = document.getElementById("fatherSelect").value;
+    const dob = document.getElementById("dob").value;
+    const surname = document.getElementById("surname").value;
+    const title = document.getElementById("title").value;
     const file = document.getElementById("profileImage").files[0];
 
     if (!name) {
@@ -299,10 +285,23 @@ window.saveMember = async function () {
       return;
     }
 
+    if (editingId && fatherId === editingId) {
+      hideLoader();
+      alert("Member cannot be their own father.");
+      return;
+    }
+
+    if (editingId && isDescendant(editingId, fatherId)) {
+      hideLoader();
+      alert("Invalid father selection (loop detected).");
+      return;
+    }
+
     let generation = 1;
+
     if (fatherId) {
       const father = allMembers.find(m => m.id === fatherId);
-      generation = father.generation + 1;
+      generation = father ? father.generation + 1 : 1;
     }
 
     let imageURL = null;
@@ -319,90 +318,63 @@ window.saveMember = async function () {
         name,
         fatherId: fatherId || null,
         generation,
+        surname: surname || "",
+        title: title || "",
+        dob: dob || "",
         profileImage: imageURL || "",
         createdAt: serverTimestamp()
       });
 
     } else {
 
+      const existing = allMembers.find(m => m.id === editingId);
+
       const updateData = {
         name,
         fatherId: fatherId || null,
-        generation
+        generation,
+        surname: surname || "",
+        title: title || "",
+        dob: dob || ""
       };
 
       if (imageURL !== null) {
         updateData.profileImage = imageURL;
+      } else {
+        updateData.profileImage = existing.profileImage || "";
       }
 
       await updateDoc(doc(db, "family_members", editingId), updateData);
+
+      await updateChildrenGenerations(editingId, generation);
     }
 
-    closeModal();
     await loadMembers();
+    document.getElementById("memberModal").style.display = "none";
 
   } catch (error) {
     console.error(error);
-    alert("Error occurred");
+    alert("Error saving member.");
   }
 
   hideLoader();
-};
-
-/* ================= EDIT ================= */
-
-window.editMember = function (id) {
-  const member = allMembers.find(m => m.id === id);
-  if (!member) return;
-
-  editingId = id;
-
-  document.getElementById("memberModal").style.display = "flex";
-  document.getElementById("modalTitle").innerText = "Edit Member";
-
-  document.getElementById("name").value = member.name || "";
-  document.getElementById("fatherSelect").value = member.fatherId || "";
-
-  const box = document.getElementById("profilePreviewBox");
-
-  if (member.profileImage) {
-    box.style.backgroundImage = `url(${member.profileImage})`;
-    box.style.backgroundSize = "cover";
-    box.innerText = "";
-  } else {
-    box.style.backgroundImage = "none";
-    box.innerText = member.name
-      ? member.name.substring(0, 2).toUpperCase()
-      : "?";
-  }
 };
 
 /* ================= DELETE ================= */
 
-window.deleteMember = async function (id) {
+window.deleteMember = async function(id) {
 
   if (!confirm("Delete this member?")) return;
 
-  try {
+  const hasChildren = allMembers.some(m => m.fatherId === id);
 
-    showLoader();
-
-    await deleteDoc(doc(db, "family_members", id));
-
-    await loadMembers();
-
-  } catch (error) {
-    console.error(error);
-    alert("Delete failed");
+  if (hasChildren) {
+    alert("Cannot delete member with children.");
+    return;
   }
 
+  showLoader();
+  await deleteDoc(doc(db, "family_members", id));
+  await loadMembers();
   hideLoader();
-};
-/* ================= RESET ================= */
-
-window.resetFilters = function () {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("generationFilter").value = "";
-  currentPage = 1;
-  renderMembers();
 };
