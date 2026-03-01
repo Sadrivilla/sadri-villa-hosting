@@ -49,84 +49,35 @@ function showMessage(message, type = "success") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-/* ================= IMAGE PREVIEW ================= */
+/* ================= AGE CALCULATION ================= */
 
-function previewImage(e) {
-  const file = e.target.files[0];
-  const box = document.getElementById("profilePreviewBox");
-  if (!file || !box) return;
+function calculateAge(dob) {
+  if (!dob) return null;
 
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    box.style.backgroundImage = `url(${event.target.result})`;
-    box.style.backgroundSize = "cover";
-    box.style.backgroundPosition = "center";
-    box.innerText = "";
-  };
-  reader.readAsDataURL(file);
-}
+  const birth = new Date(dob);
+  const today = new Date();
 
-function setImagePreview(url) {
-  const box = document.getElementById("profilePreviewBox");
-  if (!box) return;
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
 
-  if (url) {
-    box.style.backgroundImage = `url(${url})`;
-    box.style.backgroundSize = "cover";
-    box.style.backgroundPosition = "center";
-    box.innerText = "";
-  } else {
-    box.style.backgroundImage = "none";
-    box.innerText = "?";
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
   }
+
+  return age;
 }
 
-/* ================= INIT ================= */
+/* ================= TREE VALIDATION ================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-
-  loadMembers();
-
-  /* SEARCH */
-  const searchInput = document.getElementById("searchInput");
-  const searchDropdown = document.getElementById("searchDropdown");
-
-  searchInput.addEventListener("input", () => {
-    populateSearchDropdown();
-    searchDropdown.style.display = "block";
-    currentPage = 1;
-    renderMembers();
-  });
-
-  searchInput.addEventListener("focus", () => {
-    populateSearchDropdown();
-    searchDropdown.style.display = "block";
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest("#searchInput") &&
-        !e.target.closest("#searchDropdown")) {
-      searchDropdown.style.display = "none";
-    }
-  });
-
-  /* IMAGE */
-  document.getElementById("profileImage")
-    ?.addEventListener("change", previewImage);
-
-  /* DELETE CONFIRM */
-  document.getElementById("confirmDeleteBtn")
-    ?.addEventListener("click", confirmDelete);
-
-  /* OUTSIDE MODAL CLOSE */
-  document.querySelectorAll(".modal").forEach(modal => {
-    modal.addEventListener("click", function (e) {
-      if (e.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  });
-});
+function createsCycle(memberId, newFatherId) {
+  let current = newFatherId;
+  while (current) {
+    if (current === memberId) return true;
+    const parent = allMembers.find(m => m.id === current);
+    current = parent ? parent.fatherId : null;
+  }
+  return false;
+}
 
 /* ================= LOAD ================= */
 
@@ -176,36 +127,6 @@ function populateFatherDropdown() {
   });
 }
 
-/* ================= SEARCH DROPDOWN ================= */
-
-function populateSearchDropdown() {
-
-  const dropdown = document.getElementById("searchDropdown");
-  const value = document.getElementById("searchInput").value.toLowerCase();
-
-  dropdown.innerHTML = "";
-
-  const filtered = allMembers.filter(m =>
-    m.name.toLowerCase().includes(value)
-  );
-
-  filtered.forEach(m => {
-    const div = document.createElement("div");
-    div.style.padding = "8px";
-    div.style.cursor = "pointer";
-    div.innerText = m.name;
-
-    div.onclick = function() {
-      document.getElementById("searchInput").value = m.name;
-      dropdown.style.display = "none";
-      currentPage = 1;
-      renderMembers();
-    };
-
-    dropdown.appendChild(div);
-  });
-}
-
 /* ================= RENDER ================= */
 
 function renderMembers() {
@@ -235,22 +156,15 @@ function renderMembers() {
       ? allMembers.find(f => f.id === member.fatherId)?.name || "-"
       : "-";
 
-    const imageHtml = member.profileImage
-      ? `<div class="profile-img"
-           style="background-image:url('${member.profileImage}');
-           background-size:cover;background-position:center;"></div>`
-      : `<div class="profile-img"
-           style="display:flex;align-items:center;
-           justify-content:center;background:#ddd;font-weight:bold;">
-           ${member.name.substring(0,2).toUpperCase()}
-         </div>`;
+    const age = calculateAge(member.dob);
 
     container.innerHTML += `
       <div class="member-card">
-        ${imageHtml}
         <strong>${member.name}</strong><br>
         Father: ${fatherName}<br>
-        Generation: ${member.generation}
+        Generation: ${member.generation}<br>
+        DOB: ${member.dob || "-"}<br>
+        Age: ${age !== null ? age + " years" : "-"}
         <div class="actions">
           <button onclick="editMember('${member.id}')" class="btn primary">Edit</button>
           <button onclick="deleteMember('${member.id}')" class="btn danger">Delete</button>
@@ -288,12 +202,7 @@ window.openAddModal = function(){
 
   document.getElementById("name").value = "";
   document.getElementById("fatherSelect").value = "";
-  document.getElementById("surname").value = "";
-  document.getElementById("title").value = "";
   document.getElementById("dob").value = "";
-  document.getElementById("profileImage").value = "";
-
-  setImagePreview(null);
 };
 
 window.editMember = function(id){
@@ -308,11 +217,7 @@ window.editMember = function(id){
 
   document.getElementById("name").value = member.name || "";
   document.getElementById("fatherSelect").value = member.fatherId || "";
-  document.getElementById("surname").value = member.surname || "";
-  document.getElementById("title").value = member.title || "";
   document.getElementById("dob").value = member.dob || "";
-
-  setImagePreview(member.profileImage || null);
 };
 
 window.closeModal = function(){
@@ -329,7 +234,7 @@ window.saveMember = async function(){
 
     const name = document.getElementById("name").value.trim();
     const fatherId = document.getElementById("fatherSelect").value;
-    const file = document.getElementById("profileImage").files[0];
+    const dob = document.getElementById("dob").value;
 
     if (!name) {
       showMessage("Name is required.", "warning");
@@ -337,18 +242,27 @@ window.saveMember = async function(){
       return;
     }
 
+    if (editingId && fatherId === editingId) {
+      showMessage("Member cannot be father of himself.", "error");
+      hideLoader();
+      return;
+    }
+
+    if (editingId && fatherId && createsCycle(editingId, fatherId)) {
+      showMessage("Circular relationship detected.", "error");
+      hideLoader();
+      return;
+    }
+
     let generation = 1;
     if (fatherId) {
       const father = allMembers.find(m => m.id === fatherId);
-      generation = father ? father.generation + 1 : 1;
-    }
-
-    let imageURL = null;
-
-    if (file) {
-      const imageRef = ref(storage, "profiles/" + Date.now());
-      await uploadBytes(imageRef, file);
-      imageURL = await getDownloadURL(imageRef);
+      if (!father) {
+        showMessage("Selected father does not exist.", "error");
+        hideLoader();
+        return;
+      }
+      generation = father.generation + 1;
     }
 
     if (!editingId) {
@@ -357,7 +271,7 @@ window.saveMember = async function(){
         name,
         fatherId: fatherId || null,
         generation,
-        profileImage: imageURL || "",
+        dob: dob || "",
         createdAt: serverTimestamp()
       });
 
@@ -365,15 +279,12 @@ window.saveMember = async function(){
 
     } else {
 
-      const updateData = {
+      await updateDoc(doc(db, "family_members", editingId), {
         name,
         fatherId: fatherId || null,
-        generation
-      };
-
-      if (imageURL) updateData.profileImage = imageURL;
-
-      await updateDoc(doc(db, "family_members", editingId), updateData);
+        generation,
+        dob: dob || ""
+      });
 
       showMessage("Member updated successfully.");
     }
