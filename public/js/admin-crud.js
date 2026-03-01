@@ -422,3 +422,44 @@ window.saveMember = async function(){
 
   hideLoader();
 };
+/* ================= DELETE ================= */
+
+window.deleteMember = function(id){
+
+  const hasChildren = allMembers.some(m => m.fatherId === id);
+
+  if (hasChildren) {
+    showMessage("Cannot delete member with children.", "error");
+    return;
+  }
+
+  deleteTargetId = id;
+  document.getElementById("deleteModal").style.display = "flex";
+};
+
+async function confirmDelete(){
+
+  if(!deleteTargetId) return;
+
+  try{
+    showLoader();
+    await deleteDoc(doc(db, "family_members", deleteTargetId));
+    await loadMembers();
+    showMessage("Member deleted successfully.");
+  }catch{
+    showMessage("Delete failed.", "error");
+  }
+
+  hideLoader();
+  document.getElementById("deleteModal").style.display = "none";
+  deleteTargetId = null;
+}
+
+/* ================= RESET FILTER ================= */
+
+window.resetFilters = function(){
+  document.getElementById("searchInput").value = "";
+  document.getElementById("generationFilter").value = "";
+  currentPage = 1;
+  renderMembers();
+};
