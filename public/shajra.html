@@ -202,23 +202,29 @@
 
 <div style="text-align:center; margin:20px 0;">
 
-<input type="text" 
-id="treeSearch" 
+<div style="position:relative; display:inline-block;">
+
+<input type="text"
+id="treeSearch"
 placeholder="Search by Name or Surname..."
 style="padding:8px 12px; width:280px; border-radius:6px; border:1px solid #ccc;">
-  <div id="searchSuggestions"
+
+<div id="searchSuggestions"
 style="
-width:280px;
-margin:5px auto;
+position:absolute;
+top:100%;
+left:0;
 background:white;
-border:1px solid #ccc;
-border-radius:6px;
+border:1px solid #ddd;
+width:100%;
 display:none;
-position:relative;
 z-index:100;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
 font-size:13px;
 text-align:left;
 "></div>
+
+</div>
 
 <div id="lineagePath"
 style="
