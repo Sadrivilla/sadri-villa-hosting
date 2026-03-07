@@ -321,13 +321,22 @@ members.forEach(m => {
 
   let root = null;
 
-  members.forEach(m => {
+ members.forEach(m => {
    if (m.fatherId && localMap[m.fatherId]) {
-  localMap[m.fatherId].children.push(localMap[m.id]);
-} else {
-  root = localMap[m.id];
+      localMap[m.fatherId].children.push(localMap[m.id]);
+   } else {
+      root = localMap[m.id];
+   }
+});
+
+// 🔥 SORT CHILDREN BY createdAt (LEFT → RIGHT SAME AS TREE)
+Object.values(localMap).forEach(node=>{
+if(node.children){
+node.children.sort((a,b)=>{
+return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
 }
-  });
+});
 
   if (!root) {
     console.error("Root not found");
@@ -436,17 +445,26 @@ window.exportExcel = async function () {
   const snapshot = await getDocs(collection(db, "family_members"));
   const data = [];
 
-  snapshot.forEach(docSnap => {
-    const m = docSnap.data();
+ const members = [];
 
-    data.push({
-      "Full Name": m.name || "",
-      "Surname": m.surname || "",
-      "Generation": m.generation || "",
-      "Father ID": m.fatherId || "Root",
-      "Alive Status": m.isAlive ? "Yes" : "No"
-    });
-  });
+snapshot.forEach(docSnap => {
+  members.push({ id: docSnap.id, ...docSnap.data() });
+});
+
+// 🔥 SORT BY createdAt
+members.sort((a,b)=>{
+return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
+
+members.forEach(m=>{
+data.push({
+  "Full Name": m.name || "",
+  "Surname": m.surname || "",
+  "Generation": m.generation || "",
+  "Father ID": m.fatherId || "Root",
+  "Alive Status": m.isAlive ? "Yes" : "No"
+});
+});
 
   const worksheet = XLSX.utils.json_to_sheet(data);
 
