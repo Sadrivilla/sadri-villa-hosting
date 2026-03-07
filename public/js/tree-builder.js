@@ -38,6 +38,7 @@ async function renderTree() {
 
   // Build tree structure
 window.memberMap = {};
+  window.memberIndex = [];
  members.forEach(m => {
   memberMap[m.id] = { ...m, children: [] };
 });
@@ -219,6 +220,9 @@ function draw(node) {
   rect.setAttribute("rx", 10);
 rect.setAttribute("class", "node-box");
 rect.__nodeId = node.id;
+  rect.dataset.name = node.name.toLowerCase();
+rect.dataset.id = node.id;
+rect.dataset.parent = node.fatherId || "";
   // 🎨 Generation Color Logic
   let color;
 
@@ -677,3 +681,91 @@ window.closeImageZoom = function() {
   const zoomModal = document.getElementById("imageZoomModal");
   if (zoomModal) zoomModal.style.display = "none";
 };
+// =======================================
+// 🔎 SMART TREE SEARCH
+// =======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const input = document.getElementById("treeSearch");
+if(!input) return;
+
+input.addEventListener("input", function(){
+
+const query = this.value.toLowerCase().trim();
+if(!query) return;
+
+const nodes = document.querySelectorAll(".node-box");
+
+let target = null;
+
+nodes.forEach(n => {
+
+const name = n.dataset.name;
+
+if(name && name.includes(query)){
+target = n;
+}
+
+});
+
+if(!target) return;
+
+highlightLineage(target.dataset.id);
+scrollToNode(target);
+
+});
+
+});
+
+function highlightLineage(id){
+
+document.querySelectorAll(".node-box")
+.forEach(n=>{
+n.classList.remove("active-node","path-node");
+});
+
+let lineage = [];
+let current = window.memberMap[id];
+
+while(current){
+
+lineage.push(current.name);
+
+const rect = document.querySelector(`.node-box[data-id="${current.id}"]`);
+
+if(rect){
+rect.classList.add("path-node");
+}
+
+if(!current.fatherId) break;
+
+current = window.memberMap[current.fatherId];
+
+}
+
+const targetRect = document.querySelector(`.node-box[data-id="${id}"]`);
+if(targetRect){
+targetRect.classList.add("active-node");
+}
+
+lineage.reverse();
+
+const pathBox = document.getElementById("lineagePath");
+if(pathBox){
+pathBox.innerText = lineage.join(" → ");
+}
+
+}
+
+function scrollToNode(node){
+
+const container = document.getElementById("treeContainer");
+
+const rect = node.getBoundingClientRect();
+const cRect = container.getBoundingClientRect();
+
+container.scrollLeft += rect.left - cRect.left - 200;
+container.scrollTop += rect.top - cRect.top - 200;
+
+}
