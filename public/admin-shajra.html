@@ -267,8 +267,27 @@ input, select{
     <label>Full Name</label>
     <input type="text" id="name">
 
-    <label>Father Name</label>
-    <select id="fatherSelect"></select>
+   <label>Father Name</label>
+
+<div style="position:relative;">
+  <input type="text" id="fatherSearch" placeholder="Search father name...">
+
+  <div id="fatherDropdown" style="
+      position:absolute;
+      top:45px;
+      left:0;
+      right:0;
+      background:white;
+      border:2px solid #000;
+      border-radius:8px;
+      max-height:200px;
+      overflow-y:auto;
+      display:none;
+      z-index:1000;">
+  </div>
+</div>
+
+<input type="hidden" id="fatherSelect">
 
     <label>Surname</label>
     <input type="text" id="surname">
