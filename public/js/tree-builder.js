@@ -38,18 +38,22 @@ async function renderTree() {
 
   // Build tree structure
 window.memberMap = {};
-  window.memberIndex = [];
- members.forEach(m => {
-  memberMap[m.id] = { ...m, children: [] };
+
+members.forEach(m => {
+memberMap[m.id] = { ...m, children: [] };
 });
 
   let root = null;
 
   members.forEach(m => {
 if (m.fatherId && memberMap[m.fatherId]) {
+
   memberMap[m.fatherId].children.push(memberMap[m.id]);
-} else {
+
+} else if (!root) {
+
   root = memberMap[m.id];
+
 }
   });
 
@@ -72,6 +76,9 @@ if (m.fatherId && memberMap[m.fatherId]) {
     }
 
     let total = 0;
+    node.children.sort((a,b)=>{
+  return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
 
     node.children.forEach(child => {
       total += measure(child);
@@ -220,8 +227,8 @@ function draw(node) {
   rect.setAttribute("rx", 10);
 rect.setAttribute("class", "node-box");
 rect.__nodeId = node.id;
-  rect.dataset.name = node.name.toLowerCase();
 rect.dataset.id = node.id;
+rect.dataset.name = node.name.toLowerCase();
 rect.dataset.parent = node.fatherId || "";
   // 🎨 Generation Color Logic
   let color;
@@ -684,40 +691,6 @@ window.closeImageZoom = function() {
 // =======================================
 // 🔎 SMART TREE SEARCH
 // =======================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-const input = document.getElementById("treeSearch");
-if(!input) return;
-
-input.addEventListener("input", function(){
-
-const query = this.value.toLowerCase().trim();
-if(!query) return;
-
-const nodes = document.querySelectorAll(".node-box");
-
-let target = null;
-
-nodes.forEach(n => {
-
-const name = n.dataset.name;
-
-if(name && name.includes(query)){
-target = n;
-}
-
-});
-
-if(!target) return;
-
-highlightLineage(target.dataset.id);
-scrollToNode(target);
-
-});
-
-});
-
 function highlightLineage(id){
 
 document.querySelectorAll(".node-box")
@@ -761,11 +734,59 @@ pathBox.innerText = lineage.join(" → ");
 function scrollToNode(node){
 
 const container = document.getElementById("treeContainer");
+const svg = document.getElementById("treeSvg");
+
+scale = 1.3;
+svg.style.transform = `scale(${scale})`;
+svg.style.transformOrigin = "0 0";
 
 const rect = node.getBoundingClientRect();
 const cRect = container.getBoundingClientRect();
 
-container.scrollLeft += rect.left - cRect.left - 200;
-container.scrollTop += rect.top - cRect.top - 200;
+container.scrollTo({
+left: container.scrollLeft + rect.left - cRect.left - 250,
+top: container.scrollTop + rect.top - cRect.top - 150,
+behavior: "smooth"
+});
 
 }
+function focusMember(id){
+
+const rect = document.querySelector(`.node-box[data-id="${id}"]`);
+if(!rect) return;
+
+highlightLineage(id);
+scrollToNode(rect);
+
+}
+// =======================================
+// SEARCH MEMBER (ENTER KEY)
+// =======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const input = document.getElementById("treeSearch");
+if(!input) return;
+
+input.addEventListener("keydown", e => {
+
+if(e.key !== "Enter") return;
+
+e.preventDefault();
+
+const query = input.value.trim().toLowerCase();
+if(!query) return;
+
+let target = Object.values(window.memberMap).find(member =>
+member.name.toLowerCase().startsWith(query)
+);
+
+if(!target){
+alert("Member not found in Shajra");
+return;
+}
+focusMember(target.id);
+
+});
+
+});
