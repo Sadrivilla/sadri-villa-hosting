@@ -244,17 +244,56 @@ function populateGenerationFilter() {
     select.innerHTML += `<option value="${gen}">Generation ${gen}</option>`;
   });
 }
-
 function populateFatherDropdown() {
-  const select = document.getElementById("fatherSelect");
-  select.innerHTML = `<option value="">Select Father</option>`;
 
-  allMembers.forEach(member => {
-    select.innerHTML += `
-      <option value="${member.id}">
-        ${member.name} (Gen ${member.generation})
-      </option>`;
+  const searchInput = document.getElementById("fatherSearch");
+  const dropdown = document.getElementById("fatherDropdown");
+  const hiddenInput = document.getElementById("fatherSelect");
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener("focus", () => {
+    renderFatherList("");
+    dropdown.style.display = "block";
   });
+
+  searchInput.addEventListener("input", () => {
+    renderFatherList(searchInput.value);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#fatherSearch") &&
+        !e.target.closest("#fatherDropdown")) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  function renderFatherList(search="") {
+
+    dropdown.innerHTML = "";
+
+    const filtered = allMembers.filter(m =>
+      m.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    filtered.forEach(member => {
+
+      const div = document.createElement("div");
+      div.style.padding = "8px";
+      div.style.cursor = "pointer";
+
+      div.innerText = `${member.name} (Gen ${member.generation})`;
+
+      div.onclick = () => {
+        searchInput.value = member.name;
+        hiddenInput.value = member.id;
+        dropdown.style.display = "none";
+      };
+
+      dropdown.appendChild(div);
+    });
+
+  }
 }
 
 /* ================= RENDER ================= */
@@ -346,8 +385,8 @@ window.openAddModal = function(){
 
   document.getElementById("name").value = "";
   document.getElementById("fatherSelect").value = "";
+  document.getElementById("fatherSearch").value = "";
   document.getElementById("dob").value = "";
-  document.getElementById("profileImage").value = "";
 
   setPreview(null);
 };
@@ -363,7 +402,10 @@ window.editMember = function(id){
   document.getElementById("memberModal").style.display = "flex";
 
   document.getElementById("name").value = member.name || "";
-  document.getElementById("fatherSelect").value = member.fatherId || "";
+document.getElementById("fatherSelect").value = member.fatherId || "";
+
+const father = allMembers.find(m => m.id === member.fatherId);
+document.getElementById("fatherSearch").value = father ? father.name : "";
   document.getElementById("dob").value = member.dob || "";
 
   setPreview(member.profileImage || null);
