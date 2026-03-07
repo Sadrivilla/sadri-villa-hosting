@@ -231,17 +231,10 @@ rect.__nodeId = node.id;
 rect.dataset.id = node.id;
 rect.dataset.name = node.name.toLowerCase();
 rect.dataset.parent = node.fatherId || "";
-  // 🎨 Generation Color Logic
-  let color;
+ // 🎨 Dynamic generation color (supports 50+ generations)
 
-  switch(node.generation) {
-    case 1: color = "#fef3c7"; break;
-    case 2: color = "#dbeafe"; break;
-    case 3: color = "#dcfce7"; break;
-    case 4: color = "#fce7f3"; break;
-    case 5: color = "#ede9fe"; break;
-    default: color = "#ffffff";
-  }
+let hue = (node.generation * 47) % 360;
+let color = `hsl(${hue}, 70%, 88%)`;
 
   if(svg.getAttribute("data-modern") === "true") {
     rect.setAttribute("fill", "#eef2ff");
@@ -268,7 +261,35 @@ let age = calculateAge(node.dob);
 
 // First line → Name
 let firstLine = node.name;
+let maxChars = 16;
 
+// Split long names automatically
+if(firstLine.length > maxChars){
+
+const words = firstLine.split(" ");
+let line1 = "";
+let line2 = "";
+
+words.forEach(w=>{
+if((line1 + w).length < maxChars){
+line1 += w + " ";
+}else{
+line2 += w + " ";
+}
+});
+
+firstLine = line1.trim();
+secondLine = line2.trim() + " | Gen " + node.generation;
+
+}else{
+
+if (age !== null) {
+  secondLine = "(" + age + ") Gen " + node.generation;
+} else {
+  secondLine = "Gen " + node.generation;
+}
+
+}
 // Second line → (Age) Gen
 let secondLine = "";
 
