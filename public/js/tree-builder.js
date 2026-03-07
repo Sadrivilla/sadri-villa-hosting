@@ -261,6 +261,7 @@ let age = calculateAge(node.dob);
 
 // First line → Name
 let firstLine = node.name;
+let secondLine = "";
 let maxChars = 16;
 
 // Split long names automatically
@@ -279,28 +280,22 @@ line2 += w + " ";
 });
 
 firstLine = line1.trim();
-secondLine = line2.trim() + " | Gen " + node.generation;
+
+if(age !== null){
+secondLine = line2.trim() + " (" + age + ") Gen " + node.generation;
+}else{
+secondLine = line2.trim() + " Gen " + node.generation;
+}
 
 }else{
 
-if (age !== null) {
-  secondLine = "(" + age + ") Gen " + node.generation;
-} else {
-  secondLine = "Gen " + node.generation;
+if(age !== null){
+secondLine = "(" + age + ") Gen " + node.generation;
+}else{
+secondLine = "Gen " + node.generation;
 }
 
 }
-// Second line → (Age) Gen
-let secondLine = "";
-
-if (age !== null) {
-  secondLine = "(" + age + ") Gen " + node.generation;
-} else {
-  secondLine = "Gen " + node.generation;
-}
-
-// Clear default text
-text.textContent = "";
 
 // Create tspan for first line
 const tspan1 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
