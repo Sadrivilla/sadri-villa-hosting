@@ -2,6 +2,7 @@ import { collection, getDocs }
 from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
+let scale = 1;
 // =======================================
 // 🎨 MODE TOGGLE (Classic / Modern)
 // =======================================
@@ -757,6 +758,32 @@ if(!rect) return;
 
 highlightLineage(id);
 scrollToNode(rect);
+showAncestorOnly(id);
+
+}
+function showAncestorOnly(id){
+
+const nodes = document.querySelectorAll(".node-box");
+
+nodes.forEach(n=>{
+n.style.opacity = "0.2";
+});
+
+let current = window.memberMap[id];
+
+while(current){
+
+const rect = document.querySelector(`.node-box[data-id="${current.id}"]`);
+
+if(rect){
+rect.style.opacity = "1";
+}
+
+if(!current.fatherId) break;
+
+current = window.memberMap[current.fatherId];
+
+}
 
 }
 // =======================================
@@ -777,9 +804,12 @@ e.preventDefault();
 const query = input.value.trim().toLowerCase();
 if(!query) return;
 
-let target = Object.values(window.memberMap).find(member =>
-member.name.toLowerCase().startsWith(query)
-);
+let members = Object.values(window.memberMap);
+
+let target =
+members.find(m => m.name.toLowerCase() === query) ||
+members.find(m => m.name.toLowerCase().startsWith(query)) ||
+members.find(m => m.name.toLowerCase().includes(query));
 
 if(!target){
 alert("Member not found in Shajra");
@@ -789,4 +819,86 @@ focusMember(target.id);
 
 });
 
+});
+// =======================================
+// 🔎 AUTOCOMPLETE SEARCH
+// =======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const input = document.getElementById("treeSearch");
+const suggestionBox = document.getElementById("searchSuggestions");
+
+if(!input || !suggestionBox) return;
+
+input.addEventListener("input", () => {
+
+const query = input.value.trim().toLowerCase();
+
+if(query.length < 2){
+
+suggestionBox.style.display = "none";
+
+document.querySelectorAll(".node-box").forEach(n=>{
+n.style.opacity = "1";
+n.classList.remove("path-node","active-node");
+});
+
+document.querySelectorAll(".connector").forEach(c=>{
+c.style.opacity = "1";
+});
+
+document.getElementById("lineagePath").innerText = "";
+
+return;
+}
+
+const matches = Object.values(window.memberMap).filter(member => {
+
+const name = member.name.toLowerCase();
+
+return name.includes(query);
+
+}).slice(0,5);
+
+if(matches.length === 0){
+suggestionBox.style.display = "none";
+return;
+}
+suggestionBox.innerHTML = "";
+
+matches.forEach(member => {
+
+const item = document.createElement("div");
+
+item.style.padding = "6px 10px";
+item.style.cursor = "pointer";
+item.style.borderBottom = "1px solid #eee";
+  item.onmouseover = () => item.style.background = "#eef2ff";
+item.onmouseout = () => item.style.background = "white";
+
+item.innerText = member.name;
+
+item.addEventListener("click", () => {
+
+input.value = member.name;
+
+focusMember(member.id);
+
+suggestionBox.style.display = "none";
+
+});
+
+suggestionBox.appendChild(item);
+
+});
+
+suggestionBox.style.display = "block";
+
+});
+
+document.addEventListener("click", e=>{
+if(suggestionBox && !suggestionBox.contains(e.target) && e.target !== input){
+  suggestionBox.style.display = "none";
+}
 });
