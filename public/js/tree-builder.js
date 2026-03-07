@@ -902,3 +902,4 @@ if(suggestionBox && !suggestionBox.contains(e.target) && e.target !== input){
   suggestionBox.style.display = "none";
 }
 });
+  });
