@@ -18,7 +18,7 @@ let members = [];
 
 async function loadMembers() {
 
-  const snap = await getDocs(collection(db,"members"));
+  const snap = await getDocs(collection(db,"family_members"));
 
   members = snap.docs.map(doc => ({
     id: doc.id,
