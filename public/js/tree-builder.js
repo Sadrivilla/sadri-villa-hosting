@@ -103,19 +103,15 @@ function measure(node){
 
   if (!node.children || node.children.length === 0) return;
 
-  let totalWidth =
-    node.children.length * boxWidth +
-    (node.children.length - 1) * siblingGap;
-
-  let startX = centerX - totalWidth / 2;
+  let startX = centerX - node.subtreeWidth / 2;
 
   node.children.forEach(child => {
 
-    const childCenter = startX + boxWidth / 2;
+    const childCenter = startX + child.subtreeWidth / 2;
 
     assign(child, childCenter, y + levelGap);
 
-    startX += boxWidth + siblingGap;
+    startX += child.subtreeWidth + siblingGap;
 
   });
 
