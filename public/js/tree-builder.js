@@ -96,31 +96,35 @@ function measure(node){
 }
 
   // -------- Assign X Y Positions --------
-  function assign(node, centerX, y) {
+ function assign(node, centerX, y) {
 
-    node.x = centerX - boxWidth / 2;
-    node.y = y;
+  node.x = centerX - boxWidth / 2;
+  node.y = y;
 
-    if (!node.children || node.children.length === 0) return;
+  if (!node.children || node.children.length === 0) return;
 
-    let startX = centerX - node.subtreeWidth / 2;
+  // Calculate real children width
+  let childrenWidth = 0;
 
-    node.children.forEach(child => {
+  node.children.forEach(child=>{
+    childrenWidth += child.subtreeWidth;
+  });
 
-      const childCenter =
-        startX + child.subtreeWidth / 2;
+  childrenWidth += siblingGap * (node.children.length - 1);
 
-      assign(child, childCenter, y + levelGap);
+  // Start position only based on children width
+  let startX = centerX - childrenWidth / 2;
 
-      startX += child.subtreeWidth + siblingGap;
-    });
-  }
+  node.children.forEach(child => {
 
-  measure(root);
-assign(root, root.subtreeWidth / 2, 80);
-  drawSVG(root);
+    const childCenter = startX + child.subtreeWidth / 2;
+
+    assign(child, childCenter, y + levelGap);
+
+    startX += child.subtreeWidth + siblingGap;
+  });
+
 }
-
 
 // =======================================
 // 🖌 DRAW SVG
