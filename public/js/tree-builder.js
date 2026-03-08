@@ -1,235 +1,939 @@
+import { collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
 import { db } from "./firebase.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+let scale = 1;
+// =======================================
+// 🎨 MODE TOGGLE (Classic / Modern)
+// =======================================
 
-const svg = document.getElementById("treeSvg");
+window.setMode = function(mode) {
 
-svg.setAttribute("width",5000);
-svg.setAttribute("height",3000);
+  const svg = document.getElementById("treeSvg");
+  if (!svg) return;
 
-const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-svg.appendChild(g);
+  svg.setAttribute("data-mode", mode);
 
-let members=[];
+  if(mode === "modern") {
+    svg.setAttribute("data-modern", "true");
+  } else {
+    svg.removeAttribute("data-modern");
+  }
 
-/* ================= LOAD DATA ================= */
+  renderTree(); // 🔥 THIS WAS MISSING
+};
 
-async function loadMembers(){
 
-  const snap = await getDocs(collection(db,"family_members"));
+// =======================================
+// 🌳 RENDER SVG TREE
+// =======================================
 
-  members = snap.docs.map(doc=>({
-    id:doc.id,
-    ...doc.data()
-  }));
+async function renderTree() {
 
-  buildTree();
+  const snapshot = await getDocs(collection(db, "family_members"));
+  const members = [];
 
-}
-
-loadMembers();
-
-/* ================= BUILD TREE ================= */
-
-function buildTree(){
-
-  const map={};
-
-  members.forEach(m=>{
-    map[m.id]={...m,children:[]};
+  snapshot.forEach(doc => {
+    members.push({ id: doc.id, ...doc.data() });
   });
 
-  let root=null;
+  // Build tree structure
+window.memberMap = {};
 
-  members.forEach(m=>{
+members.forEach(m => {
+memberMap[m.id] = { ...m, children: [] };
+});
 
-    if(m.fatherId && map[m.fatherId]){
-      map[m.fatherId].children.push(map[m.id]);
-    }else{
-      root=map[m.id];
+  let root = null;
+
+  members.forEach(m => {
+if (m.fatherId && memberMap[m.fatherId]) {
+
+  memberMap[m.fatherId].children.push(memberMap[m.id]);
+
+} else if (!root) {
+
+  root = memberMap[m.id];
+
+}
+  });
+
+  if (!root) {
+    console.error("Root not found");
+    return;
+  }
+
+  const boxWidth = 150;
+  const boxHeight = 60;
+  const siblingGap = 40;
+  const levelGap = 120;
+
+  // -------- Measure Subtree Width --------
+  function measure(node) {
+
+    if (!node.children || node.children.length === 0) {
+      node.subtreeWidth = boxWidth;
+      return boxWidth;
     }
 
+    let total = 0;
+    node.children.sort((a,b)=>{
+  return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
+
+    node.children.forEach(child => {
+      total += measure(child);
+    });
+
+    total += siblingGap * (node.children.length - 1);
+
+    node.subtreeWidth = Math.max(total, boxWidth);
+
+    return node.subtreeWidth;
+  }
+
+  // -------- Assign X Y Positions --------
+  function assign(node, centerX, y) {
+
+    node.x = centerX - boxWidth / 2;
+    node.y = y;
+
+    if (!node.children || node.children.length === 0) return;
+
+    let startX = centerX - node.subtreeWidth / 2;
+
+    node.children.forEach(child => {
+
+      const childCenter =
+        startX + child.subtreeWidth / 2;
+
+      assign(child, childCenter, y + levelGap);
+
+      startX += child.subtreeWidth + siblingGap;
+    });
+  }
+
+  measure(root);
+  assign(root, root.subtreeWidth / 2 + 100, 80);
+
+  drawSVG(root);
+}
+
+
+// =======================================
+// 🖌 DRAW SVG
+// =======================================
+
+function drawSVG(root) {
+
+  const svg = document.getElementById("treeSvg");
+  svg.innerHTML = "";
+  // 🔺 Arrow Marker Definition
+const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+
+const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+marker.setAttribute("id", "arrow");
+marker.setAttribute("markerWidth", "10");
+marker.setAttribute("markerHeight", "10");
+marker.setAttribute("refX", "6");
+marker.setAttribute("refY", "3");
+marker.setAttribute("orient", "auto");
+marker.setAttribute("markerUnits", "strokeWidth");
+
+const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+path.setAttribute("d", "M0,0 L0,6 L8,3 z");
+path.setAttribute("fill", "#333");
+
+marker.appendChild(path);
+defs.appendChild(marker);
+svg.appendChild(defs);
+
+  function calculateHeight(node) {
+
+    let max = node.y + 200;
+
+    if (node.children) {
+      node.children.forEach(child => {
+        max = Math.max(max, calculateHeight(child));
+      });
+    }
+
+    return max;
+  }
+
+  const totalHeight = calculateHeight(root);
+
+  svg.setAttribute("width", root.subtreeWidth + 200);
+  svg.setAttribute("height", totalHeight + 100);
+
+function draw(node) {
+
+  const parentCenterX = node.x + 75;
+  const parentBottomY = node.y + 60;
+
+  // ===== CONNECTORS (PDF STYLE) =====
+  if (node.children && node.children.length > 0) {
+
+    const connectorY = parentBottomY + 25;
+
+    // 1️⃣ Vertical from parent
+    const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    vLine.setAttribute("x1", parentCenterX);
+    vLine.setAttribute("y1", parentBottomY);
+    vLine.setAttribute("x2", parentCenterX);
+    vLine.setAttribute("y2", connectorY);
+    vLine.setAttribute("class", "connector");
+    svg.appendChild(vLine);
+
+    let childCenters = node.children.map(child => child.x + 75);
+
+    const minX = Math.min(...childCenters);
+    const maxX = Math.max(...childCenters);
+
+    // 2️⃣ Horizontal line
+    const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    hLine.setAttribute("x1", minX);
+    hLine.setAttribute("y1", connectorY);
+    hLine.setAttribute("x2", maxX);
+    hLine.setAttribute("y2", connectorY);
+    hLine.setAttribute("class", "connector");
+    svg.appendChild(hLine);
+
+    // 3️⃣ Vertical to children + arrow
+    node.children.forEach(child => {
+
+      const childCenterX = child.x + 75;
+      const childTopY = child.y;
+
+      const childLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      childLine.setAttribute("x1", childCenterX);
+      childLine.setAttribute("y1", connectorY);
+      childLine.setAttribute("x2", childCenterX);
+      childLine.setAttribute("y2", childTopY);
+      childLine.setAttribute("class", "connector");
+      childLine.setAttribute("marker-end", "url(#arrow)");
+      svg.appendChild(childLine);
+
+      draw(child);
+    });
+  }
+
+  // ===== NODE BOX =====
+  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+  rect.setAttribute("x", node.x);
+  rect.setAttribute("y", node.y);
+  rect.setAttribute("width", 150);
+  rect.setAttribute("height", 60);
+  rect.setAttribute("rx", 10);
+rect.setAttribute("class", "node-box");
+rect.__nodeId = node.id;
+rect.dataset.id = node.id;
+rect.dataset.name = node.name.toLowerCase();
+rect.dataset.parent = node.fatherId || "";
+ // 🎨 Dynamic generation color (supports 50+ generations)
+
+let hue = (node.generation * 47) % 360;
+let color = `hsl(${hue}, 70%, 88%)`;
+
+  if(svg.getAttribute("data-modern") === "true") {
+    rect.setAttribute("fill", "#eef2ff");
+  } else {
+    rect.setAttribute("fill", color);
+  }
+
+rect.style.cursor = "pointer";
+
+rect.addEventListener("click", () => {
+  openProfileModal(node);
+});
+
+svg.appendChild(rect);
+  // ===== TEXT =====
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+
+  text.setAttribute("x", node.x + 75);
+  text.setAttribute("y", node.y + 30);
+  text.setAttribute("text-anchor", "middle");
+  text.setAttribute("class", "node-text");
+
+let age = calculateAge(node.dob);
+
+// First line → Name
+let firstLine = node.name;
+let secondLine = "";
+let maxChars = 16;
+
+// Split long names automatically
+if(firstLine.length > maxChars){
+
+const words = firstLine.split(" ");
+let line1 = "";
+let line2 = "";
+
+words.forEach(w=>{
+if((line1 + w).length < maxChars){
+line1 += w + " ";
+}else{
+line2 += w + " ";
+}
+});
+
+firstLine = line1.trim();
+
+if(age !== null){
+secondLine = line2.trim() + " (" + age + ") Gen " + node.generation;
+}else{
+secondLine = line2.trim() + " Gen " + node.generation;
+}
+
+}else{
+
+if(age !== null){
+secondLine = "(" + age + ") Gen " + node.generation;
+}else{
+secondLine = "Gen " + node.generation;
+}
+
+}
+
+// Create tspan for first line
+const tspan1 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+tspan1.setAttribute("x", node.x + 75);
+tspan1.setAttribute("dy", "-5");
+tspan1.textContent = firstLine;
+
+// Create tspan for second line
+const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+tspan2.setAttribute("x", node.x + 75);
+tspan2.setAttribute("dy", "18");
+tspan2.textContent = secondLine;
+
+text.appendChild(tspan1);
+text.appendChild(tspan2);
+  svg.appendChild(text);
+}
+draw(root);
+}
+
+// =======================================
+// 📄 VECTOR PDF EXPORT (UNCHANGED)
+// =======================================
+
+window.exportTreePDF = async function () {
+
+  const { jsPDF } = window.jspdf;
+  const snapshot = await getDocs(collection(db, "family_members"));
+
+  const members = [];
+  snapshot.forEach(doc => {
+    members.push({ id: doc.id, ...doc.data() });
   });
 
-  layoutTree(root,0);
-  drawTree(root);
+const localMap = {};
+members.forEach(m => {
+  localMap[m.id] = { ...m, children: [] };
+});
 
+  let root = null;
+
+ members.forEach(m => {
+   if (m.fatherId && localMap[m.fatherId]) {
+      localMap[m.fatherId].children.push(localMap[m.id]);
+   } else {
+      root = localMap[m.id];
+   }
+});
+
+// 🔥 SORT CHILDREN BY createdAt (LEFT → RIGHT SAME AS TREE)
+Object.values(localMap).forEach(node=>{
+if(node.children){
+node.children.sort((a,b)=>{
+return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
 }
+});
 
-/* ================= PERFECT LAYOUT ================= */
+  if (!root) {
+    console.error("Root not found");
+    return;
+  }
 
-const nodeWidth=140;
-const nodeHeight=100;
-let nextX=0;
+  const boxWidth = 65;
+  const boxHeight = 20;
+  const siblingGap = 20;
+  const levelGap = 50;
+  const margin = 30;
 
-function layoutTree(node,depth){
+  let maxDepth = 0;
 
-  node.y = depth * nodeHeight;
+  function measure(node, depth = 0) {
 
-  if(node.children.length===0){
+    maxDepth = Math.max(maxDepth, depth);
 
-    node.x = nextX;
-    nextX += nodeWidth*1.6;
+    if (!node.children || node.children.length === 0) {
+      node.subtreeWidth = boxWidth;
+      return boxWidth;
+    }
 
-  }else{
+    let total = 0;
 
-    node.children.forEach(child=>{
-      layoutTree(child,depth+1);
+    node.children.forEach(child => {
+      total += measure(child, depth + 1);
     });
 
-    const first=node.children[0];
-    const last=node.children[node.children.length-1];
+    total += siblingGap * (node.children.length - 1);
 
-    node.x = (first.x + last.x)/2;
+    node.subtreeWidth = Math.max(total, boxWidth);
 
+    return node.subtreeWidth;
+  }
+
+  measure(root);
+
+  const totalWidth = root.subtreeWidth + margin * 2;
+  const totalHeight = (maxDepth + 1) * levelGap + margin * 2;
+
+  const pdf = new jsPDF({
+    orientation: totalWidth > totalHeight ? "landscape" : "portrait",
+    unit: "mm",
+    format: [totalWidth, totalHeight]
+  });
+
+  pdf.setFontSize(9);
+
+  function draw(node, centerX, topY) {
+
+    const x = centerX - boxWidth / 2;
+    const y = topY;
+
+    pdf.rect(x, y, boxWidth, boxHeight);
+
+    const text = pdf.splitTextToSize(
+      node.name + "\nGen " + node.generation,
+      boxWidth - 6
+    );
+
+    pdf.text(text, x + 3, y + 7);
+
+    if (!node.children || node.children.length === 0)
+      return;
+
+    const connectorY = y + boxHeight + 10;
+    const childrenY = y + levelGap;
+
+    let startX = centerX - node.subtreeWidth / 2;
+
+    let childCenters = [];
+
+    node.children.forEach(child => {
+      const childCenterX = startX + child.subtreeWidth / 2;
+      childCenters.push(childCenterX);
+      startX += child.subtreeWidth + siblingGap;
+    });
+
+    pdf.line(centerX, y + boxHeight, centerX, connectorY);
+
+    const minX = Math.min(...childCenters);
+    const maxX = Math.max(...childCenters);
+
+    pdf.line(minX, connectorY, maxX, connectorY);
+
+    node.children.forEach((child, index) => {
+      const childCenterX = childCenters[index];
+      pdf.line(childCenterX, connectorY, childCenterX, childrenY);
+      draw(child, childCenterX, childrenY);
+    });
+  }
+
+  draw(root, totalWidth / 2, margin);
+
+  pdf.save("Sadri-Digital-Shajra-Full-Blueprint.pdf");
+};
+
+
+// =======================================
+// 📊 EXCEL EXPORT
+// =======================================
+
+window.exportExcel = async function () {
+
+  const snapshot = await getDocs(collection(db, "family_members"));
+  const data = [];
+
+ const members = [];
+
+snapshot.forEach(docSnap => {
+  members.push({ id: docSnap.id, ...docSnap.data() });
+});
+
+// 🔥 SORT BY createdAt
+members.sort((a,b)=>{
+return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+});
+
+members.forEach(m=>{
+data.push({
+  "Full Name": m.name || "",
+  "Surname": m.surname || "",
+  "Generation": m.generation || "",
+  "Father ID": m.fatherId || "Root",
+  "Alive Status": m.isAlive ? "Yes" : "No"
+});
+});
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  worksheet["!cols"] = [
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 12 },
+    { wch: 20 },
+    { wch: 15 }
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sadri Family");
+
+  XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
+};
+
+
+renderTree();
+// ===============================
+// PROFILE MODAL FUNCTIONS
+// ===============================
+
+// ===============================
+// PROFILE NAVIGATION STACK
+// ===============================
+
+window.profileStack = [];
+// ===============================
+// OPEN PROFILE MODAL
+// ===============================
+
+// ===============================
+// RENDER PROFILE DATA
+// ===============================
+// ===============================
+// FORMAT DATE + CALCULATE AGE
+// ===============================
+
+function formatDate(dateString) {
+
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+
+  const options = { day: "2-digit", month: "long", year: "numeric" };
+  return date.toLocaleDateString("en-GB", options);
+}
+
+function calculateAge(dateString) {
+
+  if (!dateString) return null;
+
+  const dob = new Date(dateString);
+  const today = new Date();
+
+  let age = today.getFullYear() - dob.getFullYear();
+
+  const m = today.getMonth() - dob.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  return age;
+}
+function renderProfile(node) {
+
+  document.getElementById("modalName").textContent = node.name;
+  document.getElementById("modalGeneration").textContent = node.generation;
+const formattedDob = formatDate(node.dob);
+const age = calculateAge(node.dob);
+
+document.getElementById("modalDob").textContent = formattedDob;
+
+
+  // ===============================
+// PROFILE IMAGE + SPINNER
+// ===============================
+
+const profileImg = document.getElementById("modalProfileImage");
+const spinner = document.getElementById("imageSpinner");
+
+if (profileImg && spinner) {
+
+  spinner.style.display = "block";
+
+  if (node.profileImage) {
+
+profileImg.onload = () => spinner.style.display = "none";
+profileImg.onerror = () => spinner.style.display = "none";
+
+    profileImg.src = node.profileImage;
+
+  } else {
+    spinner.style.display = "none";
+    profileImg.src = "https://via.placeholder.com/80";
   }
 
 }
 
-/* ================= DRAW TREE ================= */
+let dobLine = formattedDob;
 
-function drawTree(root){
+if (age !== null) {
+  dobLine += " (Age " + age + ")";
+}
 
-  g.innerHTML="";
-
-  function drawNode(node){
-
-    const group=createSVG("g");
-    group.setAttribute("transform",`translate(${node.x},${node.y})`);
-
-    const rect=createSVG("rect");
-    rect.setAttribute("width",120);
-    rect.setAttribute("height",40);
-    rect.setAttribute("rx",8);
-    rect.setAttribute("class","node-box");
-
-    const text=createSVG("text");
-    text.setAttribute("x",60);
-    text.setAttribute("y",24);
-    text.setAttribute("text-anchor","middle");
-    text.setAttribute("class","node-text");
-    text.textContent=node.name || "Unknown";
-
-    group.appendChild(rect);
-    group.appendChild(text);
-
-    group.onclick=()=>openProfile(node);
-
-    g.appendChild(group);
-
-    node.children.forEach(child=>{
-
-      drawLink(node,child);
-      drawNode(child);
-
-    });
-
+document.getElementById("modalDob").textContent = dobLine;
+  // Father Name
+  let fatherName = "Root";
+  if (node.fatherId && window.memberMap[node.fatherId]) {
+    fatherName = window.memberMap[node.fatherId].name;
   }
 
-  drawNode(root);
+  document.getElementById("modalFather").textContent = fatherName;
 
+  // Children
+  const children = node.children || [];
+  document.getElementById("modalChildrenCount").textContent = children.length;
+
+  const container = document.getElementById("modalChildrenList");
+  container.innerHTML = "";
+
+  children.forEach(child => {
+
+    const box = document.createElement("div");
+    box.className = "child-box";
+    box.textContent = child.name;
+
+    // 🔥 CLICK CHILD TO OPEN PROFILE
+    box.style.cursor = "pointer";
+    box.addEventListener("click", () => {
+      openProfileModal(child);
+    });
+
+    container.appendChild(box);
+  });
+
+highlightNode(node.id);
+
+// Show or hide Back button
+const backBtn = document.getElementById("backProfileBtn");
+  if (profileStack.length > 1) {
+  backBtn.style.display = "inline-block";
+} else {
+  backBtn.style.display = "none";
 }
-
-/* ================= CONNECTORS ================= */
-
-function drawLink(parent,child){
-
-  const path=createSVG("path");
-
-  const startX=parent.x+60;
-  const startY=parent.y+40;
-
-  const endX=child.x+60;
-  const endY=child.y;
-
-  const d=`
-  M ${startX} ${startY}
-  V ${(startY+endY)/2}
-  H ${endX}
-  V ${endY}
-  `;
-
-  path.setAttribute("d",d);
-  path.setAttribute("class","connector");
-
-  g.appendChild(path);
-
+  document.getElementById("profileModal").style.display = "flex";
 }
+// ===============================
+// HIGHLIGHT CURRENT NODE
+// ===============================
 
-/* ================= SVG HELPER ================= */
+function highlightNode(id) {
 
-function createSVG(tag){
+  // Remove old highlight
+  document.querySelectorAll(".node-box").forEach(rect => {
+    rect.classList.remove("active-node");
+  });
 
-  return document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    tag
-  );
-
+  // Add highlight to current
+  document.querySelectorAll(".node-box").forEach(rect => {
+    if (rect.__nodeId === id) {
+      rect.classList.add("active-node");
+    }
+  });
 }
+// ===============================
+// GO BACK PROFILE
+// ===============================
 
-/* ================= ZOOM ================= */
+window.goBackProfile = function() {
 
-let scale=1;
+  profileStack.pop(); // remove current
 
-svg.addEventListener("wheel",(e)=>{
+  if (profileStack.length > 0) {
+    const previous = profileStack[profileStack.length - 1];
+    renderProfile(previous);
+  }
+};
 
-  e.preventDefault();
+// ===============================
+// OPEN PROFILE MODAL
+// ===============================
 
-  if(e.deltaY<0) scale+=0.1;
-  else scale-=0.1;
+window.openProfileModal = function(node) {
 
-  if(scale<0.3) scale=0.3;
+  profileStack.push(node);
 
-  g.setAttribute("transform",`scale(${scale})`);
+  renderProfile(node);
+};
+// ===============================
+// CLOSE PROFILE MODAL
+// ===============================
+
+window.closeProfileModal = function() {
+
+  document.getElementById("profileModal").style.display = "none";
+
+  // Clear highlight when modal closes
+  document.querySelectorAll(".node-box").forEach(rect => {
+    rect.classList.remove("active-node");
+  });
+
+  // Reset stack
+  profileStack = [];
+};
+// CLICK OUTSIDE TO CLOSE
+document.addEventListener("click", function(e) {
+  const modal = document.getElementById("profileModal");
+  if (e.target === modal) {
+    closeProfileModal();
+  }
+});
+
+// ===============================
+// IMAGE ZOOM FUNCTION
+// ===============================
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  const profileImg = document.getElementById("modalProfileImage");
+
+  if (profileImg) {
+    profileImg.addEventListener("click", function() {
+
+      const zoomModal = document.getElementById("imageZoomModal");
+      const zoomImg = document.getElementById("zoomedImage");
+
+      if (!zoomModal || !zoomImg) return;
+
+      zoomImg.src = this.src;
+      zoomModal.style.display = "flex";
+    });
+  }
 
 });
 
-/* ================= DRAG ================= */
+window.closeImageZoom = function() {
+  const zoomModal = document.getElementById("imageZoomModal");
+  if (zoomModal) zoomModal.style.display = "none";
+};
+// =======================================
+// 🔎 SMART TREE SEARCH
+// =======================================
+function highlightLineage(id){
 
-let isDragging=false;
-let startX,startY;
-
-svg.addEventListener("mousedown",(e)=>{
-
-  isDragging=true;
-  startX=e.clientX;
-  startY=e.clientY;
-
-  svg.style.cursor="grabbing";
-
+document.querySelectorAll(".node-box")
+.forEach(n=>{
+n.classList.remove("active-node","path-node");
 });
 
-svg.addEventListener("mousemove",(e)=>{
+let lineage = [];
+let current = window.memberMap[id];
 
-  if(!isDragging) return;
+while(current){
 
-  const dx=e.clientX-startX;
-  const dy=e.clientY-startY;
+lineage.push(current.name);
 
-  svg.parentElement.scrollLeft-=dx;
-  svg.parentElement.scrollTop-=dy;
+const rect = document.querySelector(`.node-box[data-id="${current.id}"]`);
 
-  startX=e.clientX;
-  startY=e.clientY;
+if(rect){
+rect.classList.add("path-node");
+}
 
-});
+if(!current.fatherId) break;
 
-svg.addEventListener("mouseup",()=>{
-
-  isDragging=false;
-  svg.style.cursor="grab";
-
-});
-
-/* ================= PROFILE MODAL ================= */
-
-function openProfile(node){
-
-  document.getElementById("modalName").innerText=node.name||"";
-  document.getElementById("modalGeneration").innerText=node.generation||"";
-
-  document.getElementById("modalFather").innerText=node.fatherName||"";
-  document.getElementById("modalDob").innerText=node.dob||"";
-
-  document.getElementById("profileModal").style.display="flex";
+current = window.memberMap[current.fatherId];
 
 }
+
+const targetRect = document.querySelector(`.node-box[data-id="${id}"]`);
+if(targetRect){
+targetRect.classList.add("active-node");
+}
+
+lineage.reverse();
+
+const pathBox = document.getElementById("lineagePath");
+if(pathBox){
+pathBox.innerText = lineage.join(" → ");
+}
+
+}
+
+function scrollToNode(node){
+
+const container = document.getElementById("treeContainer");
+const svg = document.getElementById("treeSvg");
+
+scale = 1.3;
+svg.style.transform = `scale(${scale})`;
+svg.style.transformOrigin = "0 0";
+
+const rect = node.getBoundingClientRect();
+const cRect = container.getBoundingClientRect();
+
+container.scrollTo({
+left: container.scrollLeft + rect.left - cRect.left - 250,
+top: container.scrollTop + rect.top - cRect.top - 150,
+behavior: "smooth"
+});
+
+}
+function focusMember(id){
+
+const rect = document.querySelector(`.node-box[data-id="${id}"]`);
+if(!rect) return;
+
+highlightLineage(id);
+scrollToNode(rect);
+showAncestorOnly(id);
+
+}
+function showAncestorOnly(id){
+
+const nodes = document.querySelectorAll(".node-box");
+
+nodes.forEach(n=>{
+n.style.opacity = "0.2";
+});
+
+let current = window.memberMap[id];
+
+while(current){
+
+const rect = document.querySelector(`.node-box[data-id="${current.id}"]`);
+
+if(rect){
+rect.style.opacity = "1";
+}
+
+if(!current.fatherId) break;
+
+current = window.memberMap[current.fatherId];
+
+}
+
+}
+// =======================================
+// SEARCH MEMBER (ENTER KEY)
+// =======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const input = document.getElementById("treeSearch");
+if(!input) return;
+
+input.addEventListener("keydown", e => {
+
+if(e.key !== "Enter") return;
+
+e.preventDefault();
+
+const query = input.value.trim().toLowerCase();
+if(!query) return;
+
+let members = Object.values(window.memberMap);
+
+let target =
+members.find(m => m.name.toLowerCase() === query) ||
+members.find(m => m.name.toLowerCase().startsWith(query)) ||
+members.find(m => m.name.toLowerCase().includes(query));
+
+if(!target){
+alert("Member not found in Shajra");
+return;
+}
+focusMember(target.id);
+
+});
+
+});
+// =======================================
+// 🔎 AUTOCOMPLETE SEARCH
+// =======================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const input = document.getElementById("treeSearch");
+const suggestionBox = document.getElementById("searchSuggestions");
+
+if(!input || !suggestionBox) return;
+
+input.addEventListener("input", () => {
+
+const query = input.value.trim().toLowerCase();
+
+if(query.length < 2){
+
+suggestionBox.style.display = "none";
+
+document.querySelectorAll(".node-box").forEach(n=>{
+n.style.opacity = "1";
+n.classList.remove("path-node","active-node");
+});
+
+document.querySelectorAll(".connector").forEach(c=>{
+c.style.opacity = "1";
+});
+
+document.getElementById("lineagePath").innerText = "";
+
+return;
+}
+
+const matches = Object.values(window.memberMap).filter(member => {
+
+const name = member.name.toLowerCase();
+
+return name.includes(query);
+
+}).slice(0,5);
+
+if(matches.length === 0){
+suggestionBox.style.display = "none";
+return;
+}
+suggestionBox.innerHTML = "";
+
+matches.forEach(member => {
+
+const item = document.createElement("div");
+
+item.style.padding = "6px 10px";
+item.style.cursor = "pointer";
+item.style.borderBottom = "1px solid #eee";
+  item.onmouseover = () => item.style.background = "#eef2ff";
+item.onmouseout = () => item.style.background = "white";
+
+item.innerText = member.name;
+
+item.addEventListener("click", () => {
+
+input.value = member.name;
+
+focusMember(member.id);
+
+suggestionBox.style.display = "none";
+
+});
+
+suggestionBox.appendChild(item);
+
+});
+
+suggestionBox.style.display = "block";
+
+});
+
+document.addEventListener("click", e=>{
+if(suggestionBox && !suggestionBox.contains(e.target) && e.target !== input){
+  suggestionBox.style.display = "none";
+}
+});
+  });
