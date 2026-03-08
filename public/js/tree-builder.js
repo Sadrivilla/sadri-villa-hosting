@@ -80,17 +80,17 @@ function measure(node){
     return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
   });
 
-  let widths = [];
+  // width based only on DIRECT children count
+  let width =
+    node.children.length * boxWidth +
+    (node.children.length - 1) * siblingGap;
 
+  node.subtreeWidth = Math.max(width, boxWidth);
+
+  // still measure children for positioning
   node.children.forEach(child=>{
-    widths.push(measure(child));
+    measure(child);
   });
-
-  // Calculate total width of children
-  let total = widths.reduce((a,b)=>a+b,0) + siblingGap*(node.children.length-1);
-
-  // Prevent children stretching too much
-  node.subtreeWidth = Math.max(total, boxWidth);
 
   return node.subtreeWidth;
 }
@@ -117,7 +117,7 @@ function measure(node){
 
 }
   measure(root);
-assign(root, root.subtreeWidth / 2 + 100, 80);
+assign(root, root.subtreeWidth / 2, 80);
 drawSVG(root);
 }
 // =======================================
