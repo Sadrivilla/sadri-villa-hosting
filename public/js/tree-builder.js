@@ -80,17 +80,15 @@ function measure(node){
     return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
   });
 
-  // width based only on DIRECT children count
+  // Measure children first
+  node.children.forEach(child => measure(child));
+
+  // width based ONLY on direct children
   let width =
     node.children.length * boxWidth +
     (node.children.length - 1) * siblingGap;
 
   node.subtreeWidth = Math.max(width, boxWidth);
-
-  // still measure children for positioning
-  node.children.forEach(child=>{
-    measure(child);
-  });
 
   return node.subtreeWidth;
 }
