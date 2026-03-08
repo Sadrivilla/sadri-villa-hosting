@@ -41,19 +41,19 @@ async function renderTree() {
 window.memberMap = {};
 
 members.forEach(m => {
-memberMap[m.id] = { ...m, children: [] };
+  window.memberMap[m.id] = { ...m, children: [] };
 });
 
   let root = null;
 
   members.forEach(m => {
-if (m.fatherId && memberMap[m.fatherId]) {
+if (m.fatherId && window.memberMap[m.fatherId]) {
 
-  memberMap[m.fatherId].children.push(memberMap[m.id]);
+  window.memberMap[m.fatherId].children.push(window.memberMap[m.id]);
 
 } else if (!root) {
 
-  root = memberMap[m.id];
+  root = window.memberMap[m.id];
 
 }
   });
@@ -69,28 +69,29 @@ if (m.fatherId && memberMap[m.fatherId]) {
   const levelGap = 120;
 
   // -------- Measure Subtree Width --------
-  function measure(node) {
+function measure(node){
 
-    if (!node.children || node.children.length === 0) {
-      node.subtreeWidth = boxWidth;
-      return boxWidth;
-    }
-
-    let total = 0;
-    node.children.sort((a,b)=>{
-  return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
-});
-
-    node.children.forEach(child => {
-      total += measure(child);
-    });
-
-    total += siblingGap * (node.children.length - 1);
-
-    node.subtreeWidth = Math.max(total, boxWidth);
-
-    return node.subtreeWidth;
+  if(!node.children || node.children.length === 0){
+    node.subtreeWidth = boxWidth;
+    return boxWidth;
   }
+
+  node.children.sort((a,b)=>{
+    return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+  });
+
+  let total = 0;
+
+  node.children.forEach(child=>{
+    total += measure(child);
+  });
+
+  total += siblingGap * (node.children.length - 1);
+
+  node.subtreeWidth = Math.max(total, boxWidth);
+
+  return node.subtreeWidth;
+}
 
   // -------- Assign X Y Positions --------
   function assign(node, centerX, y) {
@@ -114,9 +115,8 @@ if (m.fatherId && memberMap[m.fatherId]) {
   }
 
   measure(root);
-  assign(root, root.subtreeWidth / 2 + 100, 80);
-
-  drawSVG(root);
+assign(root, root.subtreeWidth / 2 + boxWidth, 80);
+drawSVG(root);
 }
 
 
@@ -127,6 +127,8 @@ if (m.fatherId && memberMap[m.fatherId]) {
 function drawSVG(root) {
 
   const svg = document.getElementById("treeSvg");
+  svg.style.willChange = "transform";
+  const boxWidth = 150;
   svg.innerHTML = "";
   // 🔺 Arrow Marker Definition
 const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
@@ -163,7 +165,7 @@ svg.appendChild(defs);
 
   const totalHeight = calculateHeight(root);
 
-  svg.setAttribute("width", root.subtreeWidth + 200);
+svg.setAttribute("width", root.subtreeWidth + boxWidth * 3);
   svg.setAttribute("height", totalHeight + 100);
 
 function draw(node) {
@@ -382,11 +384,12 @@ return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
       total += measure(child, depth + 1);
     });
 
-    total += siblingGap * (node.children.length - 1);
+total += siblingGap * (node.children.length - 1);
 
-    node.subtreeWidth = Math.max(total, boxWidth);
+node.subtreeWidth = Math.max(total, boxWidth);
 
-    return node.subtreeWidth;
+return node.subtreeWidth;
+
   }
 
   measure(root);
