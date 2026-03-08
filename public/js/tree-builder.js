@@ -80,14 +80,16 @@ function measure(node){
     return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
   });
 
-  let total = 0;
+  let widths = [];
 
   node.children.forEach(child=>{
-    total += measure(child);
+    widths.push(measure(child));
   });
 
-  total += siblingGap * (node.children.length - 1);
+  // Calculate total width of children
+  let total = widths.reduce((a,b)=>a+b,0) + siblingGap*(node.children.length-1);
 
+  // Prevent children stretching too much
   node.subtreeWidth = Math.max(total, boxWidth);
 
   return node.subtreeWidth;
@@ -165,7 +167,7 @@ svg.appendChild(defs);
 
   const totalHeight = calculateHeight(root);
 
-svg.setAttribute("width", root.subtreeWidth + boxWidth * 3);
+svg.setAttribute("width", root.subtreeWidth + 200);
   svg.setAttribute("height", totalHeight + 100);
 
 function draw(node) {
