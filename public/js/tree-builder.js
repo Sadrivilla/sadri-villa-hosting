@@ -165,7 +165,7 @@ svg.appendChild(defs);
 
   const totalHeight = calculateHeight(root);
 
-svg.setAttribute("width", root.subtreeWidth + 200);
+svg.setAttribute("width", root.subtreeWidth + 20);
   svg.setAttribute("height", totalHeight + 100);
 
 function draw(node) {
