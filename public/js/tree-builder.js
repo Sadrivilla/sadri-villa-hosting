@@ -115,8 +115,8 @@ function measure(node){
   }
 
   measure(root);
-assign(root, root.subtreeWidth / 2 + boxWidth, 80);
-drawSVG(root);
+assign(root, root.subtreeWidth / 2, 80);
+  drawSVG(root);
 }
 
 
