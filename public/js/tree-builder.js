@@ -103,34 +103,23 @@ function measure(node){
 
   if (!node.children || node.children.length === 0) return;
 
-  // Calculate real children width
-  let childrenWidth = 0;
+  let totalWidth =
+    node.children.length * boxWidth +
+    (node.children.length - 1) * siblingGap;
 
-  node.children.forEach(child=>{
-    childrenWidth += child.subtreeWidth;
-  });
-
-  childrenWidth += siblingGap * (node.children.length - 1);
-
-  // Start position only based on children width
-  let startX = centerX - childrenWidth / 2;
+  let startX = centerX - totalWidth / 2;
 
   node.children.forEach(child => {
 
-    const childCenter = startX + child.subtreeWidth / 2;
+    const childCenter = startX + boxWidth / 2;
 
     assign(child, childCenter, y + levelGap);
 
-    startX += child.subtreeWidth + siblingGap;
+    startX += boxWidth + siblingGap;
+
   });
 
 }
-  measure(root);
-assign(root, root.subtreeWidth / 2 + 100, 80);
-drawSVG(root);
-
-}
-
 // =======================================
 // 🖌 DRAW SVG
 // =======================================
