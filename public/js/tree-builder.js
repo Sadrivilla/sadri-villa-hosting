@@ -120,6 +120,10 @@ function measure(node){
   });
 
 }
+  measure(root);
+assign(root, root.subtreeWidth / 2 + 100, 80);
+drawSVG(root);
+}
 // =======================================
 // 🖌 DRAW SVG
 // =======================================
