@@ -1,10 +1,12 @@
-import { collection, getDocs } 
+import { collection, getDocs }
 from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
+
 let scale = 1;
+
 // =======================================
-// 🎨 MODE TOGGLE (Classic / Modern)
+// 🎨 MODE TOGGLE
 // =======================================
 
 window.setMode = function(mode) {
@@ -20,42 +22,47 @@ window.setMode = function(mode) {
     svg.removeAttribute("data-modern");
   }
 
-  renderTree(); // 🔥 THIS WAS MISSING
+  renderTree();
 };
 
-
 // =======================================
-// 🌳 RENDER SVG TREE
+// 🌳 RENDER TREE
 // =======================================
 
 async function renderTree() {
 
   const snapshot = await getDocs(collection(db, "family_members"));
+
   const members = [];
 
   snapshot.forEach(doc => {
     members.push({ id: doc.id, ...doc.data() });
   });
 
-  // Build tree structure
-window.memberMap = {};
+  // =========================
+  // BUILD TREE MAP
+  // =========================
 
-members.forEach(m => {
-  window.memberMap[m.id] = { ...m, children: [] };
-});
+  window.memberMap = {};
+
+  members.forEach(m => {
+    window.memberMap[m.id] = { ...m, children: [] };
+  });
 
   let root = null;
 
   members.forEach(m => {
-if (m.fatherId && window.memberMap[m.fatherId]) {
 
-  window.memberMap[m.fatherId].children.push(window.memberMap[m.id]);
+    if (m.fatherId && window.memberMap[m.fatherId]) {
 
-} else if (!root) {
+      window.memberMap[m.fatherId].children.push(window.memberMap[m.id]);
 
-  root = window.memberMap[m.id];
+    } else if (!root) {
 
-}
+      root = window.memberMap[m.id];
+
+    }
+
   });
 
   if (!root) {
@@ -64,96 +71,123 @@ if (m.fatherId && window.memberMap[m.fatherId]) {
   }
 
   const boxWidth = 150;
-  const boxHeight = 60;
   const siblingGap = 40;
   const levelGap = 120;
 
-  // -------- Measure Subtree Width --------
-function measure(node){
+  // =========================
+  // MEASURE SUBTREE WIDTH
+  // =========================
 
-  if(!node.children || node.children.length === 0){
-    node.subtreeWidth = boxWidth;
-    return boxWidth;
+  function measure(node){
+
+    if(!node.children || node.children.length === 0){
+      node.subtreeWidth = boxWidth;
+      return boxWidth;
+    }
+
+    node.children.sort((a,b)=>{
+      return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+    });
+
+    node.children.forEach(child => measure(child));
+
+    const width =
+      node.children.length * boxWidth +
+      (node.children.length - 1) * siblingGap;
+
+    node.subtreeWidth = Math.max(width, boxWidth);
+
+    return node.subtreeWidth;
   }
 
-  node.children.sort((a,b)=>{
-    return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
-  });
+  // =========================
+  // ASSIGN POSITIONS
+  // =========================
 
-  // Measure children first
-  node.children.forEach(child => measure(child));
+  function assign(node, centerX, y){
 
-  // width based ONLY on direct children
-  let width =
-    node.children.length * boxWidth +
-    (node.children.length - 1) * siblingGap;
+    node.x = centerX - boxWidth/2;
+    node.y = y;
 
-  node.subtreeWidth = Math.max(width, boxWidth);
+    if(!node.children || node.children.length === 0) return;
 
-  return node.subtreeWidth;
-}
+    let startX = centerX - node.subtreeWidth/2;
 
-  // -------- Assign X Y Positions --------
- function assign(node, centerX, y) {
+    node.children.forEach(child => {
 
-  node.x = centerX - boxWidth / 2;
-  node.y = y;
+      const childCenter = startX + child.subtreeWidth/2;
 
-  if (!node.children || node.children.length === 0) return;
+      assign(child, childCenter, y + levelGap);
 
-  let startX = centerX - node.subtreeWidth / 2;
+      startX += child.subtreeWidth + siblingGap;
 
-  node.children.forEach(child => {
+    });
 
-    const childCenter = startX + child.subtreeWidth / 2;
+  }
 
-    assign(child, childCenter, y + levelGap);
-
-    startX += child.subtreeWidth + siblingGap;
-
-  });
-
-}
   measure(root);
-assign(root, root.subtreeWidth / 2, 80);
-drawSVG(root);
+
+  // center tree
+  assign(root, (root.subtreeWidth + 400)/2, 80);
+
+  drawSVG(root);
+
+  // auto center scroll
+  setTimeout(()=>{
+
+    const container = document.getElementById("treeContainer");
+
+    if(container){
+      container.scrollLeft =
+        (container.scrollWidth - container.clientWidth)/2;
+    }
+
+  },100);
+
 }
+
 // =======================================
 // 🖌 DRAW SVG
 // =======================================
 
-function drawSVG(root) {
+function drawSVG(root){
 
   const svg = document.getElementById("treeSvg");
-  svg.style.willChange = "transform";
-  const boxWidth = 150;
+
   svg.innerHTML = "";
-  // 🔺 Arrow Marker Definition
-const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
 
-const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-marker.setAttribute("id", "arrow");
-marker.setAttribute("markerWidth", "10");
-marker.setAttribute("markerHeight", "10");
-marker.setAttribute("refX", "6");
-marker.setAttribute("refY", "3");
-marker.setAttribute("orient", "auto");
-marker.setAttribute("markerUnits", "strokeWidth");
+  svg.style.willChange = "transform";
 
-const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-path.setAttribute("d", "M0,0 L0,6 L8,3 z");
-path.setAttribute("fill", "#333");
+  const boxWidth = 150;
 
-marker.appendChild(path);
-defs.appendChild(marker);
-svg.appendChild(defs);
+  // arrow marker
 
-  function calculateHeight(node) {
+  const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+
+  const marker = document.createElementNS("http://www.w3.org/2000/svg","marker");
+
+  marker.setAttribute("id","arrow");
+  marker.setAttribute("markerWidth","10");
+  marker.setAttribute("markerHeight","10");
+  marker.setAttribute("refX","6");
+  marker.setAttribute("refY","3");
+  marker.setAttribute("orient","auto");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+
+  path.setAttribute("d","M0,0 L0,6 L8,3 z");
+  path.setAttribute("fill","#333");
+
+  marker.appendChild(path);
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+
+  function calculateHeight(node){
 
     let max = node.y + 200;
 
-    if (node.children) {
-      node.children.forEach(child => {
+    if(node.children){
+      node.children.forEach(child=>{
         max = Math.max(max, calculateHeight(child));
       });
     }
@@ -163,158 +197,102 @@ svg.appendChild(defs);
 
   const totalHeight = calculateHeight(root);
 
-svg.setAttribute("width", root.subtreeWidth + 20);
+  svg.setAttribute("width", root.subtreeWidth + 400);
   svg.setAttribute("height", totalHeight + 100);
 
-function draw(node) {
+  function draw(node){
 
-  const parentCenterX = node.x + 75;
-  const parentBottomY = node.y + 60;
+    const parentCenterX = node.x + 75;
+    const parentBottomY = node.y + 60;
 
-  // ===== CONNECTORS (PDF STYLE) =====
-  if (node.children && node.children.length > 0) {
+    if(node.children && node.children.length > 0){
 
-    const connectorY = parentBottomY + 25;
+      const connectorY = parentBottomY + 25;
 
-    // 1️⃣ Vertical from parent
-    const vLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    vLine.setAttribute("x1", parentCenterX);
-    vLine.setAttribute("y1", parentBottomY);
-    vLine.setAttribute("x2", parentCenterX);
-    vLine.setAttribute("y2", connectorY);
-    vLine.setAttribute("class", "connector");
-    svg.appendChild(vLine);
+      const vLine = document.createElementNS("http://www.w3.org/2000/svg","line");
 
-    let childCenters = node.children.map(child => child.x + 75);
+      vLine.setAttribute("x1", parentCenterX);
+      vLine.setAttribute("y1", parentBottomY);
+      vLine.setAttribute("x2", parentCenterX);
+      vLine.setAttribute("y2", connectorY);
+      vLine.setAttribute("class","connector");
 
-    const minX = Math.min(...childCenters);
-    const maxX = Math.max(...childCenters);
+      svg.appendChild(vLine);
 
-    // 2️⃣ Horizontal line
-    const hLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    hLine.setAttribute("x1", minX);
-    hLine.setAttribute("y1", connectorY);
-    hLine.setAttribute("x2", maxX);
-    hLine.setAttribute("y2", connectorY);
-    hLine.setAttribute("class", "connector");
-    svg.appendChild(hLine);
+      const childCenters = node.children.map(c=>c.x+75);
 
-    // 3️⃣ Vertical to children + arrow
-    node.children.forEach(child => {
+      const minX = Math.min(...childCenters);
+      const maxX = Math.max(...childCenters);
 
-      const childCenterX = child.x + 75;
-      const childTopY = child.y;
+      const hLine = document.createElementNS("http://www.w3.org/2000/svg","line");
 
-      const childLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      childLine.setAttribute("x1", childCenterX);
-      childLine.setAttribute("y1", connectorY);
-      childLine.setAttribute("x2", childCenterX);
-      childLine.setAttribute("y2", childTopY);
-      childLine.setAttribute("class", "connector");
-      childLine.setAttribute("marker-end", "url(#arrow)");
-      svg.appendChild(childLine);
+      hLine.setAttribute("x1",minX);
+      hLine.setAttribute("y1",connectorY);
+      hLine.setAttribute("x2",maxX);
+      hLine.setAttribute("y2",connectorY);
+      hLine.setAttribute("class","connector");
 
-      draw(child);
-    });
+      svg.appendChild(hLine);
+
+      node.children.forEach(child=>{
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+
+        line.setAttribute("x1",child.x+75);
+        line.setAttribute("y1",connectorY);
+        line.setAttribute("x2",child.x+75);
+        line.setAttribute("y2",child.y);
+
+        line.setAttribute("class","connector");
+        line.setAttribute("marker-end","url(#arrow)");
+
+        svg.appendChild(line);
+
+        draw(child);
+
+      });
+
+    }
+
+    // node box
+
+    const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+
+    rect.setAttribute("x",node.x);
+    rect.setAttribute("y",node.y);
+    rect.setAttribute("width",150);
+    rect.setAttribute("height",60);
+    rect.setAttribute("rx",10);
+    rect.setAttribute("class","node-box");
+
+    rect.dataset.id = node.id;
+
+    let hue = (node.generation * 47) % 360;
+    rect.setAttribute("fill",`hsl(${hue},70%,88%)`);
+
+    svg.appendChild(rect);
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+
+    text.setAttribute("x",node.x+75);
+    text.setAttribute("y",node.y+35);
+    text.setAttribute("text-anchor","middle");
+    text.setAttribute("class","node-text");
+
+    text.textContent = node.name + " Gen " + node.generation;
+
+    svg.appendChild(text);
+
   }
 
-  // ===== NODE BOX =====
-  const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-
-  rect.setAttribute("x", node.x);
-  rect.setAttribute("y", node.y);
-  rect.setAttribute("width", 150);
-  rect.setAttribute("height", 60);
-  rect.setAttribute("rx", 10);
-rect.setAttribute("class", "node-box");
-rect.__nodeId = node.id;
-rect.dataset.id = node.id;
-rect.dataset.name = node.name.toLowerCase();
-rect.dataset.parent = node.fatherId || "";
- // 🎨 Dynamic generation color (supports 50+ generations)
-
-let hue = (node.generation * 47) % 360;
-let color = `hsl(${hue}, 70%, 88%)`;
-
-  if(svg.getAttribute("data-modern") === "true") {
-    rect.setAttribute("fill", "#eef2ff");
-  } else {
-    rect.setAttribute("fill", color);
-  }
-
-rect.style.cursor = "pointer";
-
-rect.addEventListener("click", () => {
-  openProfileModal(node);
-});
-
-svg.appendChild(rect);
-  // ===== TEXT =====
-  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-
-  text.setAttribute("x", node.x + 75);
-  text.setAttribute("y", node.y + 30);
-  text.setAttribute("text-anchor", "middle");
-  text.setAttribute("class", "node-text");
-
-let age = calculateAge(node.dob);
-
-// First line → Name
-let firstLine = node.name;
-let secondLine = "";
-let maxChars = 16;
-
-// Split long names automatically
-if(firstLine.length > maxChars){
-
-const words = firstLine.split(" ");
-let line1 = "";
-let line2 = "";
-
-words.forEach(w=>{
-if((line1 + w).length < maxChars){
-line1 += w + " ";
-}else{
-line2 += w + " ";
-}
-});
-
-firstLine = line1.trim();
-
-if(age !== null){
-secondLine = line2.trim() + " (" + age + ") Gen " + node.generation;
-}else{
-secondLine = line2.trim() + " Gen " + node.generation;
-}
-
-}else{
-
-if(age !== null){
-secondLine = "(" + age + ") Gen " + node.generation;
-}else{
-secondLine = "Gen " + node.generation;
-}
+  draw(root);
 
 }
 
-// Create tspan for first line
-const tspan1 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-tspan1.setAttribute("x", node.x + 75);
-tspan1.setAttribute("dy", "-5");
-tspan1.textContent = firstLine;
+renderTree();
 
-// Create tspan for second line
-const tspan2 = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-tspan2.setAttribute("x", node.x + 75);
-tspan2.setAttribute("dy", "18");
-tspan2.textContent = secondLine;
 
-text.appendChild(tspan1);
-text.appendChild(tspan2);
-  svg.appendChild(text);
-}
-draw(root);
-}
+
 
 // =======================================
 // 📄 VECTOR PDF EXPORT (UNCHANGED)
