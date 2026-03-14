@@ -427,44 +427,39 @@ window.uploadHeroImages = async () => {
 };
 window.uploadHeroVideo = async () => {
 
-const file = document.getElementById("heroVideoInput").files[0];
+  const file = document.getElementById("heroVideoInput").files[0];
+  const msg = document.getElementById("videoMsg");
 
-if(file.size > 20 * 1024 * 1024){
-msg.textContent="❌ Video must be under 20MB";
-return;
-}
-const msg = document.getElementById("videoMsg");
+  if (!file) {
+    msg.textContent = "❌ Select video first";
+    return;
+  }
 
-if(!file){
-msg.textContent="❌ Select video first";
-return;
-}
+  msg.textContent = "Uploading video...";
 
-msg.textContent="Uploading video...";
+  try {
 
-try{
+    const fileRef = ref(storage, "heroVideos/" + Date.now() + "_" + file.name);
 
-const fileRef = ref(storage,`heroVideos/${Date.now()}_${file.name}`);
+    await uploadBytes(fileRef, file);
 
-await uploadBytes(fileRef,file);
+    const url = await getDownloadURL(fileRef);
 
-const url = await getDownloadURL(fileRef);
+    await updateDoc(homeRef, {
+      heroVideo: {
+        url: url,
+        enabled: true
+      }
+    });
 
-await updateDoc(homeRef,{
-heroVideo:{
-url:url,
-enabled:true
-}
-});
+    msg.textContent = "✅ Video uploaded successfully";
 
-msg.textContent="✅ Video uploaded successfully";
+  } catch (e) {
 
-catch(e){
+    console.error(e);
+    msg.textContent = "❌ Upload failed: " + e.message;
 
-console.error(e);
-msg.textContent="❌ Upload failed: " + e.message;
-
-}
+  }
 
 };
 
