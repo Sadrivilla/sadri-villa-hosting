@@ -147,6 +147,20 @@ body {
 
 <div class="hero-admin-card">
   <h3>🖼 Hero Images</h3>
+  <h3 style="margin-top:25px">🎬 Hero Video</h3>
+
+<label class="upload-box">
+<input type="file" id="heroVideoInput" accept="video/mp4" hidden>
+🎥 Select Video
+</label>
+
+<button class="btn-gradient" onclick="uploadHeroVideo()">
+Upload Video
+</button>
+
+<p id="videoMsg"></p>
+
+<div id="videoPreview" style="margin-top:15px"></div>
 
   <label class="upload-box">
     <input type="file" id="heroImagesInput" accept="image/*" multiple hidden>
@@ -188,6 +202,12 @@ import {
   updateDoc,
   getDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+getStorage,
+ref,
+uploadBytes,
+getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 /* FIREBASE INIT */
 const app = initializeApp({
@@ -198,6 +218,7 @@ const app = initializeApp({
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+  const storage = getStorage(app);
 
 const heroImagesInput = document.getElementById("heroImagesInput");
 const heroMsg = document.getElementById("heroMsg");
@@ -270,6 +291,34 @@ onSnapshot(homeRef, (snap) => {
   if (!snap.exists()) return;
 
   const images = snap.data().heroimages || [];
+  const video = snap.data().heroVideo;
+const preview = document.getElementById("videoPreview");
+
+preview.innerHTML="";
+
+if(video && video.url){
+
+preview.innerHTML=`
+<video controls style="width:100%;border-radius:12px;margin-top:10px">
+<source src="${video.url}" type="video/mp4">
+</video>
+
+<div style="margin-top:10px">
+
+<label class="switch">
+<input type="checkbox" ${video.enabled?"checked":""}
+onchange="toggleHeroVideo()">
+<span class="slider"></span>
+</label>
+
+<button class="delete-btn" onclick="deleteHeroVideo()">
+Delete
+</button>
+
+</div>
+`;
+
+}
 
   images.forEach((img, i) => {
 
@@ -376,7 +425,47 @@ window.uploadHeroImages = async () => {
   heroImagesInput.value = "";
   previewList.innerHTML = "";
 };
+window.uploadHeroVideo = async () => {
 
+const file = document.getElementById("heroVideoInput").files[0];
+
+if(file.size > 20 * 1024 * 1024){
+msg.textContent="❌ Video must be under 20MB";
+return;
+}
+const msg = document.getElementById("videoMsg");
+
+if(!file){
+msg.textContent="❌ Select video first";
+return;
+}
+
+msg.textContent="Uploading video...";
+
+try{
+
+const fileRef = ref(storage,`heroVideos/${Date.now()}_${file.name}`);
+
+await uploadBytes(fileRef,file);
+
+const url = await getDownloadURL(fileRef);
+
+await updateDoc(homeRef,{
+heroVideo:{
+url:url,
+enabled:true
+}
+});
+
+msg.textContent="✅ Video uploaded successfully";
+
+}catch(e){
+
+msg.textContent="❌ Upload failed";
+
+}
+
+};
 
 /* TOGGLE */
 window.toggleHero = async (index) => {
@@ -400,6 +489,32 @@ window.deleteHero = async (index) => {
   imgs.splice(index, 1);
 
   await updateDoc(homeRef, { heroimages: imgs });
+};
+  window.toggleHeroVideo = async ()=>{
+
+const snap = await getDoc(homeRef);
+const data = snap.data();
+
+const video = data.heroVideo;
+
+if(!video) return;
+
+video.enabled = !video.enabled;
+
+await updateDoc(homeRef,{
+heroVideo:video
+});
+
+};
+
+window.deleteHeroVideo = async ()=>{
+
+if(!confirm("Delete hero video?")) return;
+
+await updateDoc(homeRef,{
+heroVideo:null
+});
+
 };
 </script>
 
