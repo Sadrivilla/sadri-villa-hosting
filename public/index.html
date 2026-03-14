@@ -463,6 +463,22 @@ footer{
 
 <!-- HERO -->
 <section class="hero" id="heroSection">
+  <video id="heroVideo"
+autoplay
+muted
+loop
+playsinline
+style="
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+object-fit:contain;
+display:none;
+background:black;
+z-index:0;">
+</video>
 <div class="hero-content">
 <h1>Sadri Villa Fazilpur – Official Heritage of the Sadri Family</h1>
   <p id="animatedText"></p>
@@ -604,6 +620,7 @@ const app=initializeApp({
 const db=getFirestore(app);
 
 const heroSection=document.getElementById("heroSection");
+  const heroVideo=document.getElementById("heroVideo");
 const galleryTrack=document.getElementById("galleryTrack");
 const gallerySection=document.getElementById("gallerySection");
 const siteLogo=document.getElementById("siteLogo");
@@ -642,18 +659,37 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
     footerLogo.src=data.logo.url+"?v="+v;
   }
 
-  /* HERO IMAGES */
-  heroImages=(data.heroimages||[]).filter(h=>h.enabled);
-  if(heroImages.length){
-    clearInterval(interval);
-    heroSection.style.backgroundImage=`url('${heroImages[0].url}')`;
-    current=0;
-    interval=setInterval(()=>{
-      current=(current+1)%heroImages.length;
-      heroSection.style.backgroundImage=`url('${heroImages[current].url}')`;
-    },5000);
-  }
+ /* HERO VIDEO FIRST */
 
+if(data.heroVideo && data.heroVideo.enabled){
+
+heroVideo.src=data.heroVideo.url;
+heroVideo.style.display="block";
+
+heroSection.style.backgroundImage="none";
+
+}else{
+
+heroVideo.style.display="none";
+
+heroImages=(data.heroimages||[]).filter(h=>h.enabled);
+
+if(heroImages.length){
+
+clearInterval(interval);
+
+heroSection.style.backgroundImage=`url('${heroImages[0].url}')`;
+
+current=0;
+
+interval=setInterval(()=>{
+current=(current+1)%heroImages.length;
+heroSection.style.backgroundImage=`url('${heroImages[current].url}')`;
+},5000);
+
+}
+
+}
   /* SLIDER */
   const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
   galleryTrack.innerHTML="";
