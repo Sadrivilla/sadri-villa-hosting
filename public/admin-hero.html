@@ -459,9 +459,10 @@ enabled:true
 
 msg.textContent="✅ Video uploaded successfully";
 
-}catch(e){
+catch(e){
 
-msg.textContent="❌ Upload failed";
+console.error(e);
+msg.textContent="❌ Upload failed: " + e.message;
 
 }
 
