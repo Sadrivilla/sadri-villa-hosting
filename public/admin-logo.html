@@ -7,6 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <style>
 body {
@@ -20,6 +21,33 @@ body {
   border-radius: 18px;
   max-width: 600px;
   box-shadow: 0 12px 30px rgba(0,0,0,.08);
+}
+  .upload-box{
+  border:2px dashed #cbd5e1;
+  border-radius:16px;
+  padding:20px;
+  text-align:center;
+  margin-bottom:15px;
+  background:#f8fafc;
+}
+
+.select-btn{
+  display:inline-block;
+  background:#2563eb;
+  color:#fff;
+  padding:10px 18px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.select-btn:hover{
+  background:#1d4ed8;
+}
+
+.upload-box.dragover{
+  border-color:#2563eb;
+  background:#eef2ff;
 }
 button {
   padding: 10px 18px;
@@ -62,8 +90,19 @@ button {
 
 <div class="card">
   <h3>Upload Logo</h3>
-  <input type="file" id="logoInput" accept="image/*">
-  <br><br>
+<div class="upload-box" id="uploadBox">
+
+  <input type="file" id="logoInput" accept="image/*" hidden>
+
+  <label for="logoInput" class="select-btn">
+    📷 Select Logo
+  </label>
+
+  <p style="margin-top:10px;color:#64748b;font-size:13px">
+    or drag & drop logo here
+  </p>
+
+</div>
   <!-- ✅ Preview Container -->
 <div id="logoPreviewBox" style="
   display:none;
@@ -75,7 +114,16 @@ button {
   <div id="logoPreviewName"
        style="font-size:12px;margin-top:8px;color:#475569;"></div>
 </div>
-<button id="uploadBtn" onclick="uploadLogo()">Upload Logo</button>
+  <button id="uploadBtn" onclick="uploadLogo()">Upload Logo</button>
+
+<div style="margin-top:12px">
+  <div style="height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden">
+    <div id="progressFill" style="height:100%;width:0%;background:#2563eb"></div>
+  </div>
+  <div id="progressText" style="font-size:12px;margin-top:6px;color:#475569">
+    Waiting...
+  </div>
+</div>
 <div id="uploadSpinner" class="spinner"></div>
   <div class="msg" id="logoMsg"></div>
 </div>
@@ -99,10 +147,41 @@ firebase.initializeApp({
 });
 
 const db = firebase.firestore();
+  const storage = firebase.storage();
 const logoPreview = document.getElementById("logoList");
 
 /* ---------- PREVIEW BEFORE UPLOAD ---------- */
 const logoInput = document.getElementById("logoInput");
+  const uploadBox = document.getElementById("uploadBox");
+
+/* DRAG EVENTS */
+uploadBox.addEventListener("dragover",e=>{
+  e.preventDefault();
+  uploadBox.classList.add("dragover");
+});
+
+uploadBox.addEventListener("dragleave",()=>{
+  uploadBox.classList.remove("dragover");
+});
+
+uploadBox.addEventListener("drop",e=>{
+  e.preventDefault();
+  uploadBox.classList.remove("dragover");
+
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+
+  logoInput.files = e.dataTransfer.files;
+
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    previewImg.src = ev.target.result;
+    previewName.innerText = file.name;
+    previewBox.style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+});
 const previewBox = document.getElementById("logoPreviewBox");
 const previewImg = document.getElementById("logoPreviewImg");
 const previewName = document.getElementById("logoPreviewName");
@@ -177,76 +256,102 @@ firebase.auth().onAuthStateChanged(user => {
   authReady = true;
 });
 
-/* ---------- UPLOAD LOGO ---------- */
-async function uploadLogo() {
-  const msg = document.getElementById("logoMsg");
+/* ---------- UPLOAD LOGO (DIRECT STORAGE) ---------- */
+async function uploadLogo(){
+
   const file = document.getElementById("logoInput").files[0];
-  const spinner = document.getElementById("uploadSpinner");
+  const msg = document.getElementById("logoMsg");
+  const progressFill = document.getElementById("progressFill");
+  const progressText = document.getElementById("progressText");
   const uploadBtn = document.getElementById("uploadBtn");
 
-  if (!authReady) {
-    msg.className = "msg error";
-    msg.innerText = "Please wait…";
+  if(!authReady){
+    msg.className="msg error";
+    msg.innerText="Please wait...";
     return;
   }
 
-  if (!file) {
-    msg.className = "msg error";
-    msg.innerText = "Please select an image";
+  if(!file){
+    msg.className="msg error";
+    msg.innerText="Please select logo";
     return;
   }
 
-  // 🔄 START LOADING
-  spinner.style.display = "block";
-  uploadBtn.disabled = true;
-  uploadBtn.style.opacity = "0.6";
+  uploadBtn.disabled=true;
 
-  msg.className = "msg loading";
-  msg.innerText = "Uploading logo…";
+ const logoFolder = storage.ref("images/site/logo");
+const storageRef = logoFolder.child(Date.now() + "-" + file.name);
 
-  try {
-    const token = await firebase.auth().currentUser.getIdToken(true);
+  const uploadTask = storageRef.put(file);
 
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(",")[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+  uploadTask.on("state_changed",
 
-    const res = await fetch(
-      "https://us-central1-sadri-villa-14c06.cloudfunctions.net/uploadLogo",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fileBase64: base64,
-          mimeType: file.type
-        })
-      }
+    function(snapshot){
+
+      const percent = Math.round(
+        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+      );
+
+      progressFill.style.width = percent + "%";
+      progressText.innerText = percent + "% Uploading";
+
+    },
+
+    function(error){
+
+      msg.className="msg error";
+      msg.innerText="Upload failed";
+      uploadBtn.disabled=false;
+
+    },
+
+    async function(){
+
+const url = await uploadTask.snapshot.ref.getDownloadURL();
+
+/* DELETE OLD LOGO */
+try{
+  const old = await db.collection("siteSettings")
+    .doc("home").get();
+
+  const oldUrl = old.data()?.logo?.url;
+
+  if(oldUrl){
+
+    const oldPath = decodeURIComponent(
+      oldUrl.split("/o/")[1].split("?")[0]
     );
 
-    const text = await res.text();
-    if (!res.ok) throw new Error(text);
+    await storage.ref(oldPath).delete();
 
-    msg.className = "msg success";
-    msg.innerText = "✅ Logo uploaded successfully";
-
-    document.getElementById("logoInput").value = "";
-
-  } catch (err) {
-    console.error(err);
-    msg.className = "msg error";
-    msg.innerText = err.message || "Upload failed";
   }
 
-  // ✅ STOP LOADING
-  spinner.style.display = "none";
-  uploadBtn.disabled = false;
-  uploadBtn.style.opacity = "1";
+}catch(e){
+  console.log("Old logo delete skipped");
+}
+      await db.collection("siteSettings")
+        .doc("home")
+        .set({
+          logo:{
+            url:url
+          }
+        },{merge:true});
+
+      progressFill.style.width="100%";
+      progressText.innerText="✅ Upload Complete";
+
+      msg.className="msg success";
+      msg.innerText="Logo uploaded successfully";
+
+      uploadBtn.disabled=false;
+
+      document.getElementById("logoInput").value="";
+      previewBox.style.display="none";
+
+    }
+
+  );
+
 }
 </script>
 
