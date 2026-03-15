@@ -571,16 +571,30 @@ function showImage(index){
 
   const link = document.getElementById("downloadLink");
 
-link.onclick = ()=>{
+link.onclick = async ()=>{
 
-  const a = document.createElement("a");
+  try{
 
-  a.href = url;
-  a.download = "sadri-villa-"+(currentIndex+1)+".jpg";
+    const response = await fetch(url);
 
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+    const blob = await response.blob();
+
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = blobUrl;
+    a.download = "sadri-villa-"+(currentIndex+1)+".jpg";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(blobUrl);
+
+  }catch(err){
+    window.open(url);
+  }
 
 };
 
