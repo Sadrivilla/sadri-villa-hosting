@@ -139,25 +139,17 @@ scrollbar-width:none;
   .gallery::-webkit-scrollbar{
   display:none;
 }
-  .gallery::before,
-.gallery::after{
-  content:"";
-  position:absolute;
-  top:0;
-  width:80px;
-  height:100%;
-  z-index:2;
-  pointer-events:none;
+.gallery{
+  position:relative;
+  width:100%;
+  background:#f1f5f9;
+  padding:40px 15px;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
 
-.gallery::before{
-  left:0;
-  background:linear-gradient(to right,#f1f5f9,transparent);
-}
-
-.gallery::after{
-  right:0;
-  background:linear-gradient(to left,#f1f5f9,transparent);
+.gallery::-webkit-scrollbar{
+  display:none;
 }
   .track{
   display:flex;
@@ -190,6 +182,9 @@ scrollbar-width:none;
 .track img:hover{
   transform:scale(1.05);
   box-shadow:0 18px 40px rgba(0,0,0,0.25);
+}
+  .track img.active{
+  border:4px solid #38bdf8;
 }
   @keyframes scroll{
   from{transform:translateX(0)}
@@ -415,11 +410,18 @@ onAuthStateChanged(auth,user=>{
     list.forEach(i=>{
       const img=document.createElement("img");
       img.src=i.url;
-      img.onclick=()=>{
-        document.getElementById("modalImg").src=i.url;
-        document.getElementById("downloadLink").href=i.url;
-        document.getElementById("imgModal").style.display="flex";
-      };
+img.onclick=()=>{
+
+  document.querySelectorAll(".track img").forEach(el=>{
+    el.classList.remove("active");
+  });
+
+  img.classList.add("active");
+
+  document.getElementById("modalImg").src=i.url;
+  document.getElementById("downloadLink").href=i.url;
+  document.getElementById("imgModal").style.display="flex";
+};
       track.appendChild(img);
     });
 
