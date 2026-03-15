@@ -56,16 +56,18 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 }
 .nav-title{
   font-weight:700;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  flex:1;
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
 }
-  @media (max-width:600px){
-  .nav-title{
-    max-width:120px;
-    font-size:14px;
-  }
+
+.nav-title span:first-child{
+  font-size:14px;
+}
+
+#welcomeName{
+  font-size:15px;
+}
 }
 
 /* PROFILE */
@@ -202,8 +204,10 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 <div class="navbar">
   <div class="brand">
     <img id="siteLogo">
-    <div class="nav-title" id="welcomeName">Sadri Villa</div>
-  </div>
+<div class="nav-title">
+  <span>Welcome to Sadri Villa</span>
+  <span id="welcomeName"></span>
+</div>
 
   <div class="profile-wrapper">
     <img id="profilePhoto"
