@@ -29,7 +29,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
-  height:50px;
+  height:70px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -37,7 +37,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   backdrop-filter:blur(8px);
   border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
-  padding:0 0px;
+  padding:0 20px;
 }
 .brand{
   height:50px;
@@ -271,7 +271,7 @@ onAuthStateChanged(auth,user=>{
     const data=snap.data();
 
     document.getElementById("welcomeName").innerText=
-      "Sadri Villa – Welcome "+(data.fullName||"Member");
+      "Welcome to Sadri Villa Mr.  "+(data.fullName||"Member");
 
     if(data.profilePhoto)
       document.getElementById("profilePhoto").src=data.profilePhoto+"?v="+Date.now();
