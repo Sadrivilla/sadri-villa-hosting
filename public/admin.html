@@ -477,20 +477,23 @@ window.confirmAction = async () => {
 
     else if(pendingAction.type === "bulk"){
 
-      for(const id of pendingAction.ids){
+  for(const id of pendingAction.ids){
 
-        if(pendingAction.action === "approve"){
-          await updateDoc(doc(db,"users",id),{approved:true});
-        }
-
-        if(pendingAction.action === "unapprove"){
-          await updateDoc(doc(db,"users",id),{approved:false});
-        }
-
-      
-      }
-
+    if(pendingAction.action === "approve"){
+      await updateDoc(doc(db,"users",id),{approved:true});
     }
+
+    if(pendingAction.action === "unapprove"){
+      await updateDoc(doc(db,"users",id),{approved:false});
+    }
+
+    if(pendingAction.action === "delete"){
+      await deleteDoc(doc(db,"users",id));
+    }
+
+  }
+
+}
 
     else if(pendingAction.type === "role"){
 
@@ -675,6 +678,7 @@ window.deleteUserPhoto = async ()=>{
 
     document.getElementById("confirmDeleteUser").disabled=false;
     document.getElementById("deletePhotoWarning").style.display="none";
+    document.getElementById("deletePhotoBtn").style.display="none";
 
   }catch(e){
 
