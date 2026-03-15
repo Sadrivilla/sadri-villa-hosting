@@ -130,6 +130,12 @@ input[readonly]{
   <input type="file" id="photoInput" accept="image/*">
   <br><br>
   <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
+  <div style="margin-top:12px;width:220px;margin-left:auto;margin-right:auto;">
+  <div class="progress-bar">
+    <div id="photoProgress" class="progress-fill"></div>
+  </div>
+  <div id="photoProgressText" class="progress-text">Waiting...</div>
+</div>
 </div>
 
 <div class="section">
@@ -170,7 +176,7 @@ input[readonly]{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore,doc,getDoc,setDoc,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage,ref,uploadBytes,getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -186,6 +192,8 @@ const storage=getStorage(app);
 let uid,adminValues={},userCustom={},baseUser={};
 
 const loader=document.getElementById("loader");
+  const photoProgress = document.getElementById("photoProgress");
+const photoProgressText = document.getElementById("photoProgressText");
 const photoInput=document.getElementById("photoInput");
 const photoPreview=document.getElementById("photoPreview");
 
@@ -312,18 +320,55 @@ function drawUserCustom(k="",v="",s=false){
   `;
 }
 
-window.savePhoto=async()=>{
+window.savePhoto = async () => {
+
   try{
-    const file=photoInput.files[0];
-    if(!file)return alert("Select image first");
-    loader.style.display="flex";
-    const storageRef=ref(storage,`profilePhotos/${uid}/profile.jpg`);
-    await uploadBytes(storageRef,file);
-    const url=await getDownloadURL(storageRef);
-    await setDoc(doc(db,"users",uid),{profilePhoto:url},{merge:true});
-    loader.style.display="none";
-    showSuccess();
-  }catch(e){loader.style.display="none";showError();}
+
+    const file = photoInput.files[0];
+    if(!file) return alert("Select image first");
+
+    const storageRef = ref(storage,`profilePhotos/${uid}/profile.jpg`);
+    const uploadTask = uploadBytesResumable(storageRef,file);
+
+    photoProgressText.innerText = "Uploading...";
+
+    uploadTask.on("state_changed",
+
+      snap => {
+
+        const percent = Math.round(
+          (snap.bytesTransferred / snap.totalBytes) * 100
+        );
+
+        photoProgress.style.width = percent + "%";
+        photoProgressText.innerText = percent + "% Uploading";
+
+      },
+
+      error => {
+        showError();
+      },
+
+      async () => {
+
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+
+        await setDoc(doc(db,"users",uid),{
+          profilePhoto:url
+        },{merge:true});
+
+        photoProgressText.innerText = "✅ Uploaded";
+
+        showSuccess();
+
+      }
+
+    );
+
+  }catch(e){
+    showError();
+  }
+
 };
 
 window.saveProfile=async()=>{
