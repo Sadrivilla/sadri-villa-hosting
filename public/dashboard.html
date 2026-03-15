@@ -37,14 +37,15 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   backdrop-filter:blur(8px);
   border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
-  padding:0 20px;
+  padding:0 20px 0 0; /* remove left padding */
 }
+
 .brand{
   height:50px;
   display:flex;
   align-items:center;
   gap:10px;
-  padding-left:10px;
+  padding-left:0; /* remove this space */
 }
 .brand img{
   height:50px;
