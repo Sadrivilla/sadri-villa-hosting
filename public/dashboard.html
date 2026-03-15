@@ -29,7 +29,7 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 .navbar{
   position:fixed;
   top:0;left:0;right:0;
-  height:70px;
+  height:50px;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -43,7 +43,8 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   height:50px;
   display:flex;
   align-items:center;
-  gap:15px;
+  gap:10px;
+  padding-left:10px;
 }
 .brand img{
   height:50px;
@@ -51,7 +52,19 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
   object-fit:contain;
   display:none;
 }
-.nav-title{font-weight:700}
+.nav-title{
+  font-weight:700;
+  max-width:160px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+  @media (max-width:600px){
+  .nav-title{
+    max-width:120px;
+    font-size:14px;
+  }
+}
 
 /* PROFILE */
 .profile-wrapper{position:relative;cursor:pointer}
@@ -112,17 +125,27 @@ body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
 
 /* SLIDER EDGE TO EDGE */
 .gallery{
-  width:100vw;
-  margin-left:calc(-50vw + 50%);
+  width:100%;
   background:#f1f5f9;
-  padding:40px 0;
+  padding:40px 15px;
   overflow:hidden;
 }
-.track{
+  .track{
   display:flex;
   gap:20px;
+  padding:0 10px;
   width:max-content;
 }
+@media (max-width:600px){
+
+.track img{
+  width:260px;
+  height:180px;
+  flex-shrink:0;
+}
+
+}
+
 .track.scrolling{animation:scroll linear infinite}
 .track:hover{animation-play-state:paused}
 .track img{
