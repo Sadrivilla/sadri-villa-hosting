@@ -249,13 +249,34 @@ th{background:#f8fafc;text-align:left}
 <div class="loader" id="loader">Loading...</div>
 
 <div class="modal-overlay" id="modal">
-  <div class="modal-box">
-    <h3 id="modalText"></h3>
-    <div class="modal-buttons">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-confirm" onclick="confirmAction()">Confirm</button>
-    </div>
-  </div>
+ 
+<div class="modal-box">
+
+<h3 id="modalText"></h3>
+
+<div id="deletePhotoWarning" style="display:none;margin-top:10px;color:#dc2626;font-size:14px;">
+⚠ Please delete profile photo first
+</div>
+
+<div class="modal-buttons">
+
+<button id="deletePhotoBtn"
+style="display:none;background:#f59e0b;color:#fff;border:none;border-radius:999px;padding:8px 16px;cursor:pointer"
+onclick="deleteUserPhoto()">
+Delete Profile Photo
+</button>
+
+<button class="btn-cancel" onclick="closeModal()">Cancel</button>
+
+<button id="confirmDeleteUser"
+class="btn-confirm"
+disabled
+onclick="confirmAction()">
+Delete User
+</button>
+
+</div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -270,6 +291,9 @@ import {
   getFirestore,collection,onSnapshot,
   doc,getDoc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+  getStorage,ref,deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 import {
   getStorage,ref,deleteObject
@@ -287,6 +311,7 @@ const app=initializeApp({
 
 const auth=getAuth();
 const db=getFirestore();
+  const storage = getStorage(app);
   const storage = getStorage(app);
 
 let users=[];
@@ -408,7 +433,21 @@ window.confirmSingle=(id,isApproved)=>{
 window.confirmBulk=(action)=>{
   const ids=[...document.querySelectorAll(".sel:checked")].map(x=>x.value);
   if(ids.length===0){showToast("Select users first","error");return;}
-  pendingAction={type:"bulk",action,ids};
+pendingAction={type:"bulk",action,ids};
+
+if(action==="delete"){
+
+  const user = users.find(u=>u.uid===ids[0]);
+
+  document.getElementById("modalText").innerText =
+    "Delete user: " + (user?.fullName || "User");
+
+  document.getElementById("deletePhotoWarning").style.display="block";
+  document.getElementById("deletePhotoBtn").style.display="inline-block";
+
+  document.getElementById("confirmDeleteUser").disabled=true;
+
+}
   document.getElementById("modalText").innerText=
     `Confirm ${action.toUpperCase()} for selected users?`;
   document.getElementById("modal").classList.add("active");
@@ -432,9 +471,9 @@ window.confirmAction=async()=>{
           await updateDoc(doc(db,"users",id),{approved:true});
         if(pendingAction.action==="unapprove")
           await updateDoc(doc(db,"users",id),{approved:false});
-     if(pendingAction.action==="delete"){
-
-  const user = users.find(u => u.uid === id);
+if(pendingAction.action==="delete"){
+  await deleteDoc(doc(db,"users",id));
+}
 
   const confirmDelete = confirm(
     `Delete profile photo of ${user.fullName || "this user"} first?`
@@ -614,6 +653,30 @@ function formatLabel(key){
     .replace(/_/g," ")
     .replace(/\b\w/g,l=>l.toUpperCase());
 }
+  /* DELETE PROFILE PHOTO FUNCTION */
+window.deleteUserPhoto = async ()=>{
+
+  const id = pendingAction.ids[0];
+
+  try{
+
+    const photoRef = ref(storage, `profilePhotos/${id}/profile.jpg`);
+
+    await deleteObject(photoRef);
+
+    showToast("Profile photo deleted");
+
+    document.getElementById("confirmDeleteUser").disabled=false;
+    document.getElementById("deletePhotoWarning").style.display="none";
+
+  }catch(e){
+
+    showToast("No profile photo found","error");
+    document.getElementById("confirmDeleteUser").disabled=false;
+
+  }
+
+};
  window.exportPDF = () => {
 
   showLoader();
