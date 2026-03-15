@@ -295,7 +295,8 @@ import {
   doc,getDoc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
-  getStorage,ref,deleteObject
+import {
+  getStorage,ref,deleteObject,getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 
@@ -459,6 +460,10 @@ if(action==="delete"){
 window.closeModal=()=>{
   pendingAction=null;
   document.getElementById("modal").classList.remove("active");
+
+  document.getElementById("deletePhotoWarning").style.display="none";
+  document.getElementById("deletePhotoBtn").style.display="none";
+  document.getElementById("confirmDeleteUser").disabled=true;
 };
 
 window.confirmAction = async () => {
@@ -736,6 +741,16 @@ autoTable(doc, {
   hideLoader();
   showToast("PDF Export Complete");
 };
+  /* LOAD SITE LOGO FROM FIREBASE */
+const logoRef = ref(storage,"images/site/logo/logo.png");
+
+getDownloadURL(logoRef)
+.then(url=>{
+  document.getElementById("siteLogo").src = url;
+})
+.catch(()=>{
+  console.log("Logo not found");
+});
 
 </script>
 
