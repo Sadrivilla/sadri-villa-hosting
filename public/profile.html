@@ -17,6 +17,21 @@ body{margin:0;font-family:Arial;background:#eef6ff}
   transition:.25s;
 }
 .btn:hover{transform:translateY(-2px)}
+  .upload-btn{
+  display:inline-block;
+  background:#2563eb;
+  color:#fff;
+  padding:10px 20px;
+  border-radius:14px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.upload-btn:hover{
+  background:#1d4ed8;
+  transform:translateY(-2px);
+}
 
 .wrap{max-width:1100px;margin:auto;padding:24px}
 .card{
@@ -127,14 +142,20 @@ input[readonly]{
 <div class="photo-section">
   <img id="photoPreview"
    src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
-  <input type="file" id="photoInput" accept="image/*">
-  <br><br>
-  <button class="btn" onclick="savePhoto()">💾 Save Profile Picture</button>
-  <div style="margin-top:12px;width:220px;margin-left:auto;margin-right:auto;">
+ <input type="file" id="photoInput" accept="image/*" hidden>
+
+<label for="photoInput" class="upload-btn">
+  Select Profile Picture
+</label>
+
+<br><br>
+
+<button class="btn" onclick="savePhoto()">Upload Profile Picture</button>
+<div id="photoProgressBox" style="display:none;margin-top:12px;width:260px;margin-left:auto;margin-right:auto;">
   <div class="progress-bar">
     <div id="photoProgress" class="progress-fill"></div>
   </div>
-  <div id="photoProgressText" class="progress-text">Waiting...</div>
+  <div id="photoProgressText" class="progress-text">Uploading...</div>
 </div>
 </div>
 
@@ -194,13 +215,27 @@ let uid,adminValues={},userCustom={},baseUser={};
 const loader=document.getElementById("loader");
   const photoProgress = document.getElementById("photoProgress");
 const photoProgressText = document.getElementById("photoProgressText");
+  const photoProgressBox = document.getElementById("photoProgressBox");
 const photoInput=document.getElementById("photoInput");
 const photoPreview=document.getElementById("photoPreview");
 
 const showSuccess=()=>{const p=document.getElementById("successPopup");p.style.display="block";setTimeout(()=>p.style.display="none",2000);}
 const showError=()=>{const p=document.getElementById("errorPopup");p.style.display="block";setTimeout(()=>p.style.display="none",2000);}
 
-photoInput.onchange=e=>{const file=e.target.files[0];if(file)photoPreview.src=URL.createObjectURL(file);}
+photoInput.onchange = e => {
+
+  const file = e.target.files[0];
+
+  if(file){
+
+    photoPreview.src = URL.createObjectURL(file);
+
+    const label = document.querySelector(".upload-btn");
+    label.innerText = "✅ " + file.name;
+
+  }
+
+};
 
 photoPreview.onclick=()=>{document.getElementById("largeProfileImage").src=photoPreview.src;document.getElementById("imageModal").style.display="flex";}
 window.closeImageModal=()=>{document.getElementById("imageModal").style.display="none";}
@@ -329,6 +364,9 @@ window.savePhoto = async () => {
 
     const storageRef = ref(storage,`profilePhotos/${uid}/profile.jpg`);
     const uploadTask = uploadBytesResumable(storageRef,file);
+    photoProgressBox.style.display = "block";
+photoProgress.style.width = "0%";
+photoProgressText.innerText = "Starting upload...";
 
     photoProgressText.innerText = "Uploading...";
 
@@ -358,6 +396,9 @@ window.savePhoto = async () => {
         },{merge:true});
 
         photoProgressText.innerText = "✅ Uploaded";
+        setTimeout(()=>{
+  photoProgressBox.style.display="none";
+},2000);
 
         showSuccess();
 
