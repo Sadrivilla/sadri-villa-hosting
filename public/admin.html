@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Admin Panel | Sadri Villa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="logo.png">
+
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -251,7 +253,8 @@ th{background:#f8fafc;text-align:left}
 <div class="modal-overlay" id="modal">
  
 <div class="modal-box">
-
+</div>
+</div>
 <h3 id="modalText"></h3>
 
 <div id="deletePhotoWarning" style="display:none;margin-top:10px;color:#dc2626;font-size:14px;">
@@ -302,9 +305,10 @@ import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 
 const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  apiKey:"...",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
+  projectId:"sadri-villa-14c06",
+  storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 
 const auth=getAuth();
@@ -441,12 +445,14 @@ if(action==="delete"){
 
   document.getElementById("deletePhotoWarning").style.display="block";
   document.getElementById("deletePhotoBtn").style.display="inline-block";
-
   document.getElementById("confirmDeleteUser").disabled=true;
 
-}
-  document.getElementById("modalText").innerText=
+}else{
+
+  document.getElementById("modalText").innerText =
     `Confirm ${action.toUpperCase()} for selected users?`;
+
+}
   document.getElementById("modal").classList.add("active");
 };
 
@@ -455,52 +461,62 @@ window.closeModal=()=>{
   document.getElementById("modal").classList.remove("active");
 };
 
-window.confirmAction=async()=>{
+window.confirmAction = async () => {
+
   showLoader();
-  try{
-    if(pendingAction.type==="single"){
-      await updateDoc(doc(db,"users",pendingAction.id),
-        {approved:!pendingAction.isApproved});
+
+  try {
+
+    if(pendingAction.type === "single"){
+
+      await updateDoc(doc(db,"users",pendingAction.id),{
+        approved: !pendingAction.isApproved
+      });
+
     }
-    else if(pendingAction.type==="bulk"){
+
+    else if(pendingAction.type === "bulk"){
+
       for(const id of pendingAction.ids){
-        if(pendingAction.action==="approve")
+
+        if(pendingAction.action === "approve"){
           await updateDoc(doc(db,"users",id),{approved:true});
-        if(pendingAction.action==="unapprove")
+        }
+
+        if(pendingAction.action === "unapprove"){
           await updateDoc(doc(db,"users",id),{approved:false});
-if(pendingAction.action==="delete"){
-  await deleteDoc(doc(db,"users",id));
-}
+        }
 
-else if(pendingAction.type==="bulk"){
-  for(const id of pendingAction.ids){
+        if(pendingAction.action === "delete"){
+          await deleteDoc(doc(db,"users",id));
+        }
 
-    if(pendingAction.action==="approve")
-      await updateDoc(doc(db,"users",id),{approved:true});
-
-    if(pendingAction.action==="unapprove")
-      await updateDoc(doc(db,"users",id),{approved:false});
-
-    if(pendingAction.action==="delete")
-      await deleteDoc(doc(db,"users",id));
-
-  }
-}
-
-}
       }
+
     }
-    else if(pendingAction.type==="role"){
-      await updateDoc(doc(db,"users",pendingAction.uid),
-        {role:pendingAction.newRole});
+
+    else if(pendingAction.type === "role"){
+
+      await updateDoc(
+        doc(db,"users",pendingAction.uid),
+        { role: pendingAction.newRole }
+      );
+
     }
+
     showToast("Action completed successfully");
+
   }
   catch(e){
+
+    console.error(e);
     showToast("Something went wrong","error");
+
   }
+
   hideLoader();
   closeModal();
+
 };
 
 function showLoader(){
