@@ -322,12 +322,39 @@ let users=[];
 let pendingAction=null;
 
 /* AUTH CHECK */
-onAuthStateChanged(auth,async user=>{
-  if(!user){location.href="login.html";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().role!=="admin"){
-    location.href="dashboard.html";return;
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+    console.log("No user session found");
+    return; // stop redirect loop
   }
+
+  try {
+
+    const snap = await getDoc(doc(db,"users",user.uid));
+
+    if (!snap.exists()) {
+      console.log("User document missing");
+      location.href = "login.html";
+      return;
+    }
+
+    const data = snap.data();
+
+    if (data.role !== "admin") {
+      location.href = "dashboard.html";
+      return;
+    }
+
+    console.log("Admin authenticated");
+
+  } catch (error) {
+
+    console.error("Auth check failed", error);
+    location.href = "login.html";
+
+  }
+
 });
 
 /* REALTIME USERS */
