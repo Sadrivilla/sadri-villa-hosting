@@ -150,11 +150,15 @@ input[readonly]{
 
 <br><br>
 
-<button class="btn" onclick="savePhoto()">Upload Profile Picture</button>
-<div id="photoProgressBox" style="display:none;margin-top:12px;width:260px;margin-left:auto;margin-right:auto;">
-  <div class="progress-bar">
-    <div id="photoProgress" class="progress-fill"></div>
-  </div>
+<button id="uploadPhotoBtn" class="btn" onclick="savePhoto()" style="display:none">
+Upload Profile Picture
+</button>
+  <div id="photoProgressBox" style="display:none;margin-top:12px;width:260px;margin-left:auto;margin-right:auto;">
+<div style="height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden">
+    <div id="photoProgress"
+         style="height:100%;width:0%;background:#2563eb;transition:width .3s">
+    </div>
+</div>
   <div id="photoProgressText" class="progress-text">Uploading...</div>
 </div>
 </div>
@@ -232,6 +236,8 @@ photoInput.onchange = e => {
 
     const label = document.querySelector(".upload-btn");
     label.innerText = "✅ " + file.name;
+
+    document.getElementById("uploadPhotoBtn").style.display = "inline-block";
 
   }
 
@@ -396,6 +402,8 @@ photoProgressText.innerText = "Starting upload...";
         },{merge:true});
 
         photoProgressText.innerText = "✅ Uploaded";
+        document.getElementById("uploadPhotoBtn").style.display = "none";
+photoInput.value = "";
         setTimeout(()=>{
   photoProgressBox.style.display="none";
 },2000);
