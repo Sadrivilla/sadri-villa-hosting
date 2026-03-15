@@ -155,13 +155,7 @@ scrollbar-width:none;
 }
 
 }
-  @media (max-width:600px){
 
-.modal-content img{
-  max-width:85%;
-}
-
-}
 
 .track.scrolling{animation:scroll linear infinite}
 .track:hover{animation-play-state:paused}
@@ -215,11 +209,14 @@ scrollbar-width:none;
   color:#000;
 }
 .modal-content img{
-  max-width:85%;
-  border-radius:15px;
+  max-width:90%;
+  max-height:70vh;
+  border-radius:12px;
   border:1px solid #38bdf8;
   display:block;
-  margin:auto;
+  margin:15px auto;
+  background:#fff;
+  padding:2px;
 }
   .download-btn{
   display:inline-block;margin-top:10px;
@@ -447,7 +444,7 @@ img.onclick=()=>{
   document.getElementById("modalImg").src=i.url;
 const link=document.getElementById("downloadLink");
 link.href=i.url;
-link.setAttribute("download","sadri-villa-image");
+link.setAttribute("download","sadri-villa-image.jpg");
   document.getElementById("imgModal").style.display="flex";
 };
       track.appendChild(img);
@@ -470,7 +467,6 @@ link.setAttribute("download","sadri-villa-image");
   /* TOUCH SWIPE FOR GALLERY */
 
 const gallery = document.querySelector(".gallery");
-const track = document.getElementById("galleryTrack");
 
 let isDown=false;
 let startX;
