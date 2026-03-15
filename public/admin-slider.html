@@ -36,6 +36,57 @@ button{padding:6px 10px;border:none;border-radius:10px;cursor:pointer;background
 .center-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .success{color:#16a34a}
 .error{color:#dc2626}
+ .confirm-modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.45);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ z-index:9998;
+ visibility:hidden;
+ opacity:0;
+ transition:.25s;
+}
+
+.confirm-modal.show{
+ visibility:visible;
+ opacity:1;
+}
+
+.confirm-box{
+ background:#fff;
+ padding:28px;
+ border-radius:16px;
+ text-align:center;
+ width:320px;
+ box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.confirm-buttons{
+ margin-top:18px;
+ display:flex;
+ gap:10px;
+ justify-content:center;
+}
+
+.confirm-buttons button{
+ padding:8px 16px;
+ border:none;
+ border-radius:8px;
+ cursor:pointer;
+ font-weight:600;
+}
+
+.danger{
+ background:#dc2626;
+ color:#fff;
+}
+
+.cancel{
+ background:#e5e7eb;
+ color:#111;
+}
 </style>
 </head>
 
@@ -61,6 +112,16 @@ button{padding:6px 10px;border:none;border-radius:10px;cursor:pointer;background
 </div>
 
 <div id="popup" class="center-popup"></div>
+ <div id="confirmModal" class="confirm-modal">
+  <div class="confirm-box">
+    <h3>Delete Image</h3>
+    <p>Are you sure you want to delete this slider image?</p>
+    <div class="confirm-buttons">
+      <button id="confirmDelete" class="danger">Delete</button>
+      <button id="cancelDelete" class="cancel">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- ✅ THIS WAS MISSING -->
 <script type="module">
@@ -87,6 +148,11 @@ const previewGrid = document.getElementById("previewGrid");
 const uploadBtn = document.getElementById("uploadBtn");
 const sliderList = document.getElementById("sliderList");
 const popup = document.getElementById("popup");
+ const confirmModal = document.getElementById("confirmModal");
+const confirmDeleteBtn = document.getElementById("confirmDelete");
+const cancelDeleteBtn = document.getElementById("cancelDelete");
+
+let deleteIndex = null;
 
 let sliderImages = [];
 let selectedFiles = [];
@@ -172,6 +238,8 @@ function render() {
 
 /* UPLOAD */
 uploadBtn.addEventListener("click", async () => {
+ uploadBtn.disabled = true;
+uploadBtn.innerText = "Uploading...";
   if (!selectedFiles.length) return;
 
   let startOrder = sliderImages.length
@@ -217,6 +285,8 @@ const progressText = previewGrid.children[i].querySelector(".progress-text");
   previewGrid.innerHTML = "";
   uploadBtn.style.display = "none";
   showPopup("Images uploaded successfully");
+ uploadBtn.disabled = false;
+uploadBtn.innerText = "Upload Images";
 });
 
 /* MOVE */
@@ -236,16 +306,37 @@ window.toggle = async (i) => {
   await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
 };
 
-/* DELETE */
-window.removeImg = async (i) => {
-  if (!confirm("Delete this image?")) return;
+/* DELETE WITH PROFESSIONAL CONFIRM MODAL */
 
+window.removeImg = (i) => {
+  deleteIndex = i;
+  confirmModal.classList.add("show");
+};
+
+cancelDeleteBtn.onclick = () => {
+  confirmModal.classList.remove("show");
+  deleteIndex = null;
+};
+
+confirmDeleteBtn.onclick = async () => {
+
+  if(deleteIndex === null) return;
+
+  const i = deleteIndex;
   const url = sliderImages[i].url;
-  sliderImages.splice(i, 1);
-  await updateDoc(doc(db, "siteSettings", "home"), { sliderImages });
+
+  sliderImages.splice(i,1);
+
+  await updateDoc(doc(db,"siteSettings","home"),{sliderImages});
 
   const path = decodeURIComponent(url.split("/o/")[1].split("?")[0]);
-  await deleteObject(ref(storage, path));
+  await deleteObject(ref(storage,path));
+
+  confirmModal.classList.remove("show");
+
+showPopup("Slider image deleted successfully", "success");
+  deleteIndex = null;
+
 };
 
 </script>
