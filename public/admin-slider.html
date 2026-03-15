@@ -17,6 +17,11 @@ body{margin:0;font-family:Arial;background:#eef2ff}
 .preview-item img{width:100%;height:120px;object-fit:cover;border-radius:12px}
 .progress-bar{height:8px;background:#e5e7eb;border-radius:10px;margin-top:6px;overflow:hidden}
 .progress-fill{height:100%;width:0%;background:#2563eb}
+ .progress-text{
+  font-size:12px;
+  margin-top:4px;
+  color:#475569;
+}
 button{padding:6px 10px;border:none;border-radius:10px;cursor:pointer;background:#2563eb;color:#fff;font-size:12px}
 .item{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;margin-bottom:10px;background:#f8fafc}
 .item.enabled{background:#dcfce7}
@@ -115,13 +120,14 @@ fileInput.addEventListener("change", e => {
   selectedFiles.forEach(file => {
     const reader = new FileReader();
     reader.onload = ev => {
-      previewGrid.innerHTML += `
-        <div class="preview-item">
-          <img src="${ev.target.result}">
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
-          </div>
-        </div>`;
+previewGrid.innerHTML += `
+  <div class="preview-item">
+    <img src="${ev.target.result}">
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+    <div class="progress-text">Waiting...</div>
+  </div>`;
     };
     reader.readAsDataURL(file);
   });
@@ -176,17 +182,25 @@ uploadBtn.addEventListener("click", async () => {
     const file = selectedFiles[i];
     const fileRef = ref(storage, `images/site/slider/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(fileRef, file);
-    const progressFill = previewGrid.children[i].querySelector(".progress-fill");
+   const progressFill = previewGrid.children[i].querySelector(".progress-fill");
+const progressText = previewGrid.children[i].querySelector(".progress-text");
 
     await new Promise((resolve, reject) => {
       uploadTask.on("state_changed",
-        snap => {
-          progressFill.style.width =
-            (snap.bytesTransferred / snap.totalBytes) * 100 + "%";
-        },
+ snap => {
+
+  const percent = Math.round(
+    (snap.bytesTransferred / snap.totalBytes) * 100
+  );
+
+  progressFill.style.width = percent + "%";
+  progressText.innerText = percent + "% Uploading";
+
+},
         reject,
         async () => {
           const url = await getDownloadURL(uploadTask.snapshot.ref);
+         progressText.innerText = "✅ Uploaded";
           sliderImages.push({
             url,
             order: startOrder++,
