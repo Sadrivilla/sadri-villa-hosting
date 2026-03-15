@@ -251,35 +251,35 @@ th{background:#f8fafc;text-align:left}
 <div class="loader" id="loader">Loading...</div>
 
 <div class="modal-overlay" id="modal">
- 
-<div class="modal-box">
-</div>
-</div>
-<h3 id="modalText"></h3>
+  <div class="modal-box">
 
-<div id="deletePhotoWarning" style="display:none;margin-top:10px;color:#dc2626;font-size:14px;">
-⚠ Please delete profile photo first
-</div>
+    <h3 id="modalText"></h3>
 
-<div class="modal-buttons">
+    <div id="deletePhotoWarning"
+    style="display:none;margin-top:10px;color:#dc2626;font-size:14px;">
+      ⚠ Please delete profile photo first
+    </div>
 
-<button id="deletePhotoBtn"
-style="display:none;background:#f59e0b;color:#fff;border:none;border-radius:999px;padding:8px 16px;cursor:pointer"
-onclick="deleteUserPhoto()">
-Delete Profile Photo
-</button>
+    <div class="modal-buttons">
 
-<button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button id="deletePhotoBtn"
+      style="display:none;background:#f59e0b;color:#fff;border:none;border-radius:999px;padding:8px 16px;cursor:pointer"
+      onclick="deleteUserPhoto()">
+      Delete Profile Photo
+      </button>
 
-<button id="confirmDeleteUser"
-class="btn-confirm"
-disabled
-onclick="confirmAction()">
-Delete User
-</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
 
-</div>
+      <button id="confirmDeleteUser"
+      class="btn-confirm"
+      disabled
+      onclick="confirmAction()">
+      Delete User
+      </button>
 
+    </div>
+
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
