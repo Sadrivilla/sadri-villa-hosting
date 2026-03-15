@@ -309,8 +309,7 @@ const app=initializeApp({
 
 const auth=getAuth();
 const db=getFirestore();
-  const storage = getStorage(app);
-  const storage = getStorage(app);
+const storage = getStorage(app);
 
 let users=[];
 let pendingAction=null;
@@ -473,23 +472,20 @@ if(pendingAction.action==="delete"){
   await deleteDoc(doc(db,"users",id));
 }
 
-  const confirmDelete = confirm(
-    `Delete profile photo of ${user.fullName || "this user"} first?`
-  );
+else if(pendingAction.type==="bulk"){
+  for(const id of pendingAction.ids){
 
-  if(confirmDelete){
+    if(pendingAction.action==="approve")
+      await updateDoc(doc(db,"users",id),{approved:true});
 
-    try{
-      const photoRef = ref(storage, `profilePhotos/${id}/profile.jpg`);
-      await deleteObject(photoRef);
-      showToast("Profile photo deleted");
-    }catch(e){
-      console.log("No profile photo found");
-    }
+    if(pendingAction.action==="unapprove")
+      await updateDoc(doc(db,"users",id),{approved:false});
+
+    if(pendingAction.action==="delete")
+      await deleteDoc(doc(db,"users",id));
 
   }
-
-  await deleteDoc(doc(db,"users",id));
+}
 
 }
       }
