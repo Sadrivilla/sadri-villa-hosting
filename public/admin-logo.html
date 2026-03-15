@@ -114,9 +114,10 @@ button {
   <div id="logoPreviewName"
        style="font-size:12px;margin-top:8px;color:#475569;"></div>
 </div>
-  <button id="uploadBtn" onclick="uploadLogo()">Upload Logo</button>
-
-<div style="margin-top:12px">
+<button id="uploadBtn" onclick="uploadLogo()" disabled style="opacity:.5;cursor:not-allowed">
+Upload Logo
+</button>
+<div id="progressBox" style="margin-top:12px;display:none">
   <div style="height:8px;background:#e5e7eb;border-radius:10px;overflow:hidden">
     <div id="progressFill" style="height:100%;width:0%;background:#2563eb"></div>
   </div>
@@ -143,7 +144,8 @@ button {
 firebase.initializeApp({
   apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain: "sadri-villa-14c06.firebaseapp.com",
-  projectId: "sadri-villa-14c06"
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.firebasestorage.app"
 });
 
 const db = firebase.firestore();
@@ -178,6 +180,9 @@ uploadBox.addEventListener("drop",e=>{
     previewImg.src = ev.target.result;
     previewName.innerText = file.name;
     previewBox.style.display = "block";
+    document.getElementById("uploadBtn").disabled = false;
+document.getElementById("uploadBtn").style.opacity = "1";
+document.getElementById("uploadBtn").style.cursor = "pointer";
   };
 
   reader.readAsDataURL(file);
@@ -198,6 +203,9 @@ logoInput.addEventListener("change", () => {
     previewImg.src = e.target.result;
     previewName.innerText = file.name;
     previewBox.style.display = "block";
+    document.getElementById("uploadBtn").disabled = false;
+document.getElementById("uploadBtn").style.opacity = "1";
+document.getElementById("uploadBtn").style.cursor = "pointer";
   };
 
   reader.readAsDataURL(file);
@@ -262,6 +270,7 @@ async function uploadLogo(){
   const file = document.getElementById("logoInput").files[0];
   const msg = document.getElementById("logoMsg");
   const progressFill = document.getElementById("progressFill");
+  const progressBox = document.getElementById("progressBox");
   const progressText = document.getElementById("progressText");
   const uploadBtn = document.getElementById("uploadBtn");
 
@@ -278,6 +287,9 @@ async function uploadLogo(){
   }
 
   uploadBtn.disabled=true;
+  progressBox.style.display = "block";
+progressFill.style.width = "0%";
+progressText.innerText = "Starting upload...";
 
  const logoFolder = storage.ref("images/site/logo");
 const storageRef = logoFolder.child(Date.now() + "-" + file.name);
@@ -346,6 +358,9 @@ try{
       uploadBtn.disabled=false;
 
       document.getElementById("logoInput").value="";
+      uploadBtn.disabled = true;
+uploadBtn.style.opacity = ".5";
+uploadBtn.style.cursor = "not-allowed";
       previewBox.style.display="none";
 
     }
