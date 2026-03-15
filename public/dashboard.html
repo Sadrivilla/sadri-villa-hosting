@@ -525,7 +525,17 @@ document.addEventListener("click",(e)=>{
   /* TOUCH SWIPE FOR GALLERY */
 
 const gallery = document.querySelector(".gallery");
+/* DESKTOP HOVER CONTROL */
 
+gallery.addEventListener("mouseenter",()=>{
+  track.style.animationPlayState="paused";
+});
+
+gallery.addEventListener("mouseleave",()=>{
+  if(modal.style.display!=="flex"){
+    track.style.animationPlayState="running";
+  }
+});
 let isDown=false;
 let startX;
 let scrollLeft;
@@ -561,19 +571,18 @@ function showImage(index){
 
   const link = document.getElementById("downloadLink");
 
-  link.onclick = async ()=>{
+link.onclick = ()=>{
 
-    const response = await fetch(url);
-    const blob = await response.blob();
+  const a = document.createElement("a");
 
-    const downloadUrl = window.URL.createObjectURL(blob);
+  a.href = url;
+  a.download = "sadri-villa-"+(currentIndex+1)+".jpg";
 
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-a.download = "sadri-villa-"+(currentIndex+1)+".jpg";
-    a.click();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
-  };
+};
 
 }
   document.addEventListener("keydown",(e)=>{
