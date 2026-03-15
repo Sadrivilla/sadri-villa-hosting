@@ -114,7 +114,7 @@ button {
   <div id="logoPreviewName"
        style="font-size:12px;margin-top:8px;color:#475569;"></div>
 </div>
-<button id="uploadBtn" onclick="uploadLogo()" disabled style="opacity:.5;cursor:not-allowed">
+<button id="uploadBtn" onclick="uploadLogo()" style="display:none">
 Upload Logo
 </button>
 <div id="progressBox" style="margin-top:12px;display:none">
@@ -180,6 +180,7 @@ uploadBox.addEventListener("drop",e=>{
     previewImg.src = ev.target.result;
     previewName.innerText = file.name;
     previewBox.style.display = "block";
+    document.getElementById("uploadBtn").style.display = "inline-block";
     document.getElementById("uploadBtn").disabled = false;
 document.getElementById("uploadBtn").style.opacity = "1";
 document.getElementById("uploadBtn").style.cursor = "pointer";
@@ -203,6 +204,7 @@ logoInput.addEventListener("change", () => {
     previewImg.src = e.target.result;
     previewName.innerText = file.name;
     previewBox.style.display = "block";
+    document.getElementById("uploadBtn").style.display = "inline-block";
     document.getElementById("uploadBtn").disabled = false;
 document.getElementById("uploadBtn").style.opacity = "1";
 document.getElementById("uploadBtn").style.cursor = "pointer";
@@ -362,6 +364,7 @@ try{
 uploadBtn.style.opacity = ".5";
 uploadBtn.style.cursor = "not-allowed";
       previewBox.style.display="none";
+      document.getElementById("uploadBtn").style.display="none";
 
     }
 
