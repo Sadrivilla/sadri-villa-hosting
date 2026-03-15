@@ -487,10 +487,7 @@ window.confirmAction = async () => {
           await updateDoc(doc(db,"users",id),{approved:false});
         }
 
-        if(pendingAction.action === "delete"){
-          await deleteDoc(doc(db,"users",id));
-        }
-
+      
       }
 
     }
