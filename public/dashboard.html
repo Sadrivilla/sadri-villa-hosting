@@ -183,7 +183,8 @@ scrollbar-width:none;
 /* IMAGE MODAL */
 .modal{
   position:fixed;inset:0;
-  background:rgba(0,0,0,.6);
+background:rgba(0,0,0,.75);
+backdrop-filter:blur(4px);
   display:none;justify-content:center;align-items:center
 }
 .modal-content{
@@ -193,16 +194,26 @@ scrollbar-width:none;
   border-radius:20px;
   text-align:center;
   box-shadow:0 20px 60px rgba(0,0,0,0.3);
-  max-width:95%;
+  max-width:700px;
+  width:90%;
 }
-  .close-btn{
+.close-btn{
   position:absolute;
-  top:10px;
-  right:15px;
-  font-size:22px;
+  top:12px;
+  right:12px;
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
   font-weight:bold;
   cursor:pointer;
-  color:#555;
+  color:#333;
+  background:white;
+  border-radius:50%;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:5;
 }
 
 .close-btn:hover{
