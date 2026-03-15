@@ -338,6 +338,7 @@ const db=getFirestore(app);
 
 const loader=document.getElementById("loader");
 const body=document.body;
+  const track=document.getElementById("galleryTrack");
 
 function formatDate(date){
   const d=new Date(date);
@@ -424,7 +425,6 @@ onAuthStateChanged(auth,user=>{
     }
 
     const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
-    const track=document.getElementById("galleryTrack");
     track.innerHTML="";
     const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
