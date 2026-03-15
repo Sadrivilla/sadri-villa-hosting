@@ -219,6 +219,34 @@ scrollbar-width:none;
   box-shadow:0 6px 15px rgba(0,0,0,0.25);
   z-index:10;
 }
+  .nav-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  background:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:20px;
+  font-weight:bold;
+  box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+.prev{
+  left:-20px;
+}
+
+.next{
+  right:-20px;
+}
+
+.nav-btn:hover{
+  background:#f1f5f9;
+}
 
 .close-btn:hover{
   color:#000;
@@ -323,9 +351,13 @@ scrollbar-width:none;
 
   <span class="close-btn" id="closeModal">✕</span>
 
+  <span class="nav-btn prev" id="prevImg">❮</span>
+  <span class="nav-btn next" id="nextImg">❯</span>
+
   <img id="modalImg">
+
   <br>
-  <a id="downloadLink" class="download-btn" download>Download</a>
+  <a id="downloadLink" class="download-btn">Download</a>
 
 </div>
 </div>
@@ -355,6 +387,9 @@ const db=getFirestore(app);
 const loader=document.getElementById("loader");
 const body=document.body;
   const track=document.getElementById("galleryTrack");
+  const modal=document.getElementById("imgModal");
+  let images = [];
+let currentIndex = 0;
 
 function formatDate(date){
   const d=new Date(date);
@@ -441,6 +476,7 @@ onAuthStateChanged(auth,user=>{
     }
 
     const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
+    images = imgs;
     track.innerHTML="";
     const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
@@ -448,6 +484,8 @@ onAuthStateChanged(auth,user=>{
       const img=document.createElement("img");
       img.src=i.url;
 img.onclick=()=>{
+
+  currentIndex = imgs.indexOf(i);
 
   track.style.animationPlayState="paused";
 
@@ -457,12 +495,11 @@ img.onclick=()=>{
 
   img.classList.add("active");
 
-  document.getElementById("modalImg").src=i.url;
-const link=document.getElementById("downloadLink");
-link.href=i.url;
-link.setAttribute("download","sadri-villa-image.jpg");
-document.getElementById("imgModal").style.display="flex";
-document.body.style.overflow="hidden";
+  showImage(currentIndex);
+
+  modal.style.display="flex";
+  document.body.style.overflow="hidden";
+
 };
       track.appendChild(img);
     });
@@ -476,10 +513,14 @@ document.body.style.overflow="hidden";
     }
   });
 });
-  document.addEventListener("click",(e)=>{
-  if(!e.target.closest(".gallery") && !e.target.closest(".modal")){
+document.addEventListener("click",(e)=>{
+
+  if(modal.style.display==="flex") return;
+
+  if(!e.target.closest(".gallery")){
     track.style.animationPlayState="running";
   }
+
 });
   /* TOUCH SWIPE FOR GALLERY */
 
@@ -507,7 +548,66 @@ gallery.addEventListener("touchend",()=>{
   isDown=false;
   track.style.animationPlayState="running";
 });
+function showImage(index){
 
+  if(index < 0) index = images.length-1;
+  if(index >= images.length) index = 0;
+
+  currentIndex = index;
+
+  const url = images[index].url;
+
+  document.getElementById("modalImg").src = url;
+
+  const link = document.getElementById("downloadLink");
+
+  link.onclick = async ()=>{
+
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+a.download = "sadri-villa-"+(currentIndex+1)+".jpg";
+    a.click();
+
+  };
+
+}
+  document.addEventListener("keydown",(e)=>{
+
+  if(modal.style.display!=="flex") return;
+
+  if(e.key==="ArrowRight"){
+    showImage(currentIndex+1);
+  }
+
+  if(e.key==="ArrowLeft"){
+    showImage(currentIndex-1);
+  }
+
+});
+  let startTouchX = 0;
+
+modal.addEventListener("touchstart",(e)=>{
+  startTouchX = e.touches[0].clientX;
+});
+
+modal.addEventListener("touchend",(e)=>{
+
+  let endX = e.changedTouches[0].clientX;
+
+  if(startTouchX - endX > 50){
+    showImage(currentIndex+1);
+  }
+
+  if(endX - startTouchX > 50){
+    showImage(currentIndex-1);
+  }
+
+});
 /* PROFILE DROPDOWN */
 document.getElementById("profilePhoto").onclick=(e)=>{
   e.stopPropagation();
@@ -517,7 +617,12 @@ document.addEventListener("click",()=>{
   document.getElementById("profileCard").classList.remove("show");
 });
 /* IMAGE MODAL */
-const modal=document.getElementById("imgModal");
+  document.getElementById("prevImg").onclick=()=>{
+  showImage(currentIndex-1);
+};
+  document.getElementById("nextImg").onclick=()=>{
+  showImage(currentIndex+1);
+};
 
 modal.onclick=(e)=>{
   if(e.target===modal){
@@ -529,6 +634,7 @@ document.body.style.overflow="auto";
 
 document.getElementById("closeModal").onclick=()=>{
   modal.style.display="none";
+  document.body.style.overflow="auto";
   track.style.animationPlayState="running";
 };
 
