@@ -354,8 +354,7 @@ scrollbar-width:none;
   <span class="nav-btn prev" id="prevImg">❮</span>
   <span class="nav-btn next" id="nextImg">❯</span>
 
-  <img id="modalImg">
-
+<img id="modalImg" crossorigin="anonymous">
   <br>
 <a id="downloadLink" class="download-btn" href="#">Download</a>
 </div>
@@ -573,36 +572,18 @@ function showImage(index){
 
   const link = document.getElementById("downloadLink");
 
-link.onclick = async (e)=>{
+link.onclick = (e)=>{
 
   e.preventDefault();
 
-  try{
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sadri-villa-image-" + Date.now() + ".jpg";
+  a.target = "_blank";
 
-    const path = decodeURIComponent(
-      url.split("/o/")[1].split("?")[0]
-    );
-
-    const fileRef = ref(storage, path);
-
-    const blob = await getBlob(fileRef);
-
-    const blobUrl = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = "sadri-villa-image-" + Date.now() + ".jpg";
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(blobUrl);
-
-  }catch(err){
-    alert("Download failed");
-    console.error(err);
-  }
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
 };
 }
