@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -354,7 +355,8 @@ scrollbar-width:none;
   <span class="nav-btn prev" id="prevImg">❮</span>
   <span class="nav-btn next" id="nextImg">❯</span>
 
-<img id="modalImg" crossorigin="anonymous">
+  <img id="modalImg">
+
   <br>
 <a id="downloadLink" class="download-btn" href="#">Download</a>
 </div>
@@ -379,7 +381,7 @@ const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06",
-storageBucket:"sadri-villa-14c06.appspot.com"
+  storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 const auth=getAuth(app);
 const db=getFirestore(app);
@@ -572,18 +574,36 @@ function showImage(index){
 
   const link = document.getElementById("downloadLink");
 
-link.onclick = (e)=>{
+link.onclick = async (e)=>{
 
   e.preventDefault();
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "sadri-villa-image-" + Date.now() + ".jpg";
-  a.target = "_blank";
+  try{
 
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+    const path = decodeURIComponent(
+      url.split("/o/")[1].split("?")[0]
+    );
+
+    const fileRef = ref(storage, path);
+
+    const blob = await getBlob(fileRef);
+
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = "sadri-villa-image-" + Date.now() + ".jpg";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(blobUrl);
+
+  }catch(err){
+    alert("Download failed");
+    console.error(err);
+  }
 
 };
 }
