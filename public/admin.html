@@ -270,6 +270,10 @@ import {
   getFirestore,collection,onSnapshot,
   doc,getDoc,updateDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  getStorage,ref,deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 
@@ -283,6 +287,7 @@ const app=initializeApp({
 
 const auth=getAuth();
 const db=getFirestore();
+  const storage = getStorage(app);
 
 let users=[];
 let pendingAction=null;
@@ -427,8 +432,29 @@ window.confirmAction=async()=>{
           await updateDoc(doc(db,"users",id),{approved:true});
         if(pendingAction.action==="unapprove")
           await updateDoc(doc(db,"users",id),{approved:false});
-        if(pendingAction.action==="delete")
-          await deleteDoc(doc(db,"users",id));
+     if(pendingAction.action==="delete"){
+
+  const user = users.find(u => u.uid === id);
+
+  const confirmDelete = confirm(
+    `Delete profile photo of ${user.fullName || "this user"} first?`
+  );
+
+  if(confirmDelete){
+
+    try{
+      const photoRef = ref(storage, `profilePhotos/${id}/profile.jpg`);
+      await deleteObject(photoRef);
+      showToast("Profile photo deleted");
+    }catch(e){
+      console.log("No profile photo found");
+    }
+
+  }
+
+  await deleteDoc(doc(db,"users",id));
+
+}
       }
     }
     else if(pendingAction.type==="role"){
