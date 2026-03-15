@@ -311,7 +311,7 @@ const app=initializeApp({
   apiKey:"...",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.firebasestorage.app"
+storageBucket:"sadri-villa-14c06.appspot.com"
 });
 
 const auth = getAuth(app);
@@ -325,8 +325,8 @@ let pendingAction=null;
 onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
-    console.log("No user session found");
-    return; // stop redirect loop
+    location.href = "login.html";
+    return;
   }
 
   try {
@@ -334,7 +334,6 @@ onAuthStateChanged(auth, async (user) => {
     const snap = await getDoc(doc(db,"users",user.uid));
 
     if (!snap.exists()) {
-      console.log("User document missing");
       location.href = "login.html";
       return;
     }
@@ -348,9 +347,12 @@ onAuthStateChanged(auth, async (user) => {
 
     console.log("Admin authenticated");
 
+    // 🔥 START LOADING USERS AFTER ADMIN VERIFIED
+    loadUsers();
+
   } catch (error) {
 
-    console.error("Auth check failed", error);
+    console.error(error);
     location.href = "login.html";
 
   }
@@ -358,22 +360,33 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* REALTIME USERS */
-onSnapshot(collection(db,"users"),snap=>{
-  users=[];
-  snap.forEach(d=>users.push({uid:d.id,...d.data()}));
-users.sort((a,b)=>{
-  const dateA = a.createdAt?.seconds
-    ? a.createdAt.seconds * 1000
-    : new Date(a.createdAt || 0).getTime();
+function loadUsers(){
 
-  const dateB = b.createdAt?.seconds
-    ? b.createdAt.seconds * 1000
-    : new Date(b.createdAt || 0).getTime();
+  onSnapshot(collection(db,"users"), snap => {
 
-  return dateB - dateA;
-});
-  render();
-});
+    users = [];
+
+    snap.forEach(d => users.push({uid:d.id,...d.data()}));
+
+    users.sort((a,b)=>{
+
+      const dateA = a.createdAt?.seconds
+        ? a.createdAt.seconds * 1000
+        : new Date(a.createdAt || 0).getTime();
+
+      const dateB = b.createdAt?.seconds
+        ? b.createdAt.seconds * 1000
+        : new Date(b.createdAt || 0).getTime();
+
+      return dateB - dateA;
+
+    });
+
+    render();
+
+  });
+
+}
 
 function formatDate(v){
   if(!v) return "-";
