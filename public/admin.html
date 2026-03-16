@@ -439,7 +439,8 @@ window.render=()=>{
       <td><input type="checkbox" class="sel" value="${u.uid}"></td>
       <td>${i+1}</td>
       <td>${u.fullName||"-"}</td>
-      <td><button class="uid-btn" onclick="copyUID('${u.uid}')">Copy UID</button></td>
+      <td><button class="uid-btn" onclick="copyUID('${u.uid}')">Copy</button>
+<button class="uid-btn" onclick="openFirebaseAuth('${u.uid}')">Open</button></td>
       <td>${u.email||"-"}</td>
       <td>${u.phone||"-"}</td>
       <td>
@@ -468,6 +469,20 @@ window.copyUID=(uid)=>{
   navigator.clipboard.writeText(uid);
   showToast("UID copied");
 };
+  window.openFirebaseAuth = (uid) => {
+
+  // Step 1: Copy UID automatically
+  navigator.clipboard.writeText(uid);
+
+  // Step 2: Open Firebase Authentication page
+  window.open(
+    "https://console.firebase.google.com/project/sadri-villa-14c06/authentication/users",
+    "_blank"
+  );
+
+  // Step 3: Show message
+showToast("UID copied ✔ Open Firebase → Login → Paste UID");
+  };
 
 window.confirmRoleChange=(uid,oldRole,selectEl)=>{
   const newRole=selectEl.value;
@@ -486,6 +501,7 @@ window.confirmSingle=(id,isApproved)=>{
   pendingAction={type:"single",id,isApproved};
   document.getElementById("modalText").innerText=
     isApproved?"Unapprove this user?":"Approve this user?";
+  document.getElementById("modalText").style.color = "#000";
   document.getElementById("modal").classList.add("active");
 };
 
@@ -499,15 +515,20 @@ if(action==="delete"){
   const user = users.find(u=>u.uid===ids[0]);
 
   document.getElementById("modalText").innerText =
-    "Delete user: " + (user?.fullName || "User");
+    "⚠ You must delete profile photo first for: " + (user?.fullName || "User");
+  document.getElementById("modalText").style.color = "#dc2626";
 
   document.getElementById("deletePhotoWarning").style.display="block";
   document.getElementById("deletePhotoBtn").style.display="inline-block";
-document.getElementById("confirmDeleteUser").disabled=false;
+
+  // IMPORTANT: disable delete user
+  document.getElementById("confirmDeleteUser").disabled = true;
 }else{
 
   document.getElementById("modalText").innerText =
     `Confirm ${action.toUpperCase()} for selected users?`;
+
+  document.getElementById("modalText").style.color = "#000";
 
 }
   document.getElementById("modal").classList.add("active");
@@ -520,6 +541,8 @@ window.closeModal=()=>{
   document.getElementById("deletePhotoWarning").style.display="none";
   document.getElementById("deletePhotoBtn").style.display="none";
   document.getElementById("confirmDeleteUser").disabled=true;
+
+  document.getElementById("modalText").style.color = "#000";
 };
 
 window.confirmAction = async () => {
@@ -548,9 +571,24 @@ window.confirmAction = async () => {
       await updateDoc(doc(db,"users",id),{approved:false});
     }
 
-    if(pendingAction.action === "delete"){
-      await deleteDoc(doc(db,"users",id));
-    }
+if(pendingAction.action === "delete"){
+
+if(pendingAction.ids.length > 1){
+  showToast("Delete users one by one for safety","error");
+  hideLoader();
+  return;
+}
+
+  const deleteBtn = document.getElementById("confirmDeleteUser");
+
+if(deleteBtn.disabled){
+  showToast("Please delete profile photo first","error");
+  hideLoader();
+  return;
+}
+
+  await deleteDoc(doc(db,"users",id));
+}
 
   }
 
@@ -565,8 +603,11 @@ window.confirmAction = async () => {
 
     }
 
-    showToast("Action completed successfully");
-
+if(pendingAction?.action === "delete"){
+  showToast("User deleted successfully");
+}else{
+  showToast("Action completed successfully");
+}
   }
   catch(e){
 
@@ -733,22 +774,38 @@ window.deleteUserPhoto = async ()=>{
 
     const photoRef = ref(storage, `profilePhotos/${id}/profile.jpg`);
 
+    // Check if photo exists
+    await getDownloadURL(photoRef);
+
+    // If exists → delete it
     await deleteObject(photoRef);
 
-    showToast("Profile photo deleted");
+    showToast("Profile photo deleted successfully");
 
-    document.getElementById("confirmDeleteUser").disabled=false;
-    document.getElementById("deletePhotoWarning").style.display="none";
-    document.getElementById("deletePhotoBtn").style.display="none";
+    document.getElementById("modalText").innerText =
+      "✅ Photo deleted. Now you can delete user.";
+    document.getElementById("modalText").style.color = "#16a34a";
 
   }catch(e){
 
-    showToast("No profile photo found","error");
-    document.getElementById("confirmDeleteUser").disabled=false;
+    // Photo NOT found
+    showToast("No profile photo found");
+
+    document.getElementById("modalText").innerText =
+      "ℹ No profile photo found. You can delete user.";
+    document.getElementById("modalText").style.color = "#dc2626";
 
   }
 
+  // Enable delete user button AFTER check
+  document.getElementById("confirmDeleteUser").disabled = false;
+
+  // Hide warning + photo button
+  document.getElementById("deletePhotoWarning").style.display="none";
+  document.getElementById("deletePhotoBtn").style.display="none";
 };
+
+
  window.exportPDF = () => {
 
   showLoader();
