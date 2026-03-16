@@ -308,7 +308,7 @@ import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 
 const app=initializeApp({
-  apiKey:"...",
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06",
 storageBucket:"sadri-villa-14c06.appspot.com"
@@ -329,11 +329,15 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  console.log("Logged UID:", user.uid);
+
   try {
 
-    const snap = await getDoc(doc(db,"users",user.uid));
+    const userRef = doc(db,"users",user.uid);
+    const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
+      console.error("User document not found");
       location.href = "login.html";
       return;
     }
@@ -345,15 +349,16 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    console.log("Admin authenticated");
+    console.log("Admin verified");
 
-    // 🔥 START LOADING USERS AFTER ADMIN VERIFIED
     loadUsers();
 
-  } catch (error) {
+  } catch (err) {
 
-    console.error(error);
-    location.href = "login.html";
+    console.error("Admin check failed:", err);
+
+    // DO NOT redirect immediately
+    setTimeout(()=>location.href="login.html",1500);
 
   }
 
@@ -362,11 +367,15 @@ onAuthStateChanged(auth, async (user) => {
 /* REALTIME USERS */
 function loadUsers(){
 
-  onSnapshot(collection(db,"users"), snap => {
+  onSnapshot(collection(db,"users"),
+  
+  snap => {
 
     users = [];
 
-    snap.forEach(d => users.push({uid:d.id,...d.data()}));
+    snap.forEach(d=>{
+      users.push({uid:d.id,...d.data()});
+    });
 
     users.sort((a,b)=>{
 
@@ -384,11 +393,17 @@ function loadUsers(){
 
     render();
 
+  },
+
+  err=>{
+    console.error("Users load error:",err);
+    showToast("Users load failed","error");
   });
 
 }
 
 function formatDate(v){
+
   if(!v) return "-";
 
   // Firestore Timestamp
@@ -397,9 +412,9 @@ function formatDate(v){
       .toLocaleString("en-IN");
   }
 
-  // ISO string (signup & add-admin)
-  return new Date(v)
-    .toLocaleString("en-IN");
+  // ISO string
+  return new Date(v).toLocaleString("en-IN");
+
 }
 
 
@@ -488,8 +503,7 @@ if(action==="delete"){
 
   document.getElementById("deletePhotoWarning").style.display="block";
   document.getElementById("deletePhotoBtn").style.display="inline-block";
-  document.getElementById("confirmDeleteUser").disabled=true;
-
+document.getElementById("confirmDeleteUser").disabled=false;
 }else{
 
   document.getElementById("modalText").innerText =
