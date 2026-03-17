@@ -484,12 +484,21 @@ window.copyUID=(uid)=>{
 showToast("UID copied ✔ Open Firebase → Login → Paste UID");
   };
 
-window.confirmRoleChange=(uid,oldRole,selectEl)=>{
-  const newRole=selectEl.value;
-  if(newRole===oldRole)return;
-  pendingAction={type:"role",uid,newRole};
-  document.getElementById("modalText").innerText=
+window.confirmRoleChange = (uid, oldRole, selectEl) => {
+
+  const newRole = selectEl.value;
+  if (newRole === oldRole) return;
+
+  pendingAction = { type: "role", uid, newRole };
+
+  document.getElementById("modalText").innerText =
     `Change role to ${newRole.toUpperCase()} ?`;
+
+  const btn = document.getElementById("confirmDeleteUser");
+
+  btn.innerText = "Confirm";
+  btn.disabled = false;
+
   document.getElementById("modal").classList.add("active");
 };
 
@@ -497,11 +506,20 @@ window.toggleAll=(cb)=>{
   document.querySelectorAll(".sel").forEach(c=>c.checked=cb.checked);
 };
 
-window.confirmSingle=(id,isApproved)=>{
-  pendingAction={type:"single",id,isApproved};
-  document.getElementById("modalText").innerText=
-    isApproved?"Unapprove this user?":"Approve this user?";
+window.confirmSingle = (id, isApproved) => {
+
+  pendingAction = { type: "single", id, isApproved };
+
+  document.getElementById("modalText").innerText =
+    isApproved ? "Unapprove this user?" : "Approve this user?";
+
   document.getElementById("modalText").style.color = "#000";
+
+  const btn = document.getElementById("confirmDeleteUser");
+
+  btn.innerText = isApproved ? "Unapprove" : "Approve";
+  btn.disabled = false;
+
   document.getElementById("modal").classList.add("active");
 };
 
@@ -525,22 +543,32 @@ if(action==="delete"){
   document.getElementById("confirmDeleteUser").disabled = true;
 }else{
 
-  document.getElementById("modalText").innerText =
+  document.getElementById("const id = pendingAction.ids[0];modalText").innerText =
     `Confirm ${action.toUpperCase()} for selected users?`;
 
   document.getElementById("modalText").style.color = "#000";
+
+  const btn = document.getElementById("confirmDeleteUser");
+  btn.innerText = "Confirm";
+  btn.disabled = false;
 
 }
   document.getElementById("modal").classList.add("active");
 };
 
-window.closeModal=()=>{
-  pendingAction=null;
+window.closeModal = () => {
+
+  pendingAction = null;
+
   document.getElementById("modal").classList.remove("active");
 
-  document.getElementById("deletePhotoWarning").style.display="none";
-  document.getElementById("deletePhotoBtn").style.display="none";
-  document.getElementById("confirmDeleteUser").disabled=true;
+  document.getElementById("deletePhotoWarning").style.display = "none";
+  document.getElementById("deletePhotoBtn").style.display = "none";
+
+  const btn = document.getElementById("confirmDeleteUser");
+
+  btn.disabled = true;
+  btn.innerText = "Delete User"; // ✅ RESET BUTTON TEXT
 
   document.getElementById("modalText").style.color = "#000";
 };
@@ -766,46 +794,40 @@ function formatLabel(key){
     .replace(/\b\w/g,l=>l.toUpperCase());
 }
   /* DELETE PROFILE PHOTO FUNCTION */
-window.deleteUserPhoto = async ()=>{
+window.deleteUserPhoto = async () => {
 
-  const id = pendingAction.ids[0];
+const id = pendingAction?.ids?.[0];
 
-  try{
+if(!id){
+  showToast("No user selected","error");
+  return;
+}
+  try {
 
     const photoRef = ref(storage, `profilePhotos/${id}/profile.jpg`);
 
-    // Check if photo exists
-    await getDownloadURL(photoRef);
-
-    // If exists → delete it
     await deleteObject(photoRef);
 
     showToast("Profile photo deleted successfully");
 
     document.getElementById("modalText").innerText =
       "✅ Photo deleted. Now you can delete user.";
+
     document.getElementById("modalText").style.color = "#16a34a";
 
-  }catch(e){
+  } catch (e) {
 
-    // Photo NOT found
-    showToast("No profile photo found");
+    console.log(e);
 
-    document.getElementById("modalText").innerText =
-      "ℹ No profile photo found. You can delete user.";
-    document.getElementById("modalText").style.color = "#dc2626";
+    showToast("No photo found or already deleted");
 
   }
 
-  // Enable delete user button AFTER check
   document.getElementById("confirmDeleteUser").disabled = false;
 
-  // Hide warning + photo button
-  document.getElementById("deletePhotoWarning").style.display="none";
-  document.getElementById("deletePhotoBtn").style.display="none";
+  document.getElementById("deletePhotoWarning").style.display = "none";
+  document.getElementById("deletePhotoBtn").style.display = "none";
 };
-
-
  window.exportPDF = () => {
 
   showLoader();
