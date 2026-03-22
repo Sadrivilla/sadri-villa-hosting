@@ -833,9 +833,10 @@ list.forEach(i=>{
     document.body.style.overflow="hidden";
   };
 
-  track.appendChild(img);
+  track.appendChild(img);   // ✅ VERY IMPORTANT
 });
 
+/* OUTSIDE LOOP */
 if(imgs.length>1){
   track.classList.add("scrolling");
   requestAnimationFrame(()=>{
@@ -843,47 +844,6 @@ if(imgs.length>1){
     track.style.animationDuration=(width/80)+"s";
   });
 }
-  if(!snap.exists())return;
-  const data=snap.data();
-
-  const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
-  images = imgs;
-
-  track.innerHTML="";
-
-  const list=imgs.length>1?[...imgs,...imgs]:imgs;
-
-  list.forEach(i=>{
-    const img=document.createElement("img");
-    img.src=i.url;
-
-    img.onclick=()=>{
-      currentIndex = imgs.indexOf(i);
-
-      track.style.animationPlayState="paused";
-
-      document.querySelectorAll(".track img").forEach(el=>{
-        el.classList.remove("active");
-      });
-
-      img.classList.add("active");
-
-      showImage(currentIndex);
-
-      modal.style.display="flex";
-      document.body.style.overflow="hidden";
-    };
-
-    track.appendChild(img);
-  });
-
-  if(imgs.length>1){
-    track.classList.add("scrolling");
-    requestAnimationFrame(()=>{
-      const width=track.scrollWidth/2;
-      track.style.animationDuration=(width/80)+"s";
-    });
-  }
 });
 
 /* SHOW IMAGE */
