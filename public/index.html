@@ -260,45 +260,137 @@ button{
     0 0 0 1px #38bdf8,
     0 28px 55px rgba(56,189,248,.35);
 }
-/* ================= SLIDER ================= */
+/* SLIDER EDGE TO EDGE */
 .gallery{
+  position:relative;
+  touch-action:pan-y;
+  width:100%;
   background:#f1f5f9;
-  padding:60px 0;
-  overflow:hidden;
+  padding:40px 15px;
+  overflow-x:auto;
+  scrollbar-width:none;
 }
+.gallery::-webkit-scrollbar{
+  display:none;
+}
+
 .track{
   display:flex;
   gap:20px;
+  padding:0 10px;
   width:max-content;
+}
+
+.track img{
+  width:320px;
+  height:220px;
+  object-fit:cover;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  transition:transform .35s ease, box-shadow .35s ease;
+  cursor:pointer;
+}
+
+.track img:hover{
+  transform:scale(1.05);
+  box-shadow:0 18px 40px rgba(0,0,0,0.25);
+}
+
+.track img.active{
+  border:4px solid #38bdf8;
 }
 
 .track.scrolling{
   animation:scroll linear infinite;
 }
 
-
 .track:hover{
   animation-play-state:paused;
 }
 
-.track img{
-  width:350px;
-  height:240px;
-  object-fit:cover;
-  border-radius:20px;
-  border:1.5px solid rgba(255,255,255,0.6);
-  box-shadow:0 8px 25px rgba(0,0,0,0.15);
-  transition:all .3s ease;
-}
-
-.track img:hover{
-  transform:scale(1.03);
-  box-shadow:0 15px 35px rgba(0,0,0,0.25);
-
-}
 @keyframes scroll{
   from{transform:translateX(0)}
   to{transform:translateX(-50%)}
+}
+
+/* IMAGE MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(4px);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:2000;
+}
+
+.modal-content{
+  position:relative;
+  background:#fff;
+  padding:15px;
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  max-width:650px;
+  width:95%;
+}
+
+.close-btn{
+  position:absolute;
+  top:-10px;
+  right:-10px;
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#333;
+  background:white;
+  border-radius:50%;
+  box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+.nav-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  background:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:20px;
+  font-weight:bold;
+  box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+.prev{left:-20px;}
+.next{right:-20px;}
+
+.modal-content img{
+  max-width:100%;
+  max-height:70vh;
+  object-fit:contain;
+  border-radius:12px;
+  border:1px solid #38bdf8;
+  display:block;
+  margin:15px auto;
+}
+
+.download-btn{
+  display:inline-block;
+  margin-top:10px;
+  padding:8px 15px;
+  background:#38bdf8;
+  color:white;
+  border-radius:8px;
+  text-decoration:none;
 }
 
 /* ================= FOOTER ================= */
@@ -569,9 +661,25 @@ Read Complete History of Sadri Villa
 
 
 <!-- SLIDER -->
-<section class="gallery" id="gallerySection" style="display:none">
+<section class="gallery" id="gallerySection">
   <div class="track" id="galleryTrack"></div>
 </section>
+
+<!-- IMAGE POPUP -->
+<div class="modal" id="imgModal">
+  <div class="modal-content">
+
+    <span class="close-btn" id="closeModal">✕</span>
+
+    <span class="nav-btn prev" id="prevImg">❮</span>
+    <span class="nav-btn next" id="nextImg">❯</span>
+
+    <img id="modalImg">
+
+    <br>
+    <a id="downloadLink" class="download-btn" href="#">Download</a>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
@@ -691,29 +799,126 @@ heroSection.style.backgroundImage=`url('${heroImages[current].url}')`;
 
 }
   /* SLIDER */
+const modal=document.getElementById("imgModal");
+const track=document.getElementById("galleryTrack");
+
+let images=[];
+let currentIndex=0;
+
+onSnapshot(doc(db,"siteSettings","home"),snap=>{
+  if(!snap.exists())return;
+  const data=snap.data();
+
   const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
-  galleryTrack.innerHTML="";
-  if(!imgs.length){
-    gallerySection.style.display="none";
-    return;
-  }
-  gallerySection.style.display="block";
+  images = imgs;
+
+  track.innerHTML="";
 
   const list=imgs.length>1?[...imgs,...imgs]:imgs;
+
   list.forEach(i=>{
     const img=document.createElement("img");
     img.src=i.url;
-    galleryTrack.appendChild(img);
+
+    img.onclick=()=>{
+      currentIndex = imgs.indexOf(i);
+
+      track.style.animationPlayState="paused";
+
+      document.querySelectorAll(".track img").forEach(el=>{
+        el.classList.remove("active");
+      });
+
+      img.classList.add("active");
+
+      showImage(currentIndex);
+
+      modal.style.display="flex";
+      document.body.style.overflow="hidden";
+    };
+
+    track.appendChild(img);
   });
-  
-   
 
   if(imgs.length>1){
-    galleryTrack.classList.add("scrolling");
+    track.classList.add("scrolling");
     requestAnimationFrame(()=>{
-      const width=galleryTrack.scrollWidth/2;
-      galleryTrack.style.animationDuration=(width/80)+"s";
+      const width=track.scrollWidth/2;
+      track.style.animationDuration=(width/80)+"s";
     });
+  }
+});
+
+/* SHOW IMAGE */
+function showImage(index){
+
+  if(index < 0) index = images.length-1;
+  if(index >= images.length) index = 0;
+
+  currentIndex = index;
+
+  const url = images[index].url;
+
+  document.getElementById("modalImg").src = url;
+
+  const link = document.getElementById("downloadLink");
+
+  link.onclick = ()=>{
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="sadri-villa.jpg";
+    a.click();
+  };
+}
+
+/* NAV BUTTONS */
+document.getElementById("prevImg").onclick=()=>{
+  showImage(currentIndex-1);
+};
+
+document.getElementById("nextImg").onclick=()=>{
+  showImage(currentIndex+1);
+};
+
+/* CLOSE */
+modal.onclick=(e)=>{
+  if(e.target===modal){
+    modal.style.display="none";
+    document.body.style.overflow="auto";
+    track.style.animationPlayState="running";
+  }
+};
+
+document.getElementById("closeModal").onclick=()=>{
+  modal.style.display="none";
+  document.body.style.overflow="auto";
+  track.style.animationPlayState="running";
+};
+
+/* KEYBOARD */
+document.addEventListener("keydown",(e)=>{
+  if(modal.style.display!=="flex") return;
+
+  if(e.key==="ArrowRight") showImage(currentIndex+1);
+  if(e.key==="ArrowLeft") showImage(currentIndex-1);
+});
+
+/* TOUCH SWIPE */
+let startTouchX = 0;
+
+modal.addEventListener("touchstart",(e)=>{
+  startTouchX = e.touches[0].clientX;
+});
+
+modal.addEventListener("touchend",(e)=>{
+  let endX = e.changedTouches[0].clientX;
+
+  if(startTouchX - endX > 50){
+    showImage(currentIndex+1);
+  }
+
+  if(endX - startTouchX > 50){
+    showImage(currentIndex-1);
   }
 });
   /* ================= VILLA SECTIONS ================= */
