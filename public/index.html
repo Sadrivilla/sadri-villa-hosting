@@ -354,6 +354,15 @@ button{
 }
 
 .nav-btn{
+  padding:8px 16px;
+  border-radius:20px;
+  background:linear-gradient(135deg,#38bdf8,#60a5fa);
+  border:none;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+  .modal-nav-btn{
   position:absolute;
   top:50%;
   transform:translateY(-50%);
@@ -369,7 +378,6 @@ button{
   font-weight:bold;
   box-shadow:0 6px 15px rgba(0,0,0,0.25);
 }
-
 .prev{left:-20px;}
 .next{right:-20px;}
 
@@ -671,8 +679,8 @@ Read Complete History of Sadri Villa
 
     <span class="close-btn" id="closeModal">✕</span>
 
-    <span class="nav-btn prev" id="prevImg">❮</span>
-    <span class="nav-btn next" id="nextImg">❯</span>
+<span class="modal-nav-btn prev" id="prevImg">❮</span>
+<span class="modal-nav-btn next" id="nextImg">❯</span>
 
     <img id="modalImg">
 
@@ -730,10 +738,30 @@ const db=getFirestore(app);
 const heroSection=document.getElementById("heroSection");
   const heroVideo=document.getElementById("heroVideo");
 const galleryTrack=document.getElementById("galleryTrack");
+  galleryTrack.addEventListener("mouseenter", ()=>{
+  stopSlider();
+});
+
+galleryTrack.addEventListener("mouseleave", ()=>{
+  if(modal.style.display !== "flex"){
+    startSlider();
+  }
+});
+  const modal = document.getElementById("imgModal");
+const track = galleryTrack;
+  let images=[];
+let currentIndex=0;
 const gallerySection=document.getElementById("gallerySection");
 const siteLogo=document.getElementById("siteLogo");
 const footerLogo=document.getElementById("footerLogo");
 const animatedText=document.getElementById("animatedText");
+  function stopSlider(){
+  track.style.animationPlayState = "paused";
+}
+
+function startSlider(){
+  track.style.animationPlayState = "running";
+}
 
 let heroImages=[],current=0,interval;
 
@@ -799,11 +827,6 @@ heroSection.style.backgroundImage=`url('${heroImages[current].url}')`;
 
 }
   /* SLIDER */
-const modal=document.getElementById("imgModal");
-const track = galleryTrack;
-
-let images=[];
-let currentIndex=0;
 
 const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
 images = imgs;
@@ -819,8 +842,7 @@ list.forEach(i=>{
   img.onclick=()=>{
     currentIndex = imgs.indexOf(i);
 
-    track.style.animationPlayState="paused";
-
+stopSlider();
     document.querySelectorAll(".track img").forEach(el=>{
       el.classList.remove("active");
     });
@@ -882,14 +904,14 @@ modal.onclick=(e)=>{
   if(e.target===modal){
     modal.style.display="none";
     document.body.style.overflow="auto";
-    track.style.animationPlayState="running";
+startSlider();
   }
 };
 
 document.getElementById("closeModal").onclick=()=>{
   modal.style.display="none";
   document.body.style.overflow="auto";
-  track.style.animationPlayState="running";
+startSlider();
 };
 
 /* KEYBOARD */
@@ -916,6 +938,13 @@ modal.addEventListener("touchend",(e)=>{
 
   if(endX - startTouchX > 50){
     showImage(currentIndex-1);
+  }
+});
+  document.addEventListener("click",(e)=>{
+  if(modal.style.display==="flex") return;
+
+  if(!e.target.closest(".gallery")){
+    startSlider();
   }
 });
   /* ================= VILLA SECTIONS ================= */
