@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Admin</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#081634;color:white}
+
+/* HEADER */
+.header{
+padding:20px;text-align:center;
+background:#020617;
+}
+
+/* FORM */
+.form{
+max-width:600px;margin:30px auto;
+background:#0f172a;padding:25px;border-radius:15px;
+}
+
+input,textarea{
+width:100%;padding:10px;margin:8px 0;
+border-radius:8px;border:none;
+}
+
+button{
+width:100%;
+padding:12px;
+background:linear-gradient(135deg,#38bdf8,#60a5fa);
+border:none;color:white;font-weight:bold;
+border-radius:10px;cursor:pointer;
+}
+
+/* LIST */
+.list{
+max-width:900px;margin:30px auto;
+}
+
+.card{
+background:#0f172a;
+padding:15px;margin:10px 0;
+border-radius:10px;
+display:flex;justify-content:space-between;align-items:center;
+}
+
+.delete{
+background:red;padding:6px 10px;border:none;color:white;border-radius:5px;cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>Team Admin Panel</h2>
+</div>
+
+<div class="form">
+<input id="name" placeholder="Name">
+<input id="role" placeholder="Role">
+<textarea id="desc" placeholder="Description"></textarea>
+<input id="facebook" placeholder="Facebook URL">
+<input id="instagram" placeholder="Instagram URL">
+<input id="linkedin" placeholder="LinkedIn URL">
+<input id="order" type="number" placeholder="Order (1,2,3)">
+<input type="file" id="image">
+
+<button onclick="addMember()">Add Member</button>
+</div>
+
+<div id="list" class="list"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.appspot.com"
+});
+
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+window.addMember = async function(){
+
+const file = document.getElementById("image").files[0];
+let imageUrl="";
+
+if(file){
+const storageRef = ref(storage,"team/"+Date.now());
+await uploadBytes(storageRef,file);
+imageUrl = await getDownloadURL(storageRef);
+}
+
+await addDoc(collection(db,"team"),{
+name:document.getElementById("name").value,
+role:document.getElementById("role").value,
+description:document.getElementById("desc").value,
+facebook:document.getElementById("facebook").value,
+instagram:document.getElementById("instagram").value,
+linkedin:document.getElementById("linkedin").value,
+order:Number(document.getElementById("order").value || 0),
+imageUrl:imageUrl,
+enabled:true
+});
+
+alert("Added!");
+};
+
+const list = document.getElementById("list");
+
+onSnapshot(collection(db,"team"),snap=>{
+list.innerHTML="";
+snap.forEach(docSnap=>{
+const d = docSnap.data();
+
+const div = document.createElement("div");
+div.className="card";
+
+div.innerHTML=`
+<div>${d.name} (${d.role})</div>
+<button class="delete" onclick="del('${docSnap.id}')">Delete</button>
+`;
+
+list.appendChild(div);
+});
+});
+
+window.del = async function(id){
+await deleteDoc(doc(db,"team",id));
+};
+</script>
+
+</body>
+</html>
