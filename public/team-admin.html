@@ -6,47 +6,88 @@
 <title>Team Admin</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#081634;color:white}
+body{
+margin:0;
+font-family:Arial;
+background:#081634;
+color:white;
+}
 
 /* HEADER */
 .header{
-padding:20px;text-align:center;
+padding:20px;
+text-align:center;
 background:#020617;
 }
 
 /* FORM */
 .form{
-max-width:600px;margin:30px auto;
-background:#0f172a;padding:25px;border-radius:15px;
+max-width:700px;
+margin:30px auto;
+background:#0f172a;
+padding:25px;
+border-radius:15px;
 }
 
 input,textarea{
-width:100%;padding:10px;margin:8px 0;
-border-radius:8px;border:none;
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+border:none;
 }
 
 button{
-width:100%;
-padding:12px;
-background:linear-gradient(135deg,#38bdf8,#60a5fa);
-border:none;color:white;font-weight:bold;
-border-radius:10px;cursor:pointer;
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
 }
+
+.btn-primary{
+background:linear-gradient(135deg,#38bdf8,#60a5fa);
+color:white;
+width:100%;
+}
+
+.btn-small{
+padding:6px 10px;
+margin:2px;
+font-size:12px;
+}
+
+.edit{background:#38bdf8;color:white}
+.delete{background:red;color:white}
+.toggle{background:#22c55e;color:white}
+.disable{background:#64748b;color:white}
 
 /* LIST */
 .list{
-max-width:900px;margin:30px auto;
+max-width:1000px;
+margin:30px auto;
 }
 
 .card{
 background:#0f172a;
-padding:15px;margin:10px 0;
-border-radius:10px;
-display:flex;justify-content:space-between;align-items:center;
+padding:15px;
+margin:10px 0;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
 }
 
-.delete{
-background:red;padding:6px 10px;border:none;color:white;border-radius:5px;cursor:pointer;
+.info{
+flex:1;
+}
+
+.controls{
+display:flex;
+gap:5px;
+flex-wrap:wrap;
 }
 </style>
 </head>
@@ -61,20 +102,23 @@ background:red;padding:6px 10px;border:none;color:white;border-radius:5px;cursor
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
 <textarea id="desc" placeholder="Description"></textarea>
+
 <input id="facebook" placeholder="Facebook URL">
 <input id="instagram" placeholder="Instagram URL">
 <input id="linkedin" placeholder="LinkedIn URL">
-<input id="order" type="number" placeholder="Order (1,2,3)">
+
+<input id="order" type="number" placeholder="Order">
+
 <input type="file" id="image">
 
-<button onclick="addMember()">Add Member</button>
+<button class="btn-primary" onclick="saveMember()">Save Member</button>
 </div>
 
 <div id="list" class="list"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app = initializeApp({
@@ -87,10 +131,13 @@ storageBucket:"sadri-villa-14c06.appspot.com"
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-window.addMember = async function(){
+let editId = null;
+
+/* SAVE / ADD */
+window.saveMember = async function(){
 
 const file = document.getElementById("image").files[0];
-let imageUrl="";
+let imageUrl = "";
 
 if(file){
 const storageRef = ref(storage,"team/"+Date.now());
@@ -98,7 +145,7 @@ await uploadBytes(storageRef,file);
 imageUrl = await getDownloadURL(storageRef);
 }
 
-await addDoc(collection(db,"team"),{
+const data = {
 name:document.getElementById("name").value,
 role:document.getElementById("role").value,
 description:document.getElementById("desc").value,
@@ -106,34 +153,114 @@ facebook:document.getElementById("facebook").value,
 instagram:document.getElementById("instagram").value,
 linkedin:document.getElementById("linkedin").value,
 order:Number(document.getElementById("order").value || 0),
-imageUrl:imageUrl,
-enabled:true
-});
-
-alert("Added!");
 };
 
+if(imageUrl) data.imageUrl = imageUrl;
+
+if(editId){
+await updateDoc(doc(db,"team",editId),data);
+editId = null;
+alert("Updated!");
+}else{
+data.enabled = true;
+await addDoc(collection(db,"team"),data);
+alert("Added!");
+}
+
+clearForm();
+};
+
+/* CLEAR FORM */
+function clearForm(){
+document.getElementById("name").value="";
+document.getElementById("role").value="";
+document.getElementById("desc").value="";
+document.getElementById("facebook").value="";
+document.getElementById("instagram").value="";
+document.getElementById("linkedin").value="";
+document.getElementById("order").value="";
+document.getElementById("image").value="";
+}
+
+/* LOAD LIST */
 const list = document.getElementById("list");
 
 onSnapshot(collection(db,"team"),snap=>{
 list.innerHTML="";
-snap.forEach(docSnap=>{
-const d = docSnap.data();
+
+let arr=[];
+snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+
+arr.sort((a,b)=>a.order-b.order);
+
+arr.forEach(d=>{
 
 const div = document.createElement("div");
 div.className="card";
 
 div.innerHTML=`
-<div>${d.name} (${d.role})</div>
-<button class="delete" onclick="del('${docSnap.id}')">Delete</button>
+<div class="info">
+<strong>${d.name}</strong> (${d.role})<br>
+Order: ${d.order} | Status: ${d.enabled ? "Active" : "Disabled"}
+</div>
+
+<div class="controls">
+<button class="btn-small edit" onclick="edit('${d.id}')">Edit ✏️</button>
+<button class="btn-small ${d.enabled ? "disable" : "toggle"}" onclick="toggle('${d.id}',${d.enabled})">
+${d.enabled ? "Disable" : "Enable"}
+</button>
+<button class="btn-small delete" onclick="del('${d.id}')">Delete</button>
+<button class="btn-small" onclick="move('${d.id}',-1)">⬆</button>
+<button class="btn-small" onclick="move('${d.id}',1)">⬇</button>
+</div>
 `;
 
 list.appendChild(div);
 });
+
 });
 
+/* EDIT */
+window.edit = async function(id){
+const snap = await (await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"))
+.getDoc(doc(db,"team",id));
+
+const d = snap.data();
+
+editId = id;
+
+document.getElementById("name").value=d.name;
+document.getElementById("role").value=d.role;
+document.getElementById("desc").value=d.description;
+document.getElementById("facebook").value=d.facebook;
+document.getElementById("instagram").value=d.instagram;
+document.getElementById("linkedin").value=d.linkedin;
+document.getElementById("order").value=d.order;
+};
+
+/* DELETE */
 window.del = async function(id){
 await deleteDoc(doc(db,"team",id));
+};
+
+/* TOGGLE */
+window.toggle = async function(id,status){
+await updateDoc(doc(db,"team",id),{
+enabled: !status
+});
+};
+
+/* MOVE (SORT) */
+window.move = async function(id,dir){
+
+const snap = await (await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"))
+.getDoc(doc(db,"team",id));
+
+let current = snap.data().order;
+
+await updateDoc(doc(db,"team",id),{
+order: current + dir
+});
 };
 </script>
 
