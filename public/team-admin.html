@@ -28,7 +28,6 @@ button{padding:10px;margin-top:10px;border:none;border-radius:6px;cursor:pointer
 
 <!-- PANEL -->
 <div id="panel" style="display:none">
-
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
 <textarea id="desc" placeholder="Description"></textarea>
@@ -37,7 +36,6 @@ button{padding:10px;margin-top:10px;border:none;border-radius:6px;cursor:pointer
 
 <button onclick="save()">Save Member</button>
 <button onclick="logout()">Logout</button>
-
 </div>
 
 </div>
@@ -50,10 +48,10 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://w
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({
-apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06",
-storageBucket:"sadri-villa-14c06.appspot.com"
+  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain:"sadri-villa-14c06.firebaseapp.com",
+  projectId:"sadri-villa-14c06",
+  storageBucket:"sadri-villa-14c06.appspot.com"
 });
 
 const db = getFirestore(app);
@@ -61,84 +59,118 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 
 let isAdmin = false;
+let authReady = false;
 
 /* LOGIN */
 window.login = async ()=>{
-await signInWithEmailAndPassword(auth,email.value,password.value);
+  try{
+    await signInWithEmailAndPassword(auth,email.value.trim(),password.value);
+  }catch(e){
+    alert(e.message);
+  }
 };
 
 /* LOGOUT */
 window.logout = async ()=>{
-await signOut(auth);
+  await signOut(auth);
 };
 
-/* AUTH CHECK */
+/* AUTH + ADMIN CHECK */
 onAuthStateChanged(auth, async (user)=>{
 
-if(!user){
-loginBox.style.display="block";
-panel.style.display="none";
-return;
-}
+  authReady = false;
+  isAdmin = false;
 
-const snap = await getDoc(doc(db,"users",user.uid));
+  if(!user){
+    loginBox.style.display="block";
+    panel.style.display="none";
+    return;
+  }
 
-if(!snap.exists() || snap.data().role !== "admin"){
-alert("Not admin");
-await signOut(auth);
-return;
-}
+  try{
+    const snap = await getDoc(doc(db,"users",user.uid));
 
-isAdmin = true;
+    if(!snap.exists() || snap.data().role !== "admin"){
+      alert("Access denied (Not Admin)");
+      await signOut(auth);
+      return;
+    }
 
-loginBox.style.display="none";
-panel.style.display="block";
+    isAdmin = true;
+    authReady = true;
+
+    loginBox.style.display="none";
+    panel.style.display="block";
+
+  }catch(e){
+    console.error(e);
+    alert("Error checking admin");
+  }
 
 });
 
 /* SAVE */
 window.save = async ()=>{
 
-if(!auth.currentUser || !isAdmin){
-alert("Not authorized");
-return;
-}
+  // 🔴 CRITICAL CHECK (prevents fake CORS error)
+  if(!authReady){
+    alert("Please wait... auth not ready");
+    return;
+  }
 
-const nameVal = document.getElementById("name").value.trim();
-const roleVal = document.getElementById("role").value.trim();
-const descVal = document.getElementById("desc").value.trim();
-const file = document.getElementById("image").files[0];
+  if(!auth.currentUser || !isAdmin){
+    alert("Not authorized");
+    return;
+  }
 
-if(!nameVal){
-alert("Name required");
-return;
-}
+  const nameVal = document.getElementById("name").value.trim();
+  const roleVal = document.getElementById("role").value.trim();
+  const descVal = document.getElementById("desc").value.trim();
+  const file = document.getElementById("image").files[0];
 
-let imageUrl = "";
+  if(!nameVal){
+    alert("Name required");
+    return;
+  }
 
-if(file){
-const storageRef = ref(storage,"team/"+Date.now());
+  let imageUrl = "";
 
-const uploadTask = uploadBytesResumable(storageRef,file);
+  try{
 
-await new Promise((resolve,reject)=>{
-uploadTask.on("state_changed",null,reject,async()=>{
-imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-resolve();
-});
-});
-}
+    // 🔥 Upload image (safe + stable)
+    if(file){
+      const storageRef = ref(storage,"team/"+Date.now());
 
-await addDoc(collection(db,"team"),{
-name: nameVal,
-role: roleVal,
-description: descVal,
-imageUrl: imageUrl,
-enabled: true,
-createdAt: new Date().toISOString()
-});
+      const uploadTask = uploadBytesResumable(storageRef,file);
 
-alert("Saved");
+      await new Promise((resolve,reject)=>{
+        uploadTask.on("state_changed",
+          null,
+          reject,
+          async ()=>{
+            imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve();
+          }
+        );
+      });
+    }
+
+    // 🔥 Save to Firestore
+    await addDoc(collection(db,"team"),{
+      name: nameVal,
+      role: roleVal || "",
+      description: descVal || "",
+      imageUrl: imageUrl || "",
+      enabled: true,
+      createdAt: new Date().toISOString()
+    });
+
+    alert("Saved successfully");
+
+  }catch(e){
+    console.error("ERROR:", e);
+    alert("Error: " + e.message);
+  }
 
 };
 
