@@ -2,144 +2,138 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Team Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team | Sadri Villa</title>
 
 <style>
-body{font-family:Arial;background:#0f172a;color:white;text-align:center}
-.container{max-width:600px;margin:40px auto}
-input,textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:none}
-button{padding:10px;margin-top:10px;border:none;border-radius:6px;cursor:pointer}
+body{margin:0;font-family:Arial;background:#f8fafc}
+
+/* NAVBAR SAME THEME */
+.navbar{
+position:fixed;top:0;width:100%;
+height:55px;
+display:flex;justify-content:space-between;align-items:center;
+background:rgba(255,255,255,.25);
+backdrop-filter:blur(10px);
+padding:0 20px;
+z-index:1000;
+}
+
+.navbar a{
+padding:8px 16px;
+border-radius:20px;
+background:linear-gradient(135deg,#38bdf8,#60a5fa);
+color:white;text-decoration:none;font-weight:600;
+}
+
+/* HEADER */
+.header{
+padding-top:90px;text-align:center;
+}
+.header h1{font-size:34px}
+
+/* GRID */
+.team-container{
+max-width:1200px;margin:40px auto;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:30px;padding:20px;
+}
+
+/* CARD */
+.team-card{
+background:white;
+border-radius:25px;
+padding:25px;
+text-align:center;
+box-shadow:0 20px 45px rgba(0,0,0,.08);
+transition:.3s;
+}
+.team-card:hover{
+transform:translateY(-8px);
+box-shadow:0 0 0 1px #38bdf8,0 28px 55px rgba(56,189,248,.35);
+}
+
+.team-img{
+width:120px;height:120px;
+border-radius:50%;object-fit:cover;
+margin-bottom:15px;
+}
+
+.role{
+color:#38bdf8;font-weight:700;margin:5px 0;
+}
+
+.desc{
+font-size:14px;color:#475569;
+}
+
+.social a{
+display:inline-block;
+margin:5px;
+padding:6px 10px;
+border-radius:8px;
+color:white;text-decoration:none;font-size:13px;
+}
+.fb{background:#1877f2}
+.insta{background:#e1306c}
+.linkedin{background:#0a66c2}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<h2>Team Admin</h2>
-
-<div id="loginBox">
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<div class="navbar">
+<a href="index.html">Home</a>
+<a href="team-admin.html">Admin</a>
 </div>
 
-<div id="panel" style="display:none">
-<input id="name" placeholder="Name">
-<input id="role" placeholder="Role">
-<textarea id="desc" placeholder="Description"></textarea>
-
-<input id="order" type="number" placeholder="Order (0,1,2)">
-<input type="file" id="image">
-
-<button onclick="save()">Save</button>
-<button onclick="logout()">Logout</button>
+<div class="header">
+<h1>Our Management Team</h1>
 </div>
 
-</div>
+<div id="teamContainer" class="team-container"></div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
 authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06",
-storageBucket:"sadri-villa-14c06.firebasestorage.app" // ✅ IMPORTANT
+projectId:"sadri-villa-14c06"
 });
 
 const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
+const container = document.getElementById("teamContainer");
 
-let isAdmin=false;
+const q = query(collection(db,"team"),orderBy("order"));
 
-/* LOGIN */
-window.login = async ()=>{
-await signInWithEmailAndPassword(auth,email.value,password.value);
-};
+onSnapshot(q,(snapshot)=>{
+container.innerHTML="";
 
-/* LOGOUT */
-window.logout = async ()=>{
-await signOut(auth);
-};
+snapshot.forEach(doc=>{
+const d = doc.data();
+if(d.enabled===false) return;
 
-/* AUTH CHECK */
-onAuthStateChanged(auth, async (user)=>{
+const card = document.createElement("div");
+card.className="team-card";
 
-if(!user){
-loginBox.style.display="block";
-panel.style.display="none";
-return;
-}
+card.innerHTML=`
+<img src="${d.imageUrl || ''}" class="team-img">
+<h3>${d.name}</h3>
+<div class="role">${d.role}</div>
+<div class="desc">${d.description || ''}</div>
+<div class="social">
+${d.facebook ? `<a href="${d.facebook}" target="_blank" class="fb">FB</a>`:""}
+${d.instagram ? `<a href="${d.instagram}" target="_blank" class="insta">IG</a>`:""}
+${d.linkedin ? `<a href="${d.linkedin}" target="_blank" class="linkedin">IN</a>`:""}
+</div>
+`;
 
-const snap = await getDoc(doc(db,"users",user.uid));
-
-if(!snap.exists() || snap.data().role !== "admin"){
-alert("Not admin");
-await signOut(auth);
-return;
-}
-
-isAdmin=true;
-loginBox.style.display="none";
-panel.style.display="block";
-
-});
-
-/* SAVE */
-window.save = async ()=>{
-
-if(!auth.currentUser || !isAdmin){
-alert("Not authorized");
-return;
-}
-
-const nameVal = name.value.trim();
-const roleVal = role.value.trim();
-const descVal = desc.value.trim();
-const orderVal = Number(order.value || 0);
-const file = image.files[0];
-
-if(!nameVal){
-alert("Name required");
-return;
-}
-
-let imageUrl="";
-
-if(file){
-const storageRef = ref(storage,"team/"+Date.now());
-
-const uploadTask = uploadBytesResumable(storageRef,file);
-
-await new Promise((resolve,reject)=>{
-uploadTask.on("state_changed",null,reject,async ()=>{
-imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-resolve();
+container.appendChild(card);
 });
 });
-}
-
-await addDoc(collection(db,"team"),{
-name:nameVal,
-role:roleVal || "",
-description:descVal || "",
-imageUrl:imageUrl || "",
-order:orderVal,     // ✅ REQUIRED
-enabled:true,       // ✅ REQUIRED
-createdAt:new Date().toISOString()
-});
-
-alert("Saved");
-
-};
-
 </script>
 
 </body>
