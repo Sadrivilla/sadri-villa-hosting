@@ -6,88 +6,28 @@
 <title>Team Admin</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#081634;
-color:white;
-}
-
-/* HEADER */
-.header{
-padding:20px;
-text-align:center;
-background:#020617;
-}
-
-/* FORM */
-.form{
-max-width:700px;
-margin:30px auto;
-background:#0f172a;
-padding:25px;
-border-radius:15px;
-}
-
-input,textarea{
-width:100%;
-padding:10px;
-margin:8px 0;
-border-radius:8px;
-border:none;
-}
-
-button{
-padding:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.btn-primary{
-background:linear-gradient(135deg,#38bdf8,#60a5fa);
-color:white;
-width:100%;
-}
-
-.btn-small{
-padding:6px 10px;
-margin:2px;
-font-size:12px;
-}
-
+body{margin:0;font-family:Arial;background:#081634;color:white;}
+.header{padding:20px;text-align:center;background:#020617;}
+.form{max-width:700px;margin:30px auto;background:#0f172a;padding:25px;border-radius:15px;display:none;}
+input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;}
+button{padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
+.btn-primary{background:linear-gradient(135deg,#38bdf8,#60a5fa);color:white;width:100%;}
+.list{max-width:1000px;margin:30px auto;display:none;}
+.card{background:#0f172a;padding:15px;margin:10px 0;border-radius:12px;display:flex;justify-content:space-between;flex-wrap:wrap;}
+.controls{display:flex;gap:5px;}
 .edit{background:#38bdf8;color:white}
 .delete{background:red;color:white}
 .toggle{background:#22c55e;color:white}
 .disable{background:#64748b;color:white}
 
-/* LIST */
-.list{
-max-width:1000px;
-margin:30px auto;
-}
-
-.card{
+/* LOGIN */
+.login{
+max-width:400px;
+margin:80px auto;
 background:#0f172a;
-padding:15px;
-margin:10px 0;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-}
-
-.info{
-flex:1;
-}
-
-.controls{
-display:flex;
-gap:5px;
-flex-wrap:wrap;
+padding:25px;
+border-radius:15px;
+text-align:center;
 }
 </style>
 </head>
@@ -98,7 +38,16 @@ flex-wrap:wrap;
 <h2>Team Admin Panel</h2>
 </div>
 
-<div class="form">
+<!-- LOGIN -->
+<div id="loginBox" class="login">
+<h3>Admin Login</h3>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()" class="btn-primary">Login</button>
+</div>
+
+<!-- FORM -->
+<div class="form" id="adminPanel">
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
 <textarea id="desc" placeholder="Description"></textarea>
@@ -108,7 +57,6 @@ flex-wrap:wrap;
 <input id="linkedin" placeholder="LinkedIn URL">
 
 <input id="order" type="number" placeholder="Order">
-
 <input type="file" id="image">
 
 <button class="btn-primary" onclick="saveMember()">Save Member</button>
@@ -118,8 +66,9 @@ flex-wrap:wrap;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -130,11 +79,49 @@ storageBucket:"sadri-villa-14c06.appspot.com"
 
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
 let editId = null;
 
-/* SAVE / ADD */
+/* LOGIN */
+window.login = async function(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+  }catch(e){
+    alert(e.message);
+  }
+};
+
+/* AUTH CHECK */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    document.getElementById("loginBox").style.display="block";
+    return;
+  }
+
+  const snap = await getDoc(doc(db,"users",user.uid));
+
+  if(!snap.exists() || snap.data().role !== "admin"){
+    alert("Access denied");
+    return;
+  }
+
+  // SHOW PANEL
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("adminPanel").style.display="block";
+  document.getElementById("list").style.display="block";
+});
+
+/* SAVE */
 window.saveMember = async function(){
+
+if(!auth.currentUser){
+  alert("Login required");
+  return;
+}
 
 const file = document.getElementById("image").files[0];
 let imageUrl = "";
@@ -170,16 +157,10 @@ alert("Added!");
 clearForm();
 };
 
-/* CLEAR FORM */
+/* CLEAR */
 function clearForm(){
-document.getElementById("name").value="";
-document.getElementById("role").value="";
-document.getElementById("desc").value="";
-document.getElementById("facebook").value="";
-document.getElementById("instagram").value="";
-document.getElementById("linkedin").value="";
-document.getElementById("order").value="";
-document.getElementById("image").value="";
+["name","role","desc","facebook","instagram","linkedin","order","image"]
+.forEach(id=>document.getElementById(id).value="");
 }
 
 /* LOAD LIST */
@@ -187,80 +168,54 @@ const list = document.getElementById("list");
 
 onSnapshot(collection(db,"team"),snap=>{
 list.innerHTML="";
-
 let arr=[];
 snap.forEach(d=>arr.push({id:d.id,...d.data()}));
-
 arr.sort((a,b)=>a.order-b.order);
 
 arr.forEach(d=>{
-
-const div = document.createElement("div");
+const div=document.createElement("div");
 div.className="card";
 
 div.innerHTML=`
-<div class="info">
+<div>
 <strong>${d.name}</strong> (${d.role})<br>
-Order: ${d.order} | Status: ${d.enabled ? "Active" : "Disabled"}
+Order: ${d.order} | ${d.enabled ? "Active":"Disabled"}
 </div>
 
 <div class="controls">
-<button class="btn-small edit" onclick="edit('${d.id}')">Edit ✏️</button>
-<button class="btn-small ${d.enabled ? "disable" : "toggle"}" onclick="toggle('${d.id}',${d.enabled})">
-${d.enabled ? "Disable" : "Enable"}
+<button onclick="edit('${d.id}')" class="edit">Edit</button>
+<button onclick="toggle('${d.id}',${d.enabled})" class="${d.enabled?'disable':'toggle'}">
+${d.enabled?"Disable":"Enable"}
 </button>
-<button class="btn-small delete" onclick="del('${d.id}')">Delete</button>
-<button class="btn-small" onclick="move('${d.id}',-1)">⬆</button>
-<button class="btn-small" onclick="move('${d.id}',1)">⬇</button>
+<button onclick="del('${d.id}')" class="delete">Delete</button>
 </div>
 `;
 
 list.appendChild(div);
 });
-
 });
 
 /* EDIT */
 window.edit = async function(id){
-const snap = await (await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"))
-.getDoc(doc(db,"team",id));
-
+const snap = await getDoc(doc(db,"team",id));
 const d = snap.data();
+editId=id;
 
-editId = id;
-
-document.getElementById("name").value=d.name;
-document.getElementById("role").value=d.role;
-document.getElementById("desc").value=d.description;
-document.getElementById("facebook").value=d.facebook;
-document.getElementById("instagram").value=d.instagram;
-document.getElementById("linkedin").value=d.linkedin;
-document.getElementById("order").value=d.order;
+name.value=d.name;
+role.value=d.role;
+desc.value=d.description;
+facebook.value=d.facebook;
+instagram.value=d.instagram;
+linkedin.value=d.linkedin;
+order.value=d.order;
 };
 
 /* DELETE */
-window.del = async function(id){
-await deleteDoc(doc(db,"team",id));
-};
+window.del = async id=> await deleteDoc(doc(db,"team",id));
 
 /* TOGGLE */
-window.toggle = async function(id,status){
-await updateDoc(doc(db,"team",id),{
-enabled: !status
-});
-};
-
-/* MOVE (SORT) */
-window.move = async function(id,dir){
-
-const snap = await (await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"))
-.getDoc(doc(db,"team",id));
-
-let current = snap.data().order;
-
-await updateDoc(doc(db,"team",id),{
-order: current + dir
-});
+window.toggle = async (id,status)=>{
+await updateDoc(doc(db,"team",id),{enabled:!status});
 };
 </script>
 
