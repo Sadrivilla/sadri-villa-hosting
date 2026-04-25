@@ -2,178 +2,268 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Team Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team Admin</title>
 
 <style>
-body{font-family:Arial;background:#0f172a;color:white;text-align:center}
-.container{max-width:600px;margin:40px auto}
-input,textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:none}
-button{padding:10px;margin-top:10px;border:none;border-radius:6px;cursor:pointer}
+body{
+margin:0;
+font-family:Arial;
+background:#081634;
+color:white;
+}
+
+/* HEADER */
+.header{
+padding:20px;
+text-align:center;
+background:#020617;
+}
+
+/* FORM */
+.form{
+max-width:700px;
+margin:30px auto;
+background:#0f172a;
+padding:25px;
+border-radius:15px;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+border:none;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.btn-primary{
+background:linear-gradient(135deg,#38bdf8,#60a5fa);
+color:white;
+width:100%;
+}
+
+.btn-small{
+padding:6px 10px;
+margin:2px;
+font-size:12px;
+}
+
+.edit{background:#38bdf8;color:white}
+.delete{background:red;color:white}
+.toggle{background:#22c55e;color:white}
+.disable{background:#64748b;color:white}
+
+/* LIST */
+.list{
+max-width:1000px;
+margin:30px auto;
+}
+
+.card{
+background:#0f172a;
+padding:15px;
+margin:10px 0;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.info{
+flex:1;
+}
+
+.controls{
+display:flex;
+gap:5px;
+flex-wrap:wrap;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<h2>Team Admin</h2>
-
-<!-- LOGIN -->
-<div id="loginBox">
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<div class="header">
+<h2>Team Admin Panel</h2>
 </div>
 
-<!-- PANEL -->
-<div id="panel" style="display:none">
+<div class="form">
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
 <textarea id="desc" placeholder="Description"></textarea>
 
+<input id="facebook" placeholder="Facebook URL">
+<input id="instagram" placeholder="Instagram URL">
+<input id="linkedin" placeholder="LinkedIn URL">
+
+<input id="order" type="number" placeholder="Order (0,1,2...)">
+
 <input type="file" id="image">
 
-<button onclick="save()">Save Member</button>
-<button onclick="logout()">Logout</button>
+<button class="btn-primary" onclick="saveMember()">Save Member</button>
 </div>
 
-</div>
+<div id="list" class="list"></div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.firebasestorage.app"
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app" // ✅ FIXED
 });
 
 const db = getFirestore(app);
 const storage = getStorage(app);
-const auth = getAuth(app);
 
-let isAdmin = false;
-let authReady = false;
+let editId = null;
 
-/* LOGIN */
-window.login = async ()=>{
-  try{
-    await signInWithEmailAndPassword(auth,email.value.trim(),password.value);
-  }catch(e){
-    alert(e.message);
-  }
+/* SAVE / ADD */
+window.saveMember = async function(){
+
+const file = document.getElementById("image").files[0];
+let imageUrl = "";
+
+try{
+
+// ✅ UPLOAD IMAGE (FIXED)
+if(file){
+const storageRef = ref(storage,"team/"+Date.now());
+
+const uploadTask = uploadBytesResumable(storageRef,file);
+
+await new Promise((resolve,reject)=>{
+uploadTask.on("state_changed",null,reject,async ()=>{
+imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+resolve();
+});
+});
+}
+
+// ✅ SAFE DATA (NO UNDEFINED)
+const data = {
+name: document.getElementById("name").value || "",
+role: document.getElementById("role").value || "",
+description: document.getElementById("desc").value || "",
+facebook: document.getElementById("facebook").value || "",
+instagram: document.getElementById("instagram").value || "",
+linkedin: document.getElementById("linkedin").value || "",
+order: Number(document.getElementById("order").value || 0),
+enabled: true
 };
 
-/* LOGOUT */
-window.logout = async ()=>{
-  await signOut(auth);
+if(imageUrl) data.imageUrl = imageUrl;
+
+// ✅ ADD / UPDATE
+if(editId){
+await updateDoc(doc(db,"team",editId),data);
+editId = null;
+alert("Updated!");
+}else{
+await addDoc(collection(db,"team"),data);
+alert("Added!");
+}
+
+clearForm();
+
+}catch(e){
+console.error(e);
+alert("Error: "+e.message);
+}
+
 };
 
-/* AUTH + ADMIN CHECK */
-onAuthStateChanged(auth, async (user)=>{
+/* CLEAR */
+function clearForm(){
+["name","role","desc","facebook","instagram","linkedin","order","image"]
+.forEach(id=>document.getElementById(id).value="");
+}
 
-  authReady = false;
-  isAdmin = false;
+/* LOAD LIST */
+const list = document.getElementById("list");
 
-  if(!user){
-    loginBox.style.display="block";
-    panel.style.display="none";
-    return;
-  }
+onSnapshot(collection(db,"team"),snap=>{
+list.innerHTML="";
 
-  try{
-    const snap = await getDoc(doc(db,"users",user.uid));
+let arr=[];
+snap.forEach(d=>arr.push({id:d.id,...d.data()}));
 
-    if(!snap.exists() || snap.data().role !== "admin"){
-      alert("Access denied (Not Admin)");
-      await signOut(auth);
-      return;
-    }
+// ✅ SAFE SORT
+arr.sort((a,b)=>(a.order||0)-(b.order||0));
 
-    isAdmin = true;
-    authReady = true;
+arr.forEach(d=>{
+const div=document.createElement("div");
+div.className="card";
 
-    loginBox.style.display="none";
-    panel.style.display="block";
+div.innerHTML=`
+<div class="info">
+<strong>${d.name || ""}</strong> (${d.role || ""})<br>
+Order: ${d.order || 0} | Status: ${d.enabled ? "Active":"Disabled"}
+</div>
 
-  }catch(e){
-    console.error(e);
-    alert("Error checking admin");
-  }
+<div class="controls">
+<button class="btn-small edit" onclick="edit('${d.id}')">Edit ✏️</button>
+<button class="btn-small ${d.enabled ? "disable":"toggle"}" onclick="toggle('${d.id}',${d.enabled})">
+${d.enabled ? "Disable":"Enable"}
+</button>
+<button class="btn-small delete" onclick="del('${d.id}')">Delete</button>
+<button class="btn-small" onclick="move('${d.id}',-1)">⬆</button>
+<button class="btn-small" onclick="move('${d.id}',1)">⬇</button>
+</div>
+`;
 
+list.appendChild(div);
+});
 });
 
-/* SAVE */
-window.save = async ()=>{
+/* EDIT */
+window.edit = async function(id){
+const snap = await getDoc(doc(db,"team",id));
+const d = snap.data();
 
-  // 🔴 CRITICAL CHECK (prevents fake CORS error)
-  if(!authReady){
-    alert("Please wait... auth not ready");
-    return;
-  }
+editId = id;
 
-  if(!auth.currentUser || !isAdmin){
-    alert("Not authorized");
-    return;
-  }
-
-  const nameVal = document.getElementById("name").value.trim();
-  const roleVal = document.getElementById("role").value.trim();
-  const descVal = document.getElementById("desc").value.trim();
-  const file = document.getElementById("image").files[0];
-
-  if(!nameVal){
-    alert("Name required");
-    return;
-  }
-
-  let imageUrl = "";
-
-  try{
-
-    // 🔥 Upload image (safe + stable)
-    if(file){
-      const storageRef = ref(storage,"team/"+Date.now());
-
-      const uploadTask = uploadBytesResumable(storageRef,file);
-
-      await new Promise((resolve,reject)=>{
-        uploadTask.on("state_changed",
-          null,
-          reject,
-          async ()=>{
-            imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve();
-          }
-        );
-      });
-    }
-
-    // 🔥 Save to Firestore
-    await addDoc(collection(db,"team"),{
-      name: nameVal,
-      role: roleVal || "",
-      description: descVal || "",
-      imageUrl: imageUrl || "",
-      enabled: true,
-      createdAt: new Date().toISOString()
-    });
-
-    alert("Saved successfully");
-
-  }catch(e){
-    console.error("ERROR:", e);
-    alert("Error: " + e.message);
-  }
-
+document.getElementById("name").value=d.name || "";
+document.getElementById("role").value=d.role || "";
+document.getElementById("desc").value=d.description || "";
+document.getElementById("facebook").value=d.facebook || "";
+document.getElementById("instagram").value=d.instagram || "";
+document.getElementById("linkedin").value=d.linkedin || "";
+document.getElementById("order").value=d.order || 0;
 };
 
+/* DELETE */
+window.del = async id=> await deleteDoc(doc(db,"team",id));
+
+/* TOGGLE */
+window.toggle = async (id,status)=>{
+await updateDoc(doc(db,"team",id),{enabled:!status});
+};
+
+/* MOVE */
+window.move = async (id,dir)=>{
+const snap = await getDoc(doc(db,"team",id));
+let current = snap.data().order || 0;
+
+await updateDoc(doc(db,"team",id),{
+order: current + dir
+});
+};
 </script>
 
 </body>
