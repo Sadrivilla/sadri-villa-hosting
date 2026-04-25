@@ -19,16 +19,7 @@ button{padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bol
 .delete{background:red;color:white}
 .toggle{background:#22c55e;color:white}
 .disable{background:#64748b;color:white}
-
-/* LOGIN */
-.login{
-max-width:400px;
-margin:80px auto;
-background:#0f172a;
-padding:25px;
-border-radius:15px;
-text-align:center;
-}
+.login{max-width:400px;margin:80px auto;background:#0f172a;padding:25px;border-radius:15px;text-align:center;}
 </style>
 </head>
 
@@ -46,7 +37,7 @@ text-align:center;
 <button onclick="login()" class="btn-primary">Login</button>
 </div>
 
-<!-- FORM -->
+<!-- ADMIN PANEL -->
 <div class="form" id="adminPanel">
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
@@ -85,8 +76,8 @@ let editId = null;
 
 /* LOGIN */
 window.login = async function(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = emailInput.value;
+  const password = passwordInput.value;
 
   try{
     await signInWithEmailAndPassword(auth,email,password);
@@ -95,24 +86,26 @@ window.login = async function(){
   }
 };
 
-/* AUTH CHECK */
+/* AUTH + ADMIN CHECK */
 onAuthStateChanged(auth, async (user)=>{
+
   if(!user){
-    document.getElementById("loginBox").style.display="block";
+    loginBox.style.display="block";
+    adminPanel.style.display="none";
+    list.style.display="none";
     return;
   }
 
   const snap = await getDoc(doc(db,"users",user.uid));
 
   if(!snap.exists() || snap.data().role !== "admin"){
-    alert("Access denied");
+    alert("Access denied (Not Admin)");
     return;
   }
 
-  // SHOW PANEL
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("adminPanel").style.display="block";
-  document.getElementById("list").style.display="block";
+  loginBox.style.display="none";
+  adminPanel.style.display="block";
+  list.style.display="block";
 });
 
 /* SAVE */
@@ -123,7 +116,7 @@ if(!auth.currentUser){
   return;
 }
 
-const file = document.getElementById("image").files[0];
+const file = image.files[0];
 let imageUrl = "";
 
 if(file){
@@ -133,13 +126,13 @@ imageUrl = await getDownloadURL(storageRef);
 }
 
 const data = {
-name:document.getElementById("name").value,
-role:document.getElementById("role").value,
-description:document.getElementById("desc").value,
-facebook:document.getElementById("facebook").value,
-instagram:document.getElementById("instagram").value,
-linkedin:document.getElementById("linkedin").value,
-order:Number(document.getElementById("order").value || 0),
+name:name.value,
+role:role.value,
+description:desc.value,
+facebook:facebook.value,
+instagram:instagram.value,
+linkedin:linkedin.value,
+order:Number(order.value || 0),
 };
 
 if(imageUrl) data.imageUrl = imageUrl;
@@ -163,9 +156,7 @@ function clearForm(){
 .forEach(id=>document.getElementById(id).value="");
 }
 
-/* LOAD LIST */
-const list = document.getElementById("list");
-
+/* LOAD */
 onSnapshot(collection(db,"team"),snap=>{
 list.innerHTML="";
 let arr=[];
