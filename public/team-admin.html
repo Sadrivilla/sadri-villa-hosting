@@ -73,22 +73,19 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 
 let editId = null;
+let isAdminUser = false;
 
 /* LOGIN */
 window.login = async function(){
-  const email = emailInput.value;
-  const password = passwordInput.value;
-
   try{
-    await signInWithEmailAndPassword(auth,email,password);
+    await signInWithEmailAndPassword(auth, email.value, password.value);
   }catch(e){
     alert(e.message);
   }
 };
 
-/* AUTH + ADMIN CHECK */
+/* AUTH CHECK */
 onAuthStateChanged(auth, async (user)=>{
-
   if(!user){
     loginBox.style.display="block";
     adminPanel.style.display="none";
@@ -103,6 +100,8 @@ onAuthStateChanged(auth, async (user)=>{
     return;
   }
 
+  isAdminUser = true;
+
   loginBox.style.display="none";
   adminPanel.style.display="block";
   list.style.display="block";
@@ -111,10 +110,12 @@ onAuthStateChanged(auth, async (user)=>{
 /* SAVE */
 window.saveMember = async function(){
 
-if(!auth.currentUser){
-  alert("Login required");
+if(!auth.currentUser || !isAdminUser){
+  alert("Login not ready / Not admin");
   return;
 }
+
+console.log("USER:", auth.currentUser.uid);
 
 const file = image.files[0];
 let imageUrl = "";
