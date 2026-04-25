@@ -36,23 +36,11 @@ padding-top:90px;text-align:center;
 .team-container{
 max-width:1200px;
 margin:40px auto;
-display:grid;
-
-/* 🔥 FORCE HORIZONTAL GRID */
-grid-template-columns: repeat(3, 1fr);
+display:flex;
+flex-wrap:wrap;
 gap:25px;
+justify-content:center;
 padding:20px;
-}
-@media(max-width:1000px){
-.team-container{
-grid-template-columns: repeat(2, 1fr);
-}
-}
-
-@media(max-width:600px){
-.team-container{
-grid-template-columns: 1fr;
-}
 }
 
 /* CARD */
@@ -63,10 +51,10 @@ padding:25px;
 text-align:center;
 box-shadow:0 20px 45px rgba(0,0,0,.08);
 transition:.3s;
-width:100%;
-box-sizing:border-box;
-display:flex;
-flex-direction:column;
+
+/* 🔥 KEY FIX */
+width:300px;
+flex:0 0 auto;
 }
 .team-card:hover{
 transform:translateY(-8px);
