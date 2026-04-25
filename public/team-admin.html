@@ -2,63 +2,50 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Team Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{margin:0;font-family:Arial;background:#081634;color:white;}
-.header{padding:20px;text-align:center;background:#020617;}
-.form{max-width:700px;margin:30px auto;background:#0f172a;padding:25px;border-radius:15px;display:none;}
-input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;}
-button{padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
-.btn-primary{background:linear-gradient(135deg,#38bdf8,#60a5fa);color:white;width:100%;}
-.btn-logout{background:red;color:white;margin-bottom:10px;width:100%;}
-.list{max-width:1000px;margin:30px auto;display:none;}
-.card{background:#0f172a;padding:15px;margin:10px 0;border-radius:12px;display:flex;justify-content:space-between;flex-wrap:wrap;}
-.controls{display:flex;gap:5px;}
-.login{max-width:400px;margin:80px auto;background:#0f172a;padding:25px;border-radius:15px;text-align:center;}
+body{font-family:Arial;background:#0f172a;color:white;text-align:center}
+.container{max-width:600px;margin:40px auto}
+input,textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:none}
+button{padding:10px;margin-top:10px;border:none;border-radius:6px;cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h2>Team Admin Panel</h2>
-</div>
+<div class="container">
+
+<h2>Team Admin</h2>
 
 <!-- LOGIN -->
-<div id="loginBox" class="login">
-<h3>Admin Login</h3>
+<div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
-<button onclick="login()" class="btn-primary">Login</button>
+<button onclick="login()">Login</button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div class="form" id="adminPanel">
-
-<button class="btn-logout" onclick="logout()">Logout</button>
+<!-- PANEL -->
+<div id="panel" style="display:none">
 
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
 <textarea id="desc" placeholder="Description"></textarea>
 
-<input id="facebook" placeholder="Facebook URL">
-<input id="instagram" placeholder="Instagram URL">
-<input id="linkedin" placeholder="LinkedIn URL">
-
-<input id="order" type="number" placeholder="Order">
 <input type="file" id="image">
 
-<button class="btn-primary" onclick="saveMember()">Save Member</button>
+<button onclick="save()">Save Member</button>
+<button onclick="logout()">Logout</button>
+
 </div>
 
-<div id="list" class="list"></div>
+</div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -73,170 +60,86 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
 
-let editId = null;
 let isAdmin = false;
-let authReady = false;
 
 /* LOGIN */
-window.login = async () => {
-  try{
-    await signInWithEmailAndPassword(auth,email.value,password.value);
-  }catch(e){
-    alert(e.message);
-  }
+window.login = async ()=>{
+await signInWithEmailAndPassword(auth,email.value,password.value);
 };
 
 /* LOGOUT */
-window.logout = async () => {
-  await signOut(auth);
-  alert("Logged out");
+window.logout = async ()=>{
+await signOut(auth);
 };
 
 /* AUTH CHECK */
 onAuthStateChanged(auth, async (user)=>{
 
-  authReady = false;
-  isAdmin = false;
+if(!user){
+loginBox.style.display="block";
+panel.style.display="none";
+return;
+}
 
-  if(!user){
-    loginBox.style.display="block";
-    adminPanel.style.display="none";
-    list.style.display="none";
-    return;
-  }
+const snap = await getDoc(doc(db,"users",user.uid));
 
-  const snap = await getDoc(doc(db,"users",user.uid));
+if(!snap.exists() || snap.data().role !== "admin"){
+alert("Not admin");
+await signOut(auth);
+return;
+}
 
-  if(!snap.exists() || snap.data().role !== "admin"){
-    alert("Not Admin");
-    await signOut(auth);
-    return;
-  }
+isAdmin = true;
 
-  isAdmin = true;
-  authReady = true;
-
-  loginBox.style.display="none";
-  adminPanel.style.display="block";
-  list.style.display="block";
+loginBox.style.display="none";
+panel.style.display="block";
 
 });
 
 /* SAVE */
-window.saveMember = async function(){
-
-if(!authReady){
-  alert("Wait for login...");
-  return;
-}
+window.save = async ()=>{
 
 if(!auth.currentUser || !isAdmin){
-  alert("Not authorized");
-  return;
+alert("Not authorized");
+return;
 }
 
-const file = image.files[0];
+const nameVal = document.getElementById("name").value.trim();
+const roleVal = document.getElementById("role").value.trim();
+const descVal = document.getElementById("desc").value.trim();
+const file = document.getElementById("image").files[0];
+
+if(!nameVal){
+alert("Name required");
+return;
+}
+
 let imageUrl = "";
 
 if(file){
-  const storageRef = ref(storage,"team/"+Date.now());
+const storageRef = ref(storage,"team/"+Date.now());
 
-  const uploadTask = uploadBytesResumable(storageRef, file);
+const uploadTask = uploadBytesResumable(storageRef,file);
 
-  await new Promise((resolve,reject)=>{
-    uploadTask.on("state_changed",
-      null,
-      reject,
-      async ()=>{
-        imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve();
-      }
-    );
-  });
-}
-
-const data = {
-name:name.value,
-role:role.value,
-description:desc.value,
-facebook:facebook.value,
-instagram:instagram.value,
-linkedin:linkedin.value,
-order:Number(order.value || 0),
-};
-
-if(imageUrl) data.imageUrl = imageUrl;
-
-if(editId){
-await updateDoc(doc(db,"team",editId),data);
-editId=null;
-alert("Updated!");
-}else{
-data.enabled=true;
-await addDoc(collection(db,"team"),data);
-alert("Added!");
-}
-
-clearForm();
-};
-
-/* CLEAR */
-function clearForm(){
-["name","role","desc","facebook","instagram","linkedin","order","image"]
-.forEach(id=>document.getElementById(id).value="");
-}
-
-/* LOAD LIST */
-onSnapshot(collection(db,"team"),snap=>{
-list.innerHTML="";
-let arr=[];
-snap.forEach(d=>arr.push({id:d.id,...d.data()}));
-arr.sort((a,b)=>a.order-b.order);
-
-arr.forEach(d=>{
-const div=document.createElement("div");
-div.className="card";
-
-div.innerHTML=`
-<div>
-<strong>${d.name}</strong> (${d.role})<br>
-Order: ${d.order}
-</div>
-
-<div>
-<button onclick="edit('${d.id}')">Edit</button>
-<button onclick="toggle('${d.id}',${d.enabled})">
-${d.enabled?"Disable":"Enable"}
-</button>
-<button onclick="del('${d.id}')">Delete</button>
-</div>
-`;
-
-list.appendChild(div);
+await new Promise((resolve,reject)=>{
+uploadTask.on("state_changed",null,reject,async()=>{
+imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+resolve();
 });
 });
+}
 
-/* EDIT */
-window.edit = async function(id){
-const snap = await getDoc(doc(db,"team",id));
-const d = snap.data();
-editId=id;
+await addDoc(collection(db,"team"),{
+name: nameVal,
+role: roleVal,
+description: descVal,
+imageUrl: imageUrl,
+enabled: true,
+createdAt: new Date().toISOString()
+});
 
-name.value=d.name;
-role.value=d.role;
-desc.value=d.description;
-facebook.value=d.facebook;
-instagram.value=d.instagram;
-linkedin.value=d.linkedin;
-order.value=d.order;
-};
+alert("Saved");
 
-/* DELETE */
-window.del = async id=> await deleteDoc(doc(db,"team",id));
-
-/* TOGGLE */
-window.toggle = async (id,status)=>{
-await updateDoc(doc(db,"team",id),{enabled:!status});
 };
 
 </script>
