@@ -172,14 +172,19 @@ let contentHTML = "";
 // 🔥 LOOP THROUGH DESCRIPTIONS + IMAGES
 if(d.descriptions || d.images){
 
-for(let i=0;i<7;i++){
+let max = Math.max(
+d.descriptions?.length || 0,
+d.images?.length || 0
+);
+
+for(let i=0;i<max;i++){
 
 let desc = d.descriptions?.[i];
 let img = d.images?.[i];
 
 // description
-if(desc){
-contentHTML += `<div class="desc">${desc}</div>`;
+if(desc && desc.text){
+contentHTML += `<div class="desc">${desc.text}</div>`;
 }
 
 // image
