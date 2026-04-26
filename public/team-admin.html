@@ -101,51 +101,10 @@ flex-wrap:wrap;
 <div class="form">
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
-<div id="multiDesc">
+<div id="multiDesc"></div>
 
-<!-- Repeat block -->
-<div>
-<textarea id="desc1" placeholder="Description 1"></textarea>
-<input type="file" id="image1" onchange="previewImage(1)">
-<img id="preview1" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc2" placeholder="Description 2"></textarea>
-<input type="file" id="image2" onchange="previewImage(2)">
-<img id="preview2" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc3" placeholder="Description 3"></textarea>
-<input type="file" id="image3" onchange="previewImage(3)">
-<img id="preview3" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc4" placeholder="Description 4"></textarea>
-<input type="file" id="image4" onchange="previewImage(4)">
-<img id="preview4" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc5" placeholder="Description 5"></textarea>
-<input type="file" id="image5" onchange="previewImage(5)">
-<img id="preview5" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc6" placeholder="Description 6"></textarea>
-<input type="file" id="image6" onchange="previewImage(6)">
-<img id="preview6" style="max-width:100px;display:none;">
-</div>
-
-<div>
-<textarea id="desc7" placeholder="Description 7"></textarea>
-<input type="file" id="image7" onchange="previewImage(7)">
-<img id="preview7" style="max-width:100px;display:none;">
-</div>
-
+<button type="button" onclick="addDesc()">+ Add Description</button>
+<button type="button" onclick="addImage()">+ Add Photo</button>
 </div>
 <input id="facebook" placeholder="Facebook URL">
 <input id="instagram" placeholder="Instagram URL">
@@ -177,6 +136,82 @@ font-weight:bold;
 z-index:999;
 "></div>
   <script>
+    function formatText(btn, command){
+const editor = btn.parentElement.nextElementSibling;
+editor.focus();
+document.execCommand(command, false, null);
+}
+
+function changeColor(select){
+const editor = select.parentElement.nextElementSibling;
+editor.focus();
+document.execCommand("foreColor", false, select.value);
+}
+    let counter = 0;
+
+function addDesc(){
+counter++;
+
+const div = document.createElement("div");
+
+div.innerHTML = `
+
+<div style="margin-bottom:8px;">
+<button type="button" onclick="formatText(this,'bold')">B</button>
+<button type="button" onclick="formatText(this,'italic')">I</button>
+<button type="button" onclick="formatText(this,'underline')">U</button>
+
+<select onchange="changeColor(this)">
+<option value="">Color</option>
+<option value="#ef4444">Red</option>
+<option value="#22c55e">Green</option>
+<option value="#3b82f6">Blue</option>
+<option value="#eab308">Yellow</option>
+<option value="#a855f7">Purple</option>
+<option value="#ec4899">Pink</option>
+<option value="#14b8a6">Teal</option>
+<option value="#f97316">Orange</option>
+<option value="#000000">Black</option>
+</select>
+</div>
+
+<div class="descInput" contenteditable="true" style="
+min-height:80px;
+background:white;
+color:black;
+padding:10px;
+border-radius:8px;
+"></div>
+
+`;
+
+document.getElementById("multiDesc").appendChild(div);
+}
+
+
+function addImage(){
+counter++;
+
+const div = document.createElement("div");
+
+div.innerHTML = `
+<input type="file" class="imgInput">
+<img style="max-width:100px;display:none;">
+`;
+
+const input = div.querySelector(".imgInput");
+const img = div.querySelector("img");
+
+input.onchange = ()=>{
+const file = input.files[0];
+if(file){
+img.src = URL.createObjectURL(file);
+img.style.display="block";
+}
+};
+
+document.getElementById("multiDesc").appendChild(div);
+}
 function showToast(message, isError=false){
 const toast = document.getElementById("toast");
 
@@ -225,56 +260,76 @@ document.getElementById("progressText").innerText = "0%";
 document.getElementById("saveBtn").disabled=true;
   const name = document.getElementById("name").value.trim();
 const order = document.getElementById("order").value;
-const desc1 = document.getElementById("desc1").value.trim();
+const hasContent = document.getElementById("multiDesc").children.length > 0;
 
-if(!name || !order || !desc1){
-showToast("Name, Order and Description 1 are mandatory", true);
-  document.getElementById("progressBox").style.display = "none";
+if(!name || !order || !hasContent){
+showToast("Name, Order and at least one block is required", true);
 
+document.getElementById("progressBox").style.display = "none";
 document.getElementById("saveBtn").innerText="Save Member";
 document.getElementById("saveBtn").disabled=false;
 
 return;
 }
 
-
-
 try{
-  let descriptions = [];
+let descriptions = [];
 let images = [];
 
-for(let i=1;i<=7;i++){
+const blocks = document.getElementById("multiDesc").children;
 
-let desc = document.getElementById("desc"+i).value.trim();
-let file = document.getElementById("image"+i).files[0];
+let index = 0;
+
+for(let block of blocks){
+
+let descInput = block.querySelector(".descInput");
+let fileInput = block.querySelector(".imgInput");
 
 let imageUrl = "";
 
-if(file){
-const storageRef = ref(storage,"team/"+Date.now()+"_"+i);
+if(fileInput && fileInput.files[0]){
 
-const uploadTask = uploadBytesResumable(storageRef,file);
+const storageRef = ref(storage,"team/"+Date.now()+"_"+index);
+const uploadTask = uploadBytesResumable(storageRef,fileInput.files[0]);
 
 await new Promise((resolve,reject)=>{
 
 uploadTask.on("state_changed",
+
 (snapshot)=>{
-let percent = ((i-1)/7)*100 + ((snapshot.bytesTransferred / snapshot.totalBytes) * (100/7));
-  document.getElementById("progressBar").style.width = percent + "%";
-  document.getElementById("progressText").innerText = Math.round(percent) + "%";
+let percent = ((index + (snapshot.bytesTransferred / snapshot.totalBytes)) / blocks.length) * 100;
+
+document.getElementById("progressBar").style.width = percent + "%";
+document.getElementById("progressText").innerText = Math.round(percent) + "%";
 },
+
 reject,
+
 async ()=>{
-  imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-  resolve();
-});
-  
+imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+resolve();
+}
+
+);
+
 });
 }
-if(desc || imageUrl){
-descriptions.push(desc);
+
+// description
+if(descInput){
+descriptions.push({
+text: descInput.innerHTML
+});
+images.push("");
+}
+
+// image
+if(imageUrl){
+descriptions.push(null);
 images.push(imageUrl);
 }
+
+index++;
 }
 
 
@@ -319,16 +374,12 @@ document.getElementById("saveBtn").disabled=false;
 
 };
 
-/* CLEAR */
 function clearForm(){
 ["name","role","facebook","instagram","linkedin","order"]
 .forEach(id=>document.getElementById(id).value="");
 
-for(let i=1;i<=7;i++){
-document.getElementById("desc"+i).value="";
-document.getElementById("image"+i).value="";
-document.getElementById("preview"+i).style.display="none";
-}
+// clear dynamic blocks
+document.getElementById("multiDesc").innerHTML = "";
 }
 
 /* LOAD LIST */
@@ -381,14 +432,7 @@ document.getElementById("facebook").value=d.facebook || "";
 document.getElementById("instagram").value=d.instagram || "";
 document.getElementById("linkedin").value=d.linkedin || "";
 document.getElementById("order").value=d.order || 0;
-  if(d.images){
-d.images.forEach((img,i)=>{
-if(img){
-document.getElementById("preview"+(i+1)).src = img;
-document.getElementById("preview"+(i+1)).style.display="block";
-}
-});
-}
+ 
 };
 
 /* DELETE */
