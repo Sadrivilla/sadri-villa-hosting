@@ -171,7 +171,7 @@ preview.style.display = "block";
 }
 </script>
 
-<script type="module">
+<script>
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
@@ -297,8 +297,6 @@ document.getElementById("desc"+i).value="";
 document.getElementById("image"+i).value="";
 document.getElementById("preview"+i).style.display="none";
 }
-.forEach(id=>document.getElementById(id).value="");
-}
 
 /* LOAD LIST */
 const list = document.getElementById("list");
@@ -346,7 +344,6 @@ editId = id;
 
 document.getElementById("name").value=d.name || "";
 document.getElementById("role").value=d.role || "";
-document.getElementById("desc").value=d.description || "";
 document.getElementById("facebook").value=d.facebook || "";
 document.getElementById("instagram").value=d.instagram || "";
 document.getElementById("linkedin").value=d.linkedin || "";
