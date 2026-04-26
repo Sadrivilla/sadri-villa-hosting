@@ -155,10 +155,40 @@ flex-wrap:wrap;
 
 
 <button id="saveBtn" class="btn-primary">Save Member</button>
+  <div id="progressBox" style="display:none;margin-top:10px;">
+  <div style="background:#1e293b;border-radius:6px;height:10px;overflow:hidden;">
+    <div id="progressBar" style="height:10px;width:0%;background:#38bdf8;"></div>
+  </div>
+  <p id="progressText" style="margin-top:5px;font-size:12px;">0%</p>
+</div>
 </div>
 
 <div id="list" class="list"></div>
+  <div id="toast" style="
+position:fixed;
+bottom:20px;
+right:20px;
+background:#22c55e;
+color:white;
+padding:12px 20px;
+border-radius:8px;
+display:none;
+font-weight:bold;
+z-index:999;
+"></div>
   <script>
+function showToast(message, isError=false){
+const toast = document.getElementById("toast");
+
+toast.innerText = message;
+toast.style.background = isError ? "#ef4444" : "#22c55e";
+toast.style.display = "block";
+
+setTimeout(()=>{
+toast.style.display = "none";
+},3000);
+}
+
 function previewImage(num){
 const file = document.getElementById("image"+num).files[0];
 const preview = document.getElementById("preview"+num);
@@ -189,13 +219,17 @@ let editId = null;
 /* SAVE / ADD */
 window.saveMember = async function(){
   document.getElementById("saveBtn").innerText="Saving...";
+  document.getElementById("progressBox").style.display = "block";
+document.getElementById("progressBar").style.width = "0%";
+document.getElementById("progressText").innerText = "0%";
 document.getElementById("saveBtn").disabled=true;
   const name = document.getElementById("name").value.trim();
 const order = document.getElementById("order").value;
 const desc1 = document.getElementById("desc1").value.trim();
 
 if(!name || !order || !desc1){
-alert("Name, Order and Description 1 are mandatory");
+showToast("Name, Order and Description 1 are mandatory", true);
+  document.getElementById("progressBox").style.display = "none";
 
 document.getElementById("saveBtn").innerText="Save Member";
 document.getElementById("saveBtn").disabled=false;
@@ -222,10 +256,19 @@ const storageRef = ref(storage,"team/"+Date.now()+"_"+i);
 const uploadTask = uploadBytesResumable(storageRef,file);
 
 await new Promise((resolve,reject)=>{
-uploadTask.on("state_changed",null,reject,async ()=>{
-imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-resolve();
+
+uploadTask.on("state_changed",
+(snapshot)=>{
+let percent = ((i-1)/7)*100 + ((snapshot.bytesTransferred / snapshot.totalBytes) * (100/7));
+  document.getElementById("progressBar").style.width = percent + "%";
+  document.getElementById("progressText").innerText = Math.round(percent) + "%";
+},
+reject,
+async ()=>{
+  imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+  resolve();
 });
+  
 });
 }
 if(desc || imageUrl){
@@ -258,7 +301,8 @@ editId = null;
 await addDoc(collection(db,"team"),data);
 }
 
-alert("Saved Successfully!");
+showToast("Saved Successfully!");
+  document.getElementById("progressBox").style.display = "none";
 
 clearForm();
   document.getElementById("saveBtn").innerText="Save Member";
@@ -266,7 +310,8 @@ document.getElementById("saveBtn").disabled=false;
 
 }catch(e){
 console.error(e);
-alert("Error: "+e.message);
+showToast(e.message, true);
+  document.getElementById("progressBox").style.display = "none";
 
 document.getElementById("saveBtn").innerText="Save Member";
 document.getElementById("saveBtn").disabled=false;
