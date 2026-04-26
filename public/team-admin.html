@@ -155,7 +155,7 @@ flex-wrap:wrap;
 
 <input type="file" id="image">
 
-<button id="saveBtn" class="btn-primary" onclick="saveMember()">Save Member</button>
+<button id="saveBtn" class="btn-primary">Save Member</button>
 </div>
 
 <div id="list" class="list"></div>
@@ -170,8 +170,7 @@ preview.style.display = "block";
 }
 }
 </script>
-
-<script>
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
@@ -187,6 +186,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let editId = null;
+  document.getElementById("saveBtn").addEventListener("click", saveMember);
 
 /* SAVE / ADD */
 window.saveMember = async function(){
@@ -296,6 +296,7 @@ for(let i=1;i<=7;i++){
 document.getElementById("desc"+i).value="";
 document.getElementById("image"+i).value="";
 document.getElementById("preview"+i).style.display="none";
+}
 }
 
 /* LOAD LIST */
