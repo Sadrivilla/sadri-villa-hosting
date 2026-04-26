@@ -167,11 +167,35 @@ if(d.enabled===false) return;
 const card = document.createElement("div");
 card.className="team-card";
 
+let contentHTML = "";
+
+// 🔥 LOOP THROUGH DESCRIPTIONS + IMAGES
+if(d.descriptions || d.images){
+
+for(let i=0;i<7;i++){
+
+let desc = d.descriptions?.[i];
+let img = d.images?.[i];
+
+// description
+if(desc){
+contentHTML += `<div class="desc">${desc}</div>`;
+}
+
+// image
+if(img){
+contentHTML += `<img src="${img}" class="team-img" onclick="openImage('${img}')">`;
+}
+
+}
+}
+
 card.innerHTML = `
-<img src="${d.imageUrl || ''}" class="team-img" onclick="openImage('${d.imageUrl}')">
 <h3>${d.name}</h3>
-<div class="role">${d.role}</div>
-<div class="desc">${d.description || ''}</div>
+<div class="role">${d.role || ""}</div>
+
+${contentHTML}
+
 <div class="social">
 ${d.facebook ? `<a href="${d.facebook}" target="_blank" class="fb"><i class="fab fa-facebook-f"></i></a>`:""}
 ${d.instagram ? `<a href="${d.instagram}" target="_blank" class="insta"><i class="fab fa-instagram"></i></a>`:""}
