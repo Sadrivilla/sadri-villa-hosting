@@ -1,128 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Team | Sadri Villa</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team | Sadri Villa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
 
-<style>
-body{margin:0;font-family:Arial;background:#f8fafc}
+        /* NAVBAR SAME THEME */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 55px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, .25);
+            backdrop-filter: blur(0px);
+            padding: 0 20px;
+            z-index: 1000;
+        }
 
-/* NAVBAR SAME THEME */
-.navbar{
-position:fixed;top:0;width:100%;
-height:55px;
-display:flex;justify-content:space-between;align-items:center;
-background:rgba(255,255,255,.25);
-backdrop-filter:blur(0px);
-padding:0 20px;
-z-index:1000;
-}
+        .navbar a {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #38bdf8, #60a5fa);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-.navbar a{
-padding:8px 16px;
-border-radius:20px;
-background:linear-gradient(135deg,#38bdf8,#60a5fa);
-color:white;text-decoration:none;font-weight:600;
-}
+        /* HEADER */
+        .header {
+            padding-top: 90px;
+            text-align: center;
+        }
 
-/* HEADER */
-.header{
-padding-top:90px;text-align:center;
-}
-.header h1{font-size:34px}
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            letter-spacing: 1px;
+        }
 
-.team-container{
-display:flex;
-flex-direction:column;   /* one card per row */
-gap:20px;
+        .team-container {
+            display: flex;
+            flex-direction: column;
+            /* one card per row */
+            gap: 20px;
 
-padding:10px;   /* 🔥 minimal side gap */
-}
+            padding: 10px;
+            /* 🔥 minimal side gap */
+        }
 
-/* CARD */
-.team-card{
-display:flex;
-flex-direction:column;
+        /* CARD */
+        .team-card {
+            display: flex;
+            flex-direction: column;
 
-background:white;
-border-radius:15px;
-padding:5px;
-box-shadow:0 10px 25px rgba(0,0,0,.08);
-transition:.3s;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
 
-/* 🔥 IMPORTANT */
-min-height:350px;
-}
+            border-radius: 18px;
+            padding: 20px;
 
-.team-card:hover{
-transform:translateY(-8px);
-box-shadow:0 0 0 1px #38bdf8,0 28px 55px rgba(56,189,248,.35);
-}
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .08);
+            transition: .4s;
+        }
 
-.team-card:hover{
-transform:translateY(-3px);
-}
-.team-card:hover{
-transform:translateY(-8px);
-box-shadow:0 0 0 1px #38bdf8,0 28px 55px rgba(56,189,248,.35);
-}
+        .team-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, .15);
+        }
 
-.team-img{
-width:100%;
+        .team-card:hover {
+            transform: translateY(-3px);
+        }
 
-/* 🔥 RESPONSIVE HEIGHT */
-height:auto;
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 0 1px #38bdf8, 0 28px 55px rgba(56, 189, 248, .35);
+        }
 
-/* 🔥 KEEP RATIO */
-aspect-ratio: 16/9;
+        .team-img {
+            width: 100%;
+            aspect-ratio: 16/9;
 
-object-fit:contain;   /* ❗ no cropping */
-border-radius:12px;
-margin-bottom:15px;
-cursor:pointer;
-background:#f1f5f9;   /* optional: nice background */
-}
+            object-fit: cover;
+            border-radius: 14px;
 
-.role{
-color:#38bdf8;font-weight:700;margin:5px 0;
-}
+            margin: 15px 0;
+            transition: .4s;
+        }
 
-.desc{
-font-size:14px;color:#475569;
-}
+        .team-img:hover {
+            transform: scale(1.03);
+        }
 
-.social a{
-display:inline-block;
-margin:5px;
-padding:6px 10px;
-border-radius:8px;
-color:white;text-decoration:none;font-size:13px;
-}
-.social{
-margin-top:auto;   /* 🔥 PUSH TO BOTTOM */
-}
-.fb{background:#1877f2}
-.insta{background:#e1306c}
-.linkedin{background:#0a66c2}
-</style>
+        .role {
+            color: #38bdf8;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+
+        .desc {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .social a {
+            display: inline-block;
+            margin: 5px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .social {
+            margin-top: auto;
+            /* 🔥 PUSH TO BOTTOM */
+        }
+
+        .fb {
+            background: #1877f2
+        }
+
+        .insta {
+            background: #e1306c
+        }
+
+        .linkedin {
+            background: #0a66c2
+        }
+    </style>
 </head>
 
 <body>
-    
 
-<div class="navbar">
-<a href="index.html">Back</a>
-</div>
 
-<div class="header">
-<h1>Historical Monument</h1>
-</div>
+    <div class="navbar">
+        <a href="index.html">Back</a>
+    </div>
 
-<div id="teamContainer" class="team-container"></div>
+    <div class="header">
+        <h1>Historical Monument</h1>
+    </div>
 
-<!-- 🔥 IMAGE MODAL (PASTE HERE) -->
-<div id="imgModal" style="
+    <div id="teamContainer" class="team-container"></div>
+
+    <!-- 🔥 IMAGE MODAL (PASTE HERE) -->
+    <div id="imgModal" style="
 display:none;
 position:fixed;
 top:0;left:0;
@@ -132,70 +170,78 @@ justify-content:center;
 align-items:center;
 z-index:2000;
 ">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-<img id="modalImg" style="
+        <img id="modalImg" style="
 max-width:90%;
 max-height:90%;
 border-radius:12px;
 ">
 
-</div>  
+    </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            orderBy,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
-apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06"
-});
+        const app = initializeApp({
+            apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+            authDomain: "sadri-villa-14c06.firebaseapp.com",
+            projectId: "sadri-villa-14c06"
+        });
 
-const db = getFirestore(app);
-const container = document.getElementById("teamContainer");
+        const db = getFirestore(app);
+        const container = document.getElementById("teamContainer");
 
-const q = query(collection(db,"team"),orderBy("order"));
+        const q = query(collection(db, "team"), orderBy("order"));
 
-onSnapshot(q,(snapshot)=>{
-container.innerHTML="";
+        onSnapshot(q, (snapshot) => {
+            container.innerHTML = "";
 
-snapshot.forEach(doc=>{
-const d = doc.data();
-if(d.enabled===false) return;
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                if (d.enabled === false) return;
 
-const card = document.createElement("div");
-card.className="team-card";
+                const card = document.createElement("div");
+                card.className = "team-card";
 
-let contentHTML = "";
+                let contentHTML = "";
 
-// 🔥 LOOP THROUGH DESCRIPTIONS + IMAGES
-if(d.descriptions || d.images){
+                // 🔥 LOOP THROUGH DESCRIPTIONS + IMAGES
+                if (d.descriptions || d.images) {
 
-let max = Math.max(
-d.descriptions?.length || 0,
-d.images?.length || 0
-);
+                    let max = Math.max(
+                        d.descriptions?.length || 0,
+                        d.images?.length || 0
+                    );
 
-for(let i=0;i<max;i++){
+                    for (let i = 0; i < max; i++) {
 
-let desc = d.descriptions?.[i];
-let img = d.images?.[i];
+                        let desc = d.descriptions?.[i];
+                        let img = d.images?.[i];
 
-// description
-if(desc && desc.text){
-contentHTML += `<div class="desc">${desc.text}</div>`;
-}
+                        // description
+                        if (desc && desc.text) {
+                            contentHTML += `<div class="desc">${desc.text}</div>`;
+                        }
 
-// image
-if(img){
-contentHTML += `<img src="${img}" class="team-img" onclick="openImage('${img}')">`;
-}
+                        // image
+                        if (img) {
+                            contentHTML += `<img src="${img}" class="team-img" onclick="openImage(this.src)">`;
+                        }
 
-}
-}
+                    }
+                }
 
-card.innerHTML = `
+                card.innerHTML = `
 <h3>${d.name}</h3>
 <div class="role">${d.role || ""}</div>
 
@@ -208,21 +254,22 @@ ${d.linkedin ? `<a href="${d.linkedin}" target="_blank" class="linkedin"><i clas
 </div>
 `;
 
-container.appendChild(card);
-});
-});
-  // 🔥 ADD THIS BELOW
-window.openImage = function(src){
-if(!src) return;
+                container.appendChild(card);
+            });
+        });
+        // 🔥 ADD THIS BELOW
+        window.openImage = function(src) {
+            if (!src) return;
 
-document.getElementById("modalImg").src = src;
-document.getElementById("imgModal").style.display = "flex";
-};
+            document.getElementById("modalImg").src = src;
+            document.getElementById("imgModal").style.display = "flex";
+        };
 
-document.getElementById("imgModal").onclick = function(){
-this.style.display = "none";
-};
-</script>
+        document.getElementById("imgModal").onclick = function() {
+            this.style.display = "none";
+        };
+    </script>
 
 </body>
+
 </html>
