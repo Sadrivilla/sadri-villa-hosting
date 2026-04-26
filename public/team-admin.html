@@ -153,7 +153,6 @@ flex-wrap:wrap;
 
 <input id="order" type="number" placeholder="Order (0,1,2...)">
 
-<input type="file" id="image">
 
 <button id="saveBtn" class="btn-primary">Save Member</button>
 </div>
@@ -186,7 +185,6 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let editId = null;
-  document.getElementById("saveBtn").addEventListener("click", saveMember);
 
 /* SAVE / ADD */
 window.saveMember = async function(){
@@ -198,11 +196,14 @@ const desc1 = document.getElementById("desc1").value.trim();
 
 if(!name || !order || !desc1){
 alert("Name, Order and Description 1 are mandatory");
+
+document.getElementById("saveBtn").innerText="Save Member";
+document.getElementById("saveBtn").disabled=false;
+
 return;
 }
 
-const file = document.getElementById("image").files[0];
-let imageUrl = "";
+
 
 try{
   let descriptions = [];
@@ -227,26 +228,13 @@ resolve();
 });
 });
 }
-
 if(desc || imageUrl){
 descriptions.push(desc);
 images.push(imageUrl);
 }
 }
 
-// ✅ UPLOAD IMAGE (FIXED)
-if(file){
-const storageRef = ref(storage,"team/"+Date.now());
 
-const uploadTask = uploadBytesResumable(storageRef,file);
-
-await new Promise((resolve,reject)=>{
-uploadTask.on("state_changed",null,reject,async ()=>{
-imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-resolve();
-});
-});
-}
 
 // ✅ SAFE DATA (NO UNDEFINED)
 const data = {
@@ -376,6 +364,8 @@ await updateDoc(doc(db,"team",id),{
 order: current + dir
 });
 };
+    document.getElementById("saveBtn").addEventListener("click", saveMember);
+
 </script>
 
 </body>
