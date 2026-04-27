@@ -41,12 +41,9 @@ body{font-family:Arial,sans-serif;background:#ffffff}
   justify-content:space-between;
   align-items:center;
    background: rgba(255, 255, 255, 0.25);
-backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px); /* For Safari */
+backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
 border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(12px);
-
   border-bottom:1px solid rgba(0,0,0,.08);
   z-index:1000;
   padding:0;
@@ -563,11 +560,11 @@ footer{
 
 <!-- HERO -->
 <section class="hero" id="heroSection">
-  <video id="heroVideo"
-autoplay
+<video id="heroVideo"
 muted
 loop
 playsinline
+preload="none"
 style="
 position:absolute;
 top:0;
@@ -776,7 +773,7 @@ function typeEffect(text){
     if(i<text.length){
       animatedText.innerHTML+=text.charAt(i);
       i++;
-      setTimeout(typing,18);
+      setTimeout(typing,10);
     }
   }
   typing();
@@ -800,7 +797,8 @@ onSnapshot(doc(db,"siteSettings","home"),snap=>{
 
 if(data.heroVideo && data.heroVideo.enabled){
 
-heroVideo.src=data.heroVideo.url;
+heroVideo.src = data.heroVideo.url;
+heroVideo.play();
 heroVideo.style.display="block";
 
 heroSection.style.backgroundImage="none";
@@ -838,7 +836,9 @@ const list=imgs.length>1?[...imgs,...imgs]:imgs;
 
 list.forEach(i=>{
   const img=document.createElement("img");
-  img.src=i.url;
+img.loading = "lazy";
+img.decoding = "async";
+img.src = i.url;
 
   img.onclick=()=>{
     currentIndex = imgs.indexOf(i);
@@ -995,7 +995,9 @@ div.style.fontFamily = data.fontFamily || "inherit";
 
     div.innerHTML = `
       <div class="villa-img">
-        <img src="${data.imageUrl || 'https://via.placeholder.com/800x500'}" alt="${data.title}">
+        <img loading="lazy" decoding="async"
+     src="${data.imageUrl || 'https://via.placeholder.com/800x500'}"
+     alt="${data.title}">
       </div>
       <div class="villa-text">
      <h2 style="font-family:${data.fontFamily || 'inherit'}">
