@@ -75,10 +75,7 @@
             transition: .4s;
         }
 
-        .team-card:hover {
-            transform: translateY(-6px) scale(1.01);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, .15);
-        }
+
 
         .team-card:hover {
             transform: translateY(-3px);
@@ -89,9 +86,18 @@
             box-shadow: 0 0 0 1px #38bdf8, 0 28px 55px rgba(56, 189, 248, .35);
         }
 
-        .team-img {
-            width: 100%;
-            aspect-ratio: 16/9;
+.team-img {
+    width: 100%;
+    max-height: 600px;     /* 🔥 control size */
+    height: auto;          /* keep original ratio */
+
+    object-fit: contain;   /* 🔥 NO CROPPING */
+
+    border-radius: 14px;
+    margin: 15px 0;
+    transition: .4s;
+    background: #f1f5f9;   /* optional: clean empty space */
+}
 
             object-fit: cover;
             border-radius: 14px;
@@ -100,9 +106,6 @@
             transition: .4s;
         }
 
-        .team-img:hover {
-            transform: scale(1.03);
-        }
 
         .role {
             color: #38bdf8;
