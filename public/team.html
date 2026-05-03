@@ -63,6 +63,10 @@
 
         /* CARD */
         .team-card {
+            h3 {
+margin: 0;
+letter-spacing: .5px;
+}
             display: flex;
             flex-direction: column;
 
@@ -227,7 +231,7 @@ border-radius:12px;
 
                         // description
                         if (desc && desc.text) {
-                            contentHTML += `<div class="desc">${desc.text}</div>`;
+                            contentHTML += `<div class="desc">${desc.text || ""}</div>`;
                         }
 
                         // image
@@ -239,7 +243,13 @@ border-radius:12px;
                 }
 
                 card.innerHTML = `
-<h3>${d.name}</h3>
+<h3 style="
+${d.nameStyle === 'bold' ? 'font-weight:700;' : ''}
+${d.nameStyle === 'elegant' ? 'font-family:Playfair Display, serif;' : ''}
+font-size:${d.nameSize || 20}px;
+">
+${d.name}
+</h3>
 <div class="role">${d.role || ""}</div>
 
 ${contentHTML}
