@@ -1,6 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Member | Sadri Villa</title>
+<meta name="description" content="Sadri Villa Member">
+
+<style>
+body{
+font-family: Arial;
+margin:0;
+padding:20px;
+background:#f1f5f9;
+}
+
+img{
+max-width:100%;
+border-radius:10px;
+margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ✅ THIS IS REQUIRED -->
+<div id="member"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+window.addEventListener("DOMContentLoaded", async () => {
 
 const app = initializeApp({
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -10,8 +42,15 @@ projectId:"sadri-villa-14c06"
 
 const db = getFirestore(app);
 
-// ✅ GET SLUG FROM URL
+// GET SLUG
 const slug = window.location.pathname.split("/").pop();
+
+const container = document.getElementById("member");
+
+if(!container){
+console.error("member div not found");
+return;
+}
 
 const snap = await getDocs(collection(db,"team"));
 
@@ -35,7 +74,7 @@ let html = `
 if(d.images){
 d.images.forEach(img=>{
 if(img){
-html += `<img src="${img}" style="max-width:300px;">`;
+html += `<img src="${img}">`;
 }
 });
 }
@@ -48,9 +87,14 @@ html += `<p>${desc.text}</p>`;
 });
 }
 
-document.getElementById("member").innerHTML = html;
+container.innerHTML = html;
 
 }else{
-document.getElementById("member").innerHTML = "<h2>Member not found</h2>";
+container.innerHTML = "<h2>Member not found</h2>";
 }
+
+});
 </script>
+
+</body>
+</html>
