@@ -362,6 +362,7 @@ index++;
 // ✅ SAFE DATA (NO UNDEFINED)
 const data = {
 name: name,
+   slug: name.toLowerCase().replace(/\s+/g, "-"),
 role: document.getElementById("role").value || "",
 descriptions: descriptions,
 images: images,
