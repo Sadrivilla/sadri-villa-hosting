@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Team | Sadri Villa</title>
+    <meta property="og:title" content="Sadri Villa Historical Monument of Fazilpur,Tajpur,Samstipur Bihar">
+<meta property="og:description" content="Sadri Villa. Explore members">
+<meta property="og:type" content="website">
+<meta property="og:url" content="">
+<meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1777328538738_0?alt=media&token=dcfa18e7-fe3a-4b3c-84da-5403ca038297">
+    <meta name="description" content="Sadri Villa. Explore members">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         body {
@@ -63,10 +69,6 @@
 
         /* CARD */
         .team-card {
-            h3 {
-margin: 0;
-letter-spacing: .5px;
-}
             display: flex;
             flex-direction: column;
 
@@ -144,6 +146,10 @@ letter-spacing: .5px;
         .linkedin {
             background: #0a66c2
         }
+        h3 {
+margin: 0;
+letter-spacing: .5px;
+}
     </style>
 </head>
 
@@ -155,7 +161,7 @@ letter-spacing: .5px;
     </div>
 
     <div class="header">
-        <h1>Historical Monument</h1>
+        <h1>Sadri's (Historical Monument)</h1>
     </div>
 
     <div id="teamContainer" class="team-container"></div>
@@ -204,45 +210,44 @@ border-radius:12px;
 
         const q = query(collection(db, "team"), orderBy("order"));
 
-        onSnapshot(q, (snapshot) => {
-            container.innerHTML = "";
+onSnapshot(q, (snapshot) => {
+    container.innerHTML = "";
 
-            snapshot.forEach(doc => {
-                const d = doc.data();
-                if (d.enabled === false) return;
+    let allData = [];
 
-                const card = document.createElement("div");
-                card.className = "team-card";
 
-                let contentHTML = "";
+    snapshot.forEach(doc => {
+        const d = doc.data();
+        if (d.enabled === false) return;
 
-                // 🔥 LOOP THROUGH DESCRIPTIONS + IMAGES
-                if (d.descriptions || d.images) {
+        allData.push(d);
 
-                    let max = Math.max(
-                        d.descriptions?.length || 0,
-                        d.images?.length || 0
-                    );
+        const card = document.createElement("div");
+        card.className = "team-card";
 
-                    for (let i = 0; i < max; i++) {
+        let contentHTML = "";
 
-                        let desc = d.descriptions?.[i];
-                        let img = d.images?.[i];
+        if (d.descriptions || d.images) {
+            let max = Math.max(
+                d.descriptions?.length || 0,
+                d.images?.length || 0
+            );
 
-                        // description
-                        if (desc && desc.text) {
-                            contentHTML += `<div class="desc">${desc.text || ""}</div>`;
-                        }
+            for (let i = 0; i < max; i++) {
+                let desc = d.descriptions?.[i];
+                let img = d.images?.[i];
 
-                        // image
-                        if (img) {
-                            contentHTML += `<img src="${img}" class="team-img" onclick="openImage(this.src)">`;
-                        }
-
-                    }
+                if (desc && desc.text) {
+                    contentHTML += `<div class="desc">${desc.text || ""}</div>`;
                 }
 
-                card.innerHTML = `
+                if (img) {
+                    contentHTML += `<img src="${img}" alt="${d.name}" loading="lazy" class="team-img" onclick="openImage(this.src)">`;
+                }
+            }
+        }
+
+        card.innerHTML = `
 <h3 style="
 ${d.nameStyle === 'bold' ? 'font-weight:700;' : ''}
 ${d.nameStyle === 'elegant' ? 'font-family:Playfair Display, serif;' : ''}
@@ -250,20 +255,24 @@ font-size:${d.nameSize || 20}px;
 ">
 ${d.name}
 </h3>
+
 <div class="role">${d.role || ""}</div>
 
 ${contentHTML}
 
 <div class="social">
-${d.facebook ? `<a href="${d.facebook}" target="_blank" class="fb"><i class="fab fa-facebook-f"></i></a>`:""}
-${d.instagram ? `<a href="${d.instagram}" target="_blank" class="insta"><i class="fab fa-instagram"></i></a>`:""}
-${d.linkedin ? `<a href="${d.linkedin}" target="_blank" class="linkedin"><i class="fab fa-linkedin-in"></i></a>`:""}
+${d.facebook ? `<a href="${d.facebook}" target="_blank" class="fb">FB</a>`:""}
+${d.instagram ? `<a href="${d.instagram}" target="_blank" class="insta">IG</a>`:""}
+${d.linkedin ? `<a href="${d.linkedin}" target="_blank" class="linkedin">IN</a>`:""}
 </div>
 `;
 
-                container.appendChild(card);
-            });
-        });
+        container.appendChild(card);
+    });
+
+    // 🔥 ADD THIS LINE
+    updateSchema(allData);
+});
         // 🔥 ADD THIS BELOW
         window.openImage = function(src) {
             if (!src) return;
@@ -276,6 +285,42 @@ ${d.linkedin ? `<a href="${d.linkedin}" target="_blank" class="linkedin"><i clas
             this.style.display = "none";
         };
     </script>
+    <script>
+function updateSchema(data){
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Sadri Villa",
+  "url": window.location.href,
+  "member": data.map(d => ({
+    "@type": "Person",
+    "name": d.name,
+    "jobTitle": d.role || "",
+    "sameAs": [
+      d.facebook || "",
+      d.instagram || "",
+      d.linkedin || ""
+    ].filter(Boolean),
+    "description": (d.descriptions || [])
+      .map(x => x?.text || "")
+      .join(" ")
+  }))
+};
+
+// remove old schema
+const old = document.getElementById("schemaData");
+if(old) old.remove();
+
+// create new
+const script = document.createElement("script");
+script.type = "application/ld+json";
+script.id = "schemaData";
+script.innerHTML = JSON.stringify(schema);
+
+document.head.appendChild(script);
+}
+</script>
 
 </body>
 
