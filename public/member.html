@@ -1,21 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Member | Sadri Villa</title>
-<meta name="description" content="Sadri Villa Member">
-
-</head>
-
-<body>
-
-<div id="member"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -25,13 +10,8 @@ projectId:"sadri-villa-14c06"
 
 const db = getFirestore(app);
 
-// GET ID FROM URL
-const params = new URLSearchParams(window.location.search);
+// ✅ GET SLUG FROM URL
 const slug = window.location.pathname.split("/").pop();
-
-if(id){
-
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const snap = await getDocs(collection(db,"team"));
 
@@ -42,7 +22,6 @@ if(doc.data().slug === slug){
 d = doc.data();
 }
 });
-  const d = snap.data();
 
 if(d){
 
@@ -71,9 +50,7 @@ html += `<p>${desc.text}</p>`;
 
 document.getElementById("member").innerHTML = html;
 
-}
+}else{
+document.getElementById("member").innerHTML = "<h2>Member not found</h2>";
 }
 </script>
-
-</body>
-</html>
