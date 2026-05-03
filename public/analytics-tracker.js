@@ -34,7 +34,5 @@ await setDoc(doc(collection(db,"analytics_logs")),{
 }
 
 onAuthStateChanged(auth, user=>{
-  if(user){
-    trackPage();
-  }
+  trackPage(); // always track (guest + user)
 });
