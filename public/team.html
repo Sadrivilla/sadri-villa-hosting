@@ -228,8 +228,10 @@ onSnapshot(q, (snapshot) => {
         allData.push(d);
 
         const card = document.createElement("div");
-        card.className = "team-card";
-
+card.className = "team-card";
+card.onclick = () => {
+window.location.href = "member.html?id=" + doc.id;
+};
         let contentHTML = "";
 
         if (d.descriptions || d.images) {
