@@ -6,6 +6,20 @@
 <title>Team Admin</title>
 
 <style>
+.draggable {
+  border: 1px dashed #64748b;
+  padding: 10px;
+  margin-bottom: 15px;
+  cursor: grab;
+  background:#020617;
+  border-radius:8px;
+}
+  .draggable:hover {
+  border-color: #38bdf8;
+}
+.dragging {
+  opacity: 0.5;
+}
 body{
 margin:0;
 font-family:Arial;
@@ -120,6 +134,10 @@ flex-wrap:wrap;
 <input id="order" type="number" placeholder="Order (0,1,2...)">
 
 
+<button type="button" onclick="previewMember()" class="btn-primary" style="margin-bottom:10px;background:#22c55e;">
+Preview 👁
+</button>
+
 <button id="saveBtn" class="btn-primary">Save Member</button>
   <div id="progressBox" style="display:none;margin-top:10px;">
   <div style="background:#1e293b;border-radius:6px;height:10px;overflow:hidden;">
@@ -166,7 +184,8 @@ function addDesc(){
 counter++;
 
 const div = document.createElement("div");
-
+div.classList.add("draggable");
+div.draggable = true;
 div.innerHTML = `
 
 <div style="margin-bottom:8px; display:flex; gap:5px; flex-wrap:wrap;">
@@ -220,22 +239,31 @@ function addImage(){
 counter++;
 
 const div = document.createElement("div");
+div.classList.add("draggable");
+div.draggable = true;
 
 div.innerHTML = `
 <button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <input type="file" class="imgInput">
-<img style="max-width:100px;display:none;">
+<img style="max-width:200px;border-radius:8px;margin-top:5px;display:none;">
 `;
 
 const input = div.querySelector(".imgInput");
 const img = div.querySelector("img");
 
-input.onchange = ()=>{
+input.onchange = async ()=>{
 const file = input.files[0];
-if(file){
-img.src = URL.createObjectURL(file);
-img.style.display="block";
-}
+if(!file) return;
+
+// crop + resize (NO STRETCH)
+const resizedBlob = await cropResizeImage(file, 1672, 941);
+
+// preview
+img.src = URL.createObjectURL(resizedBlob);
+img.style.display = "block";
+
+// store resized file
+input.resizedFile = new File([resizedBlob], file.name, { type: "image/jpeg" });
 };
 
 document.getElementById("multiDesc").appendChild(div);
@@ -253,6 +281,68 @@ toast.style.display = "none";
 }
       function removeBlock(btn){
 btn.parentElement.remove();
+}
+    function previewMember(){
+
+const name = document.getElementById("name").value || "Preview Name";
+const role = document.getElementById("role").value || "";
+
+const blocks = document.getElementById("multiDesc").children;
+
+let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<title>${name}</title>
+<style>
+body{
+font-family:Arial;
+padding:20px;
+background:#f1f5f9;
+}
+img{
+max-width:100%;
+border-radius:10px;
+margin:10px 0;
+}
+</style>
+</head>
+<body>
+
+<h1 style="
+font-size:${document.getElementById("nameSize").value || 16}px;
+font-weight:${document.getElementById("nameStyle").value === "bold" ? "700" : "400"};
+font-family:${document.getElementById("nameStyle").value === "elegant" ? "serif" : "Arial"};
+">
+${name}
+</h1>
+<h2>${role}</h2>
+`;
+
+for(let block of blocks){
+
+let descInput = block.querySelector(".descInput");
+let img = block.querySelector("img");
+
+// TEXT
+if(descInput){
+html += `<div style="margin-bottom:10px;">${descInput.innerHTML}</div>`;
+}
+
+// IMAGE
+if(img && img.src && !img.src.includes("blob:") && img.style.display !== "none"){
+html += `<img src="${img.src}">`;
+}
+
+}
+
+html += `</body></html>`;
+
+// open preview in new tab
+const newWindow = window.open("", "_blank");
+newWindow.document.write(html);
+newWindow.document.close();
+
 }
 </script>
 <script type="module">
@@ -309,33 +399,31 @@ continue;
 let descInput = block.querySelector(".descInput");
 let fileInput = block.querySelector(".imgInput");
 
-let imageUrl = block.querySelector("img")?.src || "";
-if(fileInput && fileInput.files[0]){
+let imageUrl = "";
+if(fileInput && (fileInput.resizedFile || fileInput.files[0])){
 
-const storageRef = ref(storage,"team/"+Date.now()+"_"+index);
-const uploadTask = uploadBytesResumable(storageRef,fileInput.files[0]);
+  const storageRef = ref(storage,"team/"+Date.now()+"_"+index);
+  const uploadTask = uploadBytesResumable(storageRef,fileInput.resizedFile || fileInput.files[0]);
 
-await new Promise((resolve,reject)=>{
+  await new Promise((resolve,reject)=>{
+    uploadTask.on("state_changed",
+      (snapshot)=>{
+        let percent = ((index + (snapshot.bytesTransferred / snapshot.totalBytes)) / blocks.length) * 100;
 
-uploadTask.on("state_changed",
+        document.getElementById("progressBar").style.width = percent + "%";
+        document.getElementById("progressText").innerText = Math.round(percent) + "%";
+      },
+      reject,
+      async ()=>{
+        imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        resolve();
+      }
+    );
+  });
 
-(snapshot)=>{
-let percent = ((index + (snapshot.bytesTransferred / snapshot.totalBytes)) / blocks.length) * 100;
-
-document.getElementById("progressBar").style.width = percent + "%";
-document.getElementById("progressText").innerText = Math.round(percent) + "%";
-},
-
-reject,
-
-async ()=>{
-imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-resolve();
-}
-
-);
-
-});
+}else{
+  // ✅ KEEP EXISTING IMAGE (EDIT MODE)
+  imageUrl = block.querySelector("img")?.src || "";
 }
 
 // description
@@ -362,7 +450,12 @@ index++;
 // ✅ SAFE DATA (NO UNDEFINED)
 const data = {
 name: name,
-   slug: name.toLowerCase().replace(/\s+/g, "-"),
+ slug: name
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9\s-]/g, "")
+  .replace(/\s+/g, "-")
+  .replace(/-+/g, "-"),
 role: document.getElementById("role").value || "",
 descriptions: descriptions,
 images: images,
@@ -517,7 +610,101 @@ saveBtn.addEventListener("click", ()=>{
 if(saveBtn.disabled) return;
 saveMember();
 });
+function cropResizeImage(file, targetWidth, targetHeight){
+return new Promise(resolve=>{
+const img = new Image();
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
 
+img.onload = ()=>{
+
+const imgRatio = img.width / img.height;
+const targetRatio = targetWidth / targetHeight;
+
+let sx, sy, sw, sh;
+
+// center crop logic
+if(imgRatio > targetRatio){
+// wider image → crop sides
+sh = img.height;
+sw = sh * targetRatio;
+sx = (img.width - sw) / 2;
+sy = 0;
+}else{
+// taller image → crop top/bottom
+sw = img.width;
+sh = sw / targetRatio;
+sx = 0;
+sy = (img.height - sh) / 2;
+}
+
+canvas.width = targetWidth;
+canvas.height = targetHeight;
+
+ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+
+canvas.toBlob(blob=>{
+resolve(blob);
+}, "image/jpeg", 0.85);
+
+};
+
+img.src = URL.createObjectURL(file);
+});
+}
+
+
+  let dragItem = null;
+  document.addEventListener("dragstart", (e)=>{
+  const item = e.target.closest(".draggable");
+  if(!item) return;
+
+  // prevent drag when clicking inputs/select
+  if(
+  e.target.tagName === "INPUT" ||
+  e.target.tagName === "SELECT" ||
+  e.target.tagName === "BUTTON"
+) return;
+
+  dragItem = item;
+  item.classList.add("dragging");
+});
+
+document.addEventListener("dragend", (e)=>{
+  const item = e.target.closest(".draggable");
+  if(!item) return;
+
+  item.classList.remove("dragging");
+});
+
+document.addEventListener("dragover", (e)=>{
+  e.preventDefault();
+  if(!dragItem) return;
+
+  const container = document.getElementById("multiDesc");
+  const afterElement = getDragAfterElement(container, e.clientY);
+
+  if(afterElement == null){
+    container.appendChild(dragItem);
+  }else{
+    container.insertBefore(dragItem, afterElement);
+  }
+});
+
+function getDragAfterElement(container, y){
+  const elements = [...container.querySelectorAll(".draggable:not(.dragging)")];
+
+  return elements.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+
+    if(offset < 0 && offset > closest.offset){
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
 </script>
 
 </body>
