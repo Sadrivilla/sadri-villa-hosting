@@ -230,7 +230,7 @@ onSnapshot(q, (snapshot) => {
         const card = document.createElement("div");
 card.className = "team-card";
 card.onclick = () => {
-window.location.href = "member.html?id=" + doc.id;
+window.location.href = "/team/" + d.slug;
 };
         let contentHTML = "";
 
