@@ -22,14 +22,13 @@ async function trackPage(){
 
   if(sessionStorage.getItem(key)) return;
 
-  const user = auth.currentUser;
-  if(!user) return;
+const user = auth.currentUser;
 
-  await setDoc(doc(collection(db,"analytics_logs")),{
-    page: page,
-    userId: user.uid,
-    timestamp: Date.now()
-  });
+await setDoc(doc(collection(db,"analytics_logs")),{
+  page: page,
+  userId: user ? user.uid : "guest",
+  timestamp: Date.now()
+});
 
   sessionStorage.setItem(key,"true");
 }
