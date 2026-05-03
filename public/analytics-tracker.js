@@ -22,17 +22,22 @@ async function trackPage(){
 
   if(sessionStorage.getItem(key)) return;
 
-const user = auth.currentUser;
+  const user = auth.currentUser;
 
-await setDoc(doc(collection(db,"analytics_logs")),{
-  page: page,
-  userId: user ? user.uid : "guest",
-  timestamp: Date.now()
-});
+  await setDoc(doc(collection(db,"analytics_logs")),{
+    page: page,
+    userId: user ? user.uid : "guest",
+    timestamp: Date.now()
+  });
 
   sessionStorage.setItem(key,"true");
+
+  console.log("Tracked:", page); // debug
 }
 
+// 🔥 IMPORTANT (THIS WAS MISSING)
+trackPage();
+
 onAuthStateChanged(auth, user=>{
-  trackPage(); // always track (guest + user)
+  trackPage();
 });
