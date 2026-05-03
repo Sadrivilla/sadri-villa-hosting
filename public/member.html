@@ -5,7 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Member | Sadri Villa</title>
-<meta name="description" content="Sadri Villa Member">
+  <link rel="canonical" href="">
+<meta name="description" content="Loading member...">
+
+<meta property="og:title" content="">
+<meta property="og:description" content="">
+<meta property="og:image" content="">
+<meta property="og:url" content="">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="">
+<meta name="twitter:description" content="">
+<meta name="twitter:image" content="">
 
 <style>
 body{
@@ -26,7 +37,7 @@ margin:10px 0;
 <body>
 
 <!-- ✅ THIS IS REQUIRED -->
-<div id="member"></div>
+<main id="member">Loading...</main>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -43,7 +54,7 @@ projectId:"sadri-villa-14c06"
 const db = getFirestore(app);
 
 // GET SLUG
-const slug = window.location.pathname.split("/").pop();
+const slug = window.location.pathname.split("/").filter(Boolean).pop();
 
 const container = document.getElementById("member");
 
@@ -65,16 +76,40 @@ d = doc.data();
 if(d){
 
 document.title = d.name + " | Sadri Villa";
+  // canonical
+document.querySelector('link[rel="canonical"]')?.setAttribute("href", window.location.href);
+  // ✅ Dynamic Meta
+const descText = (d.descriptions || [])
+  .map(x => x?.text || "")
+  .join(" ")
+  .replace(/<[^>]+>/g, "")
+  .slice(0,150) || "Sadri Villa Member";
+
+// meta description
+document.querySelector('meta[name="description"]')?.setAttribute("content", descText);
+
+// OpenGraph
+document.querySelector('meta[property="og:title"]')?.setAttribute("content", d.name + " | Sadri Villa");
+document.querySelector('meta[property="og:description"]')?.setAttribute("content", descText);
+const mainImage = d.images?.find(img => img) || "https://sadrivilla.in/default.jpg";
+
+document.querySelector('meta[property="og:image"]')?.setAttribute("content", mainImage);
+document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", mainImage);
+document.querySelector('meta[property="og:url"]')?.setAttribute("content", window.location.href);
+
+// Twitter
+document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", d.name + " | Sadri Villa");
+document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", descText);
 
 let html = `
-<h1>${d.name}</h1>
-<h3>${d.role || ""}</h3>
+<h1>${d.name} - Sadri Villa</h1>
+<h2>${d.role || ""}</h2>
 `;
 
 if(d.images){
 d.images.forEach(img=>{
 if(img){
-html += `<img src="${img}">`;
+html += `<img src="${img}" alt="${d.name}" loading="lazy">`;
 }
 });
 }
@@ -90,7 +125,11 @@ html += `<p>${desc.text}</p>`;
 container.innerHTML = html;
 
 }else{
-container.innerHTML = "<h2>Member not found</h2>";
+container.innerHTML = `
+<h2>Member not found</h2>
+<p>Please check the URL or go back.</p>
+<a href="/team.html">← Back to Team</a>
+`;
 }
 
 });
