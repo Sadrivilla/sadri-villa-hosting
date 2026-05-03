@@ -27,12 +27,22 @@ const db = getFirestore(app);
 
 // GET ID FROM URL
 const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+const slug = window.location.pathname.split("/").pop();
 
 if(id){
 
-const snap = await getDoc(doc(db,"team",id));
-const d = snap.data();
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const snap = await getDocs(collection(db,"team"));
+
+let d = null;
+
+snap.forEach(doc=>{
+if(doc.data().slug === slug){
+d = doc.data();
+}
+});
+  const d = snap.data();
 
 if(d){
 
