@@ -101,6 +101,13 @@ flex-wrap:wrap;
 <div class="form">
 <input id="name" placeholder="Name">
 <input id="role" placeholder="Role">
+  <select id="nameStyle">
+<option value="simple">Simple</option>
+<option value="bold">Bold</option>
+<option value="elegant">Elegant</option>
+</select>
+
+<input id="nameSize" type="number" placeholder="Name Size (e.g. 18)">
 <div id="multiDesc"></div>
 
 <button type="button" onclick="addDesc()">+ Add Description</button>
@@ -147,6 +154,12 @@ const editor = select.parentElement.nextElementSibling;
 editor.focus();
 document.execCommand("foreColor", false, select.value);
 }
+
+function changeFontSize(select){
+const editor = select.parentElement.nextElementSibling;
+editor.focus();
+document.execCommand("fontSize", false, select.value);
+}
     let counter = 0;
 
 function addDesc(){
@@ -156,7 +169,8 @@ const div = document.createElement("div");
 
 div.innerHTML = `
 
-<div style="margin-bottom:8px;">
+<div style="margin-bottom:8px; display:flex; gap:5px; flex-wrap:wrap;">
+<button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <button type="button" onclick="formatText(this,'bold')">B</button>
 <button type="button" onclick="formatText(this,'italic')">I</button>
 <button type="button" onclick="formatText(this,'underline')">U</button>
@@ -173,6 +187,19 @@ div.innerHTML = `
 <option value="#f97316">Orange</option>
 <option value="#000000">Black</option>
 </select>
+<select onchange="changeFontSize(this)">
+<option value="">Size</option>
+<option value="1">Small</option>
+<option value="3">Normal</option>
+<option value="5">Large</option>
+<option value="7">Extra Large</option>
+</select>
+
+<button type="button" onclick="formatText(this,'justifyLeft')">⬅</button>
+<button type="button" onclick="formatText(this,'justifyCenter')">⬇</button>
+<button type="button" onclick="formatText(this,'justifyRight')">➡</button>
+
+
 </div>
 
 <div class="descInput" contenteditable="true" style="
@@ -195,6 +222,7 @@ counter++;
 const div = document.createElement("div");
 
 div.innerHTML = `
+<button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <input type="file" class="imgInput">
 <img style="max-width:100px;display:none;">
 `;
@@ -223,15 +251,8 @@ setTimeout(()=>{
 toast.style.display = "none";
 },3000);
 }
-
-function previewImage(num){
-const file = document.getElementById("image"+num).files[0];
-const preview = document.getElementById("preview"+num);
-
-if(file){
-preview.src = URL.createObjectURL(file);
-preview.style.display = "block";
-}
+      function removeBlock(btn){
+btn.parentElement.remove();
 }
 </script>
 <script type="module">
@@ -281,12 +302,14 @@ const blocks = document.getElementById("multiDesc").children;
 let index = 0;
 
 for(let block of blocks){
+  if(!block.querySelector(".descInput") && !block.querySelector(".imgInput")){
+continue;
+}
 
 let descInput = block.querySelector(".descInput");
 let fileInput = block.querySelector(".imgInput");
 
-let imageUrl = "";
-
+let imageUrl = block.querySelector("img")?.src || "";
 if(fileInput && fileInput.files[0]){
 
 const storageRef = ref(storage,"team/"+Date.now()+"_"+index);
@@ -318,10 +341,12 @@ resolve();
 // description
 if(descInput){
 descriptions.push({
+type: "text",
 text: descInput.innerHTML
 });
-images.push("");
+images.push(null);
 }
+ 
 
 // image
 if(imageUrl){
@@ -344,6 +369,8 @@ facebook: document.getElementById("facebook").value || "",
 instagram: document.getElementById("instagram").value || "",
 linkedin: document.getElementById("linkedin").value || "",
 order: Number(order),
+nameStyle: document.getElementById("nameStyle").value || "simple",
+nameSize: Number(document.getElementById("nameSize").value || 16),
 enabled: true
 };
 
@@ -426,14 +453,45 @@ const d = snap.data();
 
 editId = id;
 
-document.getElementById("name").value=d.name || "";
-document.getElementById("role").value=d.role || "";
-document.getElementById("facebook").value=d.facebook || "";
-document.getElementById("instagram").value=d.instagram || "";
-document.getElementById("linkedin").value=d.linkedin || "";
-document.getElementById("order").value=d.order || 0;
- 
+// basic fields
+document.getElementById("name").value = d.name || "";
+document.getElementById("role").value = d.role || "";
+document.getElementById("facebook").value = d.facebook || "";
+document.getElementById("instagram").value = d.instagram || "";
+document.getElementById("linkedin").value = d.linkedin || "";
+document.getElementById("order").value = d.order || 0;
+  document.getElementById("nameStyle").value = d.nameStyle || "simple";
+document.getElementById("nameSize").value = d.nameSize || 16;
+
+// clear old blocks
+document.getElementById("multiDesc").innerHTML = "";
+
+// rebuild blocks
+for(let i=0; i<(d.descriptions?.length || 0); i++){
+
+// TEXT BLOCK
+if(d.descriptions[i]){
+addDesc();
+
+const last = document.querySelectorAll(".descInput");
+last[last.length-1].innerHTML = d.descriptions[i].text || "";
+}
+
+// IMAGE BLOCK
+if(d.images[i]){
+addImage();
+
+const imgs = document.querySelectorAll(".imgInput");
+const previews = document.querySelectorAll("#multiDesc img");
+
+const index = imgs.length - 1;
+
+previews[index].src = d.images[i];
+previews[index].style.display = "block";
+}
+}
 };
+
 
 /* DELETE */
 window.del = async id=> await deleteDoc(doc(db,"team",id));
@@ -452,7 +510,12 @@ await updateDoc(doc(db,"team",id),{
 order: current + dir
 });
 };
-    document.getElementById("saveBtn").addEventListener("click", saveMember);
+  const saveBtn = document.getElementById("saveBtn");
+
+saveBtn.addEventListener("click", ()=>{
+if(saveBtn.disabled) return;
+saveMember();
+});
 
 </script>
 
