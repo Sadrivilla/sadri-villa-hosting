@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Member | Sadri Villa</title>
+<meta name="description" content="Sadri Villa Member">
+
+</head>
+
+<body>
+
+<div id="member"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06"
+});
+
+const db = getFirestore(app);
+
+// GET ID FROM URL
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+if(id){
+
+const snap = await getDoc(doc(db,"team",id));
+const d = snap.data();
+
+if(d){
+
+document.title = d.name + " | Sadri Villa";
+
+let html = `
+<h1>${d.name}</h1>
+<h3>${d.role || ""}</h3>
+`;
+
+if(d.images){
+d.images.forEach(img=>{
+if(img){
+html += `<img src="${img}" style="max-width:300px;">`;
+}
+});
+}
+
+if(d.descriptions){
+d.descriptions.forEach(desc=>{
+if(desc?.text){
+html += `<p>${desc.text}</p>`;
+}
+});
+}
+
+document.getElementById("member").innerHTML = html;
+
+}
+}
+</script>
+
+</body>
+</html>
