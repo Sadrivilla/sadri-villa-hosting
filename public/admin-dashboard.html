@@ -309,10 +309,15 @@ canvas {
 <!-- DASHBOARD -->
 <div class="container">
 
-  <div class="card">
-    <h3>Total Users</h3>
-    <h1 id="totalUsers">—</h1>
-  </div>
+<div class="card">
+  <h3>Total Users</h3>
+  <h1 id="totalUsers">—</h1>
+</div>
+
+<div class="card">
+  <h3>🌐 Dashboard Views</h3>
+  <h1 id="pageViews">—</h1>
+</div>
 
   <div class="card" onclick="location.href='admin-media.html'">
     <h3>🖼 Manage Site Media</h3>
@@ -353,6 +358,7 @@ canvas {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 import { 
   getAuth, 
   onAuthStateChanged, 
@@ -367,7 +373,10 @@ import {
   where,
   onSnapshot,
   doc,
-  getDoc
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
@@ -376,8 +385,21 @@ const app = initializeApp({
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
 });
+// 🔹 Analytics project (hosting)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDuQxBCm0eEYthCscPbryU4VfNfanwdvw8",
+    authDomain: "sadri-villa-hosting.firebaseapp.com",
+    projectId: "sadri-villa-hosting",
+    storageBucket: "sadri-villa-hosting.firebasestorage.app",
+    messagingSenderId: "81185723978",
+    appId: "1:81185723978:web:f8bd536f6c69589f4538b3",
+    measurementId: "G-ENLHWXPEEZ"
+  };
+  // 🔹 Initialize analytics app
+const analyticsApp = initializeApp(firebaseConfig, "analyticsApp");
 const auth = getAuth(app);
 const db = getFirestore(app);
+  const analytics = getAnalytics(analyticsApp);
 
 let approvalChartInstance = null;
 let ageChartInstance = null;
@@ -420,7 +442,12 @@ onAuthStateChanged(auth, async user => {
       data.profilePhoto + "?v=" + Date.now();
   }
 
-  loadDashboard();
+await trackPageViewCount();
+loadDashboard();
+  logEvent(analytics, 'page_view', {
+  page_title: 'Admin Dashboard',
+  page_location: window.location.href
+});
   listenPendingRealtime();
 /* 🔥 REALTIME SITE SETTINGS (Logo + Slider) */
 if (!unsubscribeSiteSettings) {
@@ -498,6 +525,27 @@ async function loadDashboard(){
   renderApprovalChart();
   renderAgeChart();
   renderProfileChart();
+  loadPageViews();
+
+}
+  async function loadPageViews(){
+  const snap = await getDoc(doc(db,"analytics","admin_dashboard"));
+  if(snap.exists()){
+    document.getElementById("pageViews").innerText = snap.data().views;
+  }
+}
+  async function trackPageViewCount(){
+
+  const ref = doc(db, "analytics", "admin_dashboard");
+
+  try{
+    await updateDoc(ref, {
+      views: increment(1)
+    });
+  }catch{
+    await setDoc(ref, { views: 1 });
+  }
+
 }
 
 /* APPROVAL CHART */
