@@ -4,19 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Member | Sadri Villa</title>
-  <link rel="canonical" href="">
-<meta name="description" content="Loading member...">
+<title>Sadri Villa Family Members | Fazilpur Heritage</title>
+  <meta property="og:type" content="profile">
+  <meta name="robots" content="index, follow">
+  <meta property="og:site_name" content="Sadri Villa">
+  <link rel="canonical" href="https://sadrivilla.in/member.html" />
+  <link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<meta name="description" content="Explore members of Sadri Villa Fazilpur family heritage." />
 
-<meta property="og:title" content="">
-<meta property="og:description" content="">
-<meta property="og:image" content="">
-<meta property="og:url" content="">
+<meta property="og:title" content="Sadri Villa Members">
+<meta property="og:description" content="Explore members of Sadri Villa Fazilpur heritage.">
+<meta property="og:image" content="https://sadrivilla.in/favicon.png">
+<meta property="og:url" content="https://sadrivilla.in/member.html">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="">
-<meta name="twitter:description" content="">
-<meta name="twitter:image" content="">
+<meta name="twitter:title" content="Sadri Villa Members">
+<meta name="twitter:description" content="Explore members of Sadri Villa Fazilpur heritage.">
+<meta name="twitter:image" content="https://sadrivilla.in/favicon.png">
 
 <style>
 body{
@@ -37,11 +42,14 @@ margin:10px 0;
 <body>
 
 <!-- ✅ THIS IS REQUIRED -->
-<main id="member">Loading...</main>
+<main id="member">
+  <h1>Sadri Villa Member</h1>
+  <p>Loading member details...</p>
+</main>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
 
@@ -54,24 +62,39 @@ projectId:"sadri-villa-14c06"
 const db = getFirestore(app);
 
 // GET SLUG
-const slug = window.location.pathname.split("/").filter(Boolean).pop();
-
 const container = document.getElementById("member");
 
 if(!container){
-console.error("member div not found");
-return;
+  console.error("member div not found");
+  return;
 }
 
-const snap = await getDocs(collection(db,"team"));
+const urlParams = new URLSearchParams(window.location.search);
+const slug = urlParams.get("slug");
+
+if(!slug){
+  container.innerHTML = "<h2>Invalid member URL</h2>";
+  return;
+}
+
+
+let snap;
+
+try {
+  const q = query(collection(db,"team"), where("slug", "==", slug));
+  snap = await getDocs(q);
+} catch (e) {
+  console.error(e);
+  container.innerHTML = "<h2>Error loading member</h2>";
+  return;
+}
+
 
 let d = null;
 
-snap.forEach(doc=>{
-if(doc.data().slug === slug){
-d = doc.data();
+if (!snap.empty) {
+  d = snap.docs[0].data();
 }
-});
 
 if(d){
 
@@ -91,8 +114,8 @@ document.querySelector('meta[name="description"]')?.setAttribute("content", desc
 // OpenGraph
 document.querySelector('meta[property="og:title"]')?.setAttribute("content", d.name + " | Sadri Villa");
 document.querySelector('meta[property="og:description"]')?.setAttribute("content", descText);
-const mainImage = d.images?.find(img => img) || "https://sadrivilla.in/default.jpg";
-
+const mainImage = d.images?.find(img => img) || "https://sadrivilla.in/favicon.png";
+  
 document.querySelector('meta[property="og:image"]')?.setAttribute("content", mainImage);
 document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", mainImage);
 document.querySelector('meta[property="og:url"]')?.setAttribute("content", window.location.href);
@@ -102,14 +125,15 @@ document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", d.
 document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", descText);
 
 let html = `
-<h1>${d.name} - Sadri Villa</h1>
+<h1>${d.name}</h1>
 <h2>${d.role || ""}</h2>
+<p><strong>Sadri Villa, Fazilpur</strong></p>
 `;
 
 if(d.images){
 d.images.forEach(img=>{
 if(img){
-html += `<img src="${img}" alt="${d.name}" loading="lazy">`;
+html += `<img src="${img}" alt="${d.name} Sadri Villa member" loading="lazy">`;
 }
 });
 }
@@ -121,15 +145,37 @@ html += `<p>${desc.text}</p>`;
 }
 });
 }
+// ✅ ADD SCHEMA (SEO BOOST)
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": d.name,
+  "jobTitle": d.role || "",
+  "description": descText,
+  "image": mainImage,
+  "url": window.location.href
+};
+
+// remove old schema if exists
+const oldSchema = document.getElementById("schemaData");
+if(oldSchema) oldSchema.remove();
+
+// create new schema
+const script = document.createElement("script");
+script.type = "application/ld+json";
+script.id = "schemaData";
+script.innerHTML = JSON.stringify(schema);
 
 container.innerHTML = html;
+  document.head.appendChild(script);
 
+// add schema AFTER render
 }else{
-container.innerHTML = `
-<h2>Member not found</h2>
-<p>Please check the URL or go back.</p>
-<a href="/team.html">← Back to Team</a>
-`;
+  container.innerHTML = `
+  <h2>Member not found</h2>
+  <p>Please check the URL or browse all members.</p>
+  <a href="/team.html">← View All Members</a>
+  `;
 }
 
 });
