@@ -4,7 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Sadri Villa Family Members | Fazilpur Heritage</title>
+<title>Sadri Villa Member Profile | Fazilpur Heritage</title>
+  <script>
+
+(function() {
+  try {
+    const path = window.location.pathname;
+    const parts = path.split("/team/");
+    
+    if (parts.length > 1 && parts[1]) {
+      const slug = parts[1];
+      const name = slug
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
+
+      document.title = name + " | Sadri Villa";
+    }
+  } catch(e) {}
+})();
+</script>
   <meta property="og:type" content="profile">
   <meta name="googlebot" content="index, follow, max-image-preview:large">
   <meta name="robots" content="index, follow">
@@ -17,7 +35,7 @@
 <meta property="og:title" content="Sadri Villa Members">
 <meta property="og:description" content="Explore members of Sadri Villa Fazilpur heritage.">
 <meta property="og:image" content="https://sadrivilla.in/favicon.png">
-  <meta property="og:url" content="" id="ogUrl" />
+<meta property="og:url" content="https://sadrivilla.in/team/" id="ogUrl" />
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sadri Villa Members">
