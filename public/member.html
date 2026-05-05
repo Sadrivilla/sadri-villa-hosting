@@ -8,7 +8,7 @@
   <meta property="og:type" content="profile">
   <meta name="robots" content="index, follow">
   <meta property="og:site_name" content="Sadri Villa">
-  <link rel="canonical" href="https://sadrivilla.in/member.html" />
+<link rel="canonical" href="" id="canonicalLink" />
   <link rel="preconnect" href="https://www.gstatic.com">
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <meta name="description" content="Explore members of Sadri Villa Fazilpur family heritage." />
@@ -16,7 +16,6 @@
 <meta property="og:title" content="Sadri Villa Members">
 <meta property="og:description" content="Explore members of Sadri Villa Fazilpur heritage.">
 <meta property="og:image" content="https://sadrivilla.in/favicon.png">
-<meta property="og:url" content="https://sadrivilla.in/member.html">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sadri Villa Members">
@@ -106,8 +105,9 @@ if(d){
 
 document.title = d.name + " | Sadri Villa";
   // canonical
-document.querySelector('link[rel="canonical"]')?.setAttribute("href", window.location.href);
   // ✅ Dynamic Meta
+  const canonicalUrl = "https://sadrivilla.in/team/" + slug;
+document.getElementById("canonicalLink")?.setAttribute("href", canonicalUrl);
 const descText = (d.descriptions || [])
   .map(x => x?.text || "")
   .join(" ")
@@ -124,7 +124,7 @@ const mainImage = d.images?.find(img => img) || "https://sadrivilla.in/favicon.p
   
 document.querySelector('meta[property="og:image"]')?.setAttribute("content", mainImage);
 document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", mainImage);
-document.querySelector('meta[property="og:url"]')?.setAttribute("content", window.location.href);
+document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonicalUrl);
 
 // Twitter
 document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", d.name + " | Sadri Villa");
@@ -159,7 +159,7 @@ const schema = {
   "jobTitle": d.role || "",
   "description": descText,
   "image": mainImage,
-  "url": window.location.href
+"url": canonicalUrl
 };
 
 // remove old schema if exists
