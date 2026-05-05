@@ -2,16 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
+  <!-- Homepage -->
   <url>
     <loc>https://sadrivilla.in/</loc>
-  <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-03</lastmod>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
 
+  <!-- Static Pages -->
   <url>
     <loc>https://sadrivilla.in/shajra.html</loc>
-  <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-03</lastmod>
     <priority>0.9</priority>
     <changefreq>monthly</changefreq>
   </url>
@@ -29,45 +31,53 @@
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
-  
+
+  <!-- Team Listing -->
   <url>
-  <loc>https://sadrivilla.in/team.html</loc>
-  <lastmod>2026-05-03</lastmod>
-  <priority>0.9</priority>
+    <loc>https://sadrivilla.in/team.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
     <image:image>
- <image:loc>https://sadrivilla.in/favicon.png</image:loc>
-  <image:title>Sadri Villa Team</image:title>
-</image:image>
-</url>
+      <image:loc>https://sadrivilla.in/favicon.png</image:loc>
+      <image:title>Sadri Villa Team</image:title>
+    </image:image>
+  </url>
+
+  <!-- Member Pages (IMPORTANT: match Firestore slug exactly) -->
   <url>
-  <loc>https://sadrivilla.in/member.html?slug=safwan-sadri</loc>
-  <lastmod>2026-05-04</lastmod>
-  <priority>0.9</priority>
-  <changefreq>weekly</changefreq>
-</url>
-   <url>
-  <loc>https://sadrivilla.in/member.html?slug=sadri-villa-the-hidden-historical-monument-of-samastipur-bihar</loc>
-  <lastmod>2026-05-04</lastmod>
-  <priority>0.9</priority>
-  <changefreq>weekly</changefreq>
-</url>
-     <url>
-  <loc>https://sadrivilla.in/member.html?slug=hakim-abdul-mannan-sadri</loc>
-  <lastmod>2026-05-04</lastmod>
-  <priority>0.9</priority>
-  <changefreq>weekly</changefreq>
-</url>
+    <loc>https://sadrivilla.in/team/safwan-sadri</loc>
+    <lastmod>2026-05-04</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
   <url>
-  <loc>https://sadrivilla.in/member.html?slug=hafiz-abdur-rahman-sadri</loc>
-  <lastmod>2026-05-04</lastmod>
-  <priority>0.9</priority>
-  <changefreq>weekly</changefreq>
-</url>
-   <url>
-   <loc>https://sadrivilla.in/member.html?slug=hakim-salim-sadri</loc>
-  <lastmod>2026-05-04</lastmod>
-  <priority>0.9</priority>
-  <changefreq>weekly</changefreq>
-</url>
+    <loc>https://sadrivilla.in/team/sadri-villa-the-hidden-historical-monument-of-samastipur-bihar</loc>
+    <lastmod>2026-05-04</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://sadrivilla.in/team/hakim-abdul-mannan-sadri</loc>
+    <lastmod>2026-05-04</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://sadrivilla.in/team/hafiz-abdur-rahman-sadri</loc>
+    <lastmod>2026-05-04</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <url>
+    <loc>https://sadrivilla.in/team/hakim-salim-sadri</loc>
+    <lastmod>2026-05-04</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
 
 </urlset>
