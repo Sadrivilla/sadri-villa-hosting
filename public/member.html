@@ -69,8 +69,14 @@ if(!container){
   return;
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const slug = urlParams.get("slug");
+const pathParts = window.location.pathname.split("/").filter(Boolean);
+let slug = pathParts[1]; // for /team/safwan-sadri
+
+// fallback (old URL support)
+if(!slug){
+  const urlParams = new URLSearchParams(window.location.search);
+  slug = urlParams.get("slug");
+}
 
 if(!slug){
   container.innerHTML = "<h2>Invalid member URL</h2>";
