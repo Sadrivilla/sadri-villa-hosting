@@ -27,7 +27,7 @@
   <meta name="googlebot" content="index, follow, max-image-preview:large">
   <meta name="robots" content="index, follow">
   <meta property="og:site_name" content="Sadri Villa">
-<link rel="canonical" href="https://sadrivilla.in/team/" id="canonicalLink" />
+<link rel="canonical" href="" id="canonicalLink" />
   <link rel="preconnect" href="https://www.gstatic.com">
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <meta name="description" content="Explore members of Sadri Villa Fazilpur family heritage." />
@@ -95,10 +95,7 @@ if(!container){
 }
 
 // preload content AFTER check
-container.innerHTML = `
-<h1>Loading member...</h1>
-<p>Sadri Villa Fazilpur family member profile</p>
-`;
+
 
 const pathParts = window.location.pathname.split("/").filter(Boolean);
 let slug = pathParts[1]; // for /team/safwan-sadri
@@ -209,11 +206,13 @@ container.innerHTML = html;
 
 // add schema AFTER render
 }else{
-  container.innerHTML = `
-  <h2>Member not found</h2>
-  <p>Please check the URL or browse all members.</p>
+
+container.innerHTML = `
+  <h1>Sadri Villa Family Member</h1>
+  <p>Member profile page of Sadri Villa heritage.</p>
   <a href="/team.html">← View All Members</a>
-  `;
+`;
+
 }
 
 });
