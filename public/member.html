@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <title>Sadri Villa Member Profile | Fazilpur Heritage</title>
   <script>
@@ -50,6 +52,11 @@ box-sizing:border-box;
 margin:0;
 padding:0;
 }
+
+html{
+scroll-behavior:smooth;
+}
+
 
 body{
 font-family:Arial,sans-serif;
@@ -158,7 +165,7 @@ margin-top:12px;
 .member-wrapper{
 width:100%;
 max-width:1600px;
-margin:-20px auto 40px;
+margin:-20px auto 0;
 position:relative;
 z-index:5;
 padding:0 10px;
@@ -226,18 +233,86 @@ transition:.3s ease;
 
 .share-buttons a:hover{
 background:#38bdf8;
+transform:translateY(-3px);
+box-shadow:0 15px 35px rgba(56,189,248,.35);
+}
+.member-socials{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+margin-top:35px;
+margin-bottom:10px;
+}
+  .share-buttons a:active,
+.member-socials a:active{
+transform:scale(.96);
+}
+
+.member-socials a{
+display:flex;
+align-items:center;
+gap:10px;
+text-decoration:none;
+padding:14px 22px;
+border-radius:50px;
+font-weight:700;
+color:white;
+transition:.35s ease;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.member-socials a i{
+font-size:18px;
+}
+
+/* FACEBOOK */
+.social-facebook{
+background:#1877f2;
+}
+
+.social-facebook:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 35px rgba(24,119,242,.35);
+}
+
+/* INSTAGRAM */
+.social-instagram{
+background:linear-gradient(
+135deg,
+#f58529,
+#dd2a7b,
+#8134af,
+#515bd4
+);
+}
+
+.social-instagram:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 35px rgba(221,42,123,.35);
+}
+
+/* LINKEDIN */
+.social-linkedin{
+background:#0a66c2;
+}
+
+.social-linkedin:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 35px rgba(10,102,194,.35);
 }
 
 /* FOOTER */
 footer{
+width:100%;
 background:#081634;
 color:white;
 padding:60px 20px 20px;
-margin-top:80px;
+margin-top:0;
+border-radius:0;
 }
 
 .footer-container{
-max-width:1200px;
+max-width:1400px;
 margin:auto;
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -277,6 +352,15 @@ color:#94a3b8;
 
 /* MOBILE */
 @media(max-width:768px){
+  .member-socials a{
+width:100%;
+justify-content:center;
+}
+
+.share-buttons a{
+width:100%;
+text-align:center;
+}
 
 .hero-content h1{
 font-size:34px;
@@ -498,27 +582,101 @@ decoding="async">
 }
 
 });
-
 html += `</div>`;
 }
   html += `
 
+<h3 style="
+margin-top:35px;
+margin-bottom:18px;
+font-size:22px;
+color:#081634;
+">
+Connect With
+</h3>
+
+<div class="member-socials">
+`;
+
+if(d.facebook){
+html += `
+<a
+class="social-facebook"
+href="${d.facebook}"
+target="_blank"
+rel="noopener noreferrer">
+
+<i class="fab fa-facebook-f"></i>
+Facebook
+
+</a>
+`;
+}
+
+if(d.instagram){
+html += `
+<a
+class="social-instagram"
+href="${d.instagram}"
+target="_blank"
+rel="noopener noreferrer">
+
+<i class="fab fa-instagram"></i>
+Instagram
+
+</a>
+`;
+}
+
+if(d.linkedin){
+html += `
+<a
+class="social-linkedin"
+href="${d.linkedin}"
+target="_blank"
+rel="noopener noreferrer">
+
+<i class="fab fa-linkedin-in"></i>
+LinkedIn
+
+</a>
+`;
+}
+
+html += `</div>`;
+  html += `
+
+<h3 style="
+margin-top:40px;
+margin-bottom:15px;
+font-size:22px;
+color:#081634;
+">
+Share This Profile
+</h3>
+
 <div class="share-buttons">
 
-<a target="_blank"
+<a
+target="_blank"
+rel="noopener noreferrer"
 href="https://api.whatsapp.com/send?text=${encodeURIComponent(canonicalUrl)}">
 WhatsApp
 </a>
-
-<a target="_blank"
+<a
+target="_blank"
+rel="noopener noreferrer"
 href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}">
 Facebook
 </a>
-
-<a target="_blank"
+<a
+target="_blank"
+rel="noopener noreferrer"
 href="https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}">
 Twitter/X
 </a>
+
+
 
 </div>
 
@@ -549,19 +707,23 @@ Twitter/X
     <div class="footer-col">
       <h4>Near Us</h4>
 
-      <a href="https://maps.app.goo.gl/PTyPhUnafXD2xgxcA" target="_blank">
+      <a href="https://maps.app.goo.gl/PTyPhUnafXD2xgxcA" target="_blank"
+rel="noopener noreferrer">
         Mosque
       </a>
 
-      <a href="https://maps.app.goo.gl/P6fXKqgPnXYKYXPe7" target="_blank">
+      <a href="https://maps.app.goo.gl/P6fXKqgPnXYKYXPe7" target="_blank"
+rel="noopener noreferrer">
         Clinic
       </a>
 
-      <a href="https://maps.app.goo.gl/KMxLCyrREXyiy7Jv7" target="_blank">
+      <a href="https://maps.app.goo.gl/KMxLCyrREXyiy7Jv7" target="_blank"
+rel="noopener noreferrer">
         Super Market
       </a>
 
-      <a href="https://maps.app.goo.gl/X66PzhR31MWzHMiX8" target="_blank">
+      <a href="https://maps.app.goo.gl/X66PzhR31MWzHMiX8" target="_blank"
+rel="noopener noreferrer">
         College
       </a>
     </div>
