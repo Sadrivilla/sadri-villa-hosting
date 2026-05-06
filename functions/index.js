@@ -1,50 +1,83 @@
-const { onCall } = require("firebase-functions/v2/https");
-const admin = require("firebase-admin");
+const functions = require("firebase-functions");
+const express = require("express");
+const axios = require("axios");
+const path = require("path");
 
-admin.initializeApp();
+const app = express();
 
-/* ✅ ADD ADMIN */
-exports.addAdmin = onCall({ region: "us-central1" }, async (req) => {
-  const caller = req.auth;
-  if (!caller?.token?.admin) {
-    throw new Error("Only admin can add admin");
+const BOT_AGENTS = [
+  "googlebot",
+  "google-inspectiontool",
+  "bingbot",
+  "twitterbot",
+  "facebookexternalhit",
+  "linkedinbot",
+  "slackbot",
+  "whatsapp"
+];
+
+const RENDERTRON_URL =
+  "https://rendertron-rd0g.onrender.com/render/";
+
+// Serve static files properly
+app.use(express.static(
+  path.join(__dirname, "../public")
+));
+
+app.use(async (req, res) => {
+
+  const userAgent =
+    req.headers["user-agent"]?.toLowerCase() || "";
+
+  const isBot = BOT_AGENTS.some(bot =>
+    userAgent.includes(bot)
+  );
+
+  // ONLY for team pages
+  if (isBot && req.originalUrl.startsWith("/team/")) {
+
+    try {
+
+      const fullUrl =
+        "https://sadrivilla.in" + req.originalUrl;
+
+      const renderUrl =
+        RENDERTRON_URL + fullUrl;
+
+      const response = await axios.get(renderUrl, {
+        timeout: 15000
+      });
+
+      res.send(response.data);
+
+    } catch (e) {
+
+      console.error(e);
+
+      res.status(500).send("Rendertron Error");
+
+    }
+
+} else {
+
+  // Team page → member.html
+  if (req.originalUrl.startsWith("/team/")) {
+
+    res.sendFile(
+      path.join(__dirname, "../public/member.html")
+    );
+
+  } else {
+
+    // Other pages/files
+    res.sendFile(
+      path.join(__dirname, "../public/index.html")
+    );
+
   }
 
-  const { uid } = req.data;
-  if (!uid) throw new Error("UID required");
+}
 
-  await admin.auth().setCustomUserClaims(uid, { admin: true });
-
-  await admin.firestore().collection("adminLogs").add({
-    action: "ADD_ADMIN",
-    targetUid: uid,
-    by: caller.uid,
-    at: Date.now()
-  });
-
-  return { success: true };
 });
 
-/* ❌ REMOVE ADMIN */
-exports.removeAdmin = onCall({ region: "us-central1" }, async (req) => {
-  const caller = req.auth;
-  if (!caller?.token?.admin) {
-    throw new Error("Only admin can remove admin");
-  }
-
-  const { uid } = req.data;
-  if (!uid) throw new Error("UID required");
-
-  await admin.auth().setCustomUserClaims(uid, {});
-
-  await admin.firestore().collection("adminLogs").add({
-    action: "REMOVE_ADMIN",
-    targetUid: uid,
-    by: caller.uid,
-    at: Date.now()
-  });
-
-  return { success: true };
-});
-
-
+exports.app = functions.https.onRequest(app);
