@@ -345,7 +345,6 @@ apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
 authDomain:"sadri-villa-14c06.firebaseapp.com",
 projectId:"sadri-villa-14c06"
 });
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const db = getFirestore(app);
 
 // GET SLUG
@@ -391,23 +390,7 @@ let d = null;
 if (!snap.empty) {
   d = snap.docs[0].data();
 }
-const settingsSnap = await getDoc(doc(db,"siteSettings","home"));
 
-if(settingsSnap.exists()){
-
-const settings = settingsSnap.data();
-
-if(settings.logo?.url){
-
-const footerLogo = document.getElementById("footerLogo");
-
-if(footerLogo){
-footerLogo.src = settings.logo.url;
-}
-
-}
-
-}
 if(d){
 
 document.title = d.name + " | Sadri Villa";
@@ -619,6 +602,23 @@ script.id = "schemaData";
 script.innerHTML = JSON.stringify(schema);
 
 container.innerHTML = html;
+  const settingsSnap = await getDoc(doc(db,"siteSettings","home"));
+
+if(settingsSnap.exists()){
+
+const settings = settingsSnap.data();
+
+if(settings.logo?.url){
+
+const footerLogo = document.getElementById("footerLogo");
+
+if(footerLogo){
+footerLogo.src = settings.logo.url;
+}
+
+}
+
+}
   document.head.appendChild(script);
 
 // add schema AFTER render
