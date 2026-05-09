@@ -482,7 +482,11 @@ editId = null;
 await addDoc(collection(db,"team"),data);
 }
   // Generate physical HTML page in GitHub
-console.log("Skipping member page generation for now.");
+const generateMemberPage = httpsCallable(functions, "generateMemberPage");
+
+await generateMemberPage({
+  memberId: editId || "new"
+});
 
 
   document.getElementById("progressBox").style.display = "none";
