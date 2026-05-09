@@ -482,15 +482,7 @@ editId = null;
 await addDoc(collection(db,"team"),data);
 }
   // Generate physical HTML page in GitHub
-const generateMemberPage = httpsCallable(
-  functions,
-  "generateMemberPage"
-);
-
-// Run in background so Save does not get stuck
-generateMemberPage(data)
-  .then(() => console.log("Member page generation started"))
-  .catch((err) => console.error("Page generation error:", err));
+console.log("Skipping member page generation for now.");
 
 
   document.getElementById("progressBox").style.display = "none";
