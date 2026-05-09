@@ -488,8 +488,17 @@ if (editId) {
 // Generate physical HTML page in GitHub
 const generateMemberPage = httpsCallable(functions, "generateMemberPage");
 
+// Final safe memberId
+const finalMemberId = editId || (docRef && docRef.id);
+
+console.log("finalMemberId =", finalMemberId);
+
+if (!finalMemberId) {
+  throw new Error("memberId is empty");
+}
+
 await generateMemberPage({
-  memberId: docRef.id
+  memberId: finalMemberId
 });
 
 console.log("Physical HTML page generated successfully.");
