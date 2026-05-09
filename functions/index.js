@@ -81,3 +81,13 @@ app.use(async (req, res) => {
 });
 
 exports.app = functions.https.onRequest(app);
+exports.generateMemberPage = functions
+  .runWith({
+    secrets: ["GITHUB_TOKEN"]
+  })
+  .https.onCall(async (data, context) => {
+    return {
+      success: true,
+      message: "Cloud Function is connected successfully."
+    };
+  });
