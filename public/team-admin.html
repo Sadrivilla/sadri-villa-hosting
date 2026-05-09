@@ -481,8 +481,6 @@ editId = null;
 }else{
 await addDoc(collection(db,"team"),data);
 }
-
-showToast("Saved Successfully!");
   // Generate physical HTML page in GitHub
 const generateMemberPage = httpsCallable(
   functions,
@@ -490,6 +488,8 @@ const generateMemberPage = httpsCallable(
 );
 
 await generateMemberPage(data);
+
+
   document.getElementById("progressBox").style.display = "none";
 
 clearForm();
