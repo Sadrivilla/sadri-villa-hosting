@@ -357,14 +357,14 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://w
 const app = initializeApp({
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
 authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06",
+  projectId:"sadri-villa-hosting",
 storageBucket:"sadri-villa-14c06.firebasestorage.app" // ✅ FIXED
 });
 
 const db = getFirestore(app);
 const storage = getStorage(app);
-  const functions = getFunctions(app);
-
+const functions = getFunctions(app, "us-central1");
+  
 let editId = null;
 
 /* SAVE / ADD */
