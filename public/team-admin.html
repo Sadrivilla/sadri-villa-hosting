@@ -475,10 +475,13 @@ enabled: true
 
 
 // ✅ ADD / UPDATE
+let docRef;
+
 if (editId) {
   await updateDoc(doc(db, "team", editId), data);
+  docRef = { id: editId };
 } else {
-  const docRef = await addDoc(collection(db, "team"), data);
+  docRef = await addDoc(collection(db, "team"), data);
   editId = docRef.id;
 }
   // Generate physical HTML page in GitHub
@@ -486,7 +489,7 @@ if (editId) {
 const generateMemberPage = httpsCallable(functions, "generateMemberPage");
 
 await generateMemberPage({
-  memberId: editId
+  memberId: docRef.id
 });
 
 console.log("Physical HTML page generated successfully.");
