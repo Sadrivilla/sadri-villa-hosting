@@ -361,6 +361,11 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 let editId = null;
+  // ===== GitHub Configuration =====
+const GITHUB_TOKEN = "PASTE_YOUR_GITHUB_TOKEN_HERE";
+const GITHUB_OWNER = "Sadrivilla";
+const GITHUB_REPO = "sadri-villa-hosting";
+const GITHUB_BRANCH = "main";
 
 /* SAVE / ADD */
 window.saveMember = async function(){
