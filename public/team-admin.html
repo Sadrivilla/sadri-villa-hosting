@@ -482,7 +482,14 @@ if (editId) {
   editId = docRef.id;
 }
   // Generate physical HTML page in GitHub
-console.log("Member saved successfully. SEO page will be served automatically.");
+// Generate physical HTML page in GitHub
+const generateMemberPage = httpsCallable(functions, "generateMemberPage");
+
+await generateMemberPage({
+  memberId: editId
+});
+
+console.log("Physical HTML page generated successfully.");
 
 
   document.getElementById("progressBox").style.display = "none";
