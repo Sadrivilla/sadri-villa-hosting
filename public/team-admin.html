@@ -475,11 +475,11 @@ enabled: true
 
 
 // ✅ ADD / UPDATE
-if(editId){
-await updateDoc(doc(db,"team",editId),data);
-editId = null;
-}else{
-await addDoc(collection(db,"team"),data);
+if (editId) {
+  await updateDoc(doc(db, "team", editId), data);
+} else {
+  const docRef = await addDoc(collection(db, "team"), data);
+  editId = docRef.id;
 }
   // Generate physical HTML page in GitHub
 const generateMemberPage = httpsCallable(functions, "generateMemberPage");
