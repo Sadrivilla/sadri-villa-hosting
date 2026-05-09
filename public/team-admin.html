@@ -485,7 +485,7 @@ if (editId) {
 const generateMemberPage = httpsCallable(functions, "generateMemberPage");
 
 await generateMemberPage({
-  memberId: editId || "new"
+  memberId: editId
 });
 
 
