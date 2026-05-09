@@ -487,7 +487,10 @@ const generateMemberPage = httpsCallable(
   "generateMemberPage"
 );
 
-await generateMemberPage(data);
+// Run in background so Save does not get stuck
+generateMemberPage(data)
+  .then(() => console.log("Member page generation started"))
+  .catch((err) => console.error("Page generation error:", err));
 
 
   document.getElementById("progressBox").style.display = "none";
