@@ -347,6 +347,10 @@ newWindow.document.close();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+  getFunctions,
+  httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -359,13 +363,9 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app" // ✅ FIXED
 
 const db = getFirestore(app);
 const storage = getStorage(app);
+  const functions = getFunctions(app);
 
 let editId = null;
-  // ===== GitHub Configuration =====
-const GITHUB_TOKEN = "PASTE_YOUR_GITHUB_TOKEN_HERE";
-const GITHUB_OWNER = "Sadrivilla";
-const GITHUB_REPO = "sadri-villa-hosting";
-const GITHUB_BRANCH = "main";
 
 /* SAVE / ADD */
 window.saveMember = async function(){
@@ -483,6 +483,13 @@ await addDoc(collection(db,"team"),data);
 }
 
 showToast("Saved Successfully!");
+  // Generate physical HTML page in GitHub
+const generateMemberPage = httpsCallable(
+  functions,
+  "generateMemberPage"
+);
+
+await generateMemberPage(data);
   document.getElementById("progressBox").style.display = "none";
 
 clearForm();
