@@ -514,11 +514,11 @@ document.getElementById("saveBtn").disabled=false;
 console.error("generateMemberPage error:", e);
 
 alert(
-"Generate Member Page Error:\n\n" +
-(e.message || JSON.stringify(e))
+  "Generate Member Page Error:\n\n" +
+  (e.details || e.message || JSON.stringify(e))
 );
 
-showToast(e.message || "Unknown error", true);
+showToast(e.details || e.message || "Unknown error", true);
 
 document.getElementById("progressBox").style.display = "none";
 document.getElementById("saveBtn").innerText = "Save Member";
