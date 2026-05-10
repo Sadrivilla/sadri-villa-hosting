@@ -42,11 +42,16 @@ exports.generateMemberPage = functions.https.onCall(async (request) => {
   const role = member.role || "";
 
   // Primary image
-  let imageUrl = "https://sadrivilla.in/og-image.jpg";
+let imageUrl = "https://sadrivilla.in/og-image.jpg";
 
-  if (Array.isArray(member.images) && member.images.length > 0) {
-    imageUrl = member.images[0];
-  }
+if (Array.isArray(member.images) && member.images.length > 0) {
+const firstImage = cleanImageUrl(member.images[0]);
+
+if (firstImage) {
+imageUrl = firstImage;
+}
+}
+
 
   // Full biography paragraphs
   let descriptionHtml = "";
@@ -88,12 +93,24 @@ exports.generateMemberPage = functions.https.onCall(async (request) => {
     ["youtube", "YouTube"]
   ];
 
-  socialFields.forEach(([field, label]) => {
-    if (member[field]) {
-      socialHtml += `\n<a href="${member[field]}" target="_blank" rel="noopener">${label}</a>`;
-      sameAs.push(member[field]);
-    }
-  });
+socialFields.forEach(([field, label]) => {
+let url = "";
+
+if (field === "instagram") {
+url = normalizeUrl(member[field], "https://instagram.com/");
+} else if (field === "linkedin") {
+url = normalizeUrl(member[field], "https://linkedin.com/in/");
+} else {
+url = normalizeUrl(member[field]);
+}
+
+if (url) {
+socialHtml +=
+`\n<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+sameAs.push(url);
+}
+});
+
 
   const pageTitle = `${name}${role ? ` | ${role}` : ""} | Sadri Villa`;
 
