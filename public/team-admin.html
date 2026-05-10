@@ -378,7 +378,7 @@ document.getElementById("saveBtn").disabled=true;
 const order = document.getElementById("order").value;
 const hasContent = document.getElementById("multiDesc").children.length > 0;
 
-if(!name || !order || !hasContent){
+if (!name || order === "" || !hasContent) {
 showToast("Name, Order and at least one block is required", true);
 
 document.getElementById("progressBox").style.display = "none";
@@ -432,19 +432,20 @@ if(fileInput && (fileInput.resizedFile || fileInput.files[0])){
 }
 
 // description
-if(descInput){
-descriptions.push({
-type: "text",
-text: descInput.innerHTML
-});
-images.push(null);
+if (descInput) {
+  const html = descInput.innerHTML.trim();
+
+  if (html && html !== "<br>") {
+    descriptions.push({
+      type: "text",
+      text: html
+    });
+  }
 }
- 
 
 // image
-if(imageUrl){
-descriptions.push(null);
-images.push(imageUrl);
+if (imageUrl) {
+  images.push(imageUrl);
 }
 
 index++;
@@ -453,7 +454,7 @@ index++;
 
 
 // ✅ SAFE DATA (NO UNDEFINED)
-const data = {
+const data = { 
 name: name,
  slug: name
   .toLowerCase()
@@ -472,6 +473,16 @@ nameStyle: document.getElementById("nameStyle").value || "simple",
 nameSize: Number(document.getElementById("nameSize").value || 16),
 enabled: true
 };
+  // Remove null and empty values
+data.descriptions =
+  (data.descriptions || []).filter(
+    item => item && item.text && item.text.trim()
+  );
+
+data.images =
+  (data.images || []).filter(
+    item => item && String(item).trim()
+  );
 
 
 // ✅ ADD / UPDATE
