@@ -5,6 +5,7 @@ const axios = require("axios");
 admin.initializeApp();
 
 exports.generateMemberPage = functions.https.onCall(async (request) => {
+  try {
   const memberId = request.data.memberId;
 
   if (!memberId) {
@@ -249,14 +250,14 @@ sameAs.push(url);
   const filePath = `public/team/${slug}.html`;
 
   // IMPORTANT: Replace with your current GitHub token if needed.
- const token = "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";
+const token = "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";
 
-  if (!token || token === "PASTE_YOUR_GITHUB_TOKEN_HERE") {
-    throw new functions.https.HttpsError(
-      "failed-precondition",
-      "GitHub token not configured"
-    );
-  }
+if (!token) {
+  throw new functions.https.HttpsError(
+    "failed-precondition",
+    "GitHub token not configured"
+  );
+}
 
   const apiUrl =
     `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
@@ -267,7 +268,7 @@ sameAs.push(url);
   try {
     const existing = await axios.get(apiUrl, {
       headers: {
-        Authorization: `token ${token}`,
+        Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json"
       },
       params: {
@@ -281,6 +282,7 @@ sameAs.push(url);
   }
 
   // Create or update file in GitHub
+try {
   await axios.put(
     apiUrl,
     {
@@ -296,6 +298,20 @@ sameAs.push(url);
       }
     }
   );
+} catch (error) {
+  console.error("GitHub Upload Error:", {
+    message: error.message,
+    status: error.response?.status,
+    data: error.response?.data
+  });
+
+  throw new functions.https.HttpsError(
+    "internal",
+    error.response?.data?.message ||
+    error.message ||
+    "GitHub upload failed"
+  );
+}
 
   return {
     success: true,
@@ -303,6 +319,22 @@ sameAs.push(url);
     filePath,
     url: pageUrl
   };
+
+  } catch (error) {
+    console.error("generateMemberPage full error:", error);
+
+    if (error.response) {
+      console.error("GitHub response status:", error.response.status);
+      console.error("GitHub response data:", error.response.data);
+    }
+throw new functions.https.HttpsError(
+  "internal",
+  error.response?.data?.message ||
+  error.message ||
+  JSON.stringify(error.response?.data) ||
+  "Unknown server error"
+);
+  }
 });
 
 function normalizeUrl(url, base) {
