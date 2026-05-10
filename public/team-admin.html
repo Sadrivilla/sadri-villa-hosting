@@ -511,13 +511,20 @@ clearForm();
 document.getElementById("saveBtn").disabled=false;
 
 }catch(e){
-console.error(e);
-showToast(e.message, true);
-  document.getElementById("progressBox").style.display = "none";
+console.error("generateMemberPage error:", e);
 
-document.getElementById("saveBtn").innerText="Save Member";
-document.getElementById("saveBtn").disabled=false;
+alert(
+"Generate Member Page Error:\n\n" +
+(e.message || JSON.stringify(e))
+);
+
+showToast(e.message || "Unknown error", true);
+
+document.getElementById("progressBox").style.display = "none";
+document.getElementById("saveBtn").innerText = "Save Member";
+document.getElementById("saveBtn").disabled = false;
 }
+
 
 };
 
