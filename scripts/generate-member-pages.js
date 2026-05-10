@@ -73,6 +73,34 @@ const functions = require("firebase-functions");
 // ============================================================
 // Helper Function
 // ============================================================
+function normalizeUrl(url, base) {
+const value = String(url || "").trim();
+
+if (!value || value === "null" || value === "undefined") {
+return "";
+}
+
+if (value.startsWith("http://") || value.startsWith("https://")) {
+return value;
+}
+
+if (base) {
+return base + value.replace(/^@/, "");
+}
+
+return "";
+}
+
+function cleanImageUrl(url) {
+const value = String(url || "").trim();
+
+if (!value || value === "null" || value === "undefined") {
+return "";
+}
+
+return value;
+}
+
 function escapeHtml(text) {
   return String(text || "")
     .replace(/&/g, "&amp;")
