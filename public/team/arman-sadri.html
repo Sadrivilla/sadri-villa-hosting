@@ -64,12 +64,12 @@ a {
 .hero::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -40px;
   background-image: url('https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1');
   background-size: cover;
   background-position: center;
-  filter: blur(22px) scale(1.15);
-  transform: scale(1.1);
+  filter: blur(40px);
+  transform: scale(1.25);
   z-index: 0;
 }
 
@@ -94,17 +94,16 @@ a {
 }
 
 .profile-image {
-  width: 280px;
-  height: 280px;
+  width: 220px;
+  height: 220px;
   object-fit: cover;
   object-position: center;
-  display: block;
-  margin: 0 auto 30px;
   border-radius: 50%;
   border: 6px solid rgba(255,255,255,0.95);
   box-shadow:
-    0 30px 80px rgba(0,0,0,0.45),
+    0 30px 80px rgba(0,0,0,0.25),
     0 0 0 10px rgba(255,255,255,0.10);
+  animation: float 6s ease-in-out infinite;
 }
 
 .hero h1 {
@@ -137,7 +136,9 @@ a {
 
 /* Premium Role Badge */
 .role-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 16px;
   padding: 10px 24px;
   border-radius: 999px;
@@ -146,7 +147,7 @@ a {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.3px;
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.35);
 }
 
 /* Back Button */
@@ -201,6 +202,34 @@ a {
     0 10px 30px rgba(255,255,255,0.6) inset;
 }
 
+/* Card top profile image */
+.card {
+  position: relative;
+  margin-top: 140px;
+  padding-top: 170px;
+}
+
+.card-profile-wrap {
+  position: absolute;
+  top: -110px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.member-name {
+  margin: 0 0 12px;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #081634;
+  letter-spacing: -1px;
+}
+
 /* Description */
 .description-block {
   margin-bottom: 28px;
@@ -215,12 +244,19 @@ a {
 /* Additional Images Gallery */
 .gallery {
   margin: 45px 0;
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  padding-bottom: 12px;
 }
 
+.gallery img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 650px;
+  object-fit: contain;
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  transition: all 0.3s ease;
+}
 .gallery::-webkit-scrollbar {
   height: 8px;
 }
@@ -232,16 +268,6 @@ a {
 
 .gallery img:hover {
   transform: scale(1.02);
-}
-
-.gallery img {
-  width: 420px;
-  height: 280px;
-  object-fit: cover;
-  border-radius: 18px;
-  flex-shrink: 0;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-  transition: all 0.3s ease;
 }
 
 /* Social */
@@ -449,21 +475,29 @@ a {
   .hero {
     padding: 60px 20px 50px;
   }
+.card {
+  margin-top: 100px;
+  padding-top: 130px;
+}
+
+.card-profile-wrap {
+  top: -85px;
+}
+
+.member-name {
+  font-size: 2.2rem;
+}
 .profile-image {
   width: 220px;
   height: 220px;
 }
 .gallery img {
-  width: 320px;
-  height: 220px;
+  width: 100%;
+  height: auto;
 }
 
 .team-section {
   padding: 50px 20px;
-}
-
-.team-section h2 {
-  font-size: 1.8rem;
 }
 
   .hero h1 {
@@ -486,15 +520,8 @@ a {
 
 <!-- Hero -->
 <section class="hero">
-  <img
-    class="profile-image"
-    src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1"
-    alt="Arman Sadri"
-    loading="eager"
-  >
 
-  <h1>Arman Sadri</h1>
-<div class="role-badge">Vice President (Leader)</div>
+ 
 
   <div class="back-wrap">
     <a class="back-btn" href="/team.html">← Back to Team</a>
@@ -504,18 +531,24 @@ a {
 <!-- Main Content -->
 <div class="container">
   <div class="card">
+
+  <div class="card-profile-wrap">
+    <img
+      class="profile-image"
+      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1"
+      alt="Arman Sadri"
+      loading="eager"
+    >
+  </div>
+
+  <div class="card-header">
+    <h1 class="member-name">Arman Sadri</h1>
+    <div class="role-badge">Vice President (Leader)</div>
+  </div>
     
 <div class="description-block"><p style="box-sizing: border-box; margin-block: 0px 0.9rem; font-family: Poppins, sans-serif; background-color: rgb(244, 247, 249); color: rgb(51, 51, 51) !important; font-size: 17px !important; line-height: 1.8 !important; margin-bottom: 25px !important;">Serving as the RJD District Vice President (Zila Upadhyaksh) of Samastipur, Arman Sadri is a powerful leader who needs no introduction. Known for his “Robinhood” image, his political connections go deep within the RJD, reaching top leaders like Lalu Prasad Yadav and his family. Even today, a large number of people gather daily at the Arman Sadri factory in Tajpur to share their problems, which he patiently listens to and resolves. In 2005, Lalu Yadav personally called him to offer an MLA ticket from Samastipur, though it was eventually passed over due to internal political lobbying. His dedication to the public remains unmatched.</p></div>
 
 
-<div class="gallery">
-        <img
-          src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778531557685_2?alt=media&token=957fb909-6459-4722-8ae9-5ab76132cf45"
-          alt="Arman Sadri image 2"
-          loading="lazy"
-        >
-      
-</div>
 
 <div class="social">
   
