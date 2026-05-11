@@ -79,6 +79,20 @@ a {
   color: #cbd5e1;
 }
 
+/* Premium Role Badge */
+.role-badge {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+}
+
 /* Back Button */
 .back-wrap {
   margin-top: 30px;
@@ -124,6 +138,33 @@ a {
 
 .description-block p {
   margin: 0 0 18px;
+}
+
+/* Additional Images Gallery */
+.gallery {
+  margin: 35px 0;
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.gallery::-webkit-scrollbar {
+  height: 8px;
+}
+
+.gallery::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.gallery img {
+  width: 260px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
 }
 
 /* Social */
@@ -216,22 +257,55 @@ a {
   font-size: 0.95rem;
 }
 
-/* Footer */
+/* Premium Footer */
 .footer {
-  margin-top: 30px;
+  margin-top: 20px;
   background: #081634;
   color: #cbd5e1;
-  text-align: center;
-  padding: 30px 20px;
+  padding: 70px 20px 20px;
 }
 
-.footer a {
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+}
+
+.footer h3 {
+  margin: 0 0 20px;
+  font-size: 1.8rem;
   color: #ffffff;
-  font-weight: 600;
+}
+
+.footer h4 {
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+  color: #ffffff;
 }
 
 .footer p {
-  margin: 6px 0;
+  margin: 0 0 12px;
+  line-height: 1.9;
+}
+
+.footer a {
+  display: block;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: #ffffff;
+}
+
+.footer-bottom {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
 }
 
 /* Responsive */
@@ -271,7 +345,7 @@ a {
   >
 
   <h1>Arman Sadri</h1>
-  <h2>Vice President (Leader)</h2>
+<div class="role-badge">Vice President (Leader)</div>
 
   <div class="back-wrap">
     <a class="back-btn" href="/team.html">← Back to Team</a>
@@ -282,9 +356,11 @@ a {
 <div class="container">
   <div class="card">
     
-<div class="description-block">testksdckSDMsdddddm kmklmklmklm</div>
+<div class="description-block"><p style="box-sizing: border-box; margin-block: 0px 0.9rem; font-family: Poppins, sans-serif; background-color: rgb(244, 247, 249); color: rgb(51, 51, 51) !important; font-size: 17px !important; line-height: 1.8 !important; margin-bottom: 25px !important;">Serving as the RJD District Vice President (Zila Upadhyaksh) of Samastipur, Arman Sadri is a powerful leader who needs no introduction. Known for his “Robinhood” image, his political connections go deep within the RJD, reaching top leaders like Lalu Prasad Yadav and his family. Even today, a large number of people gather daily at the Arman Sadri factory in Tajpur to share their problems, which he patiently listens to and resolves. In 2005, Lalu Yadav personally called him to offer an MLA ticket from Samastipur, though it was eventually passed over due to internal political lobbying. His dedication to the public remains unmatched.</p></div>
 
-    <div class="social">
+
+
+<div class="social">
       
 <a href="https://www.facebook.com/arman.sadri.568/" target="_blank" rel="noopener noreferrer">Facebook</a>
 <a href="https://instagram.com/ArmanSadrii" target="_blank" rel="noopener noreferrer">Instagram</a>
@@ -398,14 +474,46 @@ a {
   </div>
 </section>
 
-<!-- Footer -->
 <footer class="footer">
-  <p><strong>Sadri Villa</strong></p>
-  <p>Preserving Heritage, Celebrating Legacy.</p>
-  <p>
-    <a href="https://sadrivilla.in">Visit Homepage</a>
-  </p>
-  <p>&copy; 2026 Sadri Villa. All Rights Reserved.</p>
+  <div class="footer-container">
+
+    <div>
+      <h3>Sadri Villa</h3>
+      <p>
+        150+ years of heritage, compassion and
+        community service.
+      </p>
+    </div>
+
+    <div>
+      <h4>Quick Links</h4>
+      <a href="/">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Sign Up</a>
+    </div>
+
+    <div>
+      <h4>Near Us</h4>
+      <p>Mosque</p>
+      <p>Clinic</p>
+      <p>Super Market</p>
+      <p>College</p>
+    </div>
+
+    <div>
+      <h4>Contact</h4>
+      <p>📍 Fazilpur, Samastipur</p>
+      <p>✉️ sadrivillafazilpur@gmail.com</p>
+      <p>📞 +91 8708868221</p>
+      <p>🗺️ Villa Map</p>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 Sadri Villa Fazilpur</p>
+  </div>
 </footer>
 
 </body>
