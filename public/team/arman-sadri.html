@@ -49,20 +49,60 @@ a {
 
 /* Hero */
 .hero {
-  background: linear-gradient(135deg, #081634 0%, #0f2d6b 100%);
+  position: relative;
+  overflow: hidden;
   color: white;
-  padding: 80px 20px 60px;
+  padding: 120px 20px 70px;
   text-align: center;
+  min-height: 680px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Background image blur */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1');
+  background-size: cover;
+  background-position: center;
+  filter: blur(22px) scale(1.15);
+  transform: scale(1.1);
+  z-index: 0;
+}
+
+/* Dark overlay */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(8, 22, 52, 0.88),
+      rgba(15, 45, 107, 0.82)
+    );
+  z-index: 1;
+}
+
+/* Keep content above overlay */
+.hero > * {
+  position: relative;
+  z-index: 2;
 }
 
 .profile-image {
-  width: 220px;
-  height: 220px;
+  width: 260px;
+  height: 260px;
   object-fit: cover;
   border-radius: 50%;
-  border: 6px solid rgba(255,255,255,0.9);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-  margin-bottom: 25px;
+  border: 6px solid rgba(255,255,255,0.95);
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.45),
+    0 0 0 8px rgba(255,255,255,0.08);
+  margin-bottom: 30px;
 }
 
 .hero h1 {
@@ -95,25 +135,34 @@ a {
 
 /* Back Button */
 .back-wrap {
-  margin-top: 30px;
+  position: absolute;
+  top: 36px;
+  left: 36px;
+  margin: 0;
+  z-index: 10;
 }
 
 .back-btn {
-  display: inline-block;
-  padding: 12px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
   border-radius: 999px;
   background: rgba(255,255,255,0.12);
-  color: white;
+  color: #ffffff;
   border: 1px solid rgba(255,255,255,0.25);
-  font-weight: 600;
-  backdrop-filter: blur(8px);
+  font-weight: 700;
+  font-size: 1rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.20);
   transition: all 0.3s ease;
 }
 
 .back-btn:hover {
   background: rgba(255,255,255,0.22);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
 }
+
 
 /* Main Card */
 .container {
@@ -142,11 +191,11 @@ a {
 
 /* Additional Images Gallery */
 .gallery {
-  margin: 35px 0;
+  margin: 45px 0;
   display: flex;
-  gap: 15px;
+  gap: 24px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
 }
 
 .gallery::-webkit-scrollbar {
@@ -158,13 +207,18 @@ a {
   border-radius: 999px;
 }
 
+.gallery img:hover {
+  transform: scale(1.02);
+}
+
 .gallery img {
-  width: 260px;
-  height: 180px;
+  width: 420px;
+  height: 280px;
   object-fit: cover;
-  border-radius: 14px;
+  border-radius: 18px;
   flex-shrink: 0;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  transition: all 0.3s ease;
 }
 
 /* Social */
@@ -189,24 +243,83 @@ a {
   transform: translateY(-2px);
 }
 
+/* Share Section */
+.share-section {
+  margin-top: 45px;
+  padding-top: 35px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.share-section h3 {
+  margin: 0 0 20px;
+  font-size: 1.3rem;
+  color: #081634;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.share-btn {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 999px;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+  transform: translateY(-3px);
+}
+
+.share-btn.whatsapp {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+}
+
+.share-btn.facebook {
+  background: linear-gradient(135deg, #1877F2, #0A58CA);
+}
+
+.share-btn.linkedin {
+  background: linear-gradient(135deg, #0A66C2, #004182);
+}
+
+.share-btn.instagram {
+  background: linear-gradient(
+    135deg,
+    #f58529,
+    #dd2a7b,
+    #8134af,
+    #515bd4
+  );
+}
+
 /* Team Slider */
 .team-section {
-  max-width: 1200px;
-  margin: 30px auto 0;
-  padding: 0 20px;
+  width: 100%;
+  margin: 80px 0 0;
+  padding: 70px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-top: 1px solid #e2e8f0;
 }
 
 .team-section h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 2.4rem;
+  margin: 0 0 30px;
   color: #081634;
+  font-weight: 800;
+  text-align: center;
 }
 
 .team-slider {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   overflow-x: auto;
-  padding-bottom: 10px;
+  padding: 10px 0 15px;
   scroll-behavior: smooth;
 }
 
@@ -313,15 +426,27 @@ a {
   .hero {
     padding: 60px 20px 50px;
   }
+.gallery img {
+  width: 320px;
+  height: 220px;
+}
+
+.team-section {
+  padding: 50px 20px;
+}
+
+.team-section h2 {
+  font-size: 1.8rem;
+}
 
   .hero h1 {
     font-size: 2.2rem;
   }
 
-  .profile-image {
-    width: 170px;
-    height: 170px;
-  }
+.profile-image {
+  width: 200px;
+  height: 200px;
+}
 
   .card {
     padding: 30px 22px;
@@ -361,11 +486,53 @@ a {
 
 
 <div class="social">
-      
+  
 <a href="https://www.facebook.com/arman.sadri.568/" target="_blank" rel="noopener noreferrer">Facebook</a>
 <a href="https://instagram.com/ArmanSadrii" target="_blank" rel="noopener noreferrer">Instagram</a>
 <a href="https://linkedin.com/in/Arman Sadri" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-    </div>
+</div>
+
+<div class="share-section">
+  <h3>Share This Profile</h3>
+
+  <div class="share-buttons">
+    <a
+      class="share-btn whatsapp"
+      href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Farman-sadri.html"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      WhatsApp
+    </a>
+
+    <a
+      class="share-btn facebook"
+      href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Farman-sadri.html"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Facebook
+    </a>
+
+    <a
+      class="share-btn linkedin"
+      href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Farman-sadri.html"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      LinkedIn
+    </a>
+
+    <a
+      class="share-btn instagram"
+      href="https://www.instagram.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Instagram
+    </a>
+  </div>
+</div>
   </div>
 </div>
 
@@ -412,62 +579,6 @@ a {
       <div class="member-card-content">
         <h3>Safwan Sadri</h3>
         <p>Engineer</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/test.html">
-      <img src="" alt="test">
-      <div class="member-card-content">
-        <h3>test</h3>
-        <p>test</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/test001.html">
-      <img src="" alt="test001">
-      <div class="member-card-content">
-        <h3>test001</h3>
-        <p>test</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/safwannnnn.html">
-      <img src="" alt="safwannnnn">
-      <div class="member-card-content">
-        <h3>safwannnnn</h3>
-        <p>test</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/gyswhzwsbh.html">
-      <img src="" alt="gyswhzwsbh">
-      <div class="member-card-content">
-        <h3>gyswhzwsbh</h3>
-        <p>smwq sm ms</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/checking.html">
-      <img src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778450206828_1?alt=media&token=b05c5204-f4c2-4dc8-a678-01436ceff324" alt="checking">
-      <div class="member-card-content">
-        <h3>checking</h3>
-        <p>checking</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/checkingtwo.html">
-      <img src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778452513010_1?alt=media&token=17a7b559-2278-43aa-a1e0-536ba381a082" alt="checkingtwo">
-      <div class="member-card-content">
-        <h3>checkingtwo</h3>
-        <p>checkingtwo</p>
-      </div>
-    </a>
-  
-    <a class="member-card" href="/team/hsdbfjfkjsnmsd-ck.html">
-      <img src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778455765755_1?alt=media&token=ed9429b0-7092-4ebf-97cb-7f310b642532" alt="hsdbfjfkjsnmsd ck">
-      <div class="member-card-content">
-        <h3>hsdbfjfkjsnmsd ck</h3>
-        <p>msdncksd</p>
       </div>
     </a>
   
