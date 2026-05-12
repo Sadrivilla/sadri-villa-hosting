@@ -251,19 +251,30 @@ div.innerHTML = `
 const input = div.querySelector(".imgInput");
 const img = div.querySelector("img");
 
-input.onchange = async ()=>{
-const file = input.files[0];
-if(!file) return;
+input.onchange = async () => {
+  const file = input.files[0];
+  if (!file) return;
 
-// crop + resize (NO STRETCH)
-const resizedBlob = await cropResizeImage(file, 1672, 941);
+  // crop + resize
+  const resizedBlob = await cropResizeImage(file, 1672, 941);
 
-// preview
-img.src = URL.createObjectURL(resizedBlob);
-img.style.display = "block";
+  // clear old preview first
+  img.removeAttribute("src");
+  img.style.display = "none";
 
-// store resized file
-input.resizedFile = new File([resizedBlob], file.name, { type: "image/jpeg" });
+  // create fresh preview URL
+  const previewUrl = URL.createObjectURL(resizedBlob);
+
+  // show new preview
+  img.src = previewUrl;
+  img.style.display = "block";
+
+  // save resized file for upload
+  input.resizedFile = new File(
+    [resizedBlob],
+    file.name,
+    { type: "image/jpeg" }
+  );
 };
 
 document.getElementById("multiDesc").appendChild(div);
