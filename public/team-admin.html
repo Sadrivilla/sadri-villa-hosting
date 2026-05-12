@@ -389,8 +389,7 @@ return;
 }
 
 try{
-let descriptions = [];
-let images = [];
+let contentBlocks = [];
 
 const blocks = document.getElementById("multiDesc").children;
 
@@ -431,21 +430,24 @@ if(fileInput && (fileInput.resizedFile || fileInput.files[0])){
   imageUrl = block.querySelector("img")?.src || "";
 }
 
-// description
+// TEXT BLOCK
 if (descInput) {
   const html = descInput.innerHTML.trim();
 
   if (html && html !== "<br>") {
-    descriptions.push({
+    contentBlocks.push({
       type: "text",
       text: html
     });
   }
 }
 
-// image
+// IMAGE BLOCK
 if (imageUrl) {
-  images.push(imageUrl);
+  contentBlocks.push({
+    type: "image",
+    url: imageUrl
+  });
 }
 
 index++;
@@ -463,8 +465,7 @@ name: name,
   .replace(/\s+/g, "-")
   .replace(/-+/g, "-"),
 role: document.getElementById("role").value || "",
-descriptions: descriptions,
-images: images,
+contentBlocks: contentBlocks,
 facebook: document.getElementById("facebook").value || "",
 instagram: document.getElementById("instagram").value || "",
 linkedin: document.getElementById("linkedin").value || "",
@@ -474,15 +475,20 @@ nameSize: Number(document.getElementById("nameSize").value || 16),
 enabled: true
 };
   // Remove null and empty values
-data.descriptions =
-  (data.descriptions || []).filter(
-    item => item && item.text && item.text.trim()
-  );
+data.contentBlocks =
+  (data.contentBlocks || []).filter((item) => {
+    if (!item || !item.type) return false;
 
-data.images =
-  (data.images || []).filter(
-    item => item && String(item).trim()
-  );
+    if (item.type === "text") {
+      return item.text && item.text.trim();
+    }
+
+    if (item.type === "image") {
+      return item.url && String(item.url).trim();
+    }
+
+    return false;
+  });
 
 
 // ✅ ADD / UPDATE
@@ -605,29 +611,53 @@ document.getElementById("nameSize").value = d.nameSize || 16;
 document.getElementById("multiDesc").innerHTML = "";
 
 // rebuild blocks
-for(let i=0; i<(d.descriptions?.length || 0); i++){
+// Load new contentBlocks format
+if (Array.isArray(d.contentBlocks) && d.contentBlocks.length > 0) {
+  for (const block of d.contentBlocks) {
 
-// TEXT BLOCK
-if(d.descriptions[i]){
-addDesc();
+    // TEXT BLOCK
+    if (block.type === "text") {
+      addDesc();
 
-const last = document.querySelectorAll(".descInput");
-last[last.length-1].innerHTML = d.descriptions[i].text || "";
+      const editors = document.querySelectorAll(".descInput");
+      editors[editors.length - 1].innerHTML = block.text || "";
+    }
+
+    // IMAGE BLOCK
+    if (block.type === "image") {
+      addImage();
+
+      const previews = document.querySelectorAll("#multiDesc img");
+      const lastPreview = previews[previews.length - 1];
+
+      lastPreview.src = block.url || "";
+      lastPreview.style.display = "block";
+    }
+  }
 }
 
-// IMAGE BLOCK
-if(d.images[i]){
-addImage();
+// Backward compatibility for old members
+else {
+  for (let i = 0; i < (d.descriptions?.length || 0); i++) {
 
-const imgs = document.querySelectorAll(".imgInput");
-const previews = document.querySelectorAll("#multiDesc img");
+    if (d.descriptions[i]) {
+      addDesc();
 
-const index = imgs.length - 1;
+      const editors = document.querySelectorAll(".descInput");
+      editors[editors.length - 1].innerHTML =
+        d.descriptions[i].text || "";
+    }
 
-previews[index].src = d.images[i];
-previews[index].style.display = "block";
-}
-}
+    if (d.images[i]) {
+      addImage();
+
+      const previews = document.querySelectorAll("#multiDesc img");
+      const lastPreview = previews[previews.length - 1];
+
+      lastPreview.src = d.images[i];
+      lastPreview.style.display = "block";
+    }
+  }
 };
 
 
