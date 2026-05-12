@@ -245,7 +245,19 @@ div.draggable = true;
 div.innerHTML = `
 <button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <input type="file" class="imgInput">
-<img style="max-width:200px;border-radius:8px;margin-top:5px;display:none;">
+<br>
+<img
+  style="
+    display:none;
+    width:200px;
+    max-width:100%;
+    height:auto;
+    margin-top:10px;
+    border-radius:8px;
+    border:2px solid #334155;
+    background:white;
+  "
+>
 `;
 
 const input = div.querySelector(".imgInput");
@@ -535,8 +547,11 @@ console.log("Physical HTML page generated successfully.");
   document.getElementById("progressBox").style.display = "none";
 
 clearForm();
-  document.getElementById("saveBtn").innerText="Save Member";
-document.getElementById("saveBtn").disabled=false;
+
+showToast("Member saved successfully!");
+
+document.getElementById("saveBtn").innerText = "Save Member";
+document.getElementById("saveBtn").disabled = false;
 
 }catch(e){
 console.error("generateMemberPage error:", e);
