@@ -656,10 +656,9 @@ else {
 
       lastPreview.src = d.images[i];
       lastPreview.style.display = "block";
-    }
-  }
-};
-
+        }
+}
+};   // ✅ closes window.edit = async function(id){
 
 /* DELETE */
 window.del = async id=> await deleteDoc(doc(db,"team",id));
