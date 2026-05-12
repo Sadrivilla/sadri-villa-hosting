@@ -68,8 +68,8 @@ a {
   background-image: url('https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1');
   background-size: cover;
   background-position: center;
-  filter: blur(40px);
-  transform: scale(1.25);
+  filter: blur(30px);
+  transform: scale(1.22);
   z-index: 0;
 }
 
@@ -183,9 +183,9 @@ a {
 
 /* Main Card */
 .container {
-  max-width: 1400px;
-  margin: -420px auto 0;
-  padding: 0 12px;
+  max-width: 1600px;
+  margin: -500px auto 0;
+  padding: 0 6px;
   position: relative;
   z-index: 20;
 }
@@ -208,7 +208,7 @@ a {
 
 .card-profile-wrap {
   position: absolute;
-  top: -110px;
+  top: -65px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
@@ -261,6 +261,9 @@ a {
 .gallery::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 999px;
+}
+.gallery img + img {
+  margin-top: 10px;
 }
 
 .gallery img:hover {
@@ -466,6 +469,9 @@ a {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
 }
+.gallery a {
+  display: block;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -476,21 +482,22 @@ a {
   padding: 0 4px;
 }
 .card {
-  margin-top: 80px;
-  padding: 26px 12px 30px;
-  padding-top: 90px;
+  margin-top: 70px;
+  padding: 24px 12px 30px;
+  padding-top: 80px;
 }
 
 .card-profile-wrap {
-  top: -65px;
+  top: -55px;
 }
 
 .member-name {
-  font-size: 2.2rem;
+  font-size: 1.9rem;
+  line-height: 1.2;
 }
 .profile-image {
-  width: 130px;
-  height: 130px;
+  width: 110px;
+  height: 110px;
 }
 .gallery img {
   width: 100%;
@@ -506,14 +513,10 @@ a {
     font-size: 2.2rem;
   }
 
-
-  .card {
-    padding: 28px 12px;
-  }
-
   .team-section h2 {
     font-size: 1.6rem;
   }
+
 }
 </style>
 </head>
@@ -533,15 +536,16 @@ a {
 <div class="container">
   <div class="card">
 
-  <div class="card-profile-wrap">
+<div class="card-profile-wrap">
+  <a href="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1" target="_blank" rel="noopener noreferrer">
     <img
       class="profile-image"
       src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778462327328_1?alt=media&token=4eea9fbb-a101-4309-bce6-57d48d2090a1"
       alt="Arman Sadri"
       loading="eager"
     >
-  </div>
-
+  </a>
+</div>
   <div class="card-header">
     <h1 class="member-name">Arman Sadri</h1>
     <div class="role-badge">Vice President (Leader)</div>
@@ -552,18 +556,22 @@ a {
 
 
 <div class="gallery">
-        <img
-          src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778535488553_2?alt=media&token=688986b1-a432-4070-ba99-82e19b1ebcbe"
-          alt="Arman Sadri image 2"
-          loading="lazy"
-        >
-      
-        <img
-          src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778535491544_3?alt=media&token=a0c17363-aa56-4f4e-baf0-279b4bbde171"
-          alt="Arman Sadri image 3"
-          loading="lazy"
-        >
-      
+  <a href="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778535488553_2?alt=media&token=688986b1-a432-4070-ba99-82e19b1ebcbe" target="_blank" rel="noopener noreferrer">
+    <img
+      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778535488553_2?alt=media&token=688986b1-a432-4070-ba99-82e19b1ebcbe"
+      alt="Arman Sadri image 2"
+      loading="lazy"
+    >
+  </a>
+
+  <a href="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778561178600_4?alt=media&token=6ea06463-abc0-4efd-9543-6644cfb3a860" target="_blank" rel="noopener noreferrer">
+    <img
+      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2F1778561178600_4?alt=media&token=6ea06463-abc0-4efd-9543-6644cfb3a860"
+      alt="Arman Sadri image 3"
+      loading="lazy"
+    >
+  </a>
+
 </div>
 
 <div class="social">
