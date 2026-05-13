@@ -130,8 +130,9 @@ flex-wrap:wrap;
 <input id="nameSize" type="number" placeholder="Name Size (e.g. 18)">
 <div id="multiDesc"></div>
 
+<button type="button" onclick="addProfileImage()">+ Profile Image</button>
 <button type="button" onclick="addDesc()">+ Add Description</button>
-<button type="button" onclick="addImage()">+ Add Photo</button>
+<button type="button" onclick="addBodyImage()">+ Add Body Image</button>
 </div>
 <input id="facebook" placeholder="Facebook URL">
 <input id="instagram" placeholder="Instagram URL">
@@ -240,15 +241,35 @@ border-radius:8px;
 document.getElementById("multiDesc").appendChild(div);
 }
 
+function addProfileImage() {
+  // Allow only one profile image
+  const existing = document.querySelector('#multiDesc .profile-image-block');
 
-function addImage(){
+  if (existing) {
+    showToast('Only one profile image is allowed.', true);
+    return;
+  }
+
+  addImage('profile');
+}
+
+function addBodyImage() {
+  addImage('body');
+}
+
+function addImage(imageType = 'body') {
 counter++;
 
 const div = document.createElement("div");
 div.classList.add("draggable");
+div.classList.add(imageType === 'profile' ? 'profile-image-block' : 'body-image-block');
+div.dataset.imageType = imageType;
 div.draggable = true;
 
 div.innerHTML = `
+<div style="margin-bottom:8px;font-weight:bold;color:#38bdf8;">
+  ${imageType === 'profile' ? 'Profile Image' : 'Body Image'}
+</div>
 <button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <input type="file" class="imgInput">
 <br>
@@ -364,8 +385,8 @@ html += `<div style="margin-bottom:10px;">${descInput.innerHTML}</div>`;
 }
 
 // IMAGE
-if(img && img.src && !img.src.includes("blob:") && img.style.display !== "none"){
-html += `<img src="${img.src}">`;
+if (img && img.src && img.style.display !== "none") {
+  html += `<img src="${img.src}">`;
 }
 
 }
@@ -479,10 +500,11 @@ if (descInput) {
 
 // IMAGE BLOCK
 if (imageUrl) {
-  contentBlocks.push({
-    type: "image",
-    url: imageUrl
-  });
+contentBlocks.push({
+  type: "image",
+  imageType: block.dataset.imageType || "body",
+  url: imageUrl
+});
 }
 
 index++;
@@ -561,6 +583,23 @@ await generateMemberPage({
 });
 
 console.log("Physical HTML page generated successfully.");
+
+// Delete removed images from Firebase Storage
+if (removedImageUrls.length > 0) {
+  const deleteStorageImages = httpsCallable(
+    functions,
+    "deleteStorageImages"
+  );
+
+  await deleteStorageImages({
+    imageUrls: removedImageUrls
+  });
+
+  console.log(
+    removedImageUrls.length,
+    "removed image(s) deleted from Storage."
+  );
+}
 
 
   document.getElementById("progressBox").style.display = "none";
@@ -673,7 +712,11 @@ if (Array.isArray(d.contentBlocks) && d.contentBlocks.length > 0) {
 
     // IMAGE BLOCK
     if (block.type === "image") {
-      addImage();
+  if (block.imageType === "profile") {
+    addProfileImage();
+  } else {
+    addBodyImage();
+  }
 
       const previews = document.querySelectorAll("#multiDesc img");
       const lastPreview = previews[previews.length - 1];
@@ -713,10 +756,39 @@ else {
 window.del = async function(id){
   if (!confirm("Delete this member?")) return;
 
+  // Read member data first
+  const snap = await getDoc(doc(db, "team", id));
+  const data = snap.data() || {};
+
+  // Collect all image URLs
+  const imageUrls = (data.contentBlocks || [])
+    .filter(item => item.type === "image" && item.url)
+    .map(item => item.url);
+
+  // Delete images from Firebase Storage
+  if (imageUrls.length > 0) {
+    const deleteStorageImages = httpsCallable(
+      functions,
+      "deleteStorageImages"
+    );
+
+    await deleteStorageImages({
+      imageUrls
+    });
+  }
+
+  // Delete Firestore document
   await deleteDoc(doc(db, "team", id));
 
-  const deleteMemberPage = httpsCallable(functions, "deleteMemberPage");
-  await deleteMemberPage({ memberId: id });
+  // Delete generated HTML file from GitHub
+  const deleteMemberPage = httpsCallable(
+    functions,
+    "deleteMemberPage"
+  );
+
+  await deleteMemberPage({
+    memberId: id
+  });
 
   showToast("Member deleted successfully!");
 };
