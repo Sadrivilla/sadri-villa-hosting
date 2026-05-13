@@ -721,7 +721,7 @@ saveBtn.addEventListener("click", ()=>{
 if(saveBtn.disabled) return;
 saveMember();
 });
-function cropResizeImage(file, targetWidth, targetHeight){
+window.cropResizeImage = function(file, targetWidth, targetHeight){
 return new Promise(resolve=>{
 const img = new Image();
 const canvas = document.createElement("canvas");
@@ -762,7 +762,7 @@ resolve(blob);
 
 img.src = URL.createObjectURL(file);
 });
-}
+};
 
 
   let dragItem = null;
