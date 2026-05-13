@@ -283,26 +283,21 @@ input.onchange = async () => {
     { type: "image/jpeg" }
   );
 
-  // Remove any previous preview URL
+  // Remove old preview URL
   if (img.dataset.objectUrl) {
     URL.revokeObjectURL(img.dataset.objectUrl);
   }
 
-  // Create new preview URL
+  // Create preview URL
   const previewUrl = URL.createObjectURL(resizedBlob);
-
-  // Store URL so it can be revoked later
   img.dataset.objectUrl = previewUrl;
 
-  // Force refresh
-  img.src = "";
-  img.style.display = "none";
-
-  // Small delay ensures browser redraws
-  setTimeout(() => {
-    img.src = previewUrl;
+  // Show preview only after image loads
+  img.onload = () => {
     img.style.display = "block";
-  }, 50);
+  };
+
+  img.src = previewUrl;
 };
 
 document.getElementById("multiDesc").appendChild(div);
