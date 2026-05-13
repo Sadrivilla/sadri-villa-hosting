@@ -255,8 +255,8 @@ div.innerHTML = `
 <img
   style="
     display:none;
-    width:200px;
     max-width:100%;
+    width:auto;
     height:auto;
     margin-top:10px;
     border-radius:8px;
@@ -400,6 +400,7 @@ const storage = getStorage(app);
 const functions = getFunctions(app, "us-central1");
   
 let editId = null;
+  let oldImageUrls = [];
 
 /* SAVE / ADD */
 window.saveMember = async function(){
@@ -523,6 +524,13 @@ data.contentBlocks =
 
     return false;
   });
+  const newImageUrls = data.contentBlocks
+  .filter(item => item.type === "image")
+  .map(item => item.url);
+
+const removedImageUrls = oldImageUrls.filter(
+  url => !newImageUrls.includes(url)
+);
 
 
 // ✅ ADD / UPDATE
@@ -631,6 +639,9 @@ list.appendChild(div);
 window.edit = async function(id){
 const snap = await getDoc(doc(db,"team",id));
 const d = snap.data();
+  oldImageUrls = (d.contentBlocks || [])
+  .filter(item => item.type === "image" && item.url)
+  .map(item => item.url);
 
 editId = id;
 
@@ -699,7 +710,16 @@ else {
 };   // ✅ closes window.edit = async function(id){
 
 /* DELETE */
-window.del = async id=> await deleteDoc(doc(db,"team",id));
+window.del = async function(id){
+  if (!confirm("Delete this member?")) return;
+
+  await deleteDoc(doc(db, "team", id));
+
+  const deleteMemberPage = httpsCallable(functions, "deleteMemberPage");
+  await deleteMemberPage({ memberId: id });
+
+  showToast("Member deleted successfully!");
+};
 
 /* TOGGLE */
 window.toggle = async (id,status)=>{
