@@ -270,6 +270,25 @@ div.innerHTML = `
 <div style="margin-bottom:8px;font-weight:bold;color:#38bdf8;">
   ${imageType === 'profile' ? 'Profile Image' : 'Body Image'}
 </div>
+
+${imageType === 'profile' ? `
+<div class="profile-controls" style="
+  margin:10px 0;
+  padding:10px;
+  background:#1e293b;
+  border-radius:8px;
+  font-size:12px;
+">
+  <label>X Position</label>
+  <input type="range" class="profileX" min="0" max="100" value="50">
+
+  <label>Y Position</label>
+  <input type="range" class="profileY" min="0" max="100" value="50">
+
+  <label>Zoom</label>
+  <input type="range" class="profileZoom" min="1" max="3" step="0.01" value="1">
+</div>
+` : ""}
 <button type="button" onclick="removeBlock(this)" style="background:red;color:white;">❌</button>
 <input type="file" class="imgInput">
 <br>
