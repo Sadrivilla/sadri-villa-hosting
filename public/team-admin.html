@@ -484,9 +484,15 @@ function previewMember() {
   const previewData = {
     name: document.getElementById("name").value.trim() || "Preview Name",
     role: document.getElementById("role").value.trim() || "",
-    facebook: document.getElementById("facebook").value.trim() || "",
-    instagram: document.getElementById("instagram").value.trim() || "",
-    linkedin: document.getElementById("linkedin").value.trim() || "",
+   facebook: document.getElementById("facebook").value.trim() || "",
+instagram: document.getElementById("instagram").value.trim() || "",
+linkedin: document.getElementById("linkedin").value.trim() || "",
+youtube: document.getElementById("youtube").value.trim() || "",
+snapchat: document.getElementById("snapchat").value.trim() || "",
+telegram: document.getElementById("telegram").value.trim() || "",
+quora: document.getElementById("quora").value.trim() || "",
+x: document.getElementById("x").value.trim() || "",
+pinterest: document.getElementById("pinterest").value.trim() || "",
     nameStyle: document.getElementById("nameStyle").value || "simple",
     nameSize: Number(
       document.getElementById("nameSize").value || 16
@@ -644,6 +650,12 @@ contentBlocks: contentBlocks,
 facebook: document.getElementById("facebook").value || "",
 instagram: document.getElementById("instagram").value || "",
 linkedin: document.getElementById("linkedin").value || "",
+youtube: document.getElementById("youtube").value || "",
+snapchat: document.getElementById("snapchat").value || "",
+telegram: document.getElementById("telegram").value || "",
+quora: document.getElementById("quora").value || "",
+x: document.getElementById("x").value || "",
+pinterest: document.getElementById("pinterest").value || "",
 order: Number(order),
 nameStyle: document.getElementById("nameStyle").value || "simple",
 nameSize: Number(document.getElementById("nameSize").value || 16),
@@ -748,7 +760,20 @@ document.getElementById("saveBtn").disabled = false;
 };
 
 function clearForm(){
-["name","role","facebook","instagram","linkedin","order"]
+[
+  "name",
+  "role",
+  "facebook",
+  "instagram",
+  "linkedin",
+  "youtube",
+  "snapchat",
+  "telegram",
+  "quora",
+  "x",
+  "pinterest",
+  "order"
+]
 .forEach(id=>document.getElementById(id).value="");
 
 // clear dynamic blocks
@@ -808,6 +833,12 @@ document.getElementById("role").value = d.role || "";
 document.getElementById("facebook").value = d.facebook || "";
 document.getElementById("instagram").value = d.instagram || "";
 document.getElementById("linkedin").value = d.linkedin || "";
+document.getElementById("youtube").value = d.youtube || "";
+document.getElementById("snapchat").value = d.snapchat || "";
+document.getElementById("telegram").value = d.telegram || "";
+document.getElementById("quora").value = d.quora || "";
+document.getElementById("x").value = d.x || "";
+document.getElementById("pinterest").value = d.pinterest || "";
 document.getElementById("order").value = d.order || 0;
   document.getElementById("nameStyle").value = d.nameStyle || "simple";
 document.getElementById("nameSize").value = d.nameSize || 16;
