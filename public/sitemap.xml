@@ -33,16 +33,16 @@
   </url>
 
   <!-- Team Listing -->
-  <url>
-    <loc>https://sadrivilla.in/team.html</loc>
-    <lastmod>2026-05-03</lastmod>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-    <image:image>
-      <image:loc>https://sadrivilla.in/favicon.png</image:loc>
-      <image:title>Sadri Villa Team</image:title>
-    </image:image>
-  </url>
+<url>
+  <loc>https://sadrivilla.in/team.html</loc>
+  <lastmod>2026-05-14</lastmod>
+  <priority>0.9</priority>
+  <changefreq>weekly</changefreq>
+  <image:image>
+    <image:loc>https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2Fsadri-villa%20(1).png?alt=media&amp;token=67a390ae-aebb-45d8-b149-f0cb27031805</image:loc>
+    <image:title>Sadri Villa Team</image:title>
+  </image:image>
+</url>
 
   <!-- Member Pages (IMPORTANT: match Firestore slug exactly) -->
   <url>
