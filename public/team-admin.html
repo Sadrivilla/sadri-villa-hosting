@@ -384,67 +384,74 @@ toast.style.display = "none";
       function removeBlock(btn){
 btn.parentElement.remove();
 }
-    function previewMember(){
+function previewMember() {
+  const contentBlocks = [];
+  const blocks = document.getElementById("multiDesc").children;
 
-const name = document.getElementById("name").value || "Preview Name";
-const role = document.getElementById("role").value || "";
+  for (const block of blocks) {
+    const descInput = block.querySelector(".descInput");
+    const img = block.querySelector("img");
 
-const blocks = document.getElementById("multiDesc").children;
+    // TEXT BLOCK
+    if (descInput) {
+      const html = descInput.innerHTML.trim();
 
-let html = `
-<!DOCTYPE html>
-<html>
-<head>
-<title>${name}</title>
-<style>
-body{
-font-family:Arial;
-padding:20px;
-background:#f1f5f9;
-}
-img{
-max-width:100%;
-border-radius:10px;
-margin:10px 0;
-}
-</style>
-</head>
-<body>
+      if (html && html !== "<br>") {
+        contentBlocks.push({
+          type: "text",
+          text: html
+        });
+      }
+    }
 
-<h1 style="
-font-size:${document.getElementById("nameSize").value || 16}px;
-font-weight:${document.getElementById("nameStyle").value === "bold" ? "700" : "400"};
-font-family:${document.getElementById("nameStyle").value === "elegant" ? "serif" : "Arial"};
-">
-${name}
-</h1>
-<h2>${role}</h2>
-`;
+    // IMAGE BLOCK
+    if (img && img.src && img.style.display !== "none") {
+      const imageData = {
+        type: "image",
+        imageType: block.dataset.imageType || "body",
+        url: img.src
+      };
 
-for(let block of blocks){
+      // Profile image crop settings
+      if (imageData.imageType === "profile") {
+        imageData.positionX = Number(
+          block.querySelector(".profileX")?.value || 50
+        );
 
-let descInput = block.querySelector(".descInput");
-let img = block.querySelector("img");
+        imageData.positionY = Number(
+          block.querySelector(".profileY")?.value || 50
+        );
 
-// TEXT
-if(descInput){
-html += `<div style="margin-bottom:10px;">${descInput.innerHTML}</div>`;
-}
+        imageData.zoom = Number(
+          block.querySelector(".profileZoom")?.value || 1
+        );
+      }
 
-// IMAGE
-if (img && img.src && img.style.display !== "none") {
-  html += `<img src="${img.src}">`;
-}
+      contentBlocks.push(imageData);
+    }
+  }
 
-}
+  const previewData = {
+    name: document.getElementById("name").value.trim() || "Preview Name",
+    role: document.getElementById("role").value.trim() || "",
+    facebook: document.getElementById("facebook").value.trim() || "",
+    instagram: document.getElementById("instagram").value.trim() || "",
+    linkedin: document.getElementById("linkedin").value.trim() || "",
+    nameStyle: document.getElementById("nameStyle").value || "simple",
+    nameSize: Number(
+      document.getElementById("nameSize").value || 16
+    ),
+    contentBlocks
+  };
 
-html += `</body></html>`;
+  // Save preview data to browser storage
+  localStorage.setItem(
+    "previewMemberData",
+    JSON.stringify(previewData)
+  );
 
-// open preview in new tab
-const newWindow = window.open("", "_blank");
-newWindow.document.write(html);
-newWindow.document.close();
-
+  // Open preview page
+  window.open("/team-preview.html", "_blank");
 }
 </script>
 <script type="module">
