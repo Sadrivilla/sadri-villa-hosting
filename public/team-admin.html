@@ -403,13 +403,28 @@ if (imageType === 'profile') {
     const y = ySlider.value;
     const zoom = zoomSlider.value;
 
-    img.style.objectFit = 'cover';
-    img.style.objectPosition = `${x}% ${y}%`;
-    img.style.transform = `scale(${zoom})`;
-    img.style.transformOrigin = 'center center';
-    img.style.width = '220px';
-    img.style.height = '220px';
-    img.style.borderRadius = '50%';
+   img.style.objectFit = 'cover';
+img.style.objectPosition = `${x}% ${y}%`;
+
+// Fixed circular frame size
+const frameSize = 220;
+
+// Increase image size inside the fixed circle
+img.style.width = `${frameSize * zoom}px`;
+img.style.height = `${frameSize * zoom}px`;
+
+// Keep circle frame fixed
+img.style.maxWidth = 'none';
+img.style.borderRadius = '50%';
+img.style.overflow = 'hidden';
+
+// Remove transform-based zoom
+img.style.transform = 'none';
+img.style.transformOrigin = 'center center';
+
+// Center enlarged image inside circle
+img.style.display = 'block';
+img.style.margin = '10px auto';
   }
 
   xSlider.addEventListener('input', updateProfilePreview);
@@ -889,16 +904,23 @@ if (block.imageType === "profile") {
     if (zoomSlider) zoomSlider.value = block.zoom ?? 1;
 
     // Reapply crop visually
-    lastPreview.style.objectFit = "cover";
-    lastPreview.style.objectPosition =
-      `${xSlider.value}% ${ySlider.value}%`;
-    lastPreview.style.transform =
-      `scale(${zoomSlider.value})`;
-    lastPreview.style.transformOrigin =
-      "center center";
-    lastPreview.style.width = "220px";
-    lastPreview.style.height = "220px";
-    lastPreview.style.borderRadius = "50%";
+  const frameSize = 220;
+const zoom = Number(zoomSlider.value || 1);
+
+lastPreview.style.objectFit = "cover";
+lastPreview.style.objectPosition =
+  `${xSlider.value}% ${ySlider.value}%`;
+
+lastPreview.style.width = `${frameSize * zoom}px`;
+lastPreview.style.height = `${frameSize * zoom}px`;
+lastPreview.style.maxWidth = "none";
+lastPreview.style.borderRadius = "50%";
+
+lastPreview.style.transform = "none";
+lastPreview.style.transformOrigin = "center center";
+
+lastPreview.style.display = "block";
+lastPreview.style.margin = "10px auto";
   }
 }
     }
