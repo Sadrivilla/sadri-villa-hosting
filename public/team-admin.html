@@ -43,6 +43,42 @@ padding:25px;
 border-radius:15px;
 }
 
+/* Social links section */
+.social-section{
+margin-top:20px;
+padding:20px;
+background:#111c3d;
+border-radius:12px;
+}
+
+/* Section title */
+.social-section h3{
+margin-top:0;
+margin-bottom:15px;
+font-size:18px;
+color:#38bdf8;
+}
+
+/* Smaller width for social inputs */
+.social-section input{
+width:100%;
+max-width:450px;
+display:block;
+margin:8px auto;
+}
+
+/* Smaller width for Preview and Save buttons */
+.btn-half{
+width:100%;
+max-width:450px;
+display:block;
+margin:10px auto;
+}
+
+.btn-preview{
+background:#22c55e;
+}
+
 input:not([type="file"]), textarea {
   width: 100%;
   padding: 10px;
@@ -133,19 +169,33 @@ flex-wrap:wrap;
 <button type="button" onclick="addProfileImage()">+ Profile Image</button>
 <button type="button" onclick="addDesc()">+ Add Description</button>
 <button type="button" onclick="addBodyImage()">+ Add Body Image</button>
+<!-- Social Links Section -->
+<div class="social-section">
+  <h3>Social Media Links</h3>
+
+  <input id="facebook" placeholder="Facebook URL">
+  <input id="instagram" placeholder="Instagram URL">
+  <input id="linkedin" placeholder="LinkedIn URL">
+  <input id="youtube" placeholder="YouTube URL">
+  <input id="snapchat" placeholder="Snapchat URL">
+  <input id="telegram" placeholder="Telegram URL">
+  <input id="quora" placeholder="Quora URL">
+  <input id="x" placeholder="X (Twitter) URL">
+  <input id="pinterest" placeholder="Pinterest URL">
 </div>
-<input id="facebook" placeholder="Facebook URL">
-<input id="instagram" placeholder="Instagram URL">
-<input id="linkedin" placeholder="LinkedIn URL">
 
 <input id="order" type="number" placeholder="Order (0,1,2...)">
 
-
-<button type="button" onclick="previewMember()" class="btn-primary" style="margin-bottom:10px;background:#22c55e;">
-Preview 👁
+<button type="button"
+        onclick="previewMember()"
+        class="btn-primary btn-half btn-preview">
+  Preview 👁
 </button>
 
-<button id="saveBtn" class="btn-primary">Save Member</button>
+<button id="saveBtn"
+        class="btn-primary btn-half">
+  Save Member
+</button>
   <div id="progressBox" style="display:none;margin-top:10px;">
   <div style="background:#1e293b;border-radius:6px;height:10px;overflow:hidden;">
     <div id="progressBar" style="height:10px;width:0%;background:#38bdf8;"></div>
