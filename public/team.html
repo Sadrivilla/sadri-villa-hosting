@@ -15,14 +15,14 @@
 <meta property="og:title" content="Sadri Villa Team | Heritage of Samastipur">
 <meta property="og:description" content="Explore the legacy of Sadri Villa and meet our team members.">
 <meta property="og:url" content="https://sadrivilla.in/team.html">
-<meta property="og:image" content="https://sadrivilla.in/og-image.jpg">
+<meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2Fsadri-villa%20(1).png?alt=media&token=67a390ae-aebb-45d8-b149-f0cb27031805">
 <meta property="og:site_name" content="Sadri Villa">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sadri Villa Team | Heritage of Samastipur">
 <meta name="twitter:description" content="Explore the legacy of Sadri Villa and meet our team members.">
-<meta name="twitter:image" content="https://sadrivilla.in/og-image.jpg">
+<meta name="twitter:image" content="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2Fsadri-villa%20(1).png?alt=media&token=67a390ae-aebb-45d8-b149-f0cb27031805">
 
 <!-- Structured Data -->
 <script type="application/ld+json">
@@ -45,15 +45,31 @@
 </script>
 
 <style>
-* { box-sizing: border-box; }
-
+* {
+  box-sizing: border-box;
+}
+html,
 body {
   margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f8fbff;
-  color: #0f172a;
-  line-height: 1.8;
+  padding: 0;
+  width: 100%;
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(8, 22, 52, 0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 24px;
+  text-align: left;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
+
+
 
 a {
   text-decoration: none;
@@ -65,10 +81,94 @@ img {
   display: block;
 }
 
-/* Hero Image */
-.hero-image {
+.top-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
+  z-index: 1000;
+  background: rgba(8, 22, 52, 0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 24px;
+  text-align: left;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.top-bar a {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 50px 20px;
+}
+
+/* Introduction Card */
+.intro {
   background: #ffffff;
+  border-radius: 36px;
+  padding: 60px;
+  box-shadow:
+    0 35px 100px rgba(15, 23, 42, 0.12),
+    0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.intro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.intro h1 {
+  margin: 0 0 30px;
+  font-size: 3.4rem;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #081634;
+  text-align: center;
+  letter-spacing: -1px;
+}
+
+.intro p {
+  margin: 0 0 22px;
+  font-size: 1.08rem;
+  color: #334155;
+  text-align: justify;
+}
+
+.intro h2 {
+  margin: 40px 0 16px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #081634;
+  border-left: 5px solid #f59e0b;
+  padding-left: 14px;
+}
+
+/* Heritage Image */
+.hero-image {
+  margin: 0 0 60px;
+  background: #ffffff;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.12),
+    0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
 .hero-image img {
@@ -76,54 +176,19 @@ img {
   height: auto;
 }
 
-/* Main Container */
-.container {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 50px 20px;
-}
-
-/* Intro */
-.intro {
-  background: #ffffff;
-  border-radius: 32px;
-  padding: 50px;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
-  margin-bottom: 50px;
-}
-
-.intro h1 {
-  margin: 0 0 20px;
-  font-size: 3rem;
-  line-height: 1.15;
-  color: #081634;
-  text-align: center;
-}
-
-.intro p {
-  margin: 0 0 20px;
-  font-size: 1.08rem;
-  color: #334155;
-}
-
-.intro h2 {
-  margin: 35px 0 15px;
-  font-size: 1.7rem;
-  color: #081634;
-}
-
 /* Search */
 .search-box {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .search-box input {
   width: 100%;
   padding: 18px 24px;
   font-size: 1rem;
-  border: 1px solid #dbe3ee;
+  border: 1px solid #1d4ed8;
   border-radius: 999px;
   outline: none;
+  background: #ffffff;
   box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
 }
 
@@ -131,27 +196,28 @@ img {
   border-color: #0f2d6b;
 }
 
-/* Team Section */
+/* Team */
 .team-section {
-  margin-bottom: 60px;
+  margin-bottom: 70px;
 }
 
 .team-section h2 {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 3rem;
+  font-weight: 900;
   color: #081634;
-  margin: 0 0 30px;
+  margin: 0 0 35px;
 }
 
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 28px;
 }
 
 .member-card {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
   transition: all 0.3s ease;
@@ -163,27 +229,19 @@ img {
 }
 
 .member-card img {
-  width: 100%;
-  height: 300px;
+  width: 100%; 
+  height: 320px;
   object-fit: cover;
 }
 
 .member-card-content {
-  padding: 24px;
+  padding: 28px;
 }
 
 .member-card h3 {
   margin: 0 0 14px;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #081634;
-  line-height: 1.25;
-}
-
-.member-card h3 {
-  margin: 0 0 8px;
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.65rem;
+  font-weight: 900;
   color: #081634;
   line-height: 1.25;
 }
@@ -213,6 +271,11 @@ img {
   background: #081634;
   color: #cbd5e1;
   padding: 70px 20px 20px;
+  margin: 0;
+  width: 100%;
+  position: relative;
+  left: 0;
+  right: 0;
 }
 
 .footer-container {
@@ -255,27 +318,38 @@ img {
   text-align: center;
 }
 
-/* Responsive */
+/* Mobile */
 @media (max-width: 768px) {
   .container {
     padding: 30px 12px;
   }
 
   .intro {
-    padding: 25px 18px;
-    border-radius: 20px;
+    padding: 28px 18px;
+    border-radius: 24px;
+    margin-bottom: 40px;
   }
 
   .intro h1 {
-    font-size: 2rem;
+    font-size: 2.1rem;
+    text-align: left;
   }
 
   .intro h2 {
     font-size: 1.35rem;
   }
 
+  .hero-image {
+    margin-bottom: 40px;
+    border-radius: 20px;
+  }
+
   .team-section h2 {
-    font-size: 1.8rem;
+    font-size: 2rem;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
   }
 
   .member-card img {
@@ -283,22 +357,22 @@ img {
   }
 
   .member-card h3 {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
+  }
+
+  .member-card p {
+    font-size: 0.82rem;
+    padding: 8px 14px;
   }
 }
 </style>
 </head>
 <body>
 
-<!-- Top Heritage Banner -->
-<section class="hero-image">
-  <img
-    src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2Fsadri-villa%20(1).png?alt=media&token=67a390ae-aebb-45d8-b149-f0cb27031805"
-    alt="Sadri Villa - The Heritage of Samastipur"
-    loading="eager"
-  >
-</section>
-
+<!-- Top Header Bar -->
+<div class="top-bar">
+  <a href="/">SADRI VILLA</a>
+</div>
 <div class="container">
 
   <!-- Historical Introduction -->
@@ -318,34 +392,46 @@ img {
     <p>
       The Sadri family has always been known for their high social standing and deep influence in the region. Their lifestyle and community presence made them one of the most respected families in the area.
     </p>
-
-    <h2>The Prestigious Hamdard Agency</h2>
-    <p>
-      In the past, the Sadri family owned the agency for the renowned Hamdard brand. During that era, having this agency was a powerful symbol of prestige, success, and leadership. Their grand status was well-known and respected throughout the region.
-    </p>
-
-    <h2>The Legacy of Great Personalities</h2>
-    <p>
-      Sadri Villa was home to several kind-hearted and dynamic individuals who dedicated their lives to the betterment of society. Their contributions continue to inspire future generations.
-    </p>
   </section>
 
-  <!-- Search -->
-  <div class="search-box">
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search team members by name or role..."
-      aria-label="Search team members"
+  <!-- Heritage Image -->
+  <section class="hero-image">
+    <img
+      src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/team%2Fsadri-villa%20(1).png?alt=media&token=67a390ae-aebb-45d8-b149-f0cb27031805"
+      alt="Sadri Villa - The Heritage of Samastipur"
+      loading="eager"
     >
-  </div>
+  </section>
+  <!-- Search -->
+<!-- Additional Historical Content -->
+<section class="intro">
+  <h2>The Prestigious Hamdard Agency</h2>
+  <p>
+    In the past, the Sadri family owned the agency for the renowned Hamdard brand. During that era, having this agency was a powerful symbol of prestige, success, and leadership. Their grand status was well-known and respected throughout the region.
+  </p>
 
+  <h2>The Legacy of Great Personalities</h2>
+  <p>
+    Sadri Villa was home to several kind-hearted and dynamic individuals who dedicated their lives to the betterment of society. Their contributions continue to inspire future generations.
+  </p>
+</section>
+
+<!-- Search -->
+<div class="search-box">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search team members by name or role..."
+    aria-label="Search team members"
+  >
+</div>
   <!-- Team Members -->
   <section class="team-section">
     <h2>Meet Our Team</h2>
     <div id="teamGrid" class="team-grid"></div>
     <div id="noResults" class="no-results">No team members found.</div>
   </section>
+
 </div>
 
 <!-- Footer -->
@@ -354,7 +440,7 @@ img {
 
     <div>
       <h3>Sadri Villa</h3>
-      <p>150+ years of heritage, compassion & community service.</p>
+      <p>150+ years of heritage, compassion &amp; community service.</p>
     </div>
 
     <div>
@@ -388,7 +474,6 @@ img {
   </div>
 </footer>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
@@ -400,7 +485,6 @@ import {
   getDocs
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// Replace with your existing Firebase config
 const firebaseConfig = {
   apiKey: 'AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY',
   authDomain: 'sadri-villa-14c06.firebaseapp.com',
@@ -445,6 +529,15 @@ function getProfileImage(member) {
   return '/og-image.jpg';
 }
 
+function createSlug(member) {
+  return (member.slug || member.name || 'member')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 function renderMembers(members) {
   teamGrid.innerHTML = '';
 
@@ -456,12 +549,7 @@ function renderMembers(members) {
   noResults.style.display = 'none';
 
   members.forEach(member => {
-    const slug = (member.slug || member.name || 'member')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
+    const slug = createSlug(member);
 
     const card = document.createElement('a');
     card.className = 'member-card';
@@ -475,7 +563,7 @@ function renderMembers(members) {
       >
       <div class="member-card-content">
         <h3>${escapeHtml(member.name || 'Team Member')}</h3>
-        <p>${escapeHtml(member.role || '')}</p>
+        ${member.role ? `<p>${escapeHtml(member.role)}</p>` : ''}
       </div>
     `;
 
@@ -485,11 +573,11 @@ function renderMembers(members) {
 
 async function loadMembers() {
   try {
-    const q = query(
-      collection(db, 'team'),
-      where('enabled', '==', true),
-      orderBy('order', 'asc')
-    );
+   const q = query(
+  collection(db, 'team'),
+  where('enabled', '==', true),
+  orderBy('order', 'asc')
+);
 
     const snapshot = await getDocs(q);
 
