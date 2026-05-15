@@ -58,9 +58,15 @@
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
-        <url>
+  <url>
     <loc>https://sadrivilla.in/team/hakim-abdul-mannan-sadri.html</loc>
     <lastmod>2026-05-15</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+   <url>
+    <loc>https://sadrivilla.in/team/hafiz-abdur-rahman-sadri.html</loc>
+    <lastmod>2026-05-16</lastmod>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
