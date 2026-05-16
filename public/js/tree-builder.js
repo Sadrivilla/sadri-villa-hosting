@@ -653,6 +653,9 @@ const backBtn = document.getElementById("backProfileBtn");
   // ======================================
 // LOAD BIOGRAPHY FROM LINKED TEAM MEMBER
 // ======================================
+// ======================================
+// LOAD MEMBER PAGE LINK (FAST VERSION)
+// ======================================
 const biographyDiv = document.getElementById("modalBiography");
 
 if (biographyDiv) {
@@ -668,41 +671,43 @@ if (node.teamMemberId && biographyDiv) {
     if (teamSnap.exists()) {
       const teamData = teamSnap.data();
 
-      // Get the first text block from contentBlocks
-      const textBlock = (teamData.contentBlocks || [])
-        .find(block => block.type === "text");
+      const memberName = teamData.name || node.name;
+      const memberRole = teamData.role || "";
 
-      if (textBlock && textBlock.text) {
-        biographyDiv.innerHTML = `
-          <hr style="margin:20px 0;">
-          <h3 style="margin-bottom:12px;">
-            Biography
-          </h3>
+      biographyDiv.innerHTML = `
+        <hr style="margin:20px 0;">
 
-          <div style="line-height:1.8;">
-            ${textBlock.text}
-          </div>
-
-          <p style="margin-top:15px;">
-            <a href="/team/${teamData.slug}.html"
-               style="
-                 display:inline-block;
-                 padding:10px 20px;
-                 background:#081634;
-                 color:#fff;
-                 text-decoration:none;
-                 border-radius:8px;
-                 font-weight:600;
-               ">
-              Read Full Biography →
-            </a>
+        ${memberRole ? `
+          <p style="
+            margin-bottom:12px;
+            color:#555;
+            font-size:15px;
+            font-weight:600;
+          ">
+            ${memberRole}
           </p>
-        `;
-      }
+        ` : ""}
+
+        <p style="margin-top:10px;">
+          <a href="/team/${teamData.slug}.html"
+             style="
+               display:inline-block;
+               padding:10px 20px;
+               background:#081634;
+               color:#fff;
+               text-decoration:none;
+               border-radius:8px;
+               font-weight:600;
+             ">
+            Read Biography of ${memberName} →
+          </a>
+        </p>
+      `;
     }
   } catch (error) {
-    console.error("Biography load error:", error);
+    console.error("Member page link load error:", error);
   }
+}
   document.getElementById("profileModal").style.display = "flex";
 }
 }
