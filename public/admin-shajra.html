@@ -297,6 +297,18 @@ input, select{
 
     <label>Title</label>
     <input type="text" id="title">
+    <label>Link with Member Page</label>
+
+<input
+  type="text"
+  id="teamMemberSearch"
+  list="teamMembersList"
+  placeholder="Search or select Team Member"
+>
+
+<input type="hidden" id="teamMemberId">
+
+<datalist id="teamMembersList"></datalist>
 
     <br><br>
     <button class="btn primary" onclick="saveMember()">Save</button>
