@@ -499,7 +499,29 @@ data.push({
 };
 
 
-renderTree();
+renderTree().then(() => {
+
+  // Get member ID from URL hash
+  const memberId = window.location.hash.replace("#", "").trim();
+
+  // Stop if URL has no hash
+  if (!memberId) return;
+
+  // Wait briefly to ensure SVG is fully rendered
+  setTimeout(() => {
+
+    // Highlight and scroll to the member
+    focusMember(memberId);
+
+    // Open profile modal
+    const member = window.memberMap[memberId];
+    if (member) {
+      openProfileModal(member);
+    }
+
+  }, 800);
+
+});
 // ===============================
 // PROFILE MODAL FUNCTIONS
 // ===============================
