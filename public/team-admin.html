@@ -187,10 +187,14 @@ flex-wrap:wrap;
   Link with Shajra Member
 </label>
 
-<select id="shajraMemberId"
-        style="width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;">
-  <option value="">Select Shajra Member (Optional)</option>
-</select>
+<input
+  id="shajraMemberId"
+  list="shajraMembersList"
+  placeholder="Search or select Shajra Member"
+  style="width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;"
+>
+
+<datalist id="shajraMembersList"></datalist>
 
 <input id="order" type="number" placeholder="Order (0,1,2...)">
 
@@ -566,11 +570,13 @@ const functions = getFunctions(app, "us-central1");
 let editId = null;
   let oldImageUrls = [];
   async function loadShajraDropdown() {
-  const select = document.getElementById("shajraMemberId");
+  const input = document.getElementById("shajraMemberId");
+const datalist = document.getElementById("shajraMembersList");
   if (!select) return;
 
   select.innerHTML =
-    '<option value="">Select Shajra Member (Optional)</option>';
+  input.value = "";
+datalist.innerHTML = "";
 
   const snapshot = await getDocs(collection(db, "family_members"));
 
@@ -586,10 +592,10 @@ let editId = null;
 
   members.forEach(member => {
     const option = document.createElement("option");
-    option.value = member.id;
-    option.textContent =
-      `${member.name} (Gen ${member.generation || "-"})`;
-    select.appendChild(option);
+option.value = member.id;
+option.label =
+  `${member.name} (Gen ${member.generation || "-"})`;
+datalist.appendChild(option);
   });
 }
 
