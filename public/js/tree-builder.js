@@ -840,8 +840,66 @@ targetRect.classList.add("active-node");
 lineage.reverse();
 
 const pathBox = document.getElementById("lineagePath");
-if(pathBox){
-pathBox.innerText = lineage.join(" → ");
+
+if (pathBox) {
+  pathBox.innerHTML = "";
+
+  lineage.forEach((name, index) => {
+
+    // Find member object by name
+    const member = Object.values(window.memberMap)
+      .find(m => m.name === name);
+
+    const span = document.createElement("span");
+    span.textContent = name;
+    span.style.cursor = "pointer";
+    span.style.padding = "4px 10px";
+    span.style.borderRadius = "999px";
+    span.style.margin = "2px";
+    span.style.display = "inline-block";
+    span.style.transition = "all 0.2s ease";
+
+    // Highlight currently selected member
+    if (member && member.id === id) {
+      span.style.background = "#081634";
+      span.style.color = "#ffffff";
+      span.style.fontWeight = "700";
+    } else {
+      span.style.background = "#eef2ff";
+      span.style.color = "#081634";
+    }
+
+    // Hover effect
+    span.addEventListener("mouseenter", () => {
+      if (!member || member.id !== id) {
+        span.style.background = "#dbeafe";
+      }
+    });
+
+    span.addEventListener("mouseleave", () => {
+      if (!member || member.id !== id) {
+        span.style.background = "#eef2ff";
+      }
+    });
+
+    // Click to open profile
+    if (member) {
+      span.addEventListener("click", () => {
+        focusMember(member.id);
+        openProfileModal(member);
+      });
+    }
+
+    pathBox.appendChild(span);
+
+    // Add arrow separator
+    if (index < lineage.length - 1) {
+      const arrow = document.createElement("span");
+      arrow.textContent = " → ";
+      arrow.style.margin = "0 4px";
+      pathBox.appendChild(arrow);
+    }
+  });
 }
 
 }
