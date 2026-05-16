@@ -4,36 +4,16 @@
   },
   "hosting": {
     "public": "public",
-
     "rewrites": [
       {
         "source": "profile-images/**",
         "function": "serveProfileImage"
       }
     ],
-
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-
-    "redirects": [
-      {
-        "source": "http://sadrivilla.in/**",
-        "destination": "https://sadrivilla.in/:splat",
-        "type": 301
-      },
-      {
-        "source": "http://www.sadrivilla.in/**",
-        "destination": "https://sadrivilla.in/:splat",
-        "type": 301
-      },
-      {
-        "source": "https://www.sadrivilla.in/**",
-        "destination": "https://sadrivilla.in/:splat",
-        "type": 301
-      }
     ]
   }
 }
