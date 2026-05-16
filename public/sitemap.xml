@@ -82,5 +82,11 @@
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://sadrivilla.in/team/ashfaque-sadri.html</loc>
+    <lastmod>2026-05-16</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
 
 </urlset>
