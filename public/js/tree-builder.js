@@ -710,7 +710,6 @@ if (node.teamMemberId && biographyDiv) {
 }
   document.getElementById("profileModal").style.display = "flex";
 }
-}
 // ===============================
 // HIGHLIGHT CURRENT NODE
 // ===============================
