@@ -15,6 +15,47 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 import { db, storage } from "./firebase.js";
+async function loadTeamDropdown() {
+  const searchInput = document.getElementById("teamMemberSearch");
+  const hiddenInput = document.getElementById("teamMemberId");
+  const datalist = document.getElementById("teamMembersList");
+
+  if (!searchInput || !hiddenInput || !datalist) return;
+
+  searchInput.value = "";
+  hiddenInput.value = "";
+  datalist.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "team"));
+
+  const members = [];
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    members.push({
+      id: docSnap.id,
+      name: data.name || ""
+    });
+  });
+
+  members.sort((a, b) => a.name.localeCompare(b.name));
+
+  window.teamMemberMap = {};
+
+  members.forEach(member => {
+    const displayText = member.name;
+
+    window.teamMemberMap[displayText] = member.id;
+
+    const option = document.createElement("option");
+    option.value = displayText;
+    datalist.appendChild(option);
+  });
+
+  searchInput.addEventListener("input", () => {
+    hiddenInput.value =
+      window.teamMemberMap[searchInput.value] || "";
+  });
+}
 
 let allMembers = [];
 let editingId = null;
@@ -138,7 +179,8 @@ function previewImage(e) {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  loadMembers();
+ loadMembers();
+loadTeamDropdown();
 
   document.getElementById("profileImage")
     ?.addEventListener("change", previewImage);
@@ -387,6 +429,8 @@ window.openAddModal = function(){
   document.getElementById("fatherSelect").value = "";
   document.getElementById("fatherSearch").value = "";
   document.getElementById("dob").value = "";
+  document.getElementById("teamMemberSearch").value = "";
+document.getElementById("teamMemberId").value = "";
 
   setPreview(null);
 };
@@ -407,6 +451,18 @@ document.getElementById("fatherSelect").value = member.fatherId || "";
 const father = allMembers.find(m => m.id === member.fatherId);
 document.getElementById("fatherSearch").value = father ? father.name : "";
   document.getElementById("dob").value = member.dob || "";
+  document.getElementById("teamMemberId").value =
+  member.teamMemberId || "";
+
+if (member.teamMemberId && window.teamMemberMap) {
+  const displayText = Object.keys(window.teamMemberMap)
+    .find(key => window.teamMemberMap[key] === member.teamMemberId);
+
+  document.getElementById("teamMemberSearch").value =
+    displayText || "";
+} else {
+  document.getElementById("teamMemberSearch").value = "";
+}
 
   setPreview(member.profileImage || null);
 };
@@ -522,7 +578,9 @@ if (father && dob && father.dob) {
         generation,
         dob: dob || "",
         profileImage: imageURL || "",
-        createdAt: serverTimestamp()
+        teamMemberId:
+  document.getElementById("teamMemberId").value || "",
+createdAt: serverTimestamp()
       });
 
       showMessage("Member added successfully.");
@@ -533,7 +591,9 @@ if (father && dob && father.dob) {
         name,
         fatherId: fatherId || null,
         generation,
-        dob: dob || ""
+        dob: dob || "",
+teamMemberId:
+  document.getElementById("teamMemberId").value || ""
       };
 
       if (imageURL) updateData.profileImage = imageURL;
