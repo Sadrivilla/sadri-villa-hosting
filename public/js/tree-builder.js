@@ -1,4 +1,4 @@
-import { collection, getDocs } 
+import { collection, getDocs, doc, getDoc }
 from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 import { db } from "./firebase.js";
@@ -569,7 +569,7 @@ function calculateAge(dateString) {
 
   return age;
 }
-function renderProfile(node) {
+async function renderProfile(node) {
 
   document.getElementById("modalName").textContent = node.name;
   document.getElementById("modalGeneration").textContent = node.generation;
@@ -650,7 +650,61 @@ const backBtn = document.getElementById("backProfileBtn");
 } else {
   backBtn.style.display = "none";
 }
+  // ======================================
+// LOAD BIOGRAPHY FROM LINKED TEAM MEMBER
+// ======================================
+const biographyDiv = document.getElementById("modalBiography");
+
+if (biographyDiv) {
+  biographyDiv.innerHTML = "";
+}
+
+if (node.teamMemberId && biographyDiv) {
+  try {
+    const teamSnap = await getDoc(
+      doc(db, "team", node.teamMemberId)
+    );
+
+    if (teamSnap.exists()) {
+      const teamData = teamSnap.data();
+
+      // Get the first text block from contentBlocks
+      const textBlock = (teamData.contentBlocks || [])
+        .find(block => block.type === "text");
+
+      if (textBlock && textBlock.text) {
+        biographyDiv.innerHTML = `
+          <hr style="margin:20px 0;">
+          <h3 style="margin-bottom:12px;">
+            Biography
+          </h3>
+
+          <div style="line-height:1.8;">
+            ${textBlock.text}
+          </div>
+
+          <p style="margin-top:15px;">
+            <a href="/team/${teamData.slug}.html"
+               style="
+                 display:inline-block;
+                 padding:10px 20px;
+                 background:#081634;
+                 color:#fff;
+                 text-decoration:none;
+                 border-radius:8px;
+                 font-weight:600;
+               ">
+              Read Full Biography →
+            </a>
+          </p>
+        `;
+      }
+    }
+  } catch (error) {
+    console.error("Biography load error:", error);
+  }
   document.getElementById("profileModal").style.display = "flex";
+}
 }
 // ===============================
 // HIGHLIGHT CURRENT NODE
