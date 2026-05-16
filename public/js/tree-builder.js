@@ -807,26 +807,87 @@ window.closeImageZoom = function() {
 // =======================================
 // 🔎 SMART TREE SEARCH
 // =======================================
-function highlightLineage(id){
+function highlightLineage(id) {
 
-document.querySelectorAll(".node-box")
-.forEach(n=>{
-n.classList.remove("active-node","path-node");
-});
+  document.querySelectorAll(".node-box").forEach(n => {
+    n.classList.remove("active-node", "path-node");
+  });
 
-let lineage = [];
-let current = window.memberMap[id];
+  let lineage = [];
+  let current = window.memberMap[id];
 
-while(current){
+  while (current) {
+    lineage.push(current.name);
 
-lineage.push(current.name);
+    const rect = document.querySelector(
+      `.node-box[data-id="${current.id}"]`
+    );
 
-const rect = document.querySelector(`.node-box[data-id="${current.id}"]`);
+    if (rect) {
+      rect.classList.add("path-node");
+    }
 
-if(rect){
-rect.classList.add("path-node");
+    if (!current.fatherId) break;
+    current = window.memberMap[current.fatherId];
+  }
+
+  const targetRect = document.querySelector(
+    `.node-box[data-id="${id}"]`
+  );
+
+  if (targetRect) {
+    targetRect.classList.add("active-node");
+  }
+
+  lineage.reverse();
+
+  const pathBox = document.getElementById("lineagePath");
+
+  if (pathBox) {
+    pathBox.innerHTML = "";
+
+    lineage.forEach((name, index) => {
+      const member = Object.values(window.memberMap)
+        .find(m => m.name === name);
+
+      const span = document.createElement("span");
+      span.textContent = name;
+      span.style.cursor = "pointer";
+      span.style.padding = "4px 10px";
+      span.style.borderRadius = "999px";
+      span.style.margin = "2px";
+      span.style.display = "inline-block";
+      span.style.transition = "all 0.2s ease";
+
+      if (member && member.id === id) {
+        span.style.background = "#081634";
+        span.style.color = "#ffffff";
+        span.style.fontWeight = "700";
+      } else {
+        span.style.background = "#eef2ff";
+        span.style.color = "#081634";
+      }
+
+      if (member) {
+        span.addEventListener("click", () => {
+          focusMember(member.id);
+          openProfileModal(member);
+        });
+      }
+
+      pathBox.appendChild(span);
+
+      if (index < lineage.length - 1) {
+        const arrow = document.createElement("span");
+        arrow.textContent = " → ";
+        arrow.style.margin = "0 4px";
+        pathBox.appendChild(arrow);
+      }
+    });
+  }
 }
-  function renderModalLineage(id) {
+
+function renderModalLineage(id) {
 
   const modalLineage = document.getElementById("modalLineage");
   if (!modalLineage) return;
@@ -846,7 +907,6 @@ rect.classList.add("path-node");
   lineage.reverse();
 
   lineage.forEach((member, index) => {
-
     const span = document.createElement("span");
     span.textContent = member.name;
     span.style.cursor = "pointer";
@@ -857,7 +917,6 @@ rect.classList.add("path-node");
     span.style.transition = "all 0.2s ease";
     span.style.fontSize = "13px";
 
-    // Highlight current member
     if (member.id === id) {
       span.style.background = "#081634";
       span.style.color = "#ffffff";
@@ -867,20 +926,6 @@ rect.classList.add("path-node");
       span.style.color = "#081634";
     }
 
-    // Hover effect
-    span.addEventListener("mouseenter", () => {
-      if (member.id !== id) {
-        span.style.background = "#dbeafe";
-      }
-    });
-
-    span.addEventListener("mouseleave", () => {
-      if (member.id !== id) {
-        span.style.background = "#eef2ff";
-      }
-    });
-
-    // Click to open profile
     span.addEventListener("click", () => {
       focusMember(member.id);
       openProfileModal(member);
@@ -888,7 +933,6 @@ rect.classList.add("path-node");
 
     modalLineage.appendChild(span);
 
-    // Arrow separator
     if (index < lineage.length - 1) {
       const arrow = document.createElement("span");
       arrow.textContent = " → ";
@@ -896,84 +940,6 @@ rect.classList.add("path-node");
       modalLineage.appendChild(arrow);
     }
   });
-}
-
-if(!current.fatherId) break;
-
-current = window.memberMap[current.fatherId];
-
-}
-
-const targetRect = document.querySelector(`.node-box[data-id="${id}"]`);
-if(targetRect){
-targetRect.classList.add("active-node");
-}
-
-lineage.reverse();
-
-const pathBox = document.getElementById("lineagePath");
-
-if (pathBox) {
-  pathBox.innerHTML = "";
-
-  lineage.forEach((name, index) => {
-
-    // Find member object by name
-    const member = Object.values(window.memberMap)
-      .find(m => m.name === name);
-
-    const span = document.createElement("span");
-    span.textContent = name;
-    span.style.cursor = "pointer";
-    span.style.padding = "4px 10px";
-    span.style.borderRadius = "999px";
-    span.style.margin = "2px";
-    span.style.display = "inline-block";
-    span.style.transition = "all 0.2s ease";
-
-    // Highlight currently selected member
-    if (member && member.id === id) {
-      span.style.background = "#081634";
-      span.style.color = "#ffffff";
-      span.style.fontWeight = "700";
-    } else {
-      span.style.background = "#eef2ff";
-      span.style.color = "#081634";
-    }
-
-    // Hover effect
-    span.addEventListener("mouseenter", () => {
-      if (!member || member.id !== id) {
-        span.style.background = "#dbeafe";
-      }
-    });
-
-    span.addEventListener("mouseleave", () => {
-      if (!member || member.id !== id) {
-        span.style.background = "#eef2ff";
-      }
-    });
-
-    // Click to open profile
-    if (member) {
-      span.addEventListener("click", () => {
-        focusMember(member.id);
-        openProfileModal(member);
-      });
-    }
-
-    pathBox.appendChild(span);
-
-    // Add arrow separator
-    if (index < lineage.length - 1) {
-      const arrow = document.createElement("span");
-      arrow.textContent = " → ";
-      arrow.style.margin = "0 4px";
-      pathBox.appendChild(arrow);
-    }
-  });
-}
-
 }
 
 function scrollToNode(node){
