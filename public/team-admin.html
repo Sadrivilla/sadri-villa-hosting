@@ -183,16 +183,18 @@ flex-wrap:wrap;
   <input id="x" placeholder="X (Twitter) URL">
   <input id="pinterest" placeholder="Pinterest URL">
 </div>
-  <label style="display:block;margin-top:15px;">
+<label style="display:block;margin-top:15px;">
   Link with Shajra Member
 </label>
 
 <input
-  id="shajraMemberId"
+  id="shajraMemberSearch"
   list="shajraMembersList"
   placeholder="Search or select Shajra Member"
   style="width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;"
 >
+
+<input type="hidden" id="shajraMemberId">
 
 <datalist id="shajraMembersList"></datalist>
 
@@ -569,33 +571,51 @@ const functions = getFunctions(app, "us-central1");
   loadShajraDropdown();
 let editId = null;
   let oldImageUrls = [];
-  async function loadShajraDropdown() {
-  const input = document.getElementById("shajraMemberId");
-const datalist = document.getElementById("shajraMembersList");
-  if (!select) return;
+async function loadShajraDropdown() {
+  const searchInput = document.getElementById("shajraMemberSearch");
+  const hiddenInput = document.getElementById("shajraMemberId");
+  const datalist = document.getElementById("shajraMembersList");
 
-  select.innerHTML =
-  input.value = "";
-datalist.innerHTML = "";
+  if (!searchInput || !hiddenInput || !datalist) return;
+
+  searchInput.value = "";
+  hiddenInput.value = "";
+  datalist.innerHTML = "";
 
   const snapshot = await getDocs(collection(db, "family_members"));
 
   const members = [];
+
   snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+
     members.push({
       id: docSnap.id,
-      ...docSnap.data()
+      name: data.name || "",
+      generation: data.generation || "-"
     });
   });
 
   members.sort((a, b) => a.name.localeCompare(b.name));
 
+  // Store mapping globally
+  window.shajraMemberMap = {};
+
   members.forEach(member => {
+    const displayText =
+      `${member.name} (Gen ${member.generation})`;
+
+    window.shajraMemberMap[displayText] = member.id;
+
     const option = document.createElement("option");
-option.value = member.id;
-option.label =
-  `${member.name} (Gen ${member.generation || "-"})`;
-datalist.appendChild(option);
+    option.value = displayText;
+    datalist.appendChild(option);
+  });
+
+  // When user selects a visible name, store the actual ID
+  searchInput.addEventListener("input", () => {
+    hiddenInput.value =
+      window.shajraMemberMap[searchInput.value] || "";
   });
 }
 
@@ -841,8 +861,9 @@ function clearForm(){
   "quora",
   "x",
   "pinterest",
-  "order",
-  "shajraMemberId"
+"order",
+"shajraMemberSearch",
+"shajraMemberId"
 ]
 .forEach(id => document.getElementById(id).value = "");
 
@@ -912,6 +933,16 @@ document.getElementById("pinterest").value = d.pinterest || "";
 document.getElementById("order").value = d.order || 0;
   document.getElementById("shajraMemberId").value =
   d.shajraMemberId || "";
+
+if (d.shajraMemberId && window.shajraMemberMap) {
+  const displayText = Object.keys(window.shajraMemberMap)
+    .find(key => window.shajraMemberMap[key] === d.shajraMemberId);
+
+  document.getElementById("shajraMemberSearch").value =
+    displayText || "";
+} else {
+  document.getElementById("shajraMemberSearch").value = "";
+}
   document.getElementById("nameStyle").value = d.nameStyle || "simple";
 document.getElementById("nameSize").value = d.nameSize || 16;
 
