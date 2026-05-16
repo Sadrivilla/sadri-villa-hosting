@@ -7,7 +7,7 @@
 
     "rewrites": [
       {
-        "source": "/profile-images/**",
+        "source": "profile-images/**",
         "function": "serveProfileImage"
       }
     ],
