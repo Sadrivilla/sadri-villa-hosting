@@ -624,6 +624,42 @@ a {
 </a>
 </div>
 
+<div
+  style="
+    padding: 0 50px;
+    margin-top: 24px;
+  "
+>
+  <h3
+    style="
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #081634;
+    "
+  >
+    Family Lineage
+  </h3>
+
+  <div
+    id="familyLineage"
+    style="
+      width: 100%;
+      min-height: 64px;
+      padding: 16px 24px;
+      border: 2px solid #3b82f6;
+      border-radius: 999px;
+      background: #ffffff;
+      line-height: 2.2;
+      font-size: 15px;
+      color: #081634;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+    "
+  >
+    Loading family lineage...
+  </div>
+</div>
+
 
 <div class="share-section">
   <h3>Share This Profile</h3>
@@ -810,6 +846,101 @@ a {
     <p>&copy; 2026 Sadri Villa Fazilpur</p>
   </div>
 </footer>
+<script type="module">
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.firebasestorage.app",
+  messagingSenderId: "687608762860",
+  appId: "1:687608762860:web:5ffdc557f3893d00e530c9"
+};
+
+const shajraMemberId = "xfxbWtaSDE2mqLs0L02Y";
+
+if (shajraMemberId) {
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function renderFamilyLineage() {
+    const container = document.getElementById("familyLineage");
+    if (!container) return;
+
+    try {
+      const snapshot = await getDocs(
+        collection(db, "family_members")
+      );
+
+      const memberMap = {};
+
+      snapshot.forEach(docSnap => {
+        memberMap[docSnap.id] = {
+          id: docSnap.id,
+          ...docSnap.data()
+        };
+      });
+
+      let current = memberMap[shajraMemberId];
+      const lineage = [];
+
+      while (current) {
+        lineage.push(current);
+
+        if (!current.fatherId) break;
+        current = memberMap[current.fatherId];
+      }
+
+      lineage.reverse();
+      container.innerHTML = "";
+
+      lineage.forEach((member, index) => {
+        const link = document.createElement("a");
+        link.href = "/shajra.html#" + member.id;
+        link.textContent = member.name;
+
+        link.style.display = "inline-block";
+        link.style.padding = "4px 10px";
+        link.style.margin = "2px";
+        link.style.borderRadius = "999px";
+        link.style.background = "#eef2ff";
+        link.style.color = "#081634";
+        link.style.textDecoration = "none";
+        link.style.fontWeight = "500";
+
+        if (member.id === shajraMemberId) {
+          link.style.background = "#081634";
+          link.style.color = "#ffffff";
+          link.style.fontWeight = "700";
+        }
+
+        container.appendChild(link);
+
+        if (index < lineage.length - 1) {
+          const arrow = document.createElement("span");
+          arrow.textContent = " → ";
+          arrow.style.margin = "0 4px";
+          container.appendChild(arrow);
+        }
+      });
+    } catch (error) {
+      console.error("Lineage load error:", error);
+      container.style.display = "none";
+    }
+  }
+
+  renderFamilyLineage();
+}
+</script>
 
 </body>
 </html>
