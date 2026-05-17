@@ -218,7 +218,50 @@ flex-wrap:wrap;
 </div>
 </div>
 
-<div id="list" class="list"></div>
+<div class="list" style="max-width:1000px;margin:20px auto;">
+  <div style="
+    background:#0f172a;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  ">
+    <label style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="selectAllMembers">
+      Select All
+    </label>
+
+    <button
+      type="button"
+      id="regenerateSelectedBtn"
+      class="btn-primary"
+      style="width:auto;padding:10px 20px;"
+    >
+      🔄 Regenerate Selected Pages
+    </button>
+  </div>
+
+ <input
+  type="text"
+  id="memberSearch"
+  placeholder="Search team members by name or role..."
+  style="
+    width: 100%;
+    padding: 14px 20px;
+    margin-bottom: 15px;
+    border-radius: 999px;
+    border: 2px solid #3b82f6;
+    outline: none;
+    font-size: 16px;
+    box-sizing: border-box;
+  "
+>
+
+<div id="list"></div>
+</div>
   <div id="toast" style="
 position:fixed;
 bottom:20px;
@@ -882,12 +925,37 @@ snap.forEach(d=>arr.push({id:d.id,...d.data()}));
 
 // ✅ SAFE SORT
 arr.sort((a,b)=>(a.order||0)-(b.order||0));
+  const searchValue =
+  document.getElementById("memberSearch")
+    ?.value
+    .toLowerCase()
+    .trim() || "";
+
+if (searchValue) {
+  arr = arr.filter(member =>
+    (member.name || "")
+      .toLowerCase()
+      .includes(searchValue) ||
+    (member.role || "")
+      .toLowerCase()
+      .includes(searchValue)
+  );
+}
 
 arr.forEach(d=>{
 const div=document.createElement("div");
 div.className="card";
 
 div.innerHTML=`
+<label style="display:flex;align-items:center;">
+  <input
+    type="checkbox"
+    class="member-checkbox"
+    value="${d.id}"
+    style="transform:scale(1.2);"
+  >
+</label>
+
 <div class="info">
 <strong>${d.name || ""}</strong> (${d.role || ""})<br>
 Order: ${d.order || 0} | Status: ${d.enabled ? "Active":"Disabled"}
@@ -1096,10 +1164,94 @@ order: current + dir
 });
 };
   const saveBtn = document.getElementById("saveBtn");
+  // ==============================
+// SELECT ALL CHECKBOX
+// ==============================
+document.addEventListener("change", (e) => {
+  if (e.target.id === "selectAllMembers") {
+    const checked = e.target.checked;
 
-saveBtn.addEventListener("click", ()=>{
-if(saveBtn.disabled) return;
-saveMember();
+    document
+      .querySelectorAll(".member-checkbox")
+      .forEach(cb => {
+        cb.checked = checked;
+      });
+  }
+});
+
+// ==============================
+// REGENERATE SELECTED PAGES
+// ==============================
+document
+  .getElementById("regenerateSelectedBtn")
+  .addEventListener("click", async () => {
+
+    const checkedBoxes = [
+      ...document.querySelectorAll(
+        ".member-checkbox:checked"
+      )
+    ];
+
+    if (checkedBoxes.length === 0) {
+      showToast(
+        "Please select at least one member.",
+        true
+      );
+      return;
+    }
+
+    const generateMemberPage = httpsCallable(
+      functions,
+      "generateMemberPage"
+    );
+
+    const btn = document.getElementById(
+      "regenerateSelectedBtn"
+    );
+
+    btn.disabled = true;
+    btn.innerText =
+      `Regenerating 0/${checkedBoxes.length}...`;
+
+    try {
+      for (let i = 0; i < checkedBoxes.length; i++) {
+        const memberId = checkedBoxes[i].value;
+
+        await generateMemberPage({
+          memberId
+        });
+
+        btn.innerText =
+          `Regenerating ${i + 1}/${checkedBoxes.length}...`;
+      }
+
+      showToast(
+        `${checkedBoxes.length} member pages regenerated successfully!`
+      );
+    } catch (error) {
+      console.error(error);
+
+      showToast(
+        error.message || "Regeneration failed.",
+        true
+      );
+    } finally {
+      btn.disabled = false;
+      btn.innerText =
+        "🔄 Regenerate Selected Pages";
+    }
+  });
+
+// Re-render list while typing in search box
+document
+  .getElementById("memberSearch")
+  .addEventListener("input", () => {
+    location.reload();
+  });
+
+saveBtn.addEventListener("click", () => {
+  if (saveBtn.disabled) return;
+  saveMember();
 });
 window.cropResizeImage = function(file, targetWidth, targetHeight){
 return new Promise(resolve=>{
