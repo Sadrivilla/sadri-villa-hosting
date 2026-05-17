@@ -286,18 +286,40 @@ a {
   padding: 0 50px;
 }
 
-.social a {
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: #081634;
-  color: white;
-  font-weight: 600;
+.social a,
+.share-btn {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  min-height: 72px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
   transition: all 0.3s ease;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  overflow: hidden;
+  color: transparent;
+  text-indent: -9999px;
 }
 
-.social a:hover {
-  background: #0f2d6b;
-  transform: translateY(-2px);
+.social a:hover,
+.share-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.14);
+}
+
+.social a img,
+.share-btn img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
 }
 
 /* Share Section */
@@ -319,41 +341,6 @@ a {
   gap: 12px;
 }
 
-.share-btn {
-  display: inline-block;
-  padding: 12px 22px;
-  border-radius: 999px;
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-  transition: all 0.3s ease;
-}
-
-.share-btn:hover {
-  transform: translateY(-3px);
-}
-
-.share-btn.whatsapp {
-  background: linear-gradient(135deg, #25D366, #128C7E);
-}
-
-.share-btn.facebook {
-  background: linear-gradient(135deg, #1877F2, #0A58CA);
-}
-
-.share-btn.linkedin {
-  background: linear-gradient(135deg, #0A66C2, #004182);
-}
-
-.share-btn.instagram {
-  background: linear-gradient(
-    135deg,
-    #f58529,
-    #dd2a7b,
-    #8134af,
-    #515bd4
-  );
-}
 
 /* Team Slider */
 .team-section {
@@ -597,13 +584,53 @@ a {
 
 <div class="social">
   
-<a href="https://www.facebook.com/profile.php?id=100011540357694" target="_blank" rel="noopener noreferrer">Facebook</a>
-<a href="https://www.instagram.com/sheikh.safwan.sadri?igsh=YTRyM2MwbDA5ZTZi" target="_blank" rel="noopener noreferrer">Instagram</a>
-<a href="https://in.linkedin.com/in/safwan-sadri-5b25b9282" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+<a
+  href="https://www.facebook.com/profile.php?id=100011540357694"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Facebook"
+>
+  <img
+    src="https://cdn.simpleicons.org/facebook"
+    alt="Facebook"
+    loading="lazy"
+  >
+</a>
+<a
+  href="https://www.instagram.com/sheikh.safwan.sadri?igsh=YTRyM2MwbDA5ZTZi"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Instagram"
+>
+  <img
+    src="https://cdn.simpleicons.org/instagram"
+    alt="Instagram"
+    loading="lazy"
+  >
+</a>
+<a
+  href="https://in.linkedin.com/in/safwan-sadri-5b25b9282"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="LinkedIn"
+>
+  <img
+    src="https://cdn.simpleicons.org/linkedin"
+    alt="LinkedIn"
+    loading="lazy"
+  >
+</a>
 </div>
 
 
-<div class="social">
+<div
+  style="
+    padding: 0 24px;
+    margin-top: 35px;
+    width: 100%;
+    text-align: center;
+  "
+>
   
 <a
   href="/shajra.html#xfxbWtaSDE2mqLs0L02Y"
@@ -622,60 +649,51 @@ a {
 >
   View in Family Tree
 </a>
-</div>
 
-<div
-  style="
-    padding: 0 24px;
-    margin-top: 24px;
-    width: 100%;
-  "
->
   <h3
     style="
-      margin: 0 0 12px;
+      margin: 20px 0 12px;
       font-size: 1.2rem;
       font-weight: 800;
       color: #081634;
+      text-align: left;
     "
   >
     Family Lineage
   </h3>
 
- <div
-  style="
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    padding-bottom: 8px;
-    box-sizing: border-box;
-  "
->
   <div
-    id="familyLineage"
     style="
-      display: inline-block;
-      min-width: 100%;
-      min-height: 64px;
-      padding: 16px 24px;
-      border: 2px solid #3b82f6;
-      border-radius: 999px;
-      background: #ffffff;
-      font-size: 15px;
-      color: #081634;
-      line-height: 1.8;
-      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding-bottom: 8px;
       box-sizing: border-box;
     "
   >
-    Loading family lineage...
-  </div>
-</div>
-    Loading family lineage...
+    <div
+      id="familyLineage"
+      style="
+        display: inline-block;
+        min-width: 100%;
+        min-height: 64px;
+        padding: 16px 24px;
+        border: 2px solid #3b82f6;
+        border-radius: 999px;
+        background: #ffffff;
+        font-size: 15px;
+        color: #081634;
+        line-height: 1.8;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+      "
+    >
+      Loading family lineage...
+    </div>
   </div>
 </div>
 
@@ -684,41 +702,63 @@ a {
   <h3>Share This Profile</h3>
 
   <div class="share-buttons">
+
     <a
-      class="share-btn whatsapp"
+      class="share-btn"
       href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
       target="_blank"
       rel="noopener noreferrer"
+      aria-label="WhatsApp"
     >
-      WhatsApp
+      <img
+        src="https://cdn.simpleicons.org/whatsapp"
+        alt="WhatsApp"
+        loading="lazy"
+      >
     </a>
 
     <a
-      class="share-btn facebook"
+      class="share-btn"
       href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
       target="_blank"
       rel="noopener noreferrer"
+      aria-label="Facebook"
     >
-      Facebook
+      <img
+        src="https://cdn.simpleicons.org/facebook"
+        alt="Facebook"
+        loading="lazy"
+      >
     </a>
 
     <a
-      class="share-btn linkedin"
+      class="share-btn"
       href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
       target="_blank"
       rel="noopener noreferrer"
+      aria-label="LinkedIn"
     >
-      LinkedIn
+      <img
+        src="https://cdn.simpleicons.org/linkedin"
+        alt="LinkedIn"
+        loading="lazy"
+      >
     </a>
 
     <a
-      class="share-btn instagram"
+      class="share-btn"
       href="https://www.instagram.com/"
       target="_blank"
       rel="noopener noreferrer"
+      aria-label="Instagram"
     >
-      Instagram
+      <img
+        src="https://cdn.simpleicons.org/instagram"
+        alt="Instagram"
+        loading="lazy"
+      >
     </a>
+
   </div>
 </div>
   </div>
