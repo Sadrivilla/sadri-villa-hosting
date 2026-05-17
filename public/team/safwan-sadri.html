@@ -288,10 +288,10 @@ a {
 
 .social a,
 .share-btn {
-  width: 72px;
-  height: 72px;
-  min-width: 72px;
-  min-height: 72px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -316,8 +316,8 @@ a {
 
 .social a img,
 .share-btn img {
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   display: block;
 }
@@ -335,6 +335,35 @@ a {
   color: #081634;
 }
 
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.social-section,
+.share-section {
+  margin-top: 45px;
+  padding: 0 50px;
+}
+
+.social-section h3,
+.share-section h3 {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #081634;
+}
+
+.social-box {
+  width: 100%;
+  padding: 20px 24px;
+  border: 2px solid #3b82f6;
+  border-radius: 32px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+}
+
+.social,
 .share-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -506,12 +535,13 @@ a {
   padding: 0 12px;
 }
 
-.social {
+.social-section,
+.share-section {
   padding: 0 12px;
 }
 
-.share-section {
-  padding: 35px 12px 0;
+.social-box {
+  padding: 16px;
 }
 .container {
   padding: 0 4px;
@@ -597,8 +627,12 @@ a {
   </a>
 </div>
 
-<div class="social">
-  
+<div class="social-section">
+  <h3>Follow On Social Media</h3>
+
+  <div class="social-box">
+    <div class="social">
+      
 <a
   href="https://www.facebook.com/profile.php?id=100011540357694"
   target="_blank"
@@ -630,7 +664,7 @@ a {
   aria-label="LinkedIn"
 >
   <img
-  src="https://cdn.simpleicons.org/linkedin/0A66C2"
+  src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
   alt="LinkedIn"
   loading="lazy"
 >
@@ -707,6 +741,8 @@ a {
   loading="lazy"
 >
 </a>
+    </div>
+  </div>
 </div>
 
 
@@ -788,67 +824,52 @@ a {
 <div class="share-section">
   <h3>Share This Profile</h3>
 
-  <div class="share-buttons">
+  <div class="social-box">
+    <div class="share-buttons">
 
-    <a
-      class="share-btn"
-      href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="WhatsApp"
-    >
-      <img
-        src="https://cdn.simpleicons.org/whatsapp"
-        alt="WhatsApp"
-        loading="lazy"
+      <a
+        class="share-btn"
+        href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp"
       >
-    </a>
+        <img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" loading="lazy">
+      </a>
 
-    <a
-      class="share-btn"
-      href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Facebook"
-    >
-      <img
-        src="https://cdn.simpleicons.org/facebook"
-        alt="Facebook"
-        loading="lazy"
+      <a
+        class="share-btn"
+        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Facebook"
       >
-    </a>
+        <img src="https://cdn.simpleicons.org/facebook" alt="Facebook" loading="lazy">
+      </a>
 
-    <a
-      class="share-btn"
-      href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="LinkedIn"
-    >
-      <img
-        src="https://cdn.simpleicons.org/linkedin/0A66C2"
-        alt="LinkedIn"
-        loading="lazy"
+      <a
+        class="share-btn"
+        href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fsafwan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="LinkedIn"
       >
-    </a>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" loading="lazy">
+      </a>
 
-    <a
-      class="share-btn"
-      href="https://www.instagram.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Instagram"
-    >
-      <img
-        src="https://cdn.simpleicons.org/instagram"
-        alt="Instagram"
-        loading="lazy"
+      <a
+        class="share-btn"
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Instagram"
       >
-    </a>
+        <img src="https://cdn.simpleicons.org/instagram" alt="Instagram" loading="lazy">
+      </a>
 
+    </div>
   </div>
 </div>
-  </div>
 </div>
 
 <!-- Other Team Members -->
