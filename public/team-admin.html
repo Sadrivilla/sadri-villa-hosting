@@ -11,7 +11,8 @@
   padding: 10px;
   margin-bottom: 15px;
   cursor: grab;
-  background:#020617;
+     background:#f8fafc;
+  color:#111827;
   border-radius:8px;
 }
   .draggable:hover {
@@ -36,56 +37,110 @@ background:#020617;
 
 /* FORM */
 .form{
-max-width:700px;
-margin:30px auto;
-background:#0f172a;
-padding:25px;
-border-radius:15px;
+  max-width:1500px;
+  margin:30px auto;
+  background:#ffffff;
+  color:#111827;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  overflow:hidden;
 }
 
-/* Social links section */
-.social-section{
-margin-top:20px;
-padding:20px;
-background:#111c3d;
-border-radius:12px;
+.form-header{
+  padding:18px 24px;
+  font-size:34px;
+  font-weight:600;
+  border-top:3px solid #3b82f6;
+  border-bottom:1px solid #e5e7eb;
+  background:#ffffff;
 }
 
-/* Section title */
-.social-section h3{
-margin-top:0;
-margin-bottom:15px;
-font-size:18px;
-color:#38bdf8;
+.form-body{
+  padding:24px;
 }
 
-/* Smaller width for social inputs */
-.social-section input{
-width:100%;
-max-width:450px;
-display:block;
-margin:8px auto;
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:24px 36px;
 }
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+}
+
+.form-group.full-width{
+  grid-column:1 / -1;
+}
+
+.form-group label{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:8px;
+  color:#111827;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;
+  padding:12px 14px;
+  margin:0;
+  border:1px solid #cbd5e1;
+  border-radius:4px;
+  background:#ffffff;
+  color:#111827;
+  box-sizing:border-box;
+}
+
+.form-actions{
+  margin-top:24px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.form-actions .btn-primary{
+  width:auto;
+  min-width:180px;
+}
+
+#progressBox{
+  margin-top:15px;
+}
+
+@media (max-width: 992px){
+  .form-grid{
+    grid-template-columns:repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px){
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-header{
+    font-size:26px;
+  }
+
+  .form-body{
+    padding:16px;
+  }
+}
+
+
 
 /* Smaller width for Preview and Save buttons */
-.btn-half{
-width:100%;
-max-width:450px;
-display:block;
-margin:10px auto;
-}
+
 
 .btn-preview{
 background:#22c55e;
 }
 
-input:not([type="file"]), textarea {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: none;
-}
+
 
 input[type="file"] {
   width: auto;
@@ -155,67 +210,142 @@ flex-wrap:wrap;
 </div>
 
 <div class="form">
-<input id="name" placeholder="Name">
-<input id="role" placeholder="Role">
-  <select id="nameStyle">
-<option value="simple">Simple</option>
-<option value="bold">Bold</option>
-<option value="elegant">Elegant</option>
-</select>
+  <div class="form-header">Add New Team Member</div>
 
-<input id="nameSize" type="number" placeholder="Name Size (e.g. 18)">
-<div id="multiDesc"></div>
+  <div class="form-body">
+    <div class="form-grid">
 
-<button type="button" onclick="addProfileImage()">+ Profile Image</button>
-<button type="button" onclick="addDesc()">+ Add Description</button>
-<button type="button" onclick="addBodyImage()">+ Add Body Image</button>
-<!-- Social Links Section -->
-<div class="social-section">
-  <h3>Social Media Links</h3>
+      <div class="form-group">
+        <label for="name">Member Name *</label>
+        <input id="name" placeholder="Enter member name">
+      </div>
 
-  <input id="facebook" placeholder="Facebook URL">
-  <input id="instagram" placeholder="Instagram URL">
-  <input id="linkedin" placeholder="LinkedIn URL">
-  <input id="youtube" placeholder="YouTube URL">
-  <input id="snapchat" placeholder="Snapchat URL">
-  <input id="telegram" placeholder="Telegram URL">
-  <input id="quora" placeholder="Quora URL">
-  <input id="x" placeholder="X (Twitter) URL">
-  <input id="pinterest" placeholder="Pinterest URL">
-</div>
-<label style="display:block;margin-top:15px;">
-  Link with Shajra Member
-</label>
+      <div class="form-group">
+        <label for="role">Role / Designation</label>
+        <input id="role" placeholder="Enter role">
+      </div>
 
-<input
-  id="shajraMemberSearch"
-  list="shajraMembersList"
-  placeholder="Search or select Shajra Member"
-  style="width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;"
->
+      <div class="form-group">
+        <label for="order">Display Order *</label>
+        <input id="order" type="number" placeholder="0, 1, 2...">
+      </div>
 
-<input type="hidden" id="shajraMemberId">
+      <div class="form-group">
+        <label for="nameStyle">Name Style</label>
+        <select id="nameStyle">
+          <option value="simple">Simple</option>
+          <option value="bold">Bold</option>
+          <option value="elegant">Elegant</option>
+        </select>
+      </div>
 
-<datalist id="shajraMembersList"></datalist>
+      <div class="form-group">
+        <label for="nameSize">Name Size</label>
+        <input id="nameSize" type="number" placeholder="18">
+      </div>
 
-<input id="order" type="number" placeholder="Order (0,1,2...)">
+      <div class="form-group">
+        <label for="shajraMemberSearch">Link with Shajra Member</label>
+        <input
+          id="shajraMemberSearch"
+          list="shajraMembersList"
+          placeholder="Search or select member"
+        >
+        <input type="hidden" id="shajraMemberId">
+        <datalist id="shajraMembersList"></datalist>
+      </div>
 
-<button type="button"
-        onclick="previewMember()"
-        class="btn-primary btn-half btn-preview">
-  Preview 👁
-</button>
+      <div class="form-group">
+        <label for="facebook">Facebook URL</label>
+        <input id="facebook" placeholder="https://facebook.com/...">
+      </div>
 
-<button id="saveBtn"
-        class="btn-primary btn-half">
-  Save Member
-</button>
-  <div id="progressBox" style="display:none;margin-top:10px;">
-  <div style="background:#1e293b;border-radius:6px;height:10px;overflow:hidden;">
-    <div id="progressBar" style="height:10px;width:0%;background:#38bdf8;"></div>
+      <div class="form-group">
+        <label for="instagram">Instagram URL</label>
+        <input id="instagram" placeholder="https://instagram.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="linkedin">LinkedIn URL</label>
+        <input id="linkedin" placeholder="https://linkedin.com/in/...">
+      </div>
+
+      <div class="form-group">
+        <label for="youtube">YouTube URL</label>
+        <input id="youtube" placeholder="https://youtube.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="snapchat">Snapchat URL</label>
+        <input id="snapchat" placeholder="https://snapchat.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="telegram">Telegram URL</label>
+        <input id="telegram" placeholder="https://t.me/...">
+      </div>
+
+      <div class="form-group">
+        <label for="quora">Quora URL</label>
+        <input id="quora" placeholder="https://quora.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="x">X (Twitter) URL</label>
+        <input id="x" placeholder="https://x.com/...">
+      </div>
+
+      <div class="form-group">
+        <label for="pinterest">Pinterest URL</label>
+        <input id="pinterest" placeholder="https://pinterest.com/...">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Content Builder</label>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;">
+          <button type="button" onclick="addProfileImage()">+ Profile Image</button>
+          <button type="button" onclick="addDesc()">+ Add Description</button>
+          <button type="button" onclick="addBodyImage()">+ Add Body Image</button>
+        </div>
+
+        <div id="multiDesc"></div>
+      </div>
+
+      <div class="form-group full-width">
+        <div class="form-actions">
+          <button
+            type="button"
+            onclick="previewMember()"
+            class="btn-primary btn-preview"
+          >
+            Preview 👁
+          </button>
+
+          <button
+            id="saveBtn"
+            class="btn-primary"
+          >
+            Save Member
+          </button>
+        </div>
+
+        <div id="progressBox" style="display:none;">
+          <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;">
+            <div
+              id="progressBar"
+              style="height:10px;width:0%;background:#3b82f6;">
+            </div>
+          </div>
+          <p id="progressText"
+             style="margin-top:6px;font-size:12px;color:#6b7280;">
+            0%
+          </p>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <p id="progressText" style="margin-top:5px;font-size:12px;">0%</p>
-</div>
 </div>
 
 <div class="list" style="max-width:1000px;margin:20px auto;">
@@ -350,6 +480,8 @@ div.innerHTML = `
 min-height:80px;
 background:white;
 color:black;
+caret-color:black;
+cursor:text;
 padding:10px;
 border-radius:8px;
 "></div>
