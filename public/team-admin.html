@@ -229,10 +229,21 @@ flex-wrap:wrap;
     flex-wrap:wrap;
     align-items:center;
   ">
-    <label style="display:flex;align-items:center;gap:8px;">
-      <input type="checkbox" id="selectAllMembers">
-      Select All
-    </label>
+    <label
+  style="
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+    font-weight:600;
+  "
+>
+  <input type="checkbox" id="selectAllMembers">
+  <span>
+    Select All
+    (<span id="selectedCount">0</span> selected)
+  </span>
+</label>
 
     <button
       type="button"
@@ -583,6 +594,13 @@ pinterest: document.getElementById("pinterest").value.trim() || "",
 }
 </script>
 <script type="module">
+  function updateSelectedCount() {
+  const count = document.querySelectorAll(
+    ".member-checkbox:checked"
+  ).length;
+
+  document.getElementById("selectedCount").textContent = count;
+}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
   getFunctions,
@@ -916,65 +934,90 @@ document.getElementById("multiDesc").innerHTML = "";
 
 /* LOAD LIST */
 const list = document.getElementById("list");
+let teamMembers = [];
 
-onSnapshot(collection(db,"team"),snap=>{
-list.innerHTML="";
+// Listen to Firestore changes
+onSnapshot(collection(db, "team"), (snap) => {
+  teamMembers = [];
 
-let arr=[];
-snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  snap.forEach((d) => {
+    teamMembers.push({
+      id: d.id,
+      ...d.data()
+    });
+  });
 
-// ✅ SAFE SORT
-arr.sort((a,b)=>(a.order||0)-(b.order||0));
+  renderTeamList();
+});
+
+// Render list and apply search filter
+function renderTeamList() {
+  list.innerHTML = "";
+
+  let arr = [...teamMembers];
+
+  // Sort by order
+  arr.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Search filter
   const searchValue =
-  document.getElementById("memberSearch")
-    ?.value
-    .toLowerCase()
-    .trim() || "";
+    document.getElementById("memberSearch")
+      ?.value
+      .toLowerCase()
+      .trim() || "";
 
-if (searchValue) {
-  arr = arr.filter(member =>
-    (member.name || "")
-      .toLowerCase()
-      .includes(searchValue) ||
-    (member.role || "")
-      .toLowerCase()
-      .includes(searchValue)
-  );
+  if (searchValue) {
+    arr = arr.filter(member =>
+      (member.name || "").toLowerCase().includes(searchValue) ||
+      (member.role || "").toLowerCase().includes(searchValue)
+    );
+  }
+
+  arr.forEach((d) => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <label style="display:flex;align-items:center;">
+        <input
+          type="checkbox"
+          class="member-checkbox"
+          value="${d.id}"
+          style="transform:scale(1.2);"
+        >
+      </label>
+
+      <div class="info">
+        <strong>${d.name || ""}</strong> (${d.role || ""})<br>
+        Order: ${d.order || 0} |
+        Status: ${d.enabled ? "Active" : "Disabled"}
+      </div>
+
+      <div class="controls">
+        <button class="btn-small edit"
+          onclick="edit('${d.id}')">Edit ✏️</button>
+
+        <button class="btn-small ${d.enabled ? "disable" : "toggle"}"
+          onclick="toggle('${d.id}', ${d.enabled})">
+          ${d.enabled ? "Disable" : "Enable"}
+        </button>
+
+        <button class="btn-small delete"
+          onclick="del('${d.id}')">Delete</button>
+
+        <button class="btn-small"
+          onclick="move('${d.id}', -1)">⬆</button>
+
+        <button class="btn-small"
+          onclick="move('${d.id}', 1)">⬇</button>
+      </div>
+    `;
+
+     list.appendChild(div);
+  });
+
+  updateSelectedCount();
 }
-
-arr.forEach(d=>{
-const div=document.createElement("div");
-div.className="card";
-
-div.innerHTML=`
-<label style="display:flex;align-items:center;">
-  <input
-    type="checkbox"
-    class="member-checkbox"
-    value="${d.id}"
-    style="transform:scale(1.2);"
-  >
-</label>
-
-<div class="info">
-<strong>${d.name || ""}</strong> (${d.role || ""})<br>
-Order: ${d.order || 0} | Status: ${d.enabled ? "Active":"Disabled"}
-</div>
-
-<div class="controls">
-<button class="btn-small edit" onclick="edit('${d.id}')">Edit ✏️</button>
-<button class="btn-small ${d.enabled ? "disable":"toggle"}" onclick="toggle('${d.id}',${d.enabled})">
-${d.enabled ? "Disable":"Enable"}
-</button>
-<button class="btn-small delete" onclick="del('${d.id}')">Delete</button>
-<button class="btn-small" onclick="move('${d.id}',-1)">⬆</button>
-<button class="btn-small" onclick="move('${d.id}',1)">⬇</button>
-</div>
-`;
-
-list.appendChild(div);
-});
-});
 
 /* EDIT */
 window.edit = async function(id){
@@ -1168,6 +1211,7 @@ order: current + dir
 // SELECT ALL CHECKBOX
 // ==============================
 document.addEventListener("change", (e) => {
+  // Select All checkbox
   if (e.target.id === "selectAllMembers") {
     const checked = e.target.checked;
 
@@ -1176,6 +1220,24 @@ document.addEventListener("change", (e) => {
       .forEach(cb => {
         cb.checked = checked;
       });
+
+    updateSelectedCount();
+  }
+
+  // Individual member checkbox
+  if (e.target.classList.contains("member-checkbox")) {
+    const all = document.querySelectorAll(".member-checkbox");
+    const checked = document.querySelectorAll(
+      ".member-checkbox:checked"
+    );
+
+    const selectAll = document.getElementById("selectAllMembers");
+
+    if (all.length > 0) {
+      selectAll.checked = all.length === checked.length;
+    }
+
+    updateSelectedCount();
   }
 });
 
@@ -1246,7 +1308,7 @@ document
 document
   .getElementById("memberSearch")
   .addEventListener("input", () => {
-    location.reload();
+    renderTeamList();
   });
 
 saveBtn.addEventListener("click", () => {
