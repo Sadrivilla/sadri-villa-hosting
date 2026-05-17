@@ -278,26 +278,49 @@ a {
 }
 
 /* Social */
+/* Social */
 .social {
-  margin-top: 35px;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  padding: 0 50px;
+  padding: 0;
+  margin: 0;
 }
 
-.social a {
-  padding: 12px 20px;
-  border-radius: 999px;
-  background: #081634;
-  color: white;
-  font-weight: 600;
+.social a,
+.share-btn {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  min-height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
   transition: all 0.3s ease;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+  overflow: hidden;
+  color: transparent;
+  text-indent: -9999px;
 }
 
-.social a:hover {
-  background: #0f2d6b;
-  transform: translateY(-2px);
+.social a:hover,
+.share-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.14);
+}
+
+.social a img,
+.share-btn img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
 }
 
 /* Share Section */
@@ -318,42 +341,75 @@ a {
   flex-wrap: wrap;
   gap: 12px;
 }
+.lineage-section,
+.social-section,
+.share-section {
+  margin-top: 45px;
+  padding: 0 50px;
+}
 
-.share-btn {
+.lineage-section h3,
+.social-section h3,
+.share-section h3 {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #081634;
+}
+
+.social-box {
   display: inline-block;
-  padding: 12px 22px;
+  min-width: 100%;
+  min-height: 64px;
+  padding: 16px 24px;
+  border: 2px solid #3b82f6;
   border-radius: 999px;
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-  transition: all 0.3s ease;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+  box-sizing: border-box;
 }
 
-.share-btn:hover {
-  transform: translateY(-3px);
+.social,
+.share-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
 }
 
-.share-btn.whatsapp {
-  background: linear-gradient(135deg, #25D366, #128C7E);
+.social-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 8px; /* scrollbar outside the border */
+  box-sizing: border-box;
 }
 
-.share-btn.facebook {
-  background: linear-gradient(135deg, #1877F2, #0A58CA);
+.social-scroll::-webkit-scrollbar {
+  height: 8px;
 }
 
-.share-btn.linkedin {
-  background: linear-gradient(135deg, #0A66C2, #004182);
+.social-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
 }
 
-.share-btn.instagram {
-  background: linear-gradient(
-    135deg,
-    #f58529,
-    #dd2a7b,
-    #8134af,
-    #515bd4
-  );
+.social::-webkit-scrollbar,
+.share-buttons::-webkit-scrollbar {
+  height: 8px;
 }
+
+.social::-webkit-scrollbar-thumb,
+.share-buttons::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
 
 /* Team Slider */
 .team-section {
@@ -425,6 +481,21 @@ a {
   margin: 0;
   color: #64748b;
   font-size: 0.95rem;
+}
+
+.member-role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.28);
 }
 
 /* Premium Footer */
@@ -504,12 +575,15 @@ a {
   padding: 0 12px;
 }
 
-.social {
+.lineage-section,
+.lineage-section,
+.social-section,
+.share-section {
   padding: 0 12px;
 }
 
-.share-section {
-  padding: 35px 12px 0;
+.social-box {
+  padding: 16px;
 }
 .container {
   padding: 0 4px;
@@ -599,13 +673,14 @@ a {
   </a>
 </div>
 
-<div class="social">
-  
-</div>
-
-
-<div class="social">
-  
+<div class="lineage-section">
+  <div
+  style="
+      width: 100%;
+      text-align: center;
+    "
+>
+    
 <a
   href="/shajra.html#LKfMvlbqtYnU6tUMHbpU"
   style="
@@ -623,52 +698,35 @@ a {
 >
   View in Family Tree
 </a>
+
+    <h3>Family Lineage</h3>
+
+    <div class="social-scroll">
+      <div
+        id="familyLineage"
+        class="social-box"
+        style="
+          font-size: 15px;
+          color: #081634;
+          line-height: 1.8;
+        "
+      >
+        Loading family lineage...
+      </div>
+    </div>
+  </div>
 </div>
 
-<div
-  style="
-    padding: 0 24px;
-    margin-top: 24px;
-    width: 100%;
-  "
->
-  <h3
-    style="
-      margin: 0 0 12px;
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #081634;
-    "
-  >
-    Family Lineage
-  </h3>
 
- <div
-  id="familyLineage"
-  style="
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    min-height: 64px;
-    padding: 16px 24px;
-    border: 2px solid #3b82f6;
-    border-radius: 999px;
-    background: #ffffff;
-    font-size: 15px;
-    color: #081634;
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+<div class="social-section">
+  <h3>Follow On Social Media</h3>
 
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    line-height: 1.8;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-
-    box-sizing: border-box;
-  "
->
-    Loading family lineage...
+  <div class="social-scroll">
+    <div class="social-box">
+      <div class="social">
+        
+      </div>
+    </div>
   </div>
 </div>
 
@@ -676,50 +734,58 @@ a {
 <div class="share-section">
   <h3>Share This Profile</h3>
 
-  <div class="share-buttons">
-    <a
-      class="share-btn whatsapp"
-      href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      WhatsApp
-    </a>
+  <div class="social-scroll">
+  <div class="social-box">
+    <div class="share-buttons">
 
-    <a
-      class="share-btn facebook"
-      href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Facebook
-    </a>
+      <a
+        class="share-btn"
+        href="https://wa.me/?text=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="WhatsApp"
+      >
+        <img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" loading="lazy">
+      </a>
 
-    <a
-      class="share-btn linkedin"
-      href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      LinkedIn
-    </a>
+      <a
+        class="share-btn"
+        href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Facebook"
+      >
+        <img src="https://cdn.simpleicons.org/facebook" alt="Facebook" loading="lazy">
+      </a>
 
-    <a
-      class="share-btn instagram"
-      href="https://www.instagram.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Instagram
-    </a>
+      <a
+        class="share-btn"
+        href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsadrivilla.in%2Fteam%2Fhakim-abdul-mannan-sadri.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="LinkedIn"
+      >
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" loading="lazy">
+      </a>
+
+      <a
+        class="share-btn"
+        href="https://www.instagram.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Instagram"
+      >
+        <img src="https://cdn.simpleicons.org/instagram" alt="Instagram" loading="lazy">
+      </a>
+
+    </div>
   </div>
 </div>
-  </div>
 </div>
 
 <!-- Other Team Members -->
 <section class="team-section">
-  <h2>Know More About Our Team</h2>
+  <h2>Know More About</h2>
 
   <div class="team-slider">
     
@@ -730,10 +796,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Hafiz Abdur Rahman Sadri</h3>
-        <p>Quranic Memorization (Hifz)</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Hafiz Abdur Rahman Sadri</h3>
+  <div class="member-role-badge">Quranic Memorization (Hifz)</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/safwan-sadri.html">
@@ -743,10 +809,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Safwan Sadri</h3>
-        <p>Electronics And Communication (Engineer)</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Safwan Sadri</h3>
+  <div class="member-role-badge">Electronics And Communication (Engineer)</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/arman-sadri.html">
@@ -756,10 +822,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Arman Sadri</h3>
-        <p>Vice President (Zila Upadhyaksh)</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Arman Sadri</h3>
+  <div class="member-role-badge">Vice President (Zila Upadhyaksh)</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/professor-anees-sadri.html">
@@ -769,10 +835,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Professor Anees Sadri</h3>
-        <p>Professor</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Professor Anees Sadri</h3>
+  <div class="member-role-badge">Professor</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/hakim-salim-sadri.html">
@@ -782,10 +848,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Hakim Salim Sadri</h3>
-        <p>Doctor</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Hakim Salim Sadri</h3>
+  <div class="member-role-badge">Doctor</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/ashfaque-sadri.html">
@@ -795,10 +861,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Ashfaque Sadri</h3>
-        <p>Business Leader</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Ashfaque Sadri</h3>
+  <div class="member-role-badge">Business Leader</div>
+</div>
     </a>
   
     <a class="member-card" href="/team/lalu-prasad-yadav-at-sadri-villa.html">
@@ -808,10 +874,10 @@ a {
   loading="lazy"
   onerror="this.onerror=null;this.src='/og-image.jpg';"
 >
-      <div class="member-card-content">
-        <h3>Lalu Prasad Yadav at Sadri Villa</h3>
-        <p>Former Chief Minister of Bihar | Distinguished Visitor to Sadri Villa | Political Meeting Hub | Educational Landmark | Heritage House | Intellectual Center | Social Reform Venue</p>
-      </div>
+     <div class="member-card-content">
+  <h3>Lalu Prasad Yadav at Sadri Villa</h3>
+  <div class="member-role-badge">Former Chief Minister of Bihar | Distinguished Visitor to Sadri Villa | Political Meeting Hub | Educational Landmark | Heritage House | Intellectual Center | Social Reform Venue</div>
+</div>
     </a>
   
   </div>
@@ -828,30 +894,31 @@ a {
       </p>
     </div>
 
-    <div>
+     <div class="footer-col">
       <h4>Quick Links</h4>
-      <a href="/">Home</a>
-      <a href="/about.html">About</a>
-      <a href="/login.html">Login</a>
-      <a href="/register.html">Sign Up</a>
+     <a href="/">Home</a>
+<a href="/about.html">About</a>
+<a href="/login.html">Login</a>
+<a href="/signup.html">Sign Up</a>
     </div>
 
-    <div>
-      <h4>Near Us</h4>
-      <p>Mosque</p>
-      <p>Clinic</p>
-      <p>Super Market</p>
-      <p>College</p>
-    </div>
+    <div class="footer-col">
+  <h4>Near Us</h4>
+  <a href="https://maps.app.goo.gl/PTyPhUnafXD2xgxcA" target="_blank">Mosque</a><br>
+  <a href="https://maps.app.goo.gl/P6fXKqgPnXYKYXPe7" target="_blank">Clinic</a><br>
+  <a href="https://maps.app.goo.gl/KMxLCyrREXyiy7Jv7" target="_blank">Super Market</a><br>
+  <a href="https://maps.app.goo.gl/X66PzhR31MWzHMiX8" target="_blank">College</a>
+</div>
 
-    <div>
+   <div>
       <h4>Contact</h4>
       <p>📍 Fazilpur, Samastipur</p>
-      <p>✉️ sadrivillafazilpur@gmail.com</p>
-      <p>📞 +91 8708868221</p>
-      <p>🗺️ Villa Map</p>
+      <p>📧 <a href="mailto:sadrivillafazilpur@gmail.com">sadrivillafazilpur@gmail.com</a></p>
+     <p>📞 <a href="tel:+918708868221">+91 8708868221</a></p>
+      <a href="https://maps.google.com?q=Sadri+Villa+Fazilpur" target="_blank">
+        🗺️ Villa Map
+      </a>
     </div>
-
   </div>
 
   <div class="footer-bottom">
