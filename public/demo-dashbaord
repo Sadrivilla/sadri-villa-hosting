@@ -44,6 +44,12 @@ body{font-family:'Inter',sans-serif;background:#f3f4f6;margin:0}
         <a href="admin-villa-sections.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📝 Index Sections</a>
         <a href="admin-profile.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📋 Profile Fields</a>
         <a href="admin-logs.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📝 Logs</a>
+        <a href="admin-backup-restore.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">💾 Backup & Restore</a>
+        <a href="admin-storage-analytics.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📦 Storage Analytics</a>
+        <a href="admin-scheduled-reports.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📅 Scheduled Reports</a>
+        <a href="admin-role-management.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">🛡️ Role Management</a>
+        <a href="admin-bulk-approval.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">✅ Bulk Approval Center</a>
+        <a href="admin-visitor-analytics.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📈 Visitor Analytics</a>
         <a href="admin-list.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">👤 Admin List</a>
         <a href="add-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">➕ Add Admin</a>
         <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">👥 User Dashboard</a>
@@ -136,6 +142,14 @@ body{font-family:'Inter',sans-serif;background:#f3f4f6;margin:0}
               <div><div class="text-gray-500 text-sm">Approvals</div><div class="text-3xl font-bold" id="pendingTop">—</div></div>
               <div><div class="text-gray-500 text-sm">Photos</div><div class="text-3xl font-bold" id="photosTop">Live</div></div>
               <div><div class="text-gray-500 text-sm">Status</div><div class="text-3xl font-bold text-emerald-600">Active</div></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
+              <button onclick="location.href='admin-backup-restore.html'" class="px-4 py-3 rounded-2xl bg-blue-50 text-blue-700 font-medium hover:bg-blue-100">💾 Backup</button>
+              <button onclick="location.href='admin-storage-analytics.html'" class="px-4 py-3 rounded-2xl bg-indigo-50 text-indigo-700 font-medium hover:bg-indigo-100">📦 Storage</button>
+              <button onclick="location.href='admin-scheduled-reports.html'" class="px-4 py-3 rounded-2xl bg-purple-50 text-purple-700 font-medium hover:bg-purple-100">📅 Reports</button>
+              <button onclick="location.href='admin-role-management.html'" class="px-4 py-3 rounded-2xl bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100">🛡️ Roles</button>
+              <button onclick="location.href='admin-bulk-approval.html'" class="px-4 py-3 rounded-2xl bg-pink-50 text-pink-700 font-medium hover:bg-pink-100">✅ Bulk Approval</button>
+              <button onclick="location.href='admin-visitor-analytics.html'" class="px-4 py-3 rounded-2xl bg-amber-50 text-amber-700 font-medium hover:bg-amber-100">📈 Visitors</button>
             </div>
           </div>
 
