@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sadri Villa Premium Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .heading { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-gray-800">
+  <div class="min-h-screen flex">
+
+    <!-- White Sidebar -->
+    <aside class="hidden lg:flex lg:flex-col w-80 bg-white border-r border-slate-200 shadow-xl">
+      <div class="p-8 border-b border-slate-100">
+        <h1 class="heading text-4xl font-bold text-emerald-900">Sadri Villa</h1>
+        <p class="text-gray-500 mt-2 text-sm">Heritage Management Dashboard</p>
+      </div>
+
+      <nav class="flex-1 p-6 space-y-2">
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-100 text-emerald-900 font-semibold">🏠 Dashboard</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">👥 Members</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🌳 Family Tree</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🖼 Gallery</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📜 Timeline</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📈 Analytics</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📝 Audit Logs</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">⚙️ Settings</a>
+      </nav>
+
+      <div class="p-6">
+        <div class="bg-gradient-to-r from-emerald-900 to-emerald-700 text-white rounded-3xl p-5">
+          <p class="text-emerald-100 text-sm">Storage Used</p>
+          <p class="text-3xl font-bold mt-1">68%</p>
+          <div class="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
+            <div class="h-full w-2/3 bg-amber-300"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 lg:p-8">
+
+      <!-- Header -->
+      <header class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-8">
+        <div>
+          <h2 class="heading text-5xl font-bold text-emerald-950">Dashboard Overview</h2>
+          <p class="text-gray-600 mt-2">Manage family records, historical archives and analytics.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <input
+            type="text"
+            placeholder="Search members..."
+            class="px-4 py-3 rounded-2xl border border-slate-300 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+          />
+          <button class="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-lg">
+            + Add Member
+          </button>
+        </div>
+      </header>
+
+      <!-- Hero Banner -->
+      <section class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-700 text-white rounded-[2rem] p-10 shadow-2xl mb-8">
+        <h3 class="heading text-4xl font-bold text-amber-300">Welcome Back, Admin</h3>
+        <p class="mt-4 max-w-3xl text-emerald-100 leading-relaxed text-lg">
+          Preserve the legacy of Sadri Villa by managing members, family lineage,
+          heritage photos, timelines and visitor analytics from one unified control panel.
+        </p>
+      </section>
+
+      <!-- Statistics -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <p class="text-gray-500 text-sm">Total Members</p>
+          <p class="text-4xl font-bold mt-2">1,248</p>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <p class="text-gray-500 text-sm">Pending Approvals</p>
+          <p class="text-4xl font-bold mt-2 text-orange-600">18</p>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <p class="text-gray-500 text-sm">Gallery Photos</p>
+          <p class="text-4xl font-bold mt-2">3,412</p>
+        </div>
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <p class="text-gray-500 text-sm">Monthly Visitors</p>
+          <p class="text-4xl font-bold mt-2">24,980</p>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div class="xl:col-span-2 bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold">Visitor Analytics</h3>
+            <span class="text-sm text-gray-500">Last 6 Months</span>
+          </div>
+          <canvas id="visitorsChart" height="110"></canvas>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <h3 class="text-xl font-semibold mb-4">Quick Actions</h3>
+          <div class="space-y-3">
+            <button class="w-full text-left px-4 py-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 font-medium">Generate Selected Pages</button>
+            <button class="w-full text-left px-4 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 font-medium">Export Audit Logs</button>
+            <button class="w-full text-left px-4 py-3 rounded-2xl bg-sky-50 hover:bg-sky-100 font-medium">Upload Heritage Photos</button>
+            <button class="w-full text-left px-4 py-3 rounded-2xl bg-purple-50 hover:bg-purple-100 font-medium">Add Timeline Event</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tables -->
+      <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <h3 class="text-xl font-semibold mb-4">Pending Approvals</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p class="font-semibold">Ayesha Sadri</p>
+                <p class="text-sm text-gray-500">Updated family lineage</p>
+              </div>
+              <button class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm">Approve</button>
+            </div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p class="font-semibold">Mohammad Ali</p>
+                <p class="text-sm text-gray-500">Requested new profile</p>
+              </div>
+              <button class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm">Approve</button>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-semibold">Rashid Khan</p>
+                <p class="text-sm text-gray-500">Uploaded historical image</p>
+              </div>
+              <button class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm">Approve</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
+          <h3 class="text-xl font-semibold mb-4">Recent Activity</h3>
+          <div class="space-y-4 text-sm">
+            <div class="border-b border-slate-100 pb-3"><strong>Admin</strong> regenerated 25 member pages.</div>
+            <div class="border-b border-slate-100 pb-3"><strong>Gallery</strong> added 12 heritage photos.</div>
+            <div class="border-b border-slate-100 pb-3"><strong>Timeline</strong> added “Political Visit 1985”.</div>
+            <div><strong>Audit Logs</strong> exported to Excel and PDF.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('visitorsChart');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Visitors',
+          data: [1200, 1900, 2600, 3400, 4200, 5100],
+          borderColor: '#065f46',
+          backgroundColor: 'rgba(6,95,70,0.08)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
