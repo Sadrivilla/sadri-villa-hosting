@@ -309,15 +309,93 @@ async function subscribeSiteSettings() {
 
 async function loadDashboard() {
   const snap = await getDocs(collection(db, 'users'));
-  cachedUsers = snap.docs.map(d => d.data());
+  cachedUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  document.getElementById('totalUsers').innerText = cachedUsers.length;
+  const totalUsers = cachedUsers.length;
+  const pendingUsers = cachedUsers.filter(u => u.approved !== true).length;
+
+  // Main KPI cards
+  document.getElementById('totalUsers').innerText = totalUsers;
+  document.getElementById('usersTop').innerText = totalUsers;
+  document.getElementById('pendingTop').innerText = pendingUsers;
+
+  // Approximate photo count from current gallery
+  const photoCount = document.getElementById('galleryTrack').children.length || 0;
+  const photosTop = document.getElementById('photosTop');
+  if (photosTop) photosTop.innerText = photoCount > 0 ? photoCount : 'Live';
+
+  // Update recent activity panel dynamically
+  updateRecentActivity(pendingUsers, totalUsers);
+
+  // Initialize sidebar search
+  initSidebarSearch();
 
   renderApprovalChart();
   renderAgeChart();
   renderProfileChart();
   await loadPageViews();
 }
+
+function updateRecentActivity(pendingUsers, totalUsers) {
+  const cards = document.querySelectorAll('.flex-1.overflow-y-auto .bg-gray-50');
+  if (cards[0]) {
+    cards[0].querySelector('.font-semibold').textContent = `${pendingUsers} approvals pending`;
+    cards[0].querySelector('.text-gray-500').textContent = 'Review user requests';
+  }
+  if (cards[1]) {
+    cards[1].querySelector('.font-semibold').textContent = `${totalUsers} total users`;
+    cards[1].querySelector('.text-gray-500').textContent = 'Live member count';
+  }
+}
+
+function initSidebarSearch() {
+  const searchInput = document.querySelector('aside input[type="text"]');
+  if (!searchInput || searchInput.dataset.initialized) return;
+
+  searchInput.dataset.initialized = 'true';
+
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+
+    const term = searchInput.value.trim().toLowerCase();
+    if (!term) return;
+
+    const match = cachedUsers.find(u =>
+      (u.fullName || '').toLowerCase().includes(term) ||
+      (u.name || '').toLowerCase().includes(term) ||
+      (u.fatherName || '').toLowerCase().includes(term)
+    );
+
+    if (match) {
+      if (match.slug) {
+        window.open(`/team/${match.slug}.html`, '_blank');
+      } else {
+        alert(`Found: ${match.fullName || match.name || 'User'}`);
+      }
+    } else {
+      alert('No matching member found.');
+    }
+  });
+}
+
+// Bulk and utility actions
+window.regenerateAllPages = () => {
+  if (confirm('Open member management page to regenerate selected pages?')) {
+    location.href = 'admin-shajra.html';
+  }
+};
+
+window.exportAuditLogs = () => {
+  location.href = 'admin-logs.html';
+};
+
+window.openBackupRestore = () => {
+  alert('Backup & Restore module can be added as a dedicated page.');
+};
+
+window.openStorageAnalytics = () => {
+  alert('Storage analytics feature can display Firebase Storage usage and image counts.');
+};
 
 async function loadPageViews() {
   const snap = await getDoc(doc(db, 'analytics', 'admin_dashboard'));
