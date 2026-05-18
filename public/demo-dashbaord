@@ -2,162 +2,183 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Dashboard – Sadri Villa</title>
+<title>Sadri Villa Enterprise Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-body{font-family:'Inter',sans-serif;background:#f1f5f9;margin:0}
-.heading{font-family:'Playfair Display',serif}
+body{font-family:'Inter',sans-serif;background:#f3f4f6;margin:0}
+#profileCard.show{display:block!important}
 .track.scrolling{animation:scroll linear infinite}
 .track:hover{animation-play-state:paused}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-#profileCard.show{display:block!important}
-
-/* Prevent oversized charts */
-.chart-wrapper{
-  position:relative;
-  height:280px;
-  width:100%;
-}
-
-.chart-wrapper canvas{
-  width:100% !important;
-  height:100% !important;
-  display:block;
-}
+.chart-wrapper{position:relative;height:260px;width:100%}
+.chart-wrapper canvas{width:100%!important;height:100%!important}
 </style>
 </head>
 <body>
-<div class="min-h-screen flex">
-  <!-- Sidebar -->
-  <aside class="hidden lg:flex lg:flex-col w-80 bg-white border-r border-slate-200 shadow-xl">
-    <div class="p-8 border-b border-slate-100">
-      <div class="flex items-center gap-3">
-        <img id="siteLogo" class="h-10 hidden">
-        <div>
-          <h1 class="heading text-4xl font-bold text-emerald-900">Sadri Villa</h1>
-          <p class="text-gray-500 mt-2 text-sm">Heritage Management Dashboard</p>
-        </div>
-      </div>
-    </div>
+<div class="min-h-screen p-4 lg:p-6">
+  <div class="bg-white rounded-[32px] shadow-xl overflow-hidden min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)] flex">
 
-    <nav class="flex-1 p-6 space-y-2 overflow-y-auto">
-      <a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-emerald-100 text-emerald-900 font-semibold">🏠 Dashboard</a>
-      <a href="admin-shajra.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🌳 Add/Edit Member</a>
-      <a href="admin-logo.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🖼 Logo</a>
-      <a href="admin-hero.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🎯 Hero</a>
-      <a href="admin-slider.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🖼 Slider</a>
-      <a href="admin-villa-sections.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📝 Index Sections</a>
-      <a href="admin-list.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">👤 Admin List</a>
-      <a href="add-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">➕ Add Admin</a>
-      <a href="team-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">🏛 Historical Monument</a>
-      <a href="admin-profile.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📋 Profile Fields</a>
-      <a href="admin-logs.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">📝 Logs</a>
-      <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-100">👥 User Dashboard</a>
-    </nav>
-
-    <div class="p-6">
-      <div class="bg-gradient-to-r from-emerald-900 to-emerald-700 text-white rounded-3xl p-5">
-        <p class="text-emerald-100 text-sm">Storage Used</p>
-        <p class="text-3xl font-bold mt-1">68%</p>
-        <div class="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
-          <div class="h-full w-2/3 bg-amber-300"></div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 p-6 lg:p-8">
-    <!-- Top Bar -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-      <div>
-        <h2 class="heading text-5xl font-bold text-emerald-950">Dashboard Overview</h2>
-        <p class="text-gray-600 mt-2" id="welcomeName">Sadri Villa – Admin</p>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <div id="pendingAlertIcon" class="relative cursor-pointer hidden" onclick="location.href='admin-approval-requests.html'">
-          <span class="text-2xl">🔔</span>
-          <span id="pendingBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
-        </div>
-
-        <div class="relative">
-          <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-12 h-12 rounded-full object-cover border-2 border-sky-400 cursor-pointer">
-          <div id="profileCard" class="hidden absolute top-14 right-0 bg-white rounded-xl shadow-2xl w-56 overflow-hidden border border-slate-200 z-50">
-            <a href="profile.html" class="block px-4 py-3 hover:bg-slate-50">Profile</a>
-            <a href="change-password.html" class="block px-4 py-3 hover:bg-slate-50">Change Password</a>
-            <a href="#" id="logoutBtn" class="block px-4 py-3 hover:bg-slate-50 text-red-600">Logout</a>
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex w-80 border-r border-gray-100 bg-white flex-col">
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <img id="siteLogo" class="h-10 w-10 rounded-xl hidden object-cover">
+          <div>
+            <div class="font-extrabold text-gray-900 text-xl">Sadri Villa</div>
+            <div class="text-xs text-gray-500">Enterprise Admin</div>
           </div>
         </div>
       </div>
-    </header>
 
-    <!-- Hero -->
-    <section class="bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-700 text-white rounded-[2rem] p-10 shadow-2xl mb-8">
-      <h3 class="heading text-4xl font-bold text-amber-300">Welcome Back, Admin</h3>
-      <p class="mt-4 max-w-3xl text-emerald-100 leading-relaxed text-lg">
-        Preserve the legacy of Sadri Villa by managing members, family lineage, heritage photos, timelines and visitor analytics.
-      </p>
-    </section>
+      <nav class="p-4 space-y-2 text-sm font-medium">
+        <a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-100 text-gray-900">🏠 Dashboard</a>
+        <a href="admin-shajra.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">🌳 Add/Edit Member</a>
+        <a href="team-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">🏛 Historical Monument</a>
+        <a href="admin-slider.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">🖼 Slider</a>
+        <a href="admin-villa-sections.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📝 Index Sections</a>
+        <a href="admin-profile.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📋 Profile Fields</a>
+        <a href="admin-logs.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">📝 Logs</a>
+        <a href="admin-list.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">👤 Admin List</a>
+        <a href="add-admin.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">➕ Add Admin</a>
+        <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">👥 User Dashboard</a>
+      </nav>
 
-    <!-- Statistics -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-        <p class="text-gray-500 text-sm">Total Users</p>
-        <p class="text-4xl font-bold mt-2" id="totalUsers">—</p>
+      <div class="px-4 mt-2">
+        <div class="relative">
+          <input type="text" placeholder="Search..." class="w-full bg-gray-100 rounded-2xl px-4 py-3 text-sm outline-none">
+        </div>
       </div>
-      <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-        <p class="text-gray-500 text-sm">Dashboard Views</p>
-        <p class="text-4xl font-bold mt-2" id="pageViews">—</p>
-      </div>
-      <div onclick="location.href='admin-media.html'" class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200 cursor-pointer hover:shadow-xl transition">
-        <p class="text-gray-500 text-sm">Quick Access</p>
-        <p class="text-2xl font-bold mt-2">🖼 Manage Site Media</p>
-      </div>
-    </section>
 
-    <!-- Charts -->
-    <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-        <h3 class="text-xl font-semibold mb-4">User Approval Status</h3>
-        <div class="chart-wrapper"><canvas id="approvalChart"></canvas></div>
-        <button onclick="showAllApprovals()" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl">Show All</button>
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div class="text-xs font-semibold text-gray-400 uppercase px-2">Recent Activity</div>
+        <div class="bg-gray-50 rounded-2xl p-3 text-sm">
+          <div class="font-semibold">New approvals pending</div>
+          <div class="text-gray-500 text-xs">Review user requests</div>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-3 text-sm">
+          <div class="font-semibold">Gallery updated</div>
+          <div class="text-gray-500 text-xs">Latest heritage photos</div>
+        </div>
       </div>
-      <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-        <h3 class="text-xl font-semibold mb-4">User Age Distribution</h3>
-        <div class="chart-wrapper"><canvas id="ageChart"></canvas></div>
-      </div>
-      <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-        <h3 class="text-xl font-semibold mb-4">Profile Completion</h3>
-        <div class="chart-wrapper"><canvas id="profileChart"></canvas></div>
-        <button onclick="showAllProfiles()" class="mt-4 px-4 py-2 bg-amber-500 text-white rounded-xl">Show All</button>
-      </div>
-    </section>
 
-    <!-- Gallery -->
-    <section class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
-      <h3 class="text-xl font-semibold mb-4">Heritage Gallery</h3>
-      <div class="overflow-hidden">
-        <div class="track flex gap-5 w-max" id="galleryTrack"></div>
+      <div class="p-4">
+        <a href="admin-logs.html" class="block text-center bg-black text-white rounded-2xl py-3 font-semibold">Broadcast</a>
       </div>
-    </section>
-  </main>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 bg-gray-50 p-4 lg:p-6 overflow-y-auto">
+      <!-- Header -->
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-6">
+        <div>
+          <div class="flex flex-wrap gap-6 text-sm font-medium text-gray-500">
+            <span class="text-gray-900 border-b-2 border-gray-900 pb-2">Overview</span>
+            <span>Members</span>
+            <span>Gallery</span>
+            <span>Reports</span>
+            <span>Access</span>
+          </div>
+          <p id="welcomeName" class="text-sm text-gray-500 mt-3">Sadri Villa – Admin</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div id="pendingAlertIcon" class="relative cursor-pointer hidden" onclick="location.href='admin-approval-requests.html'">
+            <div class="w-11 h-11 bg-white rounded-2xl shadow-sm flex items-center justify-center">🔔</div>
+            <span id="pendingBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full">0</span>
+          </div>
+
+          <div class="relative">
+            <div class="flex items-center gap-3 bg-white rounded-2xl shadow-sm px-3 py-2 cursor-pointer" id="profilePhotoWrapper">
+              <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-10 h-10 rounded-full object-cover">
+              <div class="hidden sm:block">
+                <div class="font-semibold text-sm">Admin</div>
+                <div class="text-xs text-gray-500">Manager</div>
+              </div>
+            </div>
+
+            <div id="profileCard" class="hidden absolute top-16 right-0 bg-white rounded-2xl shadow-2xl w-56 overflow-hidden border border-gray-100 z-50">
+              <a href="profile.html" class="block px-4 py-3 hover:bg-gray-50">Profile</a>
+              <a href="change-password.html" class="block px-4 py-3 hover:bg-gray-50">Change Password</a>
+              <a href="#" id="logoutBtn" class="block px-4 py-3 hover:bg-gray-50 text-red-600">Logout</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-6">
+        <div class="xl:col-span-4 bg-white rounded-3xl shadow-sm p-4">
+          <div class="relative rounded-3xl overflow-hidden h-64 bg-gradient-to-br from-emerald-200 to-emerald-500">
+            <div class="absolute inset-0 flex items-end p-5 text-white font-semibold text-lg">Sadri Villa Heritage</div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <div class="text-3xl font-bold" id="totalUsers">—</div>
+              <div class="text-sm text-gray-500">Residents</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold" id="pageViews">—</div>
+              <div class="text-sm text-gray-500">Views</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="xl:col-span-8 space-y-6">
+          <div class="bg-white rounded-3xl shadow-sm p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div><div class="text-gray-500 text-sm">Users</div><div class="text-3xl font-bold" id="usersTop">—</div></div>
+              <div><div class="text-gray-500 text-sm">Approvals</div><div class="text-3xl font-bold" id="pendingTop">—</div></div>
+              <div><div class="text-gray-500 text-sm">Photos</div><div class="text-3xl font-bold" id="photosTop">Live</div></div>
+              <div><div class="text-gray-500 text-sm">Status</div><div class="text-3xl font-bold text-emerald-600">Active</div></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-3xl shadow-sm p-6">
+              <h3 class="font-semibold mb-4">User Approval Status</h3>
+              <div class="chart-wrapper"><canvas id="approvalChart"></canvas></div>
+              <button onclick="showAllApprovals()" class="mt-4 px-4 py-2 bg-pink-500 text-white rounded-xl">Show All</button>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm p-6">
+              <h3 class="font-semibold mb-4">Profile Completion</h3>
+              <div class="chart-wrapper"><canvas id="profileChart"></canvas></div>
+              <button onclick="showAllProfiles()" class="mt-4 px-4 py-2 bg-amber-500 text-white rounded-xl">Show All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <div class="xl:col-span-7 bg-white rounded-3xl shadow-sm p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold">User Age Distribution</h3>
+          </div>
+          <div class="chart-wrapper"><canvas id="ageChart"></canvas></div>
+        </div>
+
+        <div class="xl:col-span-5 bg-white rounded-3xl shadow-sm p-6">
+          <h3 class="font-semibold mb-4">Heritage Gallery</h3>
+          <div class="overflow-hidden">
+            <div class="track flex gap-4 w-max" id="galleryTrack"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
-<!-- Image Modal -->
 <div class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50" id="imgModal">
   <div class="bg-white p-5 rounded-3xl max-w-3xl mx-4">
     <img id="modalImg" class="max-h-[80vh] rounded-2xl">
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
