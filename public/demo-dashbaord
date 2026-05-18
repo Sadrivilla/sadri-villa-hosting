@@ -235,6 +235,7 @@ let approvalChartInstance = null;
 let ageChartInstance = null;
 let profileChartInstance = null;
 let cachedUsers = [];
+let cachedMembers = [];
 let unsubscribeSiteSettings = null;
 
 onAuthStateChanged(auth, async (user) => {
@@ -329,6 +330,14 @@ async function subscribeSiteSettings() {
 async function loadDashboard() {
   const snap = await getDocs(collection(db, 'users'));
   cachedUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  try {
+    const memberSnap = await getDocs(collection(db, 'team'));
+    cachedMembers = memberSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) {
+    console.warn('Team collection not found or inaccessible:', error);
+    cachedMembers = [];
+  }
 
   const totalUsers = cachedUsers.length;
   const pendingUsers = cachedUsers.filter(u => u.approved !== true).length;
