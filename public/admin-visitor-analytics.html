@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visitor Analytics</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+<div class="max-w-7xl mx-auto">
+  <h1 class="text-4xl font-bold mb-6">📈 Visitor Analytics</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white p-6 rounded-3xl shadow"><p class="text-gray-500">Today</p><h2 class="text-4xl font-bold mt-2">1,245</h2></div>
+    <div class="bg-white p-6 rounded-3xl shadow"><p class="text-gray-500">This Week</p><h2 class="text-4xl font-bold mt-2">8,921</h2></div>
+    <div class="bg-white p-6 rounded-3xl shadow"><p class="text-gray-500">This Month</p><h2 class="text-4xl font-bold mt-2">34,182</h2></div>
+    <div class="bg-white p-6 rounded-3xl shadow"><p class="text-gray-500">Popular Searches</p><h2 class="text-xl font-bold mt-2">Family Tree</h2></div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-3xl shadow">
+      <h3 class="text-xl font-semibold mb-4">Traffic Trend</h3>
+      <div class="h-80"><canvas id="trafficChart"></canvas></div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl shadow">
+      <h3 class="text-xl font-semibold mb-4">Most Viewed Profiles</h3>
+      <ul class="space-y-3">
+        <li class="flex justify-between"><span>Syed Ahmed Sadri</span><span class="font-semibold">2,341</span></li>
+        <li class="flex justify-between"><span>Lalu Prasad Yadav Visit</span><span class="font-semibold">1,892</span></li>
+        <li class="flex justify-between"><span>Family Tree Root</span><span class="font-semibold">1,456</span></li>
+        <li class="flex justify-between"><span>Heritage Gallery</span><span class="font-semibold">1,212</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+new Chart(document.getElementById('trafficChart'), {
+  type: 'line',
+  data: {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [{
+      label: 'Visitors',
+      data: [1200, 1800, 1500, 2400, 2100, 3000, 2800],
+      fill: false,
+      tension: 0.4
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+</script>
+</body>
+</html>
