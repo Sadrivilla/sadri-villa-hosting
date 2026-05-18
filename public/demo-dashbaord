@@ -18,6 +18,19 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;margin:0}
 .track:hover{animation-play-state:paused}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 #profileCard.show{display:block!important}
+
+/* Prevent oversized charts */
+.chart-wrapper{
+  position:relative;
+  height:280px;
+  width:100%;
+}
+
+.chart-wrapper canvas{
+  width:100% !important;
+  height:100% !important;
+  display:block;
+}
 </style>
 </head>
 <body>
@@ -114,16 +127,16 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;margin:0}
     <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
       <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
         <h3 class="text-xl font-semibold mb-4">User Approval Status</h3>
-        <canvas id="approvalChart"></canvas>
+        <div class="chart-wrapper"><canvas id="approvalChart"></canvas></div>
         <button onclick="showAllApprovals()" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-xl">Show All</button>
       </div>
       <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
         <h3 class="text-xl font-semibold mb-4">User Age Distribution</h3>
-        <canvas id="ageChart"></canvas>
+        <div class="chart-wrapper"><canvas id="ageChart"></canvas></div>
       </div>
       <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-200">
         <h3 class="text-xl font-semibold mb-4">Profile Completion</h3>
-        <canvas id="profileChart"></canvas>
+        <div class="chart-wrapper"><canvas id="profileChart"></canvas></div>
         <button onclick="showAllProfiles()" class="mt-4 px-4 py-2 bg-amber-500 text-white rounded-xl">Show All</button>
       </div>
     </section>
