@@ -428,45 +428,38 @@ select{
 .hero-bg{
   position:absolute;
   inset:0;
-  z-index:-1;
-  background:
-    radial-gradient(circle at top right,
-      rgba(14,165,233,.18),
-      transparent 45%),
-    radial-gradient(circle at bottom left,
-      rgba(20,184,166,.15),
-      transparent 45%),
-    linear-gradient(135deg,
-      rgba(2,6,23,.95),
-      rgba(15,23,42,.92),
-      rgba(30,41,59,.90));
+  z-index:1;
+  background:rgba(2,6,23,0.20);
+  pointer-events:none;
 }
 
 #heroVideo{
   position:absolute;
-  inset:0;
+  top:0;
+  left:0;
   width:100%;
   height:100%;
   object-fit:cover;
   display:none;
-  z-index:-2;
+  z-index:0;
+  pointer-events:none;
 }
 .hero{
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
-
 .hero::after{
   content:"";
   position:absolute;
   inset:0;
   background:linear-gradient(
     180deg,
-    rgba(2,6,23,.55),
-    rgba(2,6,23,.92)
+    rgba(2,6,23,.20),
+    rgba(2,6,23,.45)
   );
-  z-index:-1;
+  z-index:2;
+  pointer-events:none;
 }
 
 .hero-grid{
@@ -486,6 +479,8 @@ select{
   align-items:center;
   justify-content:center;
   text-align:center;
+  position:relative;
+z-index:3;
 }
 
 .hero-badge{
@@ -696,82 +691,12 @@ select{
 .members-track{
   display:flex;
   gap:24px;
-  width:max-contentasync function loadStatistics() {
-  try {
-    /* ==========================================
-       LOAD FAMILY MEMBERS COLLECTION
-    ========================================== */
-    const snapshot = await getDocs(
-      collection(db, "family_members")
-    );
-
-    /* ==========================================
-       TOTAL FAMILY MEMBERS
-    ========================================== */
-    const members = snapshot.size;
-
-    /* ==========================================
-       GENERATIONS
-    ========================================== */
-    const generations = new Set();
-
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-
-      const generationValue =
-        data.generation ||
-        data.generationNumber ||
-        data.gen ||
-        data.level ||
-        "";
-
-      if (generationValue !== "") {
-        generations.add(
-          String(generationValue).trim()
-        );
-      }
-    });
-
-    /* ==========================================
-       ANIMATE ALL COUNTERS
-    ========================================== */
-    animateCounter(
-      membersCount,
-      members
-    );
-
-    animateCounter(
-      generationsCount,
-      generations.size
-    );
-
-    animateCounter(
-      establishedYear,
-      1850
-    );
-
-    /* ==========================================
-       DEBUG LOG
-    ========================================== */
-    console.log(
-      "Statistics loaded from family_members:",
-      {
-        members,
-        generations: generations.size,
-        established: 1850
-      }
-    );
-  } catch (error) {
-    console.error(
-      "Statistics loading failed:",
-      error
-    );
-  }
-}
+  width:max-content;
   flex-wrap:nowrap;
   will-change:transform;
   animation:membersScroll 45s linear infinite;
 }
+  
 
 .members-track:hover{
   animation-play-state:paused;
@@ -1170,7 +1095,7 @@ select{
       <a href="about.html">About</a>
       <a href="history-of-sadri-villa.html">History</a>
       <a href="shajra.html">Shajra</a>
-      <a href="team.html">Gallery</a>
+      <a href="team.html">Historical Monument</a>
       <a href="#" onclick="scrollFooter()">Contact</a>
     </nav>
 
@@ -1203,12 +1128,13 @@ select{
 
   <div class="hero-bg"></div>
 
-  <video id="heroVideo"
-    muted
-    loop
-    playsinline
-    preload="none">
-  </video>
+<video id="heroVideo"
+  muted
+  autoplay
+  loop
+  playsinline
+  preload="auto">
+</video>
 
   <div class="container hero-grid">
 
@@ -1499,7 +1425,7 @@ The villa is also home to the Sir Syed Library, which remains active today. It c
       <div class="timeline-item animate">
         <div class="timeline-dot"></div>
         <div class="glass timeline-card">
-          <div class="timeline-year">1850</div>
+          <div class="timeline-year">1905</div>
           <h3>Foundation</h3>
           <p>
             The origins of Sadri Villa were established, laying the
@@ -1555,7 +1481,7 @@ The villa is also home to the Sir Syed Library, which remains active today. It c
 
     <div class="section-header">
       <div class="section-badge">Our Family Members</div>
-      <h2 class="section-title">Meet Our <span>Family Mem</span>
+      <h2 class="section-title">Meet Our <span>Family Members</span>
       </h2>
       <p class="section-subtitle">
         Honoring the members of the Sadri family across generations.
@@ -2169,7 +2095,7 @@ async function loadStatistics() {
     ========================================== */
    animateCounter(membersCount, members);
 animateCounter(generationsCount, generations.size);
-animateCounter(establishedYear, 1850);
+animateCounter(establishedYear, 1905);
 
     console.log(
       "Statistics loaded from family_members:",
@@ -2309,43 +2235,76 @@ if (data.logo?.url) {
   /* -------------------------
      HERO VIDEO
   ------------------------- */
-  if (data.heroVideo && data.heroVideo.enabled) {
-    heroVideo.src = data.heroVideo.url;
-    heroVideo.style.display = "block";
-    heroSection.style.backgroundImage = "none";
+/* -------------------------
+   HERO VIDEO
+------------------------- */
+if (
+  data.heroVideo &&
+  data.heroVideo.enabled &&
+  data.heroVideo.url
+) {
+  /* Stop image slideshow */
+  clearInterval(heroInterval);
+  heroInterval = null;
+  heroImages = [];
 
-    heroVideo.play().catch(() => {});
-    clearInterval(heroInterval);
-  } else {
-    heroVideo.style.display = "none";
+  /* Remove all background images completely */
+  heroSection.style.background = "none";
+  heroSection.style.backgroundImage = "none";
 
-    heroImages = (data.heroimages || []).filter(
-      (item) => item.enabled !== false
-    );
+  /* Reset video */
+  heroVideo.pause();
+  heroVideo.removeAttribute("src");
+  heroVideo.load();
+
+  /* Load uploaded video */
+  heroVideo.src = data.heroVideo.url;
+  heroVideo.style.display = "block";
+
+  /* Play video */
+  heroVideo.load();
+
+  heroVideo.onloadeddata = () => {
+    heroVideo.play().catch((err) => {
+      console.error("Video play failed:", err);
+    });
+  };
+
+} else {
+  /* Hide video */
+  heroVideo.pause();
+  heroVideo.style.display = "none";
+  heroVideo.removeAttribute("src");
+  heroVideo.load();
+
+  /* Load hero images */
+  heroImages = (data.heroimages || []).filter(
+    (item) => item.enabled !== false
+  );
 
   if (heroImages.length > 0) {
-  clearInterval(heroInterval);
+    clearInterval(heroInterval);
 
-  // Disable all transitions and transforms
-  heroSection.style.transition = "none";
-  heroSection.style.transform = "none";
-  heroSection.style.backgroundSize = "cover";
-  heroSection.style.backgroundPosition = "center center";
-  heroSection.style.backgroundRepeat = "no-repeat";
+    heroSection.style.transition = "none";
+    heroSection.style.transform = "none";
+    heroSection.style.backgroundSize = "cover";
+    heroSection.style.backgroundPosition = "center center";
+    heroSection.style.backgroundRepeat = "no-repeat";
 
-  // Set first image immediately
-  heroSection.style.backgroundImage = `url('${heroImages[0].url}')`;
-
-  currentHero = 0;
-
-  // Change image every 5 seconds with no zoom effect
-  heroInterval = setInterval(() => {
-    currentHero = (currentHero + 1) % heroImages.length;
     heroSection.style.backgroundImage =
-      `url('${heroImages[currentHero].url}')`;
-  }, 5000);
-}
+      `url('${heroImages[0].url}')`;
+
+    currentHero = 0;
+
+    heroInterval = setInterval(() => {
+      currentHero =
+        (currentHero + 1) % heroImages.length;
+
+      heroSection.style.backgroundImage =
+        `url('${heroImages[currentHero].url}')`;
+    }, 5000);
   }
+}
 
   /* -------------------------
      GALLERY IMAGES
@@ -2911,156 +2870,12 @@ function scrollFooter() {
 /* =========================================================
    SIMPLE COUNTER ANIMATION
 ========================================================= */
-function animateCounter(el, targetText) {
+
+
+ function animateCounter(el, targetText) {
   if (!el || !targetText) return;
-
-  const clean = String(targetText).replace(/[^\d]/g, "");
-  const target = parseInt(clean, 10);
-
-  if (isNaN(target)) {
-    el.textContent = targetText;
-    return;
-  }
-
-  const suffix = targetText.replace(clean, "");
-  let current = 0;
-  const increment = Math.max(1, Math.ceil(target / 80));
-
-  function update() {
-    current += increment;
-
-    if (current >= target) {
-      el.textContent = target + suffix;
-      return;
-    }
-
-    el.textContent = current + suffix;
-    requestAnimationFrame(update);
-  }
-
-  update();
+  el.textContent = targetText;
 }
-
-/* Animate hero counters when visible */
-const statObserver = new IntersectionObserver(
-  (entries, observer) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-
-      const numberEl =
-        entry.target.querySelector(".stat-number");
-
-      if (numberEl && !numberEl.dataset.animated) {
-        numberEl.dataset.animated = "true";
-        animateCounter(
-          numberEl,
-          numberEl.textContent.trim()
-        );
-      }
-
-      observer.unobserve(entry.target);
-    });
-  },
-  { threshold: 0.4 }
-);
-
-document
-  .querySelectorAll(".stat-card")
-  .forEach((card) => statObserver.observe(card));
-
-/* =========================================================
-   SEARCH FORM VALIDATION (OPTIONAL)
-========================================================= */
-document
-  .querySelector(".search-form")
-  ?.addEventListener("submit", function () {
-    // Form submits to team.html with GET parameters.
-    // No extra logic needed, but this hook is reserved
-    // for future enhancements like autocomplete.
-  });
-
-/* =========================================================
-   TOUCH SWIPE SUPPORT FOR MODAL
-========================================================= */
-const modalElement = document.getElementById("imgModal");
-let touchStartX = 0;
-
-modal?.addEventListener("touchstart", (e) => {
-  touchStartX = e.touches[0].clientX;
-});
-
-modalElement?.addEventListener("touchend", (e) => {
-  const touchEndX =
-    e.changedTouches[0].clientX;
-
-  const diff = touchStartX - touchEndX;
-
-  if (Math.abs(diff) < 50) return;
-
-  if (diff > 0) {
-    document
-      .getElementById("nextImg")
-      ?.click();
-  } else {
-    document
-      .getElementById("prevImg")
-      ?.click();
-  }
-});
-
-/* =========================================================
-   REDUCE MOTION SUPPORT
-========================================================= */
-if (
-  window.matchMedia &&
-  window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches
-) {
-  document.documentElement.style.scrollBehavior =
-    "auto";
-}
-
-/* =========================================================
-   PRELOAD CRITICAL LINKS
-========================================================= */
-[
-  "about.html",
-  "history-of-sadri-villa.html",
-  "shajra.html",
-  "team.html",
-  "login.html",
-  "signup.html"
-].forEach((href) => {
-  const link = document.createElement("link");
-  link.rel = "prefetch";
-  link.href = href;
-  document.head.appendChild(link);
-});
-
-/* =========================================================
-   LOAD CUSTOM ANALYTICS TRACKER (OPTIONAL)
-========================================================= */
-(function () {
-  const script = document.createElement("script");
-  script.type = "module";
-  script.src = "analytics-tracker.js";
-
-  script.onerror = () => {
-    // Silently ignore if file does not exist
-  };
-
-  document.body.appendChild(script);
-})();
-
-/* =========================================================
-   CONSOLE BRANDING
-========================================================= */
-console.log(
-  "%cSadri Villa Premium Homepage Loaded Successfully",
-  "color:#0ea5e9;font-size:14px;font-weight:bold;"
-);
 </script>
-
 </body>
 </html>
