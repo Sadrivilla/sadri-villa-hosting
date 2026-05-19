@@ -401,6 +401,13 @@ select{
   padding:140px 0 80px;
   overflow:hidden;
 }
+.hero{
+  background-size:cover !important;
+  background-position:center center !important;
+  background-repeat:no-repeat !important;
+  transform:none !important;
+  transition:none !important;
+}
 
 .hero-bg{
   position:absolute;
@@ -447,14 +454,22 @@ select{
 }
 
 .hero-grid{
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:50px;
+  display:flex;
+  justify-content:center;
   align-items:center;
+  text-align:center;
+  width:100%;
 }
 
 .hero-content{
-  max-width:760px;
+  max-width:1100px;
+  width:100%;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 }
 
 .hero-badge{
@@ -474,10 +489,16 @@ select{
 }
 
 .hero-title{
-  font-size:clamp(42px,7vw,88px);
-  font-weight:900;
-  line-height:1.05;
-  margin-bottom:26px;
+  font-size:clamp(44px,7vw,78px);
+  font-weight:500;
+  line-height:1.08;
+  margin-bottom:24px;
+  text-shadow:0 4px 16px rgba(0,0,0,0.5);
+  color:#ffffff;
+  text-align:center;
+  max-width:1200px;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .hero-title .gradient{
@@ -487,11 +508,15 @@ select{
 }
 
 .hero-text{
-  font-size:18px;
-  color:#cbd5e1;
-  max-width:720px;
+  font-size:20px;
+  line-height:1.75;
+  color:#ffffff !important;
+  max-width:1100px;
   margin-bottom:34px;
-  min-height:170px;
+  font-weight:500;
+  text-shadow:0 2px 10px rgba(0,0,0,0.55);
+  min-height:auto;
+  transition:none !important;
 }
 
 .hero-buttons{
@@ -636,7 +661,82 @@ select{
   color:var(--text);
   font-size:15px;
 }
+/* =========================================================
+   MEMBERS SLIDER
+========================================================= */
+.members-slider{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  padding:10px 0 30px;
+}
 
+.members-track{
+  display:flex;
+  gap:24px;
+  width:max-content;
+  animation:membersScroll 60s linear infinite reverse;
+}
+
+.members-track:hover{
+  animation-play-state:paused;
+}
+
+.member-card{
+  width:220px;
+  flex-shrink:0;
+  text-align:center;
+  padding:24px 18px;
+  border-radius:28px;
+}
+
+.member-card img{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  object-fit:cover;
+  margin:0 auto 16px;
+  border:4px solid rgba(14,165,233,.25);
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+.member-card h3{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:6px;
+  color:#ffffff;
+}
+
+.member-card p{
+  font-size:13px;
+  color:#94a3b8;
+  line-height:1.6;
+}
+
+@keyframes membersScroll{
+  from{
+    transform:translateX(-50%);
+  }
+  to{
+    transform:translateX(0);
+  }
+}
+
+@media (max-width:640px){
+  .member-card{
+    width:180px;
+    padding:20px 14px;
+  }
+
+  .member-card img{
+    width:90px;
+    height:90px;
+  }
+
+  .member-card h3{
+    font-size:16px;
+  }
+}
 /* =========================================================
    HERITAGE SECTION
 ========================================================= */
@@ -907,6 +1007,19 @@ select{
 .timeline-card p{
   color:var(--text);
 }
+.member-role-badge{
+  display:inline-block;
+  margin-top:10px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(14,165,233,0.15);
+  border:1px solid rgba(14,165,233,0.30);
+  color:#7dd3fc;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+}
 
 /* =========================================================
    SECTION OPENING TAGS
@@ -928,7 +1041,7 @@ select{
 
     <a href="index.html" class="logo-wrap">
       <img id="siteLogo" class="logo-img" alt="Sadri Villa Logo">
-      <div class="logo-text">Sadri<span>Villa</span></div>
+      <div class="logo-text" id="logoText">Sadri<span>Villa</span></div>
     </a>
 
     <nav class="nav-links">
@@ -942,7 +1055,7 @@ select{
 
     <div class="nav-actions">
       <a href="login.html" class="btn btn-outline">Login</a>
-      <a href="signup.html" class="btn btn-primary">Join Family</a>
+      <a href="signup.html" class="btn btn-primary">Signup</a>
 
       <button class="mobile-toggle" onclick="toggleMenu(event)">
         <i class="fas fa-bars"></i>
@@ -1011,66 +1124,32 @@ select{
       </div>
 
       <!-- Stats -->
-      <div class="hero-stats">
-        <div class="glass stat-card">
-          <div class="stat-number" id="membersCount">1250+</div>
-          <div class="stat-label">Family Members</div>
-        </div>
+   <div class="hero-stats">
+  <div class="glass stat-card">
+    <div class="stat-number" id="membersCount">0</div>
+    <div class="stat-label">Family Members</div>
+  </div>
 
-        <div class="glass stat-card">
-          <div class="stat-number">12</div>
-          <div class="stat-label">Generations</div>
-        </div>
+  <div class="glass stat-card">
+    <div class="stat-number" id="generationsCount">0</div>
+    <div class="stat-label">Generations</div>
+  </div>
 
-        <div class="glass stat-card">
-          <div class="stat-number">48</div>
-          <div class="stat-label">Branches</div>
-        </div>
+  <div class="glass stat-card">
+    <div class="stat-number" id="branchesCount">0</div>
+    <div class="stat-label">Branches</div>
+  </div>
 
-        <div class="glass stat-card">
-          <div class="stat-number">1850</div>
-          <div class="stat-label">Established</div>
-        </div>
-      </div>
+  <div class="glass stat-card">
+    <div class="stat-number" id="establishedYear">1850</div>
+    <div class="stat-label">Established</div>
+  </div>
+</div>
 
-    </div>
+ <!-- Search card removed intentionally -->
+<div></div>
 
-    <!-- Search Card -->
-    <div class="glass search-card">
-
-      <div class="search-title">Master Family Search</div>
-      <div class="search-subtitle">
-        Search members, branches, generations and locations.
-      </div>
-
-      <form class="search-form" action="team.html" method="get">
-        <input
-          type="text"
-          name="q"
-          placeholder="Search member name...">
-
-        <input
-          type="text"
-          name="generation"
-          placeholder="Generation">
-
-        <select name="branch">
-          <option value="">Select Branch</option>
-          <option>Sadri Main Branch</option>
-          <option>Hasni Branch</option>
-          <option>Ansari Branch</option>
-        </select>
-
-        <input
-          type="text"
-          name="location"
-          placeholder="Village / City">
-
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-magnifying-glass"></i>
-          Explore Family
-        </button>
-      </form>
+   
 
     </div>
 
@@ -1173,8 +1252,7 @@ select{
 
     <div class="heritage-image">
       <img
-        src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80"
-        alt="Sadri Villa Heritage">
+        src="https://firebasestorage.googleapis.com/v0/b/sadri-villa-14c06.firebasestorage.app/o/hero%2F1773529132133.jpg?alt=media&token=bd168971-e6f3-48a7-9ad0-013c1c30a0b0">
     </div>
 
     <div class="heritage-content">
@@ -1184,40 +1262,16 @@ select{
         Preserving a <span>Legacy of Service</span>
       </h2>
 
-      <p>
-        Sadri Villa Fazilpur is not merely a residence; it is a living
-        testament to the values, sacrifices and contributions of the
-        Sadri Family over more than 150 years.
-      </p>
+      <p>Architecture & Design: Simple Yet Beautiful
+Despite being nearly a century old, the architecture of Sadri Villa remains stunning and well-preserved. Its design reflects a perfect blend of simplicity, traditional craftsmanship, and royal elegance.</p>
 
-      <p>
-        Built by a freedom fighter and physician, this historic villa has
-        served as a sanctuary for travelers, a venue for community
-        gatherings and a place where over 100 underprivileged marriages
-        were conducted free of cost.
-      </p>
+<p>Round Brick Pillars: The front of the villa features large round brick pillars that give the building a grand and palace-like appearance.</p>
 
-      <div class="heritage-list">
-        <div class="heritage-item">
-          <i class="fas fa-check-circle"></i>
-          <span>150+ years of documented history</span>
-        </div>
+<p>Green Gardens: A beautifully maintained garden welcomes visitors at the entrance. Family elders continue planting flowers and caring for the landscape, preserving its freshness and natural beauty.</p>
 
-        <div class="heritage-item">
-          <i class="fas fa-check-circle"></i>
-          <span>Digital Shajra-e-Sadri genealogy system</span>
-        </div>
+<p>Spacious Layout: The villa includes a large open veranda where guests and family members gather and relax. Inside, three spacious rooms showcase thoughtful design and timeless architecture.</p>
 
-        <div class="heritage-item">
-          <i class="fas fa-check-circle"></i>
-          <span>100+ free marriages for economically weak families</span>
-        </div>
-
-        <div class="heritage-item">
-          <i class="fas fa-check-circle"></i>
-          <span>Preservation of rare family records and photographs</span>
-        </div>
-      </div>
+    
 
       <a href="history-of-sadri-villa.html" class="btn btn-primary">
         <i class="fas fa-book"></i>
@@ -1252,42 +1306,41 @@ select{
     <div class="highlight-grid">
 
       <div class="glass card animate">
-        <h3>A Timeless Legacy</h3>
+        <h3>A Center for Politics and Education</h3>
         <p>
-          For over 150 years, Sadri Villa has stood as a proud symbol of
-          honor, dignity and family tradition.
+         Over the years, Sadri Villa has served as an important center for political and educational activities in Bihar. Many respected leaders, including former Chief Minister Lalu Prasad Yadav, along with senior members of organizations such as Rashtriya Janata Dal (RJD) and Janata Dal (United) (JDU), have visited this historic landmark.
         </p>
       </div>
 
       <div class="glass card animate">
-        <h3>Born of Sacrifice</h3>
+        <h3>A Minority College and Library</h3>
         <p>
-          Founded by a freedom fighter and physician, the villa reflects
-          service to humanity and devotion to the nation.
+          In 1985, the Hamdard Education & Welfare Society recognized Sadri Villa as a Muslim minority educational institution and officially named it Mirza Ghalib Primary Educational College. Certificates issued during that period are still proudly preserved by former students.
+
+The villa is also home to the Sir Syed Library, which remains active today. It contains a valuable collection of religious and general knowledge books and continues to welcome anyone seeking education and wisdom.
         </p>
       </div>
 
       <div class="glass card animate">
-        <h3>Compassion as Tradition</h3>
+        <h3>Growing Popularity Through Word of Mouth</h3>
         <p>
-          Helping those in need is not an occasional act, but a legacy
-          passed down through generations.
+          Although Sadri Villa has its own website, its reputation has grown naturally through word of mouth. Located near Dr. Rajendra Prasad Central Agricultural University, Pusa, the area is frequently visited by students, teachers, researchers, and agricultural experts who discover the villa and share its inspiring story with others.
+
+
         </p>
       </div>
 
       <div class="glass card animate">
-        <h3>Sacred Celebrations</h3>
+        <h3>Preserving Our Cultural Heritage</h3>
         <p>
-          Countless economically weak families began married life here
-          with dignity and joy.
+          Sadri Villa is a deeply rooted symbol of culture, history, education, and public service in Samastipur, Bihar, India. Our goal is to preserve this historic monument for future generations so that visitors can continue to experience its beauty, heritage, and timeless legacy.
         </p>
       </div>
 
       <div class="glass card animate">
-        <h3>A Shelter of Respect</h3>
+        <h3>The Social Status and Influence of the Sadri Family</h3>
         <p>
-          The villa has long provided temporary shelter and comfort to
-          travelers and those in distress.
+          The Sadri family has always been known for their high social standing and deep influence in the region. Their lifestyle and community presence made them one of the most respected families in the area.
         </p>
       </div>
 
@@ -1394,6 +1447,28 @@ select{
       </div>
 
     </div>
+  </div>
+</section>
+<!-- =========================================================
+     FAMILY MEMBERS SLIDER
+========================================================= -->
+<section class="section members-slider-section">
+  <div class="container">
+
+    <div class="section-header">
+      <div class="section-badge">Our Family Members</div>
+      <h2 class="section-title">
+        Meet Our <span>Global Family</span>
+      </h2>
+      <p class="section-subtitle">
+        Honoring the members of the Sadri family across generations.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="members-slider">
+    <div class="members-track" id="membersTrack"></div>
   </div>
 </section>
 <!-- =========================================================
@@ -1799,9 +1874,21 @@ footer{
     padding-top:120px;
   }
 
+@media (max-width:900px){
   .hero-text{
-    min-height:auto;
+    font-size:18px;
+    line-height:1.9;
+    color:#ffffff !important;
   }
+}
+
+@media (max-width:640px){
+  .hero-text{
+    font-size:18px;
+    line-height:1.9;
+    color:#ffffff !important;
+  }
+}
 
   .hero-stats{
     grid-template-columns:repeat(2,1fr);
@@ -1821,10 +1908,47 @@ footer{
   .container{
     width:min(var(--container), calc(100% - 24px));
   }
+.hero{
+  min-height:auto;
+  padding:110px 0 60px;
+}
 
-  .hero-title{
-    font-size:42px;
-  }
+.hero-title{
+  font-size:28px;
+  line-height:1.15;
+}
+
+.hero-text{
+  font-size:18px;
+  line-height:1.9;
+  color:#ffffff;
+}
+
+.hero-badge{
+  font-size:10px;
+  padding:8px 12px;
+}
+
+.hero-buttons{
+  margin-bottom:24px;
+}
+
+.hero-stats{
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.stat-card{
+  padding:16px;
+}
+
+.stat-number{
+  font-size:24px;
+}
+
+.search-card{
+  display:none;
+}
 
   .hero-buttons{
     flex-direction:column;
@@ -1833,10 +1957,6 @@ footer{
 
   .btn{
     width:100%;
-  }
-
-  .hero-stats{
-    grid-template-columns:1fr;
   }
 
   .section-header{
@@ -1880,7 +2000,9 @@ import {
   onSnapshot,
   collection,
   query,
-  orderBy
+  orderBy,
+  getDocs,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================================================
@@ -1894,6 +2016,29 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+async function loadStatistics() {
+  try {
+    const snapshot = await getDocs(collection(db, "team"));
+
+    const members = snapshot.size;
+    const generations = new Set();
+    const branches = new Set();
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      if (data.generation) generations.add(String(data.generation).trim());
+      if (data.branch) branches.add(String(data.branch).trim());
+    });
+
+    if (membersCount) membersCount.textContent = members.toLocaleString();
+    if (generationsCount) generationsCount.textContent = generations.size;
+    if (branchesCount) branchesCount.textContent = branches.size;
+    if (establishedYear) establishedYear.textContent = "1850";
+  } catch (error) {
+    console.error("Statistics loading failed:", error);
+  }
+}
 
 /* =========================================================
    DOM ELEMENTS
@@ -1905,22 +2050,37 @@ const footerLogo = document.getElementById("footerLogo");
 const animatedText = document.getElementById("animatedText");
 
 const galleryTrack = document.getElementById("galleryTrack");
+const membersTrack = document.getElementById("membersTrack");
 const modal = document.getElementById("imgModal");
 const modalImg = document.getElementById("modalImg");
 const downloadLink = document.getElementById("downloadLink");
 
 const sectionContainer = document.getElementById("villaSections");
+const membersCount = document.getElementById("membersCount");
+const generationsCount = document.getElementById("generationsCount");
+const branchesCount = document.getElementById("branchesCount");
+const establishedYear = document.getElementById("establishedYear");
 
 /* =========================================================
-   HERO TYPEWRITER TEXT
+   HERO TITLE + DESCRIPTION
 ========================================================= */
+
+// Update hero title
+const heroTitle = document.querySelector(".hero-title");
+if (heroTitle) {
+  heroTitle.innerHTML = `
+    Sadri Villa Fazilpur – Official
+    <span class="gradient">Heritage of the Sadri Family</span>
+  `;
+}
+
+// Hero paragraph
 const heroParagraph = `
-Sadri Villa is a heritage landmark of the Sadri Family in Fazilpur,
-Samastipur, Bihar. More than 150 years old, it was founded by a
-freedom fighter and physician. The villa has provided shelter to
-travelers, supported community welfare, and hosted over 100 free
-marriages for economically weaker families. Today, its legacy is
-preserved digitally through the Shajra-e-Sadri.
+Sadri Villa is a heritage of the Sadri family in Shahpur Baghauni village of Tajpur block in Samastipur district of Bihar. This family has a huge history and this historical building is almost 150 years old. The ancient owner of this building was a freedom fighter and doctor.
+
+This monument is very beautiful and has a small park which visitors can enjoy free of cost. Sadri Villa provides temporary shelter for helpless people at night. The family members also allow economically weak people to arrange their marriage parties in this building free of cost.
+
+At least 100+ poor marriages have been completed here.
 `;
 
 function typeEffect(text) {
@@ -1940,8 +2100,14 @@ function typeEffect(text) {
   typing();
 }
 
-typeEffect(heroParagraph.trim());
+if (window.innerWidth <= 768) {
+  animatedText.textContent = heroParagraph.trim();
+} else {
+  typeEffect(heroParagraph.trim());
+}
 
+loadStatistics();
+loadMembersSlider();
 /* =========================================================
    LOGO + HERO IMAGES/VIDEO
 ========================================================= */
@@ -1961,10 +2127,14 @@ onSnapshot(doc(db, "siteSettings", "home"), (snap) => {
     const version = Date.now();
     const logoUrl = `${data.logo.url}?v=${version}`;
 
-    if (siteLogo) {
-      siteLogo.onload = () => (siteLogo.style.display = "block");
-      siteLogo.src = logoUrl;
-    }
+   if (siteLogo) {
+  siteLogo.onload = () => {
+    siteLogo.style.display = "block";
+    const logoText = document.getElementById("logoText");
+    if (logoText) logoText.style.display = "none";
+  };
+  siteLogo.src = logoUrl;
+}
 
     if (footerLogo) {
       footerLogo.onload = () => (footerLogo.style.display = "block");
@@ -1989,21 +2159,28 @@ onSnapshot(doc(db, "siteSettings", "home"), (snap) => {
       (item) => item.enabled !== false
     );
 
-    if (heroImages.length > 0) {
-      clearInterval(heroInterval);
+  if (heroImages.length > 0) {
+  clearInterval(heroInterval);
 
-      heroSection.style.backgroundImage =
-        `url('${heroImages[0].url}')`;
+  // Disable all transitions and transforms
+  heroSection.style.transition = "none";
+  heroSection.style.transform = "none";
+  heroSection.style.backgroundSize = "cover";
+  heroSection.style.backgroundPosition = "center center";
+  heroSection.style.backgroundRepeat = "no-repeat";
 
-      currentHero = 0;
+  // Set first image immediately
+  heroSection.style.backgroundImage = `url('${heroImages[0].url}')`;
 
-      heroInterval = setInterval(() => {
-        currentHero = (currentHero + 1) % heroImages.length;
+  currentHero = 0;
 
-        heroSection.style.backgroundImage =
-          `url('${heroImages[currentHero].url}')`;
-      }, 5000);
-    }
+  // Change image every 5 seconds with no zoom effect
+  heroInterval = setInterval(() => {
+    currentHero = (currentHero + 1) % heroImages.length;
+    heroSection.style.backgroundImage =
+      `url('${heroImages[currentHero].url}')`;
+  }, 5000);
+}
   }
 
   /* -------------------------
@@ -2080,6 +2257,139 @@ onSnapshot(sectionQuery, (snapshot) => {
 
   observeAnimations();
 });
+
+async function loadMembersSlider() {
+  try {
+    const snapshot = await getDocs(collection(db, "team"));
+
+    if (snapshot.empty) {
+      membersTrack.innerHTML = `
+        <div class="glass member-card">
+          <img src="https://via.placeholder.com/110"
+               alt="No Members">
+          <h3>No Members Found</h3>
+          <p>Team collection is empty.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const members = [];
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+
+      members.push({
+        name:
+          data.name ||
+          data.fullName ||
+          data.memberName ||
+          "Family Member",
+
+        role:
+          data.role ||
+          data.designation ||
+          data.profession ||
+          data.title ||
+          "",
+
+        branch:
+          data.branch ||
+          data.familyBranch ||
+          data.lineage ||
+          "",
+
+        image:
+          data.photoURL ||
+          data.image ||
+          data.profileImage ||
+          data.mainImage ||
+          data.imageUrl ||
+          "https://via.placeholder.com/300x300?text=Member",
+
+        slug:
+          data.slug ||
+          "",
+
+        id:
+          docSnap.id
+      });
+    });
+
+    // Duplicate for seamless infinite loop
+    const allMembers = [...members, ...members];
+
+    membersTrack.innerHTML = allMembers.map((member) => {
+      const url = member.slug
+        ? `/team/${member.slug}.html`
+        : `/team-member.html?id=${member.id}`;
+
+      const subtitle = member.branch || "Sadri Family";
+
+      return `
+        <a href="${url}"
+           class="glass member-card"
+           style="text-decoration:none;color:inherit;">
+           
+          <img
+            src="${member.image}"
+            alt="${member.name}"
+            loading="lazy"
+            onerror="this.src='https://via.placeholder.com/300x300?text=Member';"
+          >
+
+          <h3>${member.name}</h3>
+
+          <p>${subtitle}</p>
+
+          ${
+            member.role
+              ? `<div class="member-role-badge">${member.role}</div>`
+              : ""
+          }
+        </a>
+      `;
+    }).join("");
+
+    // Enable manual horizontal scroll like Heritage Gallery
+    const slider = document.querySelector(".members-slider");
+
+    slider.style.overflowX = "auto";
+    slider.style.overflowY = "hidden";
+    slider.style.scrollBehavior = "smooth";
+    slider.style.webkitOverflowScrolling = "touch";
+
+    // Pause auto animation while manually scrolling
+    let scrollTimeout;
+
+    slider.addEventListener("scroll", () => {
+      membersTrack.style.animationPlayState = "paused";
+
+      clearTimeout(scrollTimeout);
+
+      scrollTimeout = setTimeout(() => {
+        membersTrack.style.animationPlayState = "running";
+      }, 1500);
+    });
+
+    // Reset animation position for seamless loop
+    membersTrack.addEventListener("animationiteration", () => {
+      slider.scrollLeft = 0;
+    });
+
+  } catch (error) {
+    console.error("Error loading members slider:", error);
+
+    membersTrack.innerHTML = `
+      <div class="glass member-card">
+        <img src="https://via.placeholder.com/110"
+             alt="Error">
+        <h3>Unable to Load Members</h3>
+        <p>Please try again later.</p>
+      </div>
+    `;
+  }
+}
 
 /* =========================================================
    GALLERY
