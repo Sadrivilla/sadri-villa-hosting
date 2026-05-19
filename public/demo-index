@@ -675,29 +675,65 @@ select{
   display:flex;
   gap:24px;
   width:max-content;
-  animation:membersScroll 60s linear infinite reverse;
+  flex-wrap:nowrap;
+  will-change:transform;
+  animation:membersScroll 45s linear infinite;
 }
 
 .members-track:hover{
   animation-play-state:paused;
 }
 
+@keyframes membersScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 12px));
+  }
+}
+
+/* =========================================================
+   MEMBER CARD (RESTORE INDIVIDUAL CARD DESIGN)
+========================================================= */
 .member-card{
-  width:220px;
+  width:260px;
   flex-shrink:0;
   text-align:center;
   padding:24px 18px;
   border-radius:28px;
+
+  /* Restore card background */
+  background:rgba(255,255,255,0.08);
+
+  /* Restore card border */
+  border:1px solid rgba(255,255,255,0.18);
+
+  /* Restore glass effect */
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  /* Restore shadow */
+  box-shadow:0 20px 60px rgba(0,0,0,0.18);
+
+  /* Smooth hover */
+  transition:all .35s ease;
+}
+
+.member-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 30px 80px rgba(0,0,0,0.25);
 }
 
 .member-card img{
-  width:110px;
-  height:110px;
+  width:160px;
+  height:160px;
   border-radius:50%;
   object-fit:cover;
   margin:0 auto 16px;
   border:4px solid rgba(14,165,233,.25);
   box-shadow:0 10px 25px rgba(0,0,0,.25);
+  display:block;
 }
 
 .member-card h3{
@@ -713,24 +749,17 @@ select{
   line-height:1.6;
 }
 
-@keyframes membersScroll{
-  from{
-    transform:translateX(-50%);
-  }
-  to{
-    transform:translateX(0);
-  }
-}
+
 
 @media (max-width:640px){
   .member-card{
-    width:180px;
+    width:220px;
     padding:20px 14px;
   }
 
   .member-card img{
-    width:90px;
-    height:90px;
+    width:130px;
+    height:130px;
   }
 
   .member-card h3{
@@ -1457,8 +1486,7 @@ The villa is also home to the Sir Syed Library, which remains active today. It c
 
     <div class="section-header">
       <div class="section-badge">Our Family Members</div>
-      <h2 class="section-title">
-        Meet Our <span>Global Family</span>
+      <h2 class="section-title">Meet Our <span>Family Mem</span>
       </h2>
       <p class="section-subtitle">
         Honoring the members of the Sadri family across generations.
@@ -1694,9 +1722,7 @@ The villa is also home to the Sir Syed Library, which remains active today. It c
   animation:scroll linear infinite;
 }
 
-.track:hover{
-  animation-play-state:paused;
-}
+
 
 @keyframes scroll{
   from{transform:translateX(0);}
@@ -2262,10 +2288,12 @@ async function loadMembersSlider() {
   try {
     const snapshot = await getDocs(collection(db, "team"));
 
+    if (!membersTrack) return;
+
     if (snapshot.empty) {
       membersTrack.innerHTML = `
-        <div class="glass member-card">
-          <img src="https://via.placeholder.com/110"
+        <div class="member-card">
+          <img src="https://ui-avatars.com/api/?name=No+Members&background=0f172a&color=ffffff&size=300"
                alt="No Members">
           <h3>No Members Found</h3>
           <p>Team collection is empty.</p>
@@ -2279,12 +2307,113 @@ async function loadMembersSlider() {
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
 
+      /* ===============================
+         MEMBER NAME
+      =============================== */
+      const memberName =
+        data.name ||
+        data.fullName ||
+        data.memberName ||
+        "Family Member";
+
+    
+/* ==========================================
+   GET PROFILE IMAGE (SUPPORTS ALL STRUCTURES)
+========================================== */
+let imageUrl = "";
+
+/* 1. team.html format: contentBlocks[] */
+if (Array.isArray(data.contentBlocks)) {
+  const profileBlock = data.contentBlocks.find(
+    item =>
+      item &&
+      item.type === "image" &&
+      item.imageType === "profile" &&
+      item.url
+  );
+
+  if (profileBlock) {
+    imageUrl = profileBlock.url;
+  }
+}
+
+/* 2. index.html format: content[] */
+if (!imageUrl && Array.isArray(data.content)) {
+  const profileBlock = data.content.find(
+    item =>
+      item &&
+      item.type === "image" &&
+      item.imageType === "profile" &&
+      item.url
+  );
+
+  if (profileBlock) {
+    imageUrl = profileBlock.url;
+  }
+}
+
+/* 3. First image from contentBlocks[] */
+if (!imageUrl && Array.isArray(data.contentBlocks)) {
+  const firstImage = data.contentBlocks.find(
+    item =>
+      item &&
+      item.type === "image" &&
+      item.url
+  );
+
+  if (firstImage) {
+    imageUrl = firstImage.url;
+  }
+}
+
+/* 4. First image from content[] */
+if (!imageUrl && Array.isArray(data.content)) {
+  const firstImage = data.content.find(
+    item =>
+      item &&
+      item.type === "image" &&
+      item.url
+  );
+
+  if (firstImage) {
+    imageUrl = firstImage.url;
+  }
+}
+
+/* Clean URL */
+imageUrl = String(imageUrl || "").trim();
+
+      /* ===============================
+         FALLBACK IMAGE FIELDS
+      =============================== */
+      if (!imageUrl) {
+        imageUrl =
+          data.photo?.url ||
+          data.profilePhoto?.url ||
+          data.profilePicture?.url ||
+          data.image?.url ||
+          data.photo ||
+          data.photoURL ||
+          data.profilePhoto ||
+          data.profilePicture ||
+          data.image ||
+          data.imageUrl ||
+          data.thumbnail ||
+          data.avatar ||
+          data.picture ||
+          "";
+      }
+
+      /* ===============================
+         FINAL IMAGE
+      =============================== */
+      const finalImage =
+        imageUrl && String(imageUrl).trim() !== ""
+          ? imageUrl
+          : `https://ui-avatars.com/api/?name=${encodeURIComponent(memberName)}&background=0f172a&color=ffffff&size=300`;
+
       members.push({
-        name:
-          data.name ||
-          data.fullName ||
-          data.memberName ||
-          "Family Member",
+        name: memberName,
 
         role:
           data.role ||
@@ -2297,97 +2426,126 @@ async function loadMembersSlider() {
           data.branch ||
           data.familyBranch ||
           data.lineage ||
-          "",
+          "Sadri Family",
 
-        image:
-          data.photoURL ||
-          data.image ||
-          data.profileImage ||
-          data.mainImage ||
-          data.imageUrl ||
-          "https://via.placeholder.com/300x300?text=Member",
+        image: finalImage,
 
-        slug:
-          data.slug ||
-          "",
-
-        id:
-          docSnap.id
+        slug: data.slug || "",
+        id: docSnap.id
       });
     });
 
-    // Duplicate for seamless infinite loop
+    /* ===============================
+       DUPLICATE FOR INFINITE LOOP
+    =============================== */
     const allMembers = [...members, ...members];
 
-    membersTrack.innerHTML = allMembers.map((member) => {
-      const url = member.slug
-        ? `/team/${member.slug}.html`
-        : `/team-member.html?id=${member.id}`;
+    membersTrack.innerHTML = allMembers
+      .map((member) => {
+        const url = member.slug
+          ? `/team/${member.slug}.html`
+          : `/team-member.html?id=${member.id}`;
 
-      const subtitle = member.branch || "Sadri Family";
+        return `
+          <a href="${url}"
+             class="member-card"
+             style="text-decoration:none;color:inherit;">
 
-      return `
-        <a href="${url}"
-           class="glass member-card"
-           style="text-decoration:none;color:inherit;">
-           
-          <img
-            src="${member.image}"
-            alt="${member.name}"
-            loading="lazy"
-            onerror="this.src='https://via.placeholder.com/300x300?text=Member';"
-          >
+            <img
+              src="${member.image}"
+              alt="${member.name}"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0f172a&color=ffffff&size=300';"
+            >
 
-          <h3>${member.name}</h3>
+            <h3>${member.name}</h3>
 
-          <p>${subtitle}</p>
+            <p>${member.branch}</p>
 
-          ${
-            member.role
-              ? `<div class="member-role-badge">${member.role}</div>`
-              : ""
-          }
-        </a>
-      `;
-    }).join("");
+            ${
+              member.role
+                ? `<div class="member-role-badge">${member.role}</div>`
+                : ""
+            }
+          </a>
+        `;
+      })
+      .join("");
 
-    // Enable manual horizontal scroll like Heritage Gallery
+    /* ===============================
+       SLIDER STYLE
+    =============================== */
     const slider = document.querySelector(".members-slider");
 
-    slider.style.overflowX = "auto";
-    slider.style.overflowY = "hidden";
-    slider.style.scrollBehavior = "smooth";
-    slider.style.webkitOverflowScrolling = "touch";
+    if (slider) {
+      slider.style.background = "transparent";
+      slider.style.border = "none";
+      slider.style.boxShadow = "none";
+      slider.style.backdropFilter = "none";
+      slider.style.padding = "10px 0 30px";
+      slider.style.overflowX = "auto";
+      slider.style.overflowY = "hidden";
+      slider.style.scrollBehavior = "smooth";
+      slider.style.webkitOverflowScrolling = "touch";
+      slider.style.scrollbarWidth = "none";
+    }
 
-    // Pause auto animation while manually scrolling
+/* ===============================
+   TRACK ANIMATION (TRUE INFINITE)
+=============================== */
+requestAnimationFrame(() => {
+  // Stop current animation
+  membersTrack.style.animation = "none";
+
+  // Force browser reflow
+  membersTrack.offsetWidth;
+
+  // Width of one complete set of cards
+  const singleSetWidth = membersTrack.scrollWidth / 2;
+
+  // Fixed smooth speed (80 pixels per second)
+  const pixelsPerSecond = 80;
+  const duration = singleSetWidth / pixelsPerSecond;
+
+  // Set exact width of duplicated content
+  membersTrack.style.width =
+    membersTrack.scrollWidth + "px";
+
+  // Start continuous animation
+  membersTrack.style.animation =
+    `membersScroll ${duration}s linear infinite`;
+});
+
+    /* ===============================
+       PAUSE DURING MANUAL SCROLL
+    =============================== */
     let scrollTimeout;
 
-    slider.addEventListener("scroll", () => {
-      membersTrack.style.animationPlayState = "paused";
+    if (slider) {
+      slider.addEventListener("scroll", () => {
+        membersTrack.style.animationPlayState = "paused";
 
-      clearTimeout(scrollTimeout);
+        clearTimeout(scrollTimeout);
 
-      scrollTimeout = setTimeout(() => {
-        membersTrack.style.animationPlayState = "running";
-      }, 1500);
-    });
-
-    // Reset animation position for seamless loop
-    membersTrack.addEventListener("animationiteration", () => {
-      slider.scrollLeft = 0;
-    });
-
+        scrollTimeout = setTimeout(() => {
+          membersTrack.style.animationPlayState = "running";
+        }, 1000);
+      });
+    }
   } catch (error) {
     console.error("Error loading members slider:", error);
 
-    membersTrack.innerHTML = `
-      <div class="glass member-card">
-        <img src="https://via.placeholder.com/110"
-             alt="Error">
-        <h3>Unable to Load Members</h3>
-        <p>Please try again later.</p>
-      </div>
-    `;
+    if (membersTrack) {
+      membersTrack.innerHTML = `
+        <div class="member-card">
+          <img src="https://ui-avatars.com/api/?name=Error&background=0f172a&color=ffffff&size=300"
+               alt="Error">
+          <h3>Unable to Load Members</h3>
+          <p>Please try again later.</p>
+        </div>
+      `;
+    }
   }
 }
 
