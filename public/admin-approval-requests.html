@@ -298,10 +298,10 @@ small{
 
 <!-- HEADER -->
 <div class="header">
-  <h2>🔔 Pending Approval Requests</h2>
-  <button class="back-btn" onclick="location.href='admin-dashboard.html'">
-    ⬅ Back
+     <button class="back-btn" onclick="location.href='admin-dashboard.html'">
+    Back
   </button>
+  <h2>Pending Approval Requests</h2>
 </div>
 
 <div id="message" class="msg"></div>
@@ -377,7 +377,17 @@ const q = query(
   <h3>${u.fullName || "User"}</h3>
 
   <p><b>Email:</b> ${u.email || "—"}</p>
-  <p><b>Mobile:</b> ${u.phone || "—"}</p>
+<p><b>Mobile:</b> ${u.phone || "—"}</p>
+
+<p><b>Created At:</b> ${
+  u.createdAt
+    ? new Date(u.createdAt).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        dateStyle: "medium",
+        timeStyle: "short"
+      })
+    : "—"
+}</p>
 
   ${u.approvalRequests && u.approvalRequests.length > 0 
     ? `
