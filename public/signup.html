@@ -228,8 +228,22 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const auth = getAuth();
-const db = getFirestore();
+/* Firebase Configuration */
+const firebaseConfig = {
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.appspot.com",
+  messagingSenderId: "21874766395",
+  appId: "1:21874766395:web:9e2f4b8d8b8f7c2d6e1abc"
+};
+
+/* Initialize Firebase */
+const app = initializeApp(firebaseConfig);
+
+/* Initialize Services */
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* INPUTS */
 const nameInput = document.getElementById("name");
