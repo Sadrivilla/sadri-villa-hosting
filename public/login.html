@@ -130,7 +130,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding-top:90px;
+  padding:20px;
 }
 .card{
   background:rgba(255,255,255,.95);
@@ -220,30 +220,7 @@ button{
 
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar" id="navbar">
-  <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Logo">
-  </div>
 
-  <div class="nav-actions">
-    <a href="index.html">Home</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
-  </div>
-
-  <div class="hamburger" onclick="toggleMenu(event)">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">Home</a>
-  <a href="login.html">Login</a>
-  <a href="signup.html">Sign Up</a>
-</div>
 
 
 
@@ -287,44 +264,6 @@ button{
     <button onclick="closeFP()" style="background:none;color:#64748b;margin-top:8px">Cancel</button>
   </div>
 </div>
-
-<!-- 🔥 FIREBASE LOGO (SAME AS INDEX – INSTANT) -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const db = getFirestore(app);
-
-const siteLogo = document.getElementById("siteLogo");
-
-/* Hide logo until loaded (no broken flash) */
-siteLogo.style.display = "none";
-
-/* Realtime listener */
-onSnapshot(doc(db,"siteSettings","home"), snap => {
-  if(!snap.exists()) return;
-  const data = snap.data();
-
-  if(data.logo?.url){
-    const cacheBuster = data.logo.updatedAt?.seconds || Date.now();
-
-    siteLogo.onload = () => {
-      siteLogo.style.display = "block";
-    };
-
-    siteLogo.onerror = () => {
-      siteLogo.style.display = "none";
-    };
-
-    siteLogo.src = data.logo.url + "?v=" + cacheBuster;
-  }
-});
-</script>
 
 
 <!-- 🔐 LOGIN LOGIC (UNCHANGED) -->
@@ -426,16 +365,6 @@ fpSendBtn.onclick=async()=>{
     fpMsg.style.color="#ef4444";fpMsg.textContent="Email not registered";
   }
 };
-</script>
-<script>
-function toggleMenu(e){
-  e.stopPropagation();
-  document.getElementById("mobileMenu").classList.toggle("active");
-}
-
-document.addEventListener("click",function(){
-  document.getElementById("mobileMenu").classList.remove("active");
-});
 </script>
 
 
