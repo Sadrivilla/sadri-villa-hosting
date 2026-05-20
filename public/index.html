@@ -140,8 +140,10 @@ select{
 }
 
 .container{
-  width:min(var(--container), calc(100% - 40px));
-  margin:auto;
+  width:100%;
+  max-width:100%;
+  margin:0;
+  padding:0 8px; /* very small spacing from edges */
 }
 
 /* Background blobs */
@@ -295,8 +297,10 @@ select{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0px 0;
   min-height:72px;
+  width:100%;
+  padding:0;
+  margin:0;
 }
 
 .logo-wrap{
@@ -307,6 +311,8 @@ select{
   margin:0;
   padding:0;
   min-height:auto;
+  flex-shrink:0;
+  margin-right:auto; /* push navigation/actions to right */
 }
 
 .logo-img{
@@ -363,6 +369,10 @@ select{
   display:flex;
   align-items:center;
   gap:12px;
+  margin:0;
+  padding:0;
+  flex-shrink:0;
+  margin-left:auto; /* stick to right side */
 }
 
 .mobile-toggle{
@@ -379,18 +389,25 @@ select{
 
 .mobile-menu{
   position:fixed;
-  top:80px;
-  left:20px;
-  right:20px;
+  top:74px;
+  right:12px;      /* open from top-right */
+  left:auto;       /* remove full width */
+  width:min(220px, calc(100vw - 24px));    /* compact dropdown width */
+
   background:rgba(2,6,23,.96);
   border:1px solid rgba(255,255,255,.08);
   backdrop-filter:blur(20px);
-  border-radius:24px;
-  padding:24px;
+  -webkit-backdrop-filter:blur(20px);
+
+  border-radius:18px;
+  padding:10px;
+
   display:none;
   flex-direction:column;
-  gap:14px;
+  gap:4px;
+
   z-index:999;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
 }
 
 .mobile-menu.active{
@@ -398,9 +415,16 @@ select{
 }
 
 .mobile-menu a{
-  padding:12px 16px;
-  border-radius:12px;
+  display:block;
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+
+  font-size:14px;
+  font-weight:600;
+  text-align:left;   /* text aligned properly */
   color:#e2e8f0;
+  line-height:1.3;
 }
 
 .mobile-menu a:hover{
@@ -471,16 +495,17 @@ select{
 }
 
 .hero-content{
-  max-width:1100px;
-  width:100%;
-  margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  position:relative;
-z-index:3;
+  max-width: 1100px;
+  width: 100%;
+  min-height: calc(100vh - 220px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  position: relative;
+  z-index: 3;
 }
 
 .hero-badge{
@@ -500,16 +525,16 @@ z-index:3;
 }
 
 .hero-title{
-  font-size:clamp(44px,7vw,78px);
-  font-weight:800;
-  line-height:1.08;
-  margin-bottom:24px;
-  text-shadow:0 4px 16px rgba(0,0,0,0.5);
-  color:#ffffff;
-  text-align:center;
-  max-width:1200px;
-  margin-left:auto;
-  margin-right:auto;
+  font-size: clamp(30px, 4.5vw, 40px);
+  font-weight: 800;
+  line-height: 1.12;
+  margin-bottom: 20px;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  color: #ffffff;
+  text-align: center;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-title .gradient{
@@ -586,34 +611,41 @@ z-index:3;
   color:#000;
 }
 
-/* Stats */
 .hero-stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
-  margin-top:30px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: auto;
+  margin-bottom: 0px;
+  width: 100%;
+  max-width: 620px;
 }
 
 .stat-card{
-  padding:22px;
-  border-radius:22px;
-  text-align:center;
+  padding: 14px 12px;
+  border-radius: 18px;
+  text-align: center;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stat-number{
-  font-size:30px;
-  font-weight:900;
-  background:var(--gradient-1);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  background: var(--gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .stat-label{
-  font-size:12px;
-  color:#94a3b8;
-  margin-top:6px;
-  text-transform:uppercase;
-  letter-spacing:1px;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 /* =========================================================
    FEATURES SECTION
@@ -1117,7 +1149,7 @@ z-index:3;
   <a href="about.html">About</a>
   <a href="history-of-sadri-villa.html">History</a>
   <a href="shajra.html">Family Tree</a>
-  <a href="team.html">Gallery</a>
+  <a href="team.html">Historical Monument</a>
   <a href="#" onclick="scrollFooter()">Contact</a>
   <a href="login.html">Login</a>
   <a href="signup.html">Sign Up</a>
@@ -1932,17 +1964,29 @@ footer{
 }
 
 @media (max-width:640px){
-  .container{
-    width:min(var(--container), calc(100% - 24px));
-  }
-.hero{
-  min-height:auto;
-  padding:110px 0 60px;
+ .container{
+  width:100%;
+  padding:0;
 }
+  .hero{
+    min-height:100vh;
+    padding:110px 0 30px;
+    display:flex;
+    align-items:center;
+  }
 
+.hero-content{
+    min-height:calc(100vh - 140px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+  }
+  
 .hero-title{
-  font-size:10px;
-  line-height:1.15;
+  font-size: 28px;
+  line-height: 1.2;
+  max-width: 100%;
 }
 
 .hero-text{
@@ -1961,17 +2005,34 @@ footer{
 }
 
 .hero-stats{
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  margin-top:auto;
+  margin-bottom:0;
+
+  /* Add left and right spacing */
+  width:calc(100% - 24px);
+  max-width:calc(100% - 24px);
+  margin-left:12px;
+  margin-right:12px;
+
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
 }
 
-.stat-card{
-  padding:16px;
-}
+ .stat-card{
+    padding:12px 8px;
+    min-height:78px;
+    border-radius:14px;
+  }
 
-.stat-number{
-  font-size:24px;
-}
+ .stat-number{
+    font-size:18px;
+  }
+
+  .stat-label{
+    font-size:9px;
+    letter-spacing:0.5px;
+  }
 
 .search-card{
   display:none;
@@ -2844,6 +2905,7 @@ document.addEventListener("click", () => {
   menu.classList.remove("active");
 });
 
+/* Prevent menu from closing when clicked inside */
 /* Prevent menu from closing when clicked inside */
 document.getElementById("mobileMenu")?.addEventListener(
   "click",
