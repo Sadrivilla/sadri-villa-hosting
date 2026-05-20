@@ -9,123 +9,42 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 
-/* ===== NAVBAR (SAME AS INDEX) ===== */
-/* ================= NAVBAR (MATCH INDEX) ================= */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:50px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(255,255,255,0.75);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(0,0,0,.08);
-  z-index:1000;
-  padding:0;
-}
 
-.brand{
-  height:50px;
-  display:flex;
-  align-items:center;
-}
-
-.brand img{
-  height:50px;
-  width:auto;
-  object-fit:contain;
-  display:none; /* prevent broken flash */
-}
-
-/* NAV BUTTONS */
-.nav-actions{
-  display:flex;
-  gap:20px;
-  align-items:center;
-  padding-right:20px;
-}
-
-.nav-actions a{
-  padding:8px 18px;
-  border-radius:25px;
-  background:linear-gradient(135deg,#38bdf8,#60a5fa);
-  color:white;
-  font-weight:700;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  transition:.3s ease;
-}
-
-.nav-actions a:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(0,0,0,.2);
-}
-
-/* HAMBURGER */
-.hamburger{
-  display:none;
-  flex-direction:column;
-  gap:5px;
-  cursor:pointer;
-  padding-right:20px;
-}
-
-.hamburger span{
-  width:25px;
-  height:3px;
-  background:#081634;
-  border-radius:3px;
-}
-
-/* MOBILE MENU */
-.mobile-menu{
-  position:fixed;
-  top:50px;
-  right:-100%;
-  width:260px;
-  height:100%;
-  background:#081634;
-  padding:30px;
-  transition:.4s;
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  z-index:999;
-}
-
-.mobile-menu a{
-  color:white;
-  text-decoration:none;
-  font-weight:600;
-}
-
-.mobile-menu.active{
-  right:0;
-}
-
-/* RESPONSIVE */
-@media(max-width:900px){
-  .nav-actions{ display:none; }
-  .hamburger{ display:flex; }
-}
 
 
 /* ===== PAGE ===== */
-.page{padding:120px 24px 40px;display:flex;justify-content:center}
+.page{
+  padding:40px 24px 40px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
 .grid{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 460px;gap:60px}
 
 /* LEFT */
 .left h1{font-size:42px}
 .left p{color:#475569}
-.benefit{display:flex;gap:12px;margin-top:16px}
+.benefit{
+  display:flex;
+  gap:12px;
+  margin-top:16px;
+  align-items:flex-start;
+}
+
 .icon{
-  width:36px;height:36px;border-radius:50%;
-  background:#38bdf8;color:#fff;font-weight:700;
-  display:flex;align-items:center;justify-content:center
+  width:36px;
+  height:36px;
+  min-width:36px;
+  min-height:36px;
+  flex-shrink:0;
+  border-radius:50%;
+  background:#38bdf8;
+  color:#fff;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 /* CARD */
@@ -189,36 +108,25 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
   .grid{grid-template-columns:1fr}
   .left h1{font-size:30px}
 }
+.villa-title{
+  margin: -6px 0 22px;
+  font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 8px rgba(14,165,233,0.18);
+  letter-spacing: 0.5px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<!-- NAVBAR -->
-<div class="navbar" id="navbar">
-  <div class="brand">
-    <img id="siteLogo" alt="Sadri Villa Logo">
-  </div>
 
-  <div class="nav-actions">
-    <a href="index.html">Home</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
-  </div>
-
-  <div class="hamburger" onclick="toggleMenu(event)">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-
-<div class="mobile-menu" id="mobileMenu">
-  <a href="index.html">Home</a>
-  <a href="login.html">Login</a>
-  <a href="signup.html">Sign Up</a>
-</div>
 
 <div class="page">
 <div class="grid">
@@ -232,24 +140,50 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
 </div>
 
 <div class="card">
-  <h2>Create Account</h2>
+    <h2 style="text-align:center; margin:0 0 8px;">
+    Create Account
+  </h2>
+
+  <!-- Centered Sadri Villa Title -->
+  <h2 class="villa-title" style="text-align:center; margin-top:0; margin-bottom:22px;">
+    Sadri Villa
+  </h2>
+  
 
   <div class="progress"><span id="bar"></span></div>
   <div class="step-count" id="stepCount"></div>
 
   <div class="step active">
-    <div class="field"><label>Full Name</label><input id="name"></div>
-    <div class="actions"><span></span><button class="next">Continue</button></div>
+    <div class="field">
+      <label>Full Name</label>
+      <input id="name">
+    </div>
+    <div class="actions">
+      <span></span>
+      <button class="next">Continue</button>
+    </div>
   </div>
 
   <div class="step">
-    <div class="field"><label>Mobile Number</label><input id="phone"></div>
-    <div class="actions"><button class="back">Back</button><button class="next">Continue</button></div>
+    <div class="field">
+      <label>Mobile Number</label>
+      <input id="phone">
+    </div>
+    <div class="actions">
+      <button class="back">Back</button>
+      <button class="next">Continue</button>
+    </div>
   </div>
 
   <div class="step">
-    <div class="field"><label>Email</label><input id="email" type="email"></div>
-    <div class="actions"><button class="back">Back</button><button class="next">Continue</button></div>
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email">
+    </div>
+    <div class="actions">
+      <button class="back">Back</button>
+      <button class="next">Continue</button>
+    </div>
   </div>
 
   <div class="step">
@@ -257,7 +191,9 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
       <label>Password</label>
       <input id="password" type="password">
       <span class="eye" id="eyePass">👁</span>
-      <div class="strength"><span id="strengthBar"></span></div>
+      <div class="strength">
+        <span id="strengthBar"></span>
+      </div>
     </div>
 
     <div class="field">
@@ -271,52 +207,19 @@ body{margin:0;font-family:Arial,sans-serif;background:#eef2ff;color:#0f172a}
       <button class="next" id="createBtn">Create Account</button>
     </div>
   </div>
+  
+  <div style="text-align:center; margin-top:20px; font-size:14px; color:#64748b;">
+  Already have an account?
+  <a href="login.html" style="color:#0ea5e9; font-weight:700; text-decoration:none; margin-left:4px;">
+    Sign in here
+  </a>
+</div>
 
   <div id="msg" class="msg"></div>
 </div>
 
 </div>
 </div>
-
-<!-- 🔥 FIREBASE LOGO (SAME AS INDEX – INSTANT) -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const db = getFirestore(app);
-
-const siteLogo = document.getElementById("siteLogo");
-
-/* hide until loaded */
-siteLogo.style.display = "none";
-
-onSnapshot(doc(db,"siteSettings","home"), snap => {
-  if(!snap.exists()) return;
-
-  const data = snap.data();
-
-  if(data.logo?.url){
-    const cacheBuster = data.logo.updatedAt?.seconds || Date.now();
-
-    const img = new Image();
-    img.src = data.logo.url + "?v=" + cacheBuster;
-
-    img.onload = () => {
-      siteLogo.src = img.src;
-      siteLogo.style.display = "block";
-    };
-
-    img.onerror = () => {
-      siteLogo.style.display = "none";
-    };
-  }
-});
-</script>
 
 
 <!-- 🔐 SIGNUP LOGIC (UNCHANGED) -->
@@ -417,17 +320,6 @@ createBtn.onclick=async()=>{
   msg.style.display="block";
   setTimeout(()=>location.href="pending.html",2500);
 };
-</script>
-
-<script>
-function toggleMenu(e){
-  e.stopPropagation();
-  document.getElementById("mobileMenu").classList.toggle("active");
-}
-
-document.addEventListener("click",function(){
-  document.getElementById("mobileMenu").classList.remove("active");
-});
 </script>
 
 </body>
