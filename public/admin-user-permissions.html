@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Display Titles | Sadri Villa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Inter',sans-serif;
+  background:#f3f4f6;
+  margin:0;
+}
+</style>
+</head>
+<body>
+
+<div class="min-h-screen p-4 lg:p-6">
+  <div class="bg-white rounded-[32px] shadow-xl overflow-hidden min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-3rem)] flex">
+
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex w-80 border-r border-gray-100 bg-white flex-col">
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <img id="siteLogo" class="h-10 w-10 rounded-xl hidden object-cover">
+          <div>
+            <div class="font-extrabold text-gray-900 text-xl">Sadri Villa</div>
+            <div class="text-xs text-gray-500">Enterprise Admin</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-2 text-sm font-medium">
+        <a href="admin-dashboard.html"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-50">
+          ← Dashboard
+        </a>
+
+        <a href="admin-user-permissions.html"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-gray-100 text-gray-900">
+          🏷️ Admin Display Titles
+        </a>
+      </nav>
+
+      <div class="flex-1"></div>
+
+      <div class="p-4">
+        <a href="admin-list.html"
+           class="block text-center bg-black text-white rounded-2xl py-3 font-semibold">
+          Admin List
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-gray-50 p-4 lg:p-6 overflow-y-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900">
+            Admin Display Titles
+          </h1>
+          <p class="text-gray-500 mt-2">
+            Change custom titles while keeping actual role as <b>admin</b>.
+          </p>
+        </div>
+
+        <a href="admin-dashboard.html"
+           class="px-5 py-3 bg-white rounded-2xl shadow-sm border border-gray-200 font-semibold hover:bg-gray-50">
+          ← Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Search -->
+      <div class="bg-white rounded-3xl shadow-sm p-6 mb-6">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Search by name, email, or title..."
+          class="w-full bg-gray-100 rounded-2xl px-5 py-4 outline-none text-sm"
+        >
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-3xl shadow-sm p-6">
+          <div class="text-gray-500 text-sm">Total Admins</div>
+          <div id="totalAdmins" class="text-3xl font-bold mt-2">0</div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm p-6">
+          <div class="text-gray-500 text-sm">Custom Titles</div>
+          <div id="customTitles" class="text-3xl font-bold mt-2">0</div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm p-6">
+          <div class="text-gray-500 text-sm">Default Titles</div>
+          <div id="defaultTitles" class="text-3xl font-bold mt-2">0</div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div id="message"
+           class="hidden mb-6 px-5 py-4 rounded-2xl font-medium">
+      </div>
+
+      <!-- Admin Cards -->
+      <div id="adminGrid"
+           class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      </div>
+
+    </main>
+  </div>
+</div>
