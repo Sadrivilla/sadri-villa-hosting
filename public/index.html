@@ -142,8 +142,8 @@ select{
 .container{
   width:100%;
   max-width:100%;
-  margin:0;
-  padding:0 8px; /* very small spacing from edges */
+  margin:0 auto;
+  padding:0 16px; /* left and right spacing on all pages */
 }
 
 /* Background blobs */
@@ -1964,10 +1964,10 @@ footer{
 }
 
 @media (max-width:640px){
- .container{
-  width:100%;
-  padding:0;
-}
+  .container{
+    width:100%;
+    padding:0 12px; /* mobile left and right spacing */
+  }
   .hero{
     min-height:100vh;
     padding:110px 0 30px;
