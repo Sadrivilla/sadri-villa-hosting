@@ -118,3 +118,329 @@ body{
     </main>
   </div>
 </div>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ==========================================
+   FIREBASE CONFIG
+========================================== */
+const app = initializeApp({
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ==========================================
+   GLOBAL VARIABLES
+========================================== */
+let admins = [];
+const adminGrid = document.getElementById("adminGrid");
+const searchInput = document.getElementById("searchInput");
+const messageBox = document.getElementById("message");
+
+/* ==========================================
+   ADMIN AUTH CHECK
+========================================== */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+
+  if (!snap.exists() || snap.data().role !== "admin") {
+    alert("Access denied");
+    location.href = "dashboard.html";
+    return;
+  }
+
+  // Load logo and start listening to admins
+  loadSiteLogo();
+  listenAdmins();
+});
+
+<!-- Continue inside the same <script type="module"> -->
+
+/* ==========================================
+   LOAD SITE LOGO
+========================================== */
+function loadSiteLogo() {
+  const logo = document.getElementById("siteLogo");
+
+  onSnapshot(doc(db, "siteSettings", "home"), (snap) => {
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+
+    if (data.logo?.url) {
+      const version =
+        data.logo.updatedAt?.seconds || Date.now();
+
+      logo.src = data.logo.url + "?v=" + version;
+      logo.classList.remove("hidden");
+    } else {
+      logo.classList.add("hidden");
+    }
+  });
+}
+
+/* ==========================================
+   LISTEN TO ALL ADMIN USERS
+========================================== */
+function listenAdmins() {
+  onSnapshot(collection(db, "users"), (snapshot) => {
+    admins = [];
+
+    snapshot.forEach((docSnap) => {
+      const user = {
+        id: docSnap.id,
+        ...docSnap.data()
+      };
+
+      // Only users with actual role = admin
+      if (user.role === "admin") {
+        admins.push(user);
+      }
+    });
+
+    // Sort alphabetically by full name
+    admins.sort((a, b) =>
+      (a.fullName || "")
+        .localeCompare(b.fullName || "")
+    );
+
+    // Update stats and UI
+    updateStats();
+    renderAdmins();
+  });
+}
+
+/* ==========================================
+   SEARCH INPUT EVENT
+========================================== */
+searchInput.addEventListener("input", () => {
+  renderAdmins();
+});
+
+<!-- Continue inside the same <script type="module"> -->
+
+/* ==========================================
+   UPDATE TOP STATISTICS
+========================================== */
+function updateStats() {
+  const totalAdmins = admins.length;
+
+  const customTitles = admins.filter(
+    (admin) =>
+      admin.adminTitle &&
+      admin.adminTitle.trim() &&
+      admin.adminTitle.trim() !== "Admin"
+  ).length;
+
+  const defaultTitles = totalAdmins - customTitles;
+
+  document.getElementById("totalAdmins").textContent = totalAdmins;
+  document.getElementById("customTitles").textContent = customTitles;
+  document.getElementById("defaultTitles").textContent = defaultTitles;
+}
+
+/* ==========================================
+   RENDER ADMIN CARDS
+========================================== */
+function renderAdmins() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  const filtered = admins.filter((admin) => {
+    const fullName = (admin.fullName || "").toLowerCase();
+    const email = (admin.email || "").toLowerCase();
+    const adminTitle = (admin.adminTitle || "Admin").toLowerCase();
+
+    return (
+      fullName.includes(query) ||
+      email.includes(query) ||
+      adminTitle.includes(query)
+    );
+  });
+
+  if (filtered.length === 0) {
+    adminGrid.innerHTML = `
+      <div class="xl:col-span-2 bg-white rounded-3xl shadow-sm p-12 text-center text-gray-500">
+        No admin users found.
+      </div>
+    `;
+    return;
+  }
+
+  adminGrid.innerHTML = filtered
+    .map((admin) => {
+      const title = admin.adminTitle || "Admin";
+
+      return `
+        <div class="bg-white rounded-3xl shadow-sm p-6">
+          <!-- Name -->
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-xl font-bold text-gray-900">
+                ${admin.fullName || "Admin"}
+              </h3>
+              <p class="text-sm text-gray-500 mt-1">
+                ${admin.email || ""}
+              </p>
+            </div>
+
+            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+              Admin
+            </span>
+          </div>
+
+          <!-- Current Display Title -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Display Title
+            </label>
+
+            <input
+              type="text"
+              id="title-${admin.id}"
+              value="${escapeHtml(title)}"
+              placeholder="Admin - View/Edit"
+              class="w-full bg-gray-100 rounded-2xl px-4 py-3 outline-none text-sm"
+            >
+          </div>
+
+          <!-- UID -->
+          <div class="text-xs text-gray-400 font-mono break-all mb-4">
+            ${admin.id}
+          </div>
+
+          <!-- Save Button -->
+          <button
+            onclick="window.saveTitle('${admin.id}')"
+            class="w-full py-3 rounded-2xl bg-black text-white font-semibold hover:opacity-90 transition"
+          >
+            Save Display Title
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+<!-- Continue inside the same <script type="module"> -->
+
+/* ==========================================
+   SAVE DISPLAY TITLE
+========================================== */
+window.saveTitle = async function (uid) {
+  const input = document.getElementById(`title-${uid}`);
+  if (!input) return;
+
+  const title = input.value.trim() || "Admin";
+  const button = input
+    .closest(".bg-white")
+    .querySelector("button");
+
+  const originalText = button.textContent;
+
+  try {
+    // Loading state
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    // Update only display title
+    await updateDoc(doc(db, "users", uid), {
+      adminTitle: title
+    });
+
+    // Success message
+    showMessage(
+      `Display title updated to "${title}"`,
+      "success"
+    );
+
+    // Restore button
+    button.textContent = "Saved ✓";
+
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.disabled = false;
+    }, 1200);
+
+  } catch (error) {
+    console.error("Error updating title:", error);
+
+    showMessage(
+      "Failed to update display title",
+      "error"
+    );
+
+    button.textContent = originalText;
+    button.disabled = false;
+  }
+};
+
+/* ==========================================
+   SHOW SUCCESS / ERROR MESSAGE
+========================================== */
+function showMessage(text, type = "success") {
+  messageBox.textContent = text;
+  messageBox.classList.remove(
+    "hidden",
+    "bg-green-100",
+    "text-green-700",
+    "bg-red-100",
+    "text-red-700"
+  );
+
+  if (type === "success") {
+    messageBox.classList.add(
+      "bg-green-100",
+      "text-green-700"
+    );
+  } else {
+    messageBox.classList.add(
+      "bg-red-100",
+      "text-red-700"
+    );
+  }
+
+  // Auto-hide after 3 seconds
+  clearTimeout(showMessage._timer);
+  showMessage._timer = setTimeout(() => {
+    messageBox.classList.add("hidden");
+  }, 3000);
+}
+
+/* ==========================================
+   ESCAPE HTML
+========================================== */
+function escapeHtml(text = "") {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/* ==========================================
+   END SCRIPT
+========================================== */
+</script>
+</body>
+</html>
