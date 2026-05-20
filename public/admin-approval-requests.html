@@ -8,93 +8,289 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#eef2ff;
+/* ===== RESET ===== */
+*{
+  box-sizing:border-box;
 }
 
-/* HEADER */
+body{
+  margin:0;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background:linear-gradient(135deg,#eef2ff 0%, #f5f3ff 100%);
+  color:#1f2937;
+  min-height:100vh;
+}
+
+/* ===== HEADER ===== */
 .header{
-  padding:22px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  padding:18px 24px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
   color:#fff;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-}
-.header h2{margin:0}
-.back-btn{
-  background:#fff;
-  color:#4f46e5;
-  border:none;
-  padding:10px 16px;
-  border-radius:14px;
-  font-weight:600;
-  cursor:pointer;
+  justify-content:flex-start;
+  gap:18px;
+  box-shadow:0 8px 30px rgba(79,70,229,0.25);
+  backdrop-filter:blur(12px);
 }
 
-/* CONTAINER */
+.header h2{
+  margin:0;
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-0.5px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* ===== BACK BUTTON (LEFT SIDE) ===== */
+.back-btn{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,0.18);
+  color:#ffffff;
+  border:1px solid rgba(255,255,255,0.25);
+  padding:10px 18px;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .25s ease;
+  backdrop-filter:blur(8px);
+  white-space:nowrap;
+}
+
+.back-btn:hover{
+  background:#ffffff;
+  color:#4f46e5;
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,0,0,0.15);
+}
+
+.back-btn:active{
+  transform:translateY(0);
+}
+
+/* ===== MESSAGE ===== */
+.msg{
+  margin:20px 24px 0;
+  padding:16px 20px;
+  border-radius:16px;
+  display:none;
+  font-weight:600;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.msg.success{
+  background:linear-gradient(135deg,#dcfce7,#bbf7d0);
+  color:#166534;
+  border:1px solid #86efac;
+}
+
+.msg.error{
+  background:linear-gradient(135deg,#fee2e2,#fecaca);
+  color:#991b1b;
+  border:1px solid #fca5a5;
+}
+
+/* ===== CONTAINER ===== */
 .container{
-  padding:22px;
+  padding:28px 24px 40px;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
-  gap:20px;
+  gap:24px;
+  max-width:1400px;
+  margin:0 auto;
 }
 
-/* CARD */
+/* ===== CARD ===== */
 .card{
-  background:#fff;
-  border-radius:22px;
-  padding:22px;
-  box-shadow:0 15px 35px rgba(0,0,0,.12);
+  background:rgba(255,255,255,0.95);
+  border:1px solid rgba(255,255,255,0.8);
+  border-radius:28px;
+  padding:26px;
+  box-shadow:
+    0 20px 40px rgba(79,70,229,0.08),
+    0 8px 16px rgba(0,0,0,0.06);
+  transition:all .3s ease;
+  backdrop-filter:blur(12px);
 }
-.card h3{margin-top:0}
 
-/* BADGES */
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:
+    0 28px 60px rgba(79,70,229,0.12),
+    0 12px 24px rgba(0,0,0,0.08);
+}
+
+.card h3{
+  margin:0 0 18px;
+  font-size:24px;
+  font-weight:800;
+  color:#111827;
+  line-height:1.3;
+}
+
+.card p{
+  margin:10px 0;
+  font-size:15px;
+  line-height:1.6;
+  color:#374151;
+}
+
+.card b{
+  color:#111827;
+}
+
+/* ===== SMALL TEXT ===== */
+small{
+  color:#6b7280;
+  font-size:13px;
+}
+
+/* ===== LIST ===== */
+.card ul{
+  margin:8px 0 16px;
+  padding-left:22px;
+}
+
+.card li{
+  margin-bottom:8px;
+  color:#4b5563;
+  line-height:1.5;
+}
+
+/* ===== BADGES ===== */
 .badge{
-  display:inline-block;
-  padding:4px 12px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 14px;
   border-radius:999px;
   font-size:12px;
-  margin-top:8px;
+  font-weight:700;
+  margin-top:10px;
+  letter-spacing:0.3px;
+  text-transform:uppercase;
 }
-.pending{background:#fde68a;color:#92400e}
-.approved{background:#bbf7d0;color:#065f46}
 
-/* BUTTONS */
+.pending{
+  background:linear-gradient(135deg,#fef3c7,#fde68a);
+  color:#92400e;
+  border:1px solid #fcd34d;
+}
+
+.approved{
+  background:linear-gradient(135deg,#dcfce7,#bbf7d0);
+  color:#166534;
+  border:1px solid #86efac;
+}
+
+/* ===== APPROVE BUTTON (SAME LOGIN/SIGNUP STYLE) ===== */
 .approve-btn{
-  margin-top:14px;
-  padding:10px 18px;
+  margin-top:18px;
+  width:100%;
   border:none;
   border-radius:14px;
-  background:#16a34a;
-  color:#fff;
+  padding:14px 20px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#ffffff;
   font-size:15px;
+  font-weight:700;
   cursor:pointer;
+  transition:all .25s ease;
+  box-shadow:0 10px 24px rgba(79,70,229,0.25);
 }
+
+.approve-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 32px rgba(79,70,229,0.35);
+}
+
+.approve-btn:active{
+  transform:translateY(0);
+}
+
 .approve-btn:disabled{
-  opacity:.6;
+  opacity:0.65;
   cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
 }
 
-/* MESSAGE */
-.msg{
-  margin:18px 22px;
-  padding:14px;
-  border-radius:14px;
-  display:none;
-}
-.msg.success{
-  background:#dcfce7;
-  color:#166534;
-}
-.msg.error{
-  background:#fee2e2;
-  color:#991b1b;
+/* ===== EMPTY STATE ===== */
+.container > p{
+  grid-column:1 / -1;
+  text-align:center;
+  background:#ffffff;
+  padding:50px 24px;
+  border-radius:24px;
+  font-size:20px;
+  font-weight:700;
+  color:#6b7280;
+  box-shadow:0 15px 35px rgba(0,0,0,0.08);
 }
 
-small{color:#6b7280}
+/* ===== MOBILE ===== */
+@media (max-width:768px){
+  .header{
+    padding:16px;
+    gap:12px;
+  }
+
+  .header h2{
+    font-size:20px;
+  }
+
+  .back-btn{
+    padding:9px 14px;
+    font-size:13px;
+  }
+
+  .container{
+    padding:20px 16px 30px;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  .card{
+    padding:22px 18px;
+    border-radius:22px;
+  }
+
+  .card h3{
+    font-size:21px;
+  }
+
+  .approve-btn{
+    padding:13px 18px;
+    font-size:14px;
+  }
+
+  .msg{
+    margin:16px;
+  }
+}
+
+@media (max-width:480px){
+  .header h2{
+    font-size:18px;
+  }
+
+  .back-btn{
+    padding:8px 12px;
+    font-size:12px;
+  }
+
+  .card h3{
+    font-size:19px;
+  }
+}
 </style>
 </head>
 
