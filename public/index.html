@@ -1968,15 +1968,16 @@ footer{
     width:100%;
     padding:0 12px; /* mobile left and right spacing */
   }
+ @media (max-width:640px){
   .hero{
-    min-height:100vh;
-    padding:110px 0 30px;
+    min-height:auto;          /* remove full screen height */
+    padding:100px 0 20px;     /* reduce top and bottom spacing */
     display:flex;
-    align-items:center;
+    align-items:flex-start;
   }
 
-.hero-content{
-    min-height:calc(100vh - 140px);
+  .hero-content{
+    min-height:auto;          /* content takes only required height */
     display:flex;
     flex-direction:column;
     align-items:center;
