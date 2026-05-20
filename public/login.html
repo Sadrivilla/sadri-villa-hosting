@@ -184,9 +184,32 @@ button{
 .remember{
   display:flex;
   align-items:center;
-  gap:6px;
-  font-size:13px;
-  margin:8px 0 6px
+  justify-content:flex-start;
+  gap:10px;
+  margin:12px 0 6px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  user-select:none;
+
+  /* Same gradient as Login button */
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.remember input[type="checkbox"]{
+  width:18px;
+  height:18px;
+  accent-color:#0ea5e9; /* Blue checkbox with white tick */
+  cursor:pointer;
+  margin:0;
+  flex-shrink:0;
+}
+
+.remember span{
+  line-height:1;
 }
 
 /* ===== FORGOT PASSWORD MODAL ===== */
@@ -206,6 +229,19 @@ button{
   width:100%;
   max-width:360px;
   text-align:center
+}
+.villa-title{
+  margin: -6px 0 22px;
+  font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 8px rgba(14,165,233,0.18);
+  letter-spacing: 0.5px;
 }
 #fpModal input{
   width:100%;
@@ -227,7 +263,9 @@ button{
 <!-- LOGIN CARD -->
 <div class="page-wrap">
   <div class="card">
-    <h2>Login</h2>
+    <h2>Sign in</h2>
+    <h4 class="villa-title">Sadri Villa</h4>
+
 
     <div class="status success" id="statusMsg">Checking session…</div>
     <div class="status error" id="errorMsg"></div>
@@ -242,8 +280,9 @@ button{
     </div>
 
     <label class="remember">
-      <input type="checkbox" id="rememberMe" checked> Remember me
-    </label>
+  <input type="checkbox" id="rememberMe" checked>
+  <span>Remember me</span>
+</label>
 
     <button id="loginBtn">Login</button>
 
@@ -289,8 +328,18 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const auth = getAuth();
-const db = getFirestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize services
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* DOM */
 const eye = document.getElementById("eye");
