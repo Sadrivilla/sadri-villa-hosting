@@ -865,10 +865,16 @@ const slug = name
 
 const timestamp = Date.now();
 
+const imageFolder =
+block.dataset.imageType === "profile"
+? `team/${slug}/profile`
+: `team/${slug}/body`;
+
 const fileName =
-index === 0
-? `${slug}-${timestamp}.jpg`
-: `${slug}-${index}-${timestamp}.jpg`;
+block.dataset.imageType === "profile"
+? `${imageFolder}/${slug}-profile-${timestamp}`
+: `${imageFolder}/${slug}-body-${index}-${timestamp}`;
+
 
 const formData = new FormData();
 
@@ -885,8 +891,9 @@ formData.append(
 
 formData.append(
 "public_id",
-fileName.replace(".jpg","")
+fileName
 );
+
 
 const response = await fetch(
 "https://api.cloudinary.com/v1_1/da1c4cvej/image/upload",
