@@ -761,7 +761,6 @@ const db = getFirestore(app);
 const functions = getFunctions(app, "us-central1");
   loadShajraDropdown();
 let editId = null;
-  let oldImageUrls = [];
 async function loadShajraDropdown() {
   const searchInput = document.getElementById("shajraMemberSearch");
   const hiddenInput = document.getElementById("shajraMemberId");
@@ -847,20 +846,29 @@ continue;
 
 let descInput = block.querySelector(".descInput");
 let fileInput = block.querySelector(".imgInput");
+  let hasNewImage =
+fileInput &&
+(
+fileInput.files.length > 0 ||
+fileInput.resizedFile
+);
+
 
 let imageUrl = "";
-if(fileInput && (fileInput.resizedFile || fileInput.files[0])){
+if (hasNewImage) {
 
-  const slug = name
+const slug = name
 .toLowerCase()
 .trim()
 .replace(/[^a-z0-9\s-]/g, "")
 .replace(/\s+/g, "-");
 
+const timestamp = Date.now();
+
 const fileName =
-  index === 0
-    ? `${slug}.jpg`
-    : `${slug}-${index}.jpg`;
+index === 0
+? `${slug}-${timestamp}.jpg`
+: `${slug}-${index}-${timestamp}.jpg`;
 
 const formData = new FormData();
 
@@ -903,7 +911,6 @@ result.secure_url.replace(
 "/upload/f_auto,q_auto/"
 );
 
-
 // progress simulation
 let percent =
 (
@@ -920,11 +927,14 @@ document.getElementById(
 ).innerText =
 Math.round(percent) + "%";
 
+} else {
 
-}else{
-  // ✅ KEEP EXISTING IMAGE (EDIT MODE)
-  imageUrl = block.querySelector("img")?.src || "";
+// KEEP EXISTING IMAGE (EDIT MODE)
+imageUrl =
+block.querySelector("img")?.src || "";
+
 }
+
 
 // TEXT BLOCK
 if (descInput) {
@@ -1183,9 +1193,6 @@ function renderTeamList() {
 window.edit = async function(id){
 const snap = await getDoc(doc(db,"team",id));
 const d = snap.data();
-  oldImageUrls = (d.contentBlocks || [])
-  .filter(item => item.type === "image" && item.url)
-  .map(item => item.url);
 
 editId = id;
 
