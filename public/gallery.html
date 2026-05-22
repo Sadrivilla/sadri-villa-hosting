@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gallery | Sadri Villa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#020617;
+color:white;
+overflow-x:hidden;
+}
+
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+background:#334155;
+border-radius:20px;
+}
+
+.glass{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+box-shadow:0 10px 40px rgba(0,0,0,0.35);
+}
+
+.gallery-hero{
+background:
+radial-gradient(circle at top left,#2563eb 0%,transparent 30%),
+radial-gradient(circle at bottom right,#7c3aed 0%,transparent 30%),
+linear-gradient(135deg,#111827,#020617);
+}
+
+.gallery-grid{
+column-count:4;
+column-gap:20px;
+}
+
+.gallery-item{
+break-inside:avoid;
+margin-bottom:20px;
+position:relative;
+overflow:hidden;
+border-radius:28px;
+cursor:pointer;
+transition:0.35s;
+}
+
+.gallery-item:hover{
+transform:translateY(-6px);
+}
+
+.gallery-item img{
+width:100%;
+display:block;
+border-radius:28px;
+transition:0.4s;
+}
+
+.gallery-item:hover img{
+transform:scale(1.05);
+}
+
+.overlay{
+position:absolute;
+inset:0;
+background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
+opacity:0;
+transition:0.3s;
+display:flex;
+align-items:flex-end;
+padding:24px;
+}
+
+.gallery-item:hover .overlay{
+opacity:1;
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.92);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:9999;
+padding:20px;
+}
+
+.modal-content{
+position:relative;
+max-width:1300px;
+width:100%;
+}
+
+.modal img{
+max-height:85vh;
+width:100%;
+object-fit:contain;
+border-radius:28px;
+}
+
+.close-btn{
+position:absolute;
+top:-60px;
+right:0;
+width:52px;
+height:52px;
+border-radius:20px;
+background:white;
+color:black;
+font-size:22px;
+font-weight:bold;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.nav-btn{
+position:absolute;
+top:50%;
+transform:translateY(-50%);
+width:64px;
+height:64px;
+border-radius:24px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(20px);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.nav-btn:hover{
+background:rgba(255,255,255,0.25);
+}
+
+.prev-btn{
+left:-90px;
+}
+
+.next-btn{
+right:-90px;
+}
+
+.topbar{
+position:sticky;
+top:0;
+z-index:100;
+backdrop-filter:blur(20px);
+background:rgba(2,6,23,0.7);
+border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.search-box{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+}
+
+.favorite-btn{
+position:absolute;
+top:18px;
+right:18px;
+width:46px;
+height:46px;
+border-radius:16px;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(20px);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+cursor:pointer;
+z-index:10;
+}
+
+.skeleton{
+background:linear-gradient(
+90deg,
+rgba(255,255,255,0.04),
+rgba(255,255,255,0.08),
+rgba(255,255,255,0.04)
+);
+
+background-size:200% 100%;
+animation:loading 1.5s infinite;
+}
+
+@keyframes loading{
+0%{background-position:200% 0}
+100%{background-position:-200% 0}
+}
+
+@media(max-width:1200px){
+.gallery-grid{
+column-count:3;
+}
+}
+
+@media(max-width:768px){
+
+.gallery-grid{
+column-count:2;
+}
+
+.prev-btn{
+left:10px;
+}
+
+.next-btn{
+right:10px;
+}
+
+.nav-btn{
+width:52px;
+height:52px;
+}
+
+}
+
+@media(max-width:500px){
+
+.gallery-grid{
+column-count:1;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+
+<header class="topbar px-4 lg:px-8 py-5">
+
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+
+<div>
+
+<h1 class="text-3xl lg:text-4xl font-extrabold">
+Heritage Gallery
+</h1>
+
+<p class="text-slate-400 mt-2">
+Sadri Villa Digital Memories
+</p>
+
+</div>
+
+<div class="flex flex-wrap gap-4">
+
+<input
+id="searchInput"
+type="text"
+placeholder="Search images..."
+class="search-box px-5 py-4 rounded-2xl outline-none w-72">
+
+<button
+onclick="location.href='dashboard.html'"
+class="glass px-6 py-4 rounded-2xl font-semibold">
+Dashboard
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+<!-- HERO -->
+
+<section class="gallery-hero rounded-[40px] mx-4 lg:mx-8 mt-8 p-8 lg:p-14 relative overflow-hidden">
+
+<div class="relative z-10 max-w-3xl">
+
+<p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-4">
+Digital Heritage
+</p>
+
+<h2 class="text-5xl lg:text-7xl font-extrabold leading-tight">
+Explore Family
+Memories Beautifully
+</h2>
+
+<p class="text-slate-300 text-lg mt-8 leading-relaxed max-w-2xl">
+Browse historical photographs, events, community moments,
+heritage images and family memories securely.
+</p>
+
+<div class="flex flex-wrap gap-4 mt-10">
+
+<div class="glass rounded-2xl px-6 py-4">
+<span id="totalPhotos" class="text-3xl font-extrabold">
+0
+</span>
+<p class="text-slate-400 text-sm mt-1">
+Photos
+</p>
+</div>
+
+<div class="glass rounded-2xl px-6 py-4">
+<span class="text-3xl font-extrabold">
+HD
+</span>
+<p class="text-slate-400 text-sm mt-1">
+Quality
+</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="absolute right-[-100px] top-[-100px] w-96 h-96 bg-cyan-500/20 blur-3xl rounded-full"></div>
+<div class="absolute left-[-120px] bottom-[-120px] w-[500px] h-[500px] bg-purple-500/20 blur-3xl rounded-full"></div>
+
+</section>
+
+<!-- FILTERS -->
+
+<section class="px-4 lg:px-8 mt-8">
+
+<div class="glass rounded-3xl p-5 flex flex-wrap gap-4 items-center">
+
+<button class="bg-cyan-500 text-black font-bold px-5 py-3 rounded-2xl">
+All Photos
+</button>
+
+<button class="bg-white/5 hover:bg-white/10 transition px-5 py-3 rounded-2xl">
+Heritage
+</button>
+
+<button class="bg-white/5 hover:bg-white/10 transition px-5 py-3 rounded-2xl">
+Events
+</button>
+
+<button class="bg-white/5 hover:bg-white/10 transition px-5 py-3 rounded-2xl">
+Family
+</button>
+
+<button class="bg-white/5 hover:bg-white/10 transition px-5 py-3 rounded-2xl">
+Historical
+</button>
+
+</div>
+
+</section>
+
+<!-- GALLERY -->
+
+<section class="px-4 lg:px-8 py-8">
+
+<div
+id="galleryGrid"
+class="gallery-grid">
+
+<!-- SKELETON -->
+
+<div class="gallery-item skeleton h-[350px]"></div>
+<div class="gallery-item skeleton h-[450px]"></div>
+<div class="gallery-item skeleton h-[300px]"></div>
+<div class="gallery-item skeleton h-[500px]"></div>
+
+</div>
+
+</section>
+
+<!-- IMAGE MODAL -->
+
+<div
+id="imageModal"
+class="modal">
+
+<div class="modal-content">
+
+<div
+class="close-btn"
+id="closeModal">
+✕
+</div>
+
+<div
+class="nav-btn prev-btn"
+id="prevBtn">
+❮
+</div>
+
+<div
+class="nav-btn next-btn"
+id="nextBtn">
+❯
+</div>
+
+<img id="modalImage">
+
+<div class="flex flex-wrap gap-4 mt-6 justify-center">
+
+<a
+id="downloadBtn"
+target="_blank"
+class="bg-cyan-500 hover:bg-cyan-400 transition text-black px-7 py-4 rounded-2xl font-bold cursor-pointer">
+Download
+</a>
+
+<button
+id="favoriteBtn"
+class="glass px-7 py-4 rounded-2xl font-semibold">
+❤ Favorite
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+doc,
+onSnapshot
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app=initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
+});
+
+const db=getFirestore(app);
+
+const galleryGrid=document.getElementById("galleryGrid");
+
+const modal=document.getElementById("imageModal");
+
+const modalImage=document.getElementById("modalImage");
+
+const downloadBtn=document.getElementById("downloadBtn");
+
+let images=[];
+
+let currentIndex=0;
+
+onSnapshot(doc(db,"siteSettings","home"),(snap)=>{
+
+if(!snap.exists()) return;
+
+const data=snap.data();
+
+const sliderImages=
+(data.sliderImages || [])
+.filter(img=>img.enabled!==false);
+
+images=sliderImages;
+
+document.getElementById("totalPhotos").innerText=
+sliderImages.length;
+
+renderGallery(sliderImages);
+
+});
+
+function renderGallery(items){
+
+galleryGrid.innerHTML="";
+
+items.forEach((item,index)=>{
+
+const div=document.createElement("div");
+
+div.className="gallery-item glass";
+
+div.innerHTML=`
+
+<div class="favorite-btn">
+❤
+</div>
+
+<img
+src="${item.url}"
+loading="lazy">
+
+<div class="overlay">
+
+<div>
+
+<h3 class="text-xl font-bold">
+Sadri Villa
+</h3>
+
+<p class="text-slate-300 text-sm mt-2">
+Heritage Collection
+</p>
+
+</div>
+
+</div>
+
+`;
+
+div.onclick=()=>openModal(index);
+
+galleryGrid.appendChild(div);
+
+});
+
+}
+
+function openModal(index){
+
+currentIndex=index;
+
+modal.style.display="flex";
+
+document.body.style.overflow="hidden";
+
+updateModal();
+
+}
+
+function updateModal(){
+
+const item=images[currentIndex];
+
+modalImage.src=item.url;
+
+downloadBtn.href=item.url;
+
+}
+
+function closeModal(){
+
+modal.style.display="none";
+
+document.body.style.overflow="auto";
+
+}
+
+document.getElementById("closeModal")
+.onclick=closeModal;
+
+modal.onclick=(e)=>{
+
+if(e.target===modal){
+closeModal();
+}
+
+};
+
+document.getElementById("prevBtn")
+.onclick=()=>{
+
+currentIndex--;
+
+if(currentIndex<0){
+currentIndex=images.length-1;
+}
+
+updateModal();
+
+};
+
+document.getElementById("nextBtn")
+.onclick=()=>{
+
+currentIndex++;
+
+if(currentIndex>=images.length){
+currentIndex=0;
+}
+
+updateModal();
+
+};
+
+document.addEventListener("keydown",(e)=>{
+
+if(modal.style.display!=="flex") return;
+
+if(e.key==="ArrowRight"){
+document.getElementById("nextBtn").click();
+}
+
+if(e.key==="ArrowLeft"){
+document.getElementById("prevBtn").click();
+}
+
+if(e.key==="Escape"){
+closeModal();
+}
+
+});
+
+let touchStartX=0;
+
+modal.addEventListener("touchstart",(e)=>{
+touchStartX=e.changedTouches[0].clientX;
+});
+
+modal.addEventListener("touchend",(e)=>{
+
+const touchEndX=e.changedTouches[0].clientX;
+
+if(touchStartX-touchEndX>50){
+document.getElementById("nextBtn").click();
+}
+
+if(touchEndX-touchStartX>50){
+document.getElementById("prevBtn").click();
+}
+
+});
+
+document.getElementById("searchInput")
+.addEventListener("input",(e)=>{
+
+const term=e.target.value.toLowerCase();
+
+const filtered=images.filter((img)=>{
+
+return (
+(img.title || "")
+.toLowerCase()
+.includes(term)
+
+||
+
+(img.category || "")
+.toLowerCase()
+.includes(term)
+
+);
+
+});
+
+renderGallery(filtered);
+
+});
+
+</script>
+
+</body>
+</html>
