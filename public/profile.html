@@ -485,12 +485,7 @@ collection,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-getStorage,
-ref,
-uploadBytes,
-getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
 
 const app=initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -503,7 +498,6 @@ const app=initializeApp({
 
 const auth=getAuth(app);
 const db=getFirestore(app);
-const storage=getStorage(app);
 
 let currentUser=null;
 let uploadedPhotoURL="";
@@ -741,24 +735,54 @@ document.getElementById("uploadBtn").onclick=()=>{
 document.getElementById("photoInput").click();
 };
 
-document.getElementById("photoInput").addEventListener("change",async(e)=>{
+async function uploadToCloudinary(file,uid){
+
+const formData=new FormData();
+
+formData.append("file",file);
+
+formData.append(
+"upload_preset",
+"sadri_unsigned"
+);
+
+formData.append(
+"folder",
+`sadrivilla/members/${uid}`
+);
+
+const response=await fetch(
+"https://api.cloudinary.com/v1_1/da1c4cvej/image/upload",
+{
+method:"POST",
+body:formData
+}
+);
+
+const data=await response.json();
+
+console.log(data);
+
+return data.secure_url;
+
+}
+
+document.getElementById("photoInput")
+.addEventListener("change",async(e)=>{
 
 const file=e.target.files[0];
 
 if(!file) return;
 
-const storageRef=ref(
-storage,
-"profilePhotos/"+currentUser.uid+"/"+Date.now()
+const url=await uploadToCloudinary(
+file,
+currentUser.uid
 );
-
-await uploadBytes(storageRef,file);
-
-const url=await getDownloadURL(storageRef);
 
 uploadedPhotoURL=url;
 
 document.getElementById("previewPhoto").src=url;
+
 document.getElementById("profilePhoto").src=url;
 
 });
