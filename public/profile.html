@@ -735,7 +735,7 @@ document.getElementById("uploadBtn").onclick=()=>{
 document.getElementById("photoInput").click();
 };
 
-async function uploadToCloudinary(file,uid){
+async function uploadToCloudinary(file,name){
 
 const formData=new FormData();
 
@@ -748,7 +748,22 @@ formData.append(
 
 formData.append(
 "folder",
-`sadrivilla/members/${uid}`
+"sadrivilla/dashboard-profile-photo"
+);
+
+const cleanName=name
+.toLowerCase()
+.trim()
+.replace(/\s+/g,"-")
+.replace(/[^a-z0-9-]/g,"");
+
+formData.append(
+"public_id",
+cleanName
+);
+  formData.append(
+"overwrite",
+"true"
 );
 
 const response=await fetch(
@@ -776,7 +791,7 @@ if(!file) return;
 
 const url=await uploadToCloudinary(
 file,
-currentUser.uid
+document.getElementById("fullName").value
 );
 
 uploadedPhotoURL=url;
