@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sadri Villa Member Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#0f172a;
+overflow-x:hidden;
+}
+
+::-webkit-scrollbar{
+width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+background:#334155;
+border-radius:20px;
+}
+
+.glass-card{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+box-shadow:0 10px 40px rgba(0,0,0,0.35);
+}
+
+.sidebar-link{
+transition:0.3s ease;
+}
+
+.sidebar-link:hover{
+background:rgba(255,255,255,0.08);
+transform:translateX(4px);
+}
+
+.hero-gradient{
+background:
+radial-gradient(circle at top left,#2563eb 0%,transparent 30%),
+radial-gradient(circle at bottom right,#7c3aed 0%,transparent 30%),
+linear-gradient(135deg,#111827,#0f172a);
+}
+
+.stat-card:hover{
+transform:translateY(-4px);
+transition:0.3s ease;
+}
+
+.gallery-track{
+display:flex;
+gap:20px;
+width:max-content;
+animation:scroll 35s linear infinite;
+}
+
+.gallery-track:hover{
+animation-play-state:paused;
+}
+
+@keyframes scroll{
+from{transform:translateX(0)}
+to{transform:translateX(-50%)}
+}
+
+.mobile-nav{
+display:none;
+}
+
+@media(max-width:1024px){
+.sidebar{
+display:none;
+}
+
+.mobile-nav{
+display:flex;
+}
+}
+</style>
+</head>
+<body>
+
+<div class="min-h-screen flex text-white">
+
+<!-- SIDEBAR -->
+<aside class="sidebar w-80 bg-black/30 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 bottom-0 z-50">
+
+<div class="flex items-center gap-4 mb-10">
+<img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
+<div>
+<h1 class="text-2xl font-extrabold">Sadri Villa</h1>
+<p class="text-slate-400 text-sm">Member Dashboard</p>
+</div>
+</div>
+
+<div class="space-y-2 text-sm font-medium">
+<a href="#" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl bg-white/10">
+<span>🏠</span>
+<span>Overview</span>
+</a>
+
+<a href="profile.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>👤</span>
+<span>Profile</span>
+</a>
+
+<a href="change-password.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🔐</span>
+<span>Password</span>
+</a>
+
+<a href="family-tree.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🌳</span>
+<span>Family Tree</span>
+</a>
+
+<a href="gallery.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🖼️</span>
+<span>Gallery</span>
+</a>
+
+<a href="announcements.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>📢</span>
+<span>Announcements</span>
+</a>
+
+<a href="downloads.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>📂</span>
+<span>Downloads</span>
+</a>
+</div>
+
+<div class="mt-auto glass-card rounded-3xl p-5">
+<h3 class="font-semibold mb-2">Profile Completion</h3>
+<div class="w-full bg-white/10 rounded-full h-4 overflow-hidden">
+<div id="profileBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full" style="width:0%"></div>
+</div>
+<p class="text-sm mt-3 text-slate-300">
+<span id="profilePercent">0%</span> completed
+</p>
+</div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 lg:ml-80 p-5 lg:p-8">
+
+<!-- TOPBAR -->
+<div class="glass-card rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 sticky top-4 z-40">
+
+<div>
+<p class="text-slate-400 text-sm">Welcome Back</p>
+<h2 id="welcomeName" class="text-3xl font-extrabold mt-1">Member</h2>
+</div>
+
+<div class="flex items-center gap-4">
+
+<div class="relative">
+<input type="text" placeholder="Search dashboard..."
+class="bg-white/10 border border-white/10 outline-none rounded-2xl px-5 py-3 w-72 text-sm placeholder:text-slate-400">
+</div>
+
+<div class="relative">
+<button class="glass-card w-14 h-14 rounded-2xl text-xl">
+🔔
+</button>
+<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+3
+</span>
+</div>
+
+<div class="relative">
+<img id="profilePhoto"
+src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+class="w-14 h-14 rounded-2xl object-cover border-2 border-cyan-400 cursor-pointer">
+</div>
+
+</div>
+
+</div>
+
+<!-- HERO -->
+<section class="hero-gradient rounded-[36px] p-8 lg:p-12 relative overflow-hidden mb-8">
+
+<div class="max-w-3xl relative z-10">
+<p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-4">
+Sadri Villa Digital Heritage
+</p>
+
+<h1 class="text-4xl lg:text-6xl font-extrabold leading-tight mb-6">
+Your Modern Family
+Heritage Dashboard
+</h1>
+
+<p class="text-slate-300 text-lg leading-relaxed max-w-2xl">
+Access family records, gallery memories, announcements,
+documents, heritage information and your member profile in one secure dashboard.
+</p>
+
+<div class="flex flex-wrap gap-4 mt-8">
+<button class="bg-cyan-500 hover:bg-cyan-400 transition px-7 py-4 rounded-2xl font-semibold text-black">
+Open Profile
+</button>
+
+<button class="bg-white/10 border border-white/10 hover:bg-white/20 transition px-7 py-4 rounded-2xl font-semibold">
+Explore Gallery
+</button>
+</div>
+</div>
+
+<div class="absolute right-[-80px] top-[-80px] w-80 h-80 bg-cyan-500/20 blur-3xl rounded-full"></div>
+<div class="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-purple-500/20 blur-3xl rounded-full"></div>
+
+</section>
+
+<!-- STATS -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Profile Strength</p>
+<h3 id="strengthScore" class="text-5xl font-extrabold">82%</h3>
+<p class="text-emerald-400 mt-3 text-sm">Excellent profile quality</p>
+</div>
+
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Member Since</p>
+<h3 id="memberDays" class="text-5xl font-extrabold">0</h3>
+<p class="text-slate-300 mt-3 text-sm">Days in community</p>
+</div>
+
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Gallery Photos</p>
+<h3 id="galleryCount" class="text-5xl font-extrabold">0</h3>
+<p class="text-slate-300 mt-3 text-sm">Heritage images available</p>
+</div>
+
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Announcements</p>
+<h3 class="text-5xl font-extrabold">12</h3>
+<p class="text-cyan-400 mt-3 text-sm">Latest updates available</p>
+</div>
+
+</section>
+
+<!-- MAIN GRID -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+
+<!-- LEFT -->
+<div class="xl:col-span-8 space-y-6">
+
+<div class="glass-card rounded-3xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold">Profile Analytics</h3>
+<button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
+Last 30 Days
+</button>
+</div>
+
+<div class="h-[350px]">
+<canvas id="activityChart"></canvas>
+</div>
+</div>
+
+<div class="glass-card rounded-3xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold">Recent Activity</h3>
+<span class="text-sm text-slate-400">Live Updates</span>
+</div>
+
+<div class="space-y-5">
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+📸
+</div>
+<div>
+<h4 class="font-semibold">New gallery uploaded</h4>
+<p class="text-slate-400 text-sm mt-1">Family heritage images added</p>
+</div>
+</div>
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
+✅
+</div>
+<div>
+<h4 class="font-semibold">Profile approved</h4>
+<p class="text-slate-400 text-sm mt-1">Your account has been verified</p>
+</div>
+</div>
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center">
+📢
+</div>
+<div>
+<h4 class="font-semibold">New announcement</h4>
+<p class="text-slate-400 text-sm mt-1">Community gathering next week</p>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="xl:col-span-4 space-y-6">
+
+<div class="glass-card rounded-3xl p-6">
+<h3 class="text-2xl font-bold mb-6">Quick Actions</h3>
+
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-cyan-500/20 hover:bg-cyan-500/30 transition rounded-2xl p-5 text-left">
+<div class="text-2xl mb-3">👤</div>
+<div class="font-semibold">Edit Profile</div>
+</button>
+
+<button class="bg-purple-500/20 hover:bg-purple-500/30 transition rounded-2xl p-5 text-left">
+<div class="text-2xl mb-3">🖼️</div>
+<div class="font-semibold">Gallery</div>
+</button>
+
+<button class="bg-emerald-500/20 hover:bg-emerald-500/30 transition rounded-2xl p-5 text-left">
+<div class="text-2xl mb-3">📂</div>
+<div class="font-semibold">Downloads</div>
+</button>
+
+<button class="bg-pink-500/20 hover:bg-pink-500/30 transition rounded-2xl p-5 text-left">
+<div class="text-2xl mb-3">🌳</div>
+<div class="font-semibold">Family Tree</div>
+</button>
+</div>
+</div>
+
+<div class="glass-card rounded-3xl p-6">
+<h3 class="text-2xl font-bold mb-6">Member Badge</h3>
+
+<div class="bg-gradient-to-br from-cyan-500 to-blue-700 rounded-3xl p-6 relative overflow-hidden">
+<p class="text-cyan-100 text-sm">Verified Member</p>
+<h3 id="badgeName" class="text-2xl font-bold mt-2">Member</h3>
+<p class="text-cyan-100 mt-5 text-sm">Sadri Villa Community</p>
+
+<div class="absolute right-[-30px] bottom-[-30px] w-32 h-32 bg-white/10 rounded-full"></div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- GALLERY -->
+<section class="glass-card rounded-[36px] p-6 overflow-hidden mb-10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-3xl font-bold">Heritage Gallery</h3>
+<button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
+View All
+</button>
+</div>
+
+<div class="overflow-hidden">
+<div class="gallery-track" id="galleryTrack"></div>
+</div>
+</section>
+
+</main>
+
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 justify-around py-4 z-50">
+<a href="#" class="text-center text-cyan-400">
+<div>🏠</div>
+<div class="text-xs mt-1">Home</div>
+</a>
+
+<a href="profile.html" class="text-center text-slate-300">
+<div>👤</div>
+<div class="text-xs mt-1">Profile</div>
+</a>
+
+<a 
