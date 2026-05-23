@@ -473,7 +473,7 @@ const totalWidth =
     });
   }
 
-  dlet currentX = margin;
+  let currentX = margin;
 
 roots.forEach(root => {
 
