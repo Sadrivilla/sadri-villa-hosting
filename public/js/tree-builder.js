@@ -335,14 +335,26 @@ members.forEach(m => {
   localMap[m.id] = { ...m, children: [] };
 });
 
-  let root = null;
+  const roots = [];
 
- members.forEach(m => {
-   if (m.fatherId && localMap[m.fatherId]) {
-      localMap[m.fatherId].children.push(localMap[m.id]);
-   } else {
-      root = localMap[m.id];
-   }
+members.forEach(m => {
+
+  if (
+    m.fatherId &&
+    localMap[m.fatherId]
+  ) {
+
+    localMap[m.fatherId]
+      .children.push(
+        localMap[m.id]
+      );
+
+  } else {
+
+    roots.push(localMap[m.id]);
+
+  }
+
 });
 
 // 🔥 SORT CHILDREN BY createdAt (LEFT → RIGHT SAME AS TREE)
@@ -354,10 +366,13 @@ return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
 }
 });
 
-  if (!root) {
-    console.error("Root not found");
-    return;
-  }
+if (roots.length === 0) {
+
+  console.error("No roots found");
+
+  return;
+
+}
 
   const boxWidth = 65;
   const boxHeight = 20;
@@ -389,9 +404,21 @@ return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
     return node.subtreeWidth;
   }
 
+  roots.forEach(root => {
   measure(root);
+});
 
-  const totalWidth = root.subtreeWidth + margin * 2;
+  let combinedWidth = 0;
+
+roots.forEach(root => {
+
+  combinedWidth +=
+    root.subtreeWidth + 100;
+
+});
+
+const totalWidth =
+  combinedWidth + margin * 2;
   const totalHeight = (maxDepth + 1) * levelGap + margin * 2;
 
   const pdf = new jsPDF({
@@ -446,7 +473,24 @@ return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
     });
   }
 
-  draw(root, totalWidth / 2, margin);
+  dlet currentX = margin;
+
+roots.forEach(root => {
+
+  const centerX =
+    currentX +
+    root.subtreeWidth / 2;
+
+  draw(
+    root,
+    centerX,
+    margin
+  );
+
+  currentX +=
+    root.subtreeWidth + 100;
+
+});
 
   pdf.save("Sadri-Digital-Shajra-Full-Blueprint.pdf");
 };
