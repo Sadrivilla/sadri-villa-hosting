@@ -320,7 +320,135 @@ draw(root);
 // 📄 VECTOR PDF EXPORT (UNCHANGED)
 // =======================================
 
-window.exportTreePDF = async function () {
+window.exportModernPDF = async function () {
+
+  const svg = document.getElementById("treeSvg");
+
+  if (!svg) {
+    alert("Tree not found");
+    return;
+  }
+
+  // Save current mode
+  const oldMode =
+    svg.getAttribute("data-modern");
+
+  // Force modern mode
+  svg.setAttribute(
+    "data-modern",
+    "true"
+  );
+
+  await renderTree();
+
+  setTimeout(async () => {
+
+    const { jsPDF } = window.jspdf;
+
+    const svgData =
+      new XMLSerializer()
+        .serializeToString(svg);
+
+    const canvas =
+      document.createElement("canvas");
+
+    const ctx =
+      canvas.getContext("2d");
+
+    const img =
+      new Image();
+
+    const svgBlob =
+      new Blob(
+        [svgData],
+        {
+          type:
+            "image/svg+xml;charset=utf-8"
+        }
+      );
+
+    const url =
+      URL.createObjectURL(svgBlob);
+
+    img.onload = function () {
+
+      canvas.width =
+        svg.clientWidth * 2;
+
+      canvas.height =
+        svg.clientHeight * 2;
+
+      ctx.fillStyle = "#ffffff";
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      URL.revokeObjectURL(url);
+
+      const imgData =
+        canvas.toDataURL("image/png");
+
+      const pdf =
+        new jsPDF({
+          orientation:
+            canvas.width >
+            canvas.height
+              ? "landscape"
+              : "portrait",
+
+          unit: "pt",
+
+          format: [
+            canvas.width,
+            canvas.height
+          ]
+        });
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      pdf.save(
+        "Sadri-Modern-Shajra.pdf"
+      );
+
+      // Restore previous mode
+      if (!oldMode) {
+        svg.removeAttribute(
+          "data-modern"
+        );
+      }
+
+      renderTree();
+    };
+
+    img.src = url;
+
+  }, 800);
+
+};
+  // =======================================
+// 📄 CLASSIC PDF EXPORT
+// =======================================
+
+window.exportClassicPDF = async function () {
 
   const { jsPDF } = window.jspdf;
   const snapshot = await getDocs(collection(db, "family_members"));
@@ -445,17 +573,34 @@ pdf.setFontSize(11);
     const x = centerX - boxWidth / 2;
     const y = topY;
 
-   // ===== MODERN BOX =====
+// ===== PREMIUM BOX =====
 
-pdf.setFillColor(248, 250, 255);
+// Shadow
+pdf.setFillColor(220, 225, 235);
+
+pdf.roundedRect(
+  x + 3,
+  y + 3,
+  boxWidth,
+  boxHeight,
+  6,
+  6,
+  "F"
+);
+
+// Main Card
+pdf.setDrawColor(37, 99, 235);
+pdf.setLineWidth(1.2);
+
+pdf.setFillColor(255, 255, 255);
 
 pdf.roundedRect(
   x,
   y,
   boxWidth,
   boxHeight,
-  4,
-  4,
+  6,
+  6,
   "FD"
 );
 
@@ -478,7 +623,7 @@ const nameLines =
 pdf.text(
   nameLines,
   centerX,
-  y + 18,
+  y + 22,
   {
     align: "center"
   }
@@ -499,7 +644,7 @@ pdf.text(
   "Generation " +
     node.generation,
   centerX,
-  y + boxHeight - 12,
+  y + boxHeight - 14,
   {
     align: "center"
   }
@@ -520,8 +665,8 @@ pdf.text(
       childCenters.push(childCenterX);
       startX += child.subtreeWidth + siblingGap;
     });
-pdf.setDrawColor(120,120,120);
-pdf.setLineWidth(0.8);
+pdf.setDrawColor(80, 80, 80);
+pdf.setLineWidth(1.1);
     pdf.line(centerX, y + boxHeight, centerX, connectorY);
 
     const minX = Math.min(...childCenters);
