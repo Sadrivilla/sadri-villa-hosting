@@ -374,11 +374,11 @@ if (roots.length === 0) {
 
 }
 
-  const boxWidth = 65;
-  const boxHeight = 20;
-  const siblingGap = 20;
-  const levelGap = 50;
-  const margin = 30;
+ const boxWidth = 120;
+const boxHeight = 40;
+const siblingGap = 40;
+const levelGap = 90;
+const margin = 100;
 
   let maxDepth = 0;
 
@@ -418,16 +418,27 @@ roots.forEach(root => {
 });
 
 const totalWidth =
-  combinedWidth + margin * 2;
-  const totalHeight = (maxDepth + 1) * levelGap + margin * 2;
+  combinedWidth + 1000;
+
+const totalHeight =
+  ((maxDepth + 2) * levelGap) + 1000;
 
   const pdf = new jsPDF({
-    orientation: totalWidth > totalHeight ? "landscape" : "portrait",
-    unit: "mm",
-    format: [totalWidth, totalHeight]
-  });
 
-  pdf.setFontSize(9);
+  orientation: "landscape",
+
+  unit: "pt",
+
+  format: [
+    totalWidth,
+    totalHeight
+  ],
+
+  compress: false
+
+});
+
+ pdf.setFontSize(12);
 
   function draw(node, centerX, topY) {
 
