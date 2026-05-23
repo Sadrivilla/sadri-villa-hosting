@@ -374,8 +374,8 @@ if (roots.length === 0) {
 
 }
 
- const boxWidth = 120;
-const boxHeight = 40;
+const boxWidth = 170;
+const boxHeight = 55;
 const siblingGap = 40;
 const levelGap = 90;
 const margin = 100;
@@ -438,21 +438,72 @@ const totalHeight =
 
 });
 
- pdf.setFontSize(12);
+pdf.setFontSize(11);
 
   function draw(node, centerX, topY) {
 
     const x = centerX - boxWidth / 2;
     const y = topY;
 
-    pdf.rect(x, y, boxWidth, boxHeight);
+   // ===== MODERN BOX =====
 
-    const text = pdf.splitTextToSize(
-      node.name + "\nGen " + node.generation,
-      boxWidth - 6
-    );
+pdf.setFillColor(248, 250, 255);
 
-    pdf.text(text, x + 3, y + 7);
+pdf.roundedRect(
+  x,
+  y,
+  boxWidth,
+  boxHeight,
+  4,
+  4,
+  "FD"
+);
+
+// ===== NAME =====
+
+pdf.setFont(
+  "helvetica",
+  "bold"
+);
+
+pdf.setTextColor(20, 20, 20);
+pdf.setFontSize(11);
+
+const nameLines =
+  pdf.splitTextToSize(
+    node.name,
+    boxWidth - 14
+  );
+
+pdf.text(
+  nameLines,
+  centerX,
+  y + 18,
+  {
+    align: "center"
+  }
+);
+
+// ===== GENERATION =====
+
+pdf.setFont(
+  "helvetica",
+  "normal"
+);
+
+pdf.setFontSize(10);
+
+pdf.setTextColor(80, 80, 80);
+
+pdf.text(
+  "Generation " +
+    node.generation,
+  centerX,
+  y + boxHeight - 12,
+  {
+    align: "center"
+  }
+);
 
     if (!node.children || node.children.length === 0)
       return;
@@ -469,7 +520,8 @@ const totalHeight =
       childCenters.push(childCenterX);
       startX += child.subtreeWidth + siblingGap;
     });
-
+pdf.setDrawColor(120,120,120);
+pdf.setLineWidth(0.8);
     pdf.line(centerX, y + boxHeight, centerX, connectorY);
 
     const minX = Math.min(...childCenters);
