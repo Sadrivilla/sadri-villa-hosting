@@ -638,8 +638,7 @@ pdf.setFont(
 
 pdf.setFontSize(10);
 
-pdf.setTextColor(80, 80, 80);
-
+pdf.setTextColor(37, 99, 235);
 pdf.text(
   "Generation " +
     node.generation,
@@ -665,7 +664,7 @@ pdf.text(
       childCenters.push(childCenterX);
       startX += child.subtreeWidth + siblingGap;
     });
-pdf.setDrawColor(80, 80, 80);
+pdf.setDrawColor(37, 99, 235);
 pdf.setLineWidth(1.1);
     pdf.line(centerX, y + boxHeight, centerX, connectorY);
 
