@@ -348,13 +348,19 @@ select{
 
 .logo-img{
   display:none;
-  max-width:220px;      /* Desktop maximum width */
-  max-height:64px;      /* Header height fit */
+  visibility:hidden;
+  opacity:0;
+
+  max-width:220px;
+  max-height:64px;
   width:auto;
   height:auto;
-  object-fit:contain;   /* Prevent distortion */
-  border-radius:0;      /* No rounded corners */
+
+  object-fit:contain;
+  border-radius:0;
   background:transparent;
+
+  transition:opacity .3s ease;
 }
 
 /* Mobile */
@@ -364,7 +370,6 @@ select{
     max-height:52px;
     margin:0 !important;
     padding:0 !important;
-    display:block;
   }
 }
 
@@ -1156,7 +1161,11 @@ select{
   <div class="container navbar">
 
     <a href="index.html" class="logo-wrap">
-  <img id="siteLogo" class="logo-img" alt="Sadri Villa Logo">
+  <img
+  id="siteLogo"
+  class="logo-img"
+  alt="Sadri Villa Logo"
+  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
 </a>
 
     <nav class="nav-links">
@@ -2010,8 +2019,9 @@ footer{
 @media (max-width:640px){
   .container{
     width:100%;
-    padding:0; /* remove all mobile side spacing */
+    padding:0 14px;
   }
+}
  @media (max-width:640px){
   .hero{
     min-height:auto;          /* remove full screen height */
@@ -2301,11 +2311,23 @@ if (data.logo?.url) {
 
   /* Header Logo */
   if (siteLogo) {
-    siteLogo.onload = () => {
-      siteLogo.style.display = "block";
-    };
-    siteLogo.src = logoUrl;
-  }
+
+  /* hide before loading */
+  siteLogo.style.display = "none";
+
+  siteLogo.onload = () => {
+    siteLogo.style.display = "block";
+    siteLogo.style.visibility = "visible";
+    siteLogo.style.opacity = "1";
+  };
+
+  siteLogo.onerror = () => {
+    siteLogo.style.display = "none";
+  };
+
+  /* set image after onload attached */
+  siteLogo.src = logoUrl;
+}
 
   /* Footer Logo */
   if (footerLogo) {
