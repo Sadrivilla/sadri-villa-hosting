@@ -453,7 +453,7 @@ select{
   position:absolute;
   inset:0;
   z-index:1;
-  background:rgba(2,6,23,0.20);
+  background:rgba(0,0,0,0.10); /* lighter overlay */
   pointer-events:none;
 }
 
@@ -467,22 +467,22 @@ select{
   display:none;
   z-index:0;
   pointer-events:none;
+  background:#000;
+
+  opacity:1 !important;
+  visibility:visible !important;
 }
-.hero{
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
+
 .hero::after{
   content:"";
   position:absolute;
   inset:0;
   background:linear-gradient(
     180deg,
-    rgba(2,6,23,.20),
-    rgba(2,6,23,.45)
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.25)
   );
-  z-index:2;
+  z-index:1;
   pointer-events:none;
 }
 
@@ -506,6 +506,10 @@ select{
   text-align: center;
   position: relative;
   z-index: 3;
+}
+  .hero-content{
+  position:relative;
+  z-index:5;
 }
 
 .hero-badge{
@@ -2328,16 +2332,24 @@ if (
 
   /* Load uploaded video */
   heroVideo.src = data.heroVideo.url;
+  heroVideo.muted = true;
+heroVideo.playsInline = true;
+heroVideo.autoplay = true;
   heroVideo.style.display = "block";
+  heroVideo.style.opacity = "1";
+heroVideo.style.visibility = "visible";
 
   /* Play video */
   heroVideo.load();
 
-  heroVideo.onloadeddata = () => {
-    heroVideo.play().catch((err) => {
-      console.error("Video play failed:", err);
-    });
-  };
+heroVideo.oncanplay = async () => {
+  try {
+    await heroVideo.play();
+    console.log("Hero video playing");
+  } catch (err) {
+    console.error("Video autoplay failed:", err);
+  }
+};
 
 } else {
   /* Hide video */
