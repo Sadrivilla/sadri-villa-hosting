@@ -285,6 +285,7 @@ select{
   width:100%;
   z-index:1000;
   transition:var(--transition);
+  padding:0 !important;
 }
 
 .header.scrolled{
@@ -302,6 +303,15 @@ select{
   padding:0;
   margin:0;
 }
+.navbar{
+  position:relative;
+}
+
+.nav-links{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+}
 
 .logo-wrap{
   display:flex;
@@ -312,7 +322,28 @@ select{
   padding:0;
   min-height:auto;
   flex-shrink:0;
-  margin-right:auto; /* push navigation/actions to right */
+}
+
+/* MOBILE LOGO EDGE FIX */
+@media (max-width:640px){
+
+  .navbar{
+    padding:0 !important;
+    margin:0 !important;
+  }
+
+  .logo-wrap{
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  .logo-img{
+    margin:0 !important;
+    padding:0 !important;
+    max-width:150px;
+    display:block;
+  }
+
 }
 
 .logo-img{
@@ -329,8 +360,11 @@ select{
 /* Mobile */
 @media (max-width:768px){
   .logo-img{
-    max-width:160px;
+    max-width:150px;
     max-height:52px;
+    margin:0 !important;
+    padding:0 !important;
+    display:block;
   }
 }
 
@@ -372,7 +406,6 @@ select{
   margin:0;
   padding:0;
   flex-shrink:0;
-  margin-left:auto; /* stick to right side */
 }
 
 .mobile-toggle{
@@ -1977,7 +2010,7 @@ footer{
 @media (max-width:640px){
   .container{
     width:100%;
-    padding:0 12px; /* mobile left and right spacing */
+    padding:0; /* remove all mobile side spacing */
   }
  @media (max-width:640px){
   .hero{
