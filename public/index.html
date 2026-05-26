@@ -2030,13 +2030,15 @@ footer{
     align-items:flex-start;
   }
 
-  .hero-content{
-    min-height:auto;          /* content takes only required height */
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-  }
+.hero-content{
+  min-height:calc(100vh - 220px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+
+  padding-top:10px; /* moves text upward */
+}
   
 .hero-title{
   font-size: 28px;
