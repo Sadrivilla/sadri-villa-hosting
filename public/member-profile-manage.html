@@ -86,6 +86,17 @@ border:2px solid #06b6d4;
 </div>
 
 <div class="p-4 lg:p-8 min-h-screen">
+  <!-- IMAGE MODAL -->
+
+<div
+id="imageModal"
+class="fixed inset-0 bg-black/80 hidden items-center justify-center p-6 z-[999999]">
+
+<img
+id="largeImage"
+class="max-w-[95vw] max-h-[90vh] rounded-[30px] object-contain">
+
+</div>
 
 <div class="glass rounded-[32px] p-6 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
 
@@ -100,10 +111,15 @@ Manage all Sadri Villa members
 </div>
 
 <a
-href="dashboard.html"
+<div class="flex flex-wrap gap-4">
+
+<a
+href="admin-dashboard.html"
 class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
-Dashboard
+← Back To Admin Dashboard
 </a>
+
+</div>
 
 </div>
 
@@ -139,7 +155,7 @@ Select member to edit
 <img
 id="editPhoto"
 src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
-class="w-40 h-40 rounded-[30px] object-cover border-4 border-cyan-400">
+class="w-40 h-40 rounded-[30px] object-cover border-4 border-cyan-400 cursor-pointer hover:scale-105 transition">
 
 <div class="flex-1 w-full">
 
@@ -197,6 +213,14 @@ id="deletePhotoBtn"
 class="bg-red-500 px-6 py-4 rounded-2xl font-bold">
 Delete Photo
 </button>
+  <a
+id="downloadPhotoBtn"
+href="#"
+target="_blank"
+download
+class="bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
+Download Photo
+</a>
 
 </div>
 
@@ -363,7 +387,18 @@ uid:docSnap.id,
 });
 
 renderMembers(allUsers);
+// OPEN LARGE IMAGE
 
+document.getElementById("editPhoto").onclick=()=>{
+
+document.getElementById("largeImage").src=
+selectedUser.profilePhoto ||
+'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
+
+document.getElementById("imageModal")
+.style.display="flex";
+
+};
 hideLoader();
 
 }
@@ -457,6 +492,8 @@ document.getElementById("editApproved").value=String(selectedUser.approved);
 document.getElementById("editPhoto").src=
 selectedUser.profilePhoto ||
 'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
+  document.getElementById("downloadPhotoBtn").href =
+selectedUser.profilePhoto || "#";
 
 // ADMIN FIELDS
 
@@ -609,6 +646,7 @@ updatedAt:new Date().toISOString()
 selectedUser.profilePhoto=url;
 
 document.getElementById("editPhoto").src=url;
+  document.getElementById("downloadPhotoBtn").href=url;
 
 loadMembers();
 
@@ -656,6 +694,7 @@ const defaultPhoto=
 'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
 
 editPhoto.src=defaultPhoto;
+  document.getElementById("downloadPhotoBtn").href="#";
 
 loadMembers();
 
@@ -727,6 +766,15 @@ hideLoader();
 console.log(err);
 hideLoader();
 }
+
+};
+  // CLOSE IMAGE MODAL
+
+document.getElementById("imageModal")
+.onclick=()=>{
+
+document.getElementById("imageModal")
+.style.display="none";
 
 };
 
