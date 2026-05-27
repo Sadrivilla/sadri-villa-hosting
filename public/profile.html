@@ -725,22 +725,9 @@ if(!file) return;
 
 previewPhoto.src=URL.createObjectURL(file);
 
-document.getElementById("uploadPhotoBtn")
-photoInput.onchange=(e)=>{
-
-const file=e.target.files[0];
-
-if(!file) return;
-
-previewPhoto.src=URL.createObjectURL(file);
-
 const uploadBtn=document.getElementById("uploadPhotoBtn");
 
 uploadBtn.style.display="inline-flex";
-
-uploadBtn.classList.remove("hidden");
-
-};
 
 };
 
