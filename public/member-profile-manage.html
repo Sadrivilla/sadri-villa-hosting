@@ -37,12 +37,22 @@ input,
 textarea,
 select{
 width:100%;
-background:rgba(255,255,255,0.05);
-border:1px solid rgba(255,255,255,0.08);
+min-height:64px;
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.10);
 color:white;
-padding:16px 18px;
-border-radius:18px;
+padding:20px 24px;
+border-radius:20px;
 outline:none;
+font-size:15px;
+line-height:1.5;
+}
+  label{
+display:block;
+margin-bottom:10px;
+font-size:14px;
+font-weight:600;
+color:#cbd5e1;
 }
 
 button{
@@ -211,13 +221,11 @@ id="deletePhotoBtn"
 class="bg-red-500 px-6 py-4 rounded-2xl font-bold">
 Delete Photo
 </button>
-<a
+<button
 id="downloadPhotoBtn"
-href="#"
-download
 class="bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
 Download Photo
-</a>
+</button>
 
 </div>
 
@@ -704,6 +712,26 @@ hideLoader();
 console.log(err);
 hideLoader();
 }
+
+};
+  // DOWNLOAD PHOTO
+
+document.getElementById("downloadPhotoBtn")
+.onclick=()=>{
+
+if(!selectedUser.profilePhoto) return;
+
+const a=document.createElement("a");
+
+a.href=selectedUser.profilePhoto;
+
+a.download="profile-photo.jpg";
+
+document.body.appendChild(a);
+
+a.click();
+
+document.body.removeChild(a);
 
 };
 
