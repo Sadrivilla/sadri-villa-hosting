@@ -66,6 +66,14 @@ select option{
 background:#0f172a;
 color:white;
 }
+ input[type="date"]{
+color-scheme:dark;
+}
+
+select{
+appearance:none;
+-webkit-appearance:none;
+}
   label{
 display:block;
 margin-bottom:10px;
@@ -113,9 +121,7 @@ border:2px solid #06b6d4;
 <div class="loader" id="loader">
 <div class="loader-circle"></div>
 </div>
-
-<div class="p-4 lg:p-8 min-h-screen">
-  <!-- IMAGE MODAL -->
+ <!-- IMAGE MODAL -->
 
 <div
 id="imageModal"
@@ -127,9 +133,12 @@ class="max-w-[95vw] max-h-[90vh] rounded-[30px] object-contain">
 
 </div>
 
+<div class="p-4 lg:p-8 min-h-screen">
+
 <div class="glass rounded-[32px] p-6 mb-8 flex flex-col gap-5">
 
 <div>
+  
 <h1 class="text-4xl font-extrabold">
 Admin Member Management
 </h1>
@@ -566,13 +575,27 @@ document.getElementById("imageModal")
 document.getElementById("editFullName").value=selectedUser.fullName || '';
 const fullPhone=selectedUser.phone || "";
 
-if(fullPhone.startsWith("+91")){
-document.getElementById("countryCode").value="+91";
-document.getElementById("editPhone").value=
-fullPhone.replace("+91","");
-}else{
-document.getElementById("editPhone").value=fullPhone;
+const codes=["+91","+1","+971","+966"];
+
+let matchedCode="+91";
+
+for(const code of codes){
+
+if(fullPhone.startsWith(code)){
+
+matchedCode=code;
+
+break;
+
 }
+
+}
+
+document.getElementById("countryCode").value=matchedCode;
+
+document.getElementById("editPhone").value=
+fullPhone.replace(matchedCode,"");
+
 document.getElementById("editEmail").value=selectedUser.email || '';
 document.getElementById("editRole").value=selectedUser.role || 'user';
 document.getElementById("editApproved").value=String(selectedUser.approved);
@@ -673,7 +696,7 @@ wrap.innerHTML+=`
 
 <div class="flex flex-wrap gap-5 mt-5 items-center justify-between">
 
-<label class="flex items-center gap-3">
+<label class="flex items-center gap-3 cursor-pointer select-none">
 <input type="checkbox" class="custom-show" ${show ? 'checked' : ''}>
 Show On Dashboard
 </label>
@@ -851,13 +874,21 @@ hideLoader();
   // DOWNLOAD PHOTO
 
 document.getElementById("downloadPhotoBtn")
-.onclick=()=>{
+.onclick=async()=>{
 
 if(!selectedUser.profilePhoto) return;
 
+try{
+
+const response=await fetch(selectedUser.profilePhoto);
+
+const blob=await response.blob();
+
+const blobUrl=URL.createObjectURL(blob);
+
 const a=document.createElement("a");
 
-a.href=selectedUser.profilePhoto;
+a.href=blobUrl;
 
 a.download="profile-photo.jpg";
 
@@ -866,6 +897,14 @@ document.body.appendChild(a);
 a.click();
 
 document.body.removeChild(a);
+
+URL.revokeObjectURL(blobUrl);
+
+}catch(err){
+
+console.log(err);
+
+}
 
 };
 
