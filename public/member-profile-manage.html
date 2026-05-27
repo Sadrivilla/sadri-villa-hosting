@@ -11,13 +11,18 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-  input[type=\"checkbox\"]{
-width:20px !important;
-height:20px !important;
-min-height:auto !important;
+ input[type=\"checkbox\"]{
+appearance:auto !important;
+-webkit-appearance:checkbox !important;
+width:18px !important;
+height:18px !important;
+min-height:18px !important;
 padding:0 !important;
+margin:0 !important;
+border-radius:4px !important;
 accent-color:#06b6d4;
 cursor:pointer;
+flex-shrink:0;
 }
 
 *{
@@ -49,7 +54,8 @@ min-height:64px;
 background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.10);
 color:white;
-padding:20px 30px;
+padding:20px 34px;
+text-indent:4px;
 border-radius:20px;
 outline:none;
 font-size:15px;
@@ -138,7 +144,7 @@ Manage all Sadri Villa members
 <a
 href="admin-dashboard.html"
 class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
-← Back To Admin Dashboard
+Back
 </a>
 
 </div>
@@ -189,7 +195,40 @@ class="w-40 h-40 rounded-[30px] object-cover border-4 border-cyan-400 cursor-poi
 
 <div>
 <label>Phone</label>
-<input id="editPhone">
+
+<div class="flex gap-3">
+
+<select
+id="countryCode"
+class="max-w-[130px]">
+
+<option value="+91" selected>
+🇮🇳 +91
+</option>
+
+<option value="+1">
+🇺🇸 +1
+</option>
+
+<option value="+971">
+🇦🇪 +971
+</option>
+
+<option value="+966">
+🇸🇦 +966
+</option>
+
+</select>
+
+<input
+id="editPhone"
+type="tel"
+maxlength="10"
+inputmode="numeric"
+placeholder="10 digit number">
+
+</div>
+
 </div>
 
 <div>
@@ -353,6 +392,19 @@ const storage=getStorage(app);
 const loader=document.getElementById("loader");
 const membersWrap=document.getElementById("membersWrap");
 const searchInput=document.getElementById("searchInput");
+  // PHONE VALIDATION
+
+document.addEventListener("input",(e)=>{
+
+if(e.target.id==="editPhone"){
+
+e.target.value=e.target.value
+.replace(/[^0-9]/g,'')
+.slice(0,10);
+
+}
+
+});
 
 let selectedUid="";
 let selectedUser={};
@@ -512,7 +564,15 @@ document.getElementById("imageModal")
 // BASIC
 
 document.getElementById("editFullName").value=selectedUser.fullName || '';
-document.getElementById("editPhone").value=selectedUser.phone || '';
+const fullPhone=selectedUser.phone || "";
+
+if(fullPhone.startsWith("+91")){
+document.getElementById("countryCode").value="+91";
+document.getElementById("editPhone").value=
+fullPhone.replace("+91","");
+}else{
+document.getElementById("editPhone").value=fullPhone;
+}
 document.getElementById("editEmail").value=selectedUser.email || '';
 document.getElementById("editRole").value=selectedUser.role || 'user';
 document.getElementById("editApproved").value=String(selectedUser.approved);
@@ -544,10 +604,24 @@ fieldHTML=`
 </select>
 `;
 
+}else if(
+k.toLowerCase()==="date of birth"
+|| k.toLowerCase()==="dob"
+){
+
+fieldHTML=`
+<input
+type="date"
+data-admin="${k}"
+value="${v || ''}">
+`;
+
 }else{
 
 fieldHTML=`
-<input data-admin="${k}" value="${v || ''}">
+<input
+data-admin="${k}"
+value="${v || ''}">
 `;
 
 }
@@ -833,7 +907,9 @@ await setDoc(
 doc(db,"users",selectedUid),
 {
 fullName:document.getElementById("editFullName").value.trim(),
-phone:document.getElementById("editPhone").value.trim(),
+phone:
+document.getElementById("countryCode").value +
+document.getElementById("editPhone").value.trim(),
 email:document.getElementById("editEmail").value.trim(),
 role:document.getElementById("editRole").value,
 approved:document.getElementById("editApproved").value === 'true',
