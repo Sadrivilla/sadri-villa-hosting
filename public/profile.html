@@ -788,8 +788,13 @@ progressText.innerText=percent+"% Uploading";
 
 },
 (error)=>{
-console.error(error);
+
+console.error("UPLOAD ERROR:",error);
+
+alert(error.message);
+
 showError();
+
 },
 async()=>{
 
@@ -815,7 +820,7 @@ setTimeout(()=>{
 progressWrap.style.display="none";
 },1500);
 
-showSuccess();
+console.log("PHOTO URL SAVED:",url);
 
 }
 );
