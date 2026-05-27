@@ -777,7 +777,7 @@ progressWrap.style.display="block";
 
 const storageRef = ref(
   storage,
-  `member-dashboard-profile-photo/${uid}/${safeName}.jpg`
+  `member-dashboard-profile-photo/${safeName}-${uid}/profile.jpg`
 );
 
 const uploadTask=uploadBytesResumable(
