@@ -450,7 +450,8 @@ Select Profile Photo
 
 <button
 id="uploadPhotoBtn"
-class="mt-4 glass hover:bg-white/10 transition px-7 py-4 rounded-2xl font-semibold hidden">
+style="display:none"
+class="mt-4 glass hover:bg-white/10 transition px-7 py-4 rounded-2xl font-semibold">
 Upload Profile Photo
 </button>
 
@@ -725,7 +726,21 @@ if(!file) return;
 previewPhoto.src=URL.createObjectURL(file);
 
 document.getElementById("uploadPhotoBtn")
-.classList.remove("hidden");
+photoInput.onchange=(e)=>{
+
+const file=e.target.files[0];
+
+if(!file) return;
+
+previewPhoto.src=URL.createObjectURL(file);
+
+const uploadBtn=document.getElementById("uploadPhotoBtn");
+
+uploadBtn.style.display="inline-flex";
+
+uploadBtn.classList.remove("hidden");
+
+};
 
 };
 
