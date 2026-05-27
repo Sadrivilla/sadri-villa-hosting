@@ -767,9 +767,17 @@ return;
 
 progressWrap.style.display="block";
 
-const storageRef=ref(
-storage,
- `member-dashboard-profile-photo/${uid}/${safeName}.jpg
+
+ const safeName = (
+  baseUser.fullName || "member"
+)
+.toLowerCase()
+.replace(/\s+/g,"-")
+.replace(/[^a-z0-9-]/g,"");
+
+const storageRef = ref(
+  storage,
+  `member-dashboard-profile-photo/${uid}/${safeName}.jpg`
 );
 
 const uploadTask=uploadBytesResumable(
