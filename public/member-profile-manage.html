@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Profile Management | Sadri Villa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#020617;
+color:white;
+overflow-x:hidden;
+}
+
+.glass{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+box-shadow:0 10px 40px rgba(0,0,0,0.35);
+}
+
+input,
+textarea,
+select{
+width:100%;
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.08);
+color:white;
+padding:16px 18px;
+border-radius:18px;
+outline:none;
+}
+
+button{
+cursor:pointer;
+}
+
+.loader{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:99999;
+}
+
+.loader-circle{
+width:70px;
+height:70px;
+border-radius:50%;
+border:6px solid rgba(255,255,255,0.15);
+border-top:6px solid #06b6d4;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+100%{transform:rotate(360deg)}
+}
+
+.member-card.active{
+border:2px solid #06b6d4;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="loader" id="loader">
+<div class="loader-circle"></div>
+</div>
+
+<div class="p-4 lg:p-8 min-h-screen">
+
+<div class="glass rounded-[32px] p-6 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+
+<div>
+<h1 class="text-4xl font-extrabold">
+Admin Member Management
+</h1>
+
+<p class="text-slate-400 mt-2">
+Manage all Sadri Villa members
+</p>
+</div>
+
+<a
+href="dashboard.html"
+class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
+Dashboard
+</a>
+
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+<!-- LEFT -->
+
+<div class="xl:col-span-4 glass rounded-[32px] p-5 h-[85vh] overflow-auto">
+
+<div class="mb-5">
+<input
+id="searchInput"
+type="text"
+placeholder="Search member by name...">
+</div>
+
+<div id="membersWrap" class="space-y-4"></div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="xl:col-span-8 glass rounded-[32px] p-6 overflow-auto">
+
+<div id="emptyState" class="text-center py-24 text-slate-400 text-xl">
+Select member to edit
+</div>
+
+<div id="editor" style="display:none">
+
+<div class="flex flex-col lg:flex-row gap-6 items-start mb-8">
+
+<img
+id="editPhoto"
+src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+class="w-40 h-40 rounded-[30px] object-cover border-4 border-cyan-400">
+
+<div class="flex-1 w-full">
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+<div>
+<label>Full Name</label>
+<input id="editFullName">
+</div>
+
+<div>
+<label>Phone</label>
+<input id="editPhone">
+</div>
+
+<div>
+<label>Email</label>
+<input id="editEmail">
+</div>
+
+<div>
+<label>Role</label>
+<select id="editRole">
+<option value="user">User</option>
+<option value="admin">Admin</option>
+</select>
+</div>
+
+<div>
+<label>Approved</label>
+<select id="editApproved">
+<option value="true">Approved</option>
+<option value="false">Pending</option>
+</select>
+</div>
+
+</div>
+
+<div class="flex flex-wrap gap-4 mt-6">
+
+<input
+id="newPhotoInput"
+type="file"
+accept="image/*"
+class="hidden">
+
+<button
+id="changePhotoBtn"
+class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold">
+Change Photo
+</button>
+
+<button
+id="deletePhotoBtn"
+class="bg-red-500 px-6 py-4 rounded-2xl font-bold">
+Delete Photo
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ADMIN FIELDS -->
+
+<div class="mt-10">
+<h3 class="text-2xl font-bold mb-5">
+Admin Fields
+</h3>
+
+<div
+id="adminFieldsWrap"
+class="grid grid-cols-1 md:grid-cols-2 gap-5">
+</div>
+</div>
+
+<!-- CUSTOM FIELDS -->
+
+<div class="mt-10">
+
+<div class="flex items-center justify-between mb-5">
+<h3 class="text-2xl font-bold">
+Custom Fields
+</h3>
+
+<button
+id="addCustomBtn"
+class="bg-cyan-500 text-black px-5 py-3 rounded-2xl font-bold">
++ Add
+</button>
+</div>
+
+<div id="customWrap" class="space-y-5"></div>
+
+</div>
+
+<!-- ACTIONS -->
+
+<div class="flex flex-wrap gap-4 mt-10">
+
+<button
+id="saveMemberBtn"
+class="bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold">
+Save Changes
+</button>
+
+<button
+id="deleteMemberBtn"
+class="bg-red-600 px-8 py-4 rounded-2xl font-bold">
+Delete Member
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+doc,
+getDoc,
+setDoc,
+deleteDoc,
+updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+getStorage,
+ref,
+uploadBytesResumable,
+getDownloadURL,
+deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const app=initializeApp({
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_AUTH_DOMAIN",
+projectId:"YOUR_PROJECT_ID",
+storageBucket:"YOUR_STORAGE_BUCKET"
+});
+
+const auth=getAuth(app);
+const db=getFirestore(app);
+const storage=getStorage(app);
+
+const loader=document.getElementById("loader");
+const membersWrap=document.getElementById("membersWrap");
+const searchInput=document.getElementById("searchInput");
+
+let selectedUid="";
+let selectedUser={};
+let allUsers=[];
+
+function showLoader(){
+loader.style.display="flex";
+}
+
+function hideLoader(){
+loader.style.display="none";
+}
+
+onAuthStateChanged(auth,async(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
+
+const adminSnap=await getDoc(doc(db,"users",user.uid));
+
+if(!adminSnap.exists()){
+location.href="dashboard.html";
+return;
+}
+
+const adminData=adminSnap.data();
+
+if(adminData.role!=="admin"){
+location.href="dashboard.html";
+return;
+}
+
+loadMembers();
+
+});
+
+async function loadMembers(){
+
+showLoader();
+
+membersWrap.innerHTML="";
+
+const snap=await getDocs(collection(db,"users"));
+
+allUsers=[];
+
+snap.forEach(docSnap=>{
+
+allUsers.push({
+uid:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+renderMembers(allUsers);
+
+hideLoader();
+
+}
+
+function renderMembers(users){
+
+membersWrap.innerHTML="";
+
+users.forEach(user=>{
+
+const div=document.createElement("div");
+
+div.className="member-card glass rounded-3xl p-4 cursor-pointer";
+
+div.innerHTML=`
+<div class="flex gap-4 items-center">
+
+<img
+src="${user.profilePhoto || 'https://cdn-icons-png.flaticon.com/512/4140/4140048.png'}"
+class="w-20 h-20 rounded-2xl object-cover">
+
+<div class="flex-1">
+<h3 class="font-bold text-lg">
+${user.fullName || 'Member'}
+</h3>
+
+<p class="text-slate-400 text-sm mt-1">
+${user.email || ''}
+</p>
+
+<div class="flex gap-2 mt-3 flex-wrap">
+
+<div class="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-xl text-xs">
+${user.role || 'user'}
+</div>
+
+<div class="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-xl text-xs">
+${user.approved ? 'Approved' : 'Pending'}
+</div>
+
+</div>
+
+</div>
+
+</div>
+`;
+
+membersWrap.appendChild(div);
+
+// OPEN MEMBER
+
+div.onclick=()=>openMember(user.uid);
+
+});
+
+}
+
+searchInput.oninput=()=>{
+
+const q=searchInput.value.toLowerCase();
+
+const filtered=allUsers.filter(u=>
+(u.fullName || '').toLowerCase().includes(q)
+);
+
+renderMembers(filtered);
+
+};
+
+async function openMember(uid){
+
+showLoader();
+
+selectedUid=uid;
+
+const snap=await getDoc(doc(db,"users",uid));
+
+selectedUser=snap.data();
+
+document.getElementById("emptyState").style.display="none";
+document.getElementById("editor").style.display="block";
+
+// BASIC
+
+document.getElementById("editFullName").value=selectedUser.fullName || '';
+document.getElementById("editPhone").value=selectedUser.phone || '';
+document.getElementById("editEmail").value=selectedUser.email || '';
+document.getElementById("editRole").value=selectedUser.role || 'user';
+document.getElementById("editApproved").value=String(selectedUser.approved);
+
+document.getElementById("editPhoto").src=
+selectedUser.profilePhoto ||
+'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
+
+// ADMIN FIELDS
+
+const adminWrap=document.getElementById("adminFieldsWrap");
+adminWrap.innerHTML="";
+
+const adminFields=selectedUser.adminFields || {};
+
+Object.entries(adminFields).forEach(([k,v])=>{
+
+adminWrap.innerHTML+=`
+<div>
+<label>${k}</label>
+<input data-admin="${k}" value="${v || ''}">
+</div>
+`;
+
+});
+
+// CUSTOM FIELDS
+
+const customWrap=document.getElementById("customWrap");
+customWrap.innerHTML="";
+
+const customFields=selectedUser.userCustomFields || {};
+
+Object.entries(customFields).forEach(([k,v])=>{
+addCustomField(k,v.value,v.showOnDashboard);
+});
+
+hideLoader();
+
+}
+
+function addCustomField(k='',v='',show=false){
+
+const wrap=document.getElementById("customWrap");
+
+wrap.innerHTML+=`
+<div class="glass rounded-3xl p-5 custom-block">
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+<div>
+<label>Field Name</label>
+<input class="custom-key" value="${k}">
+</div>
+
+<div>
+<label>Field Value</label>
+<input class="custom-value" value="${v}">
+</div>
+
+</div>
+
+<div class="flex flex-wrap gap-5 mt-5 items-center justify-between">
+
+<label class="flex items-center gap-3">
+<input type="checkbox" class="custom-show" ${show ? 'checked' : ''}>
+Show On Dashboard
+</label>
+
+<button
+onclick="this.closest('.custom-block').remove()"
+class="bg-red-500 px-5 py-3 rounded-2xl font-bold">
+Delete
+</button>
+
+</div>
+
+</div>
+`;
+
+}
+
+// ADD CUSTOM FIELD
+
+document.getElementById("addCustomBtn")
+.onclick=()=>addCustomField();
+
+// CHANGE PHOTO
+
+document.getElementById("changePhotoBtn")
+.onclick=()=>{
+document.getElementById("newPhotoInput").click();
+};
+
+// PHOTO SELECT
+
+document.getElementById("newPhotoInput")
+.onchange=async(e)=>{
+
+const file=e.target.files[0];
+
+if(!file) return;
+
+showLoader();
+
+try{
+
+// DELETE OLD PHOTO
+
+if(selectedUser.profilePhoto){
+
+try{
+
+const oldRef=ref(
+storage,
+`member-dashboard-profile-photo/${selectedUid}/profile.jpg`
+);
+
+await deleteObject(oldRef);
+
+}catch(err){
+console.log(err);
+}
+
+}
+
+// UPLOAD NEW PHOTO
+
+const storageRef=ref(
+storage,
+`member-dashboard-profile-photo/${selectedUid}/profile.jpg`
+);
+
+const uploadTask=uploadBytesResumable(
+storageRef,
+file
+);
+
+uploadTask.on(
+"state_changed",
+()=>{},
+(err)=>{
+console.log(err);
+},
+async()=>{
+
+const url=await getDownloadURL(uploadTask.snapshot.ref);
+
+await updateDoc(
+doc(db,"users",selectedUid),
+{
+profilePhoto:url,
+updatedAt:new Date().toISOString()
+}
+);
+
+selectedUser.profilePhoto=url;
+
+document.getElementById("editPhoto").src=url;
+
+loadMembers();
+
+hideLoader();
+
+}
+);
+
+}catch(err){
+console.log(err);
+hideLoader();
+}
+
+};
+
+// DELETE PHOTO
+
+document.getElementById("deletePhotoBtn")
+.onclick=async()=>{
+
+if(!confirm("Delete profile photo?")) return;
+
+showLoader();
+
+try{
+
+const photoRef=ref(
+storage,
+`member-dashboard-profile-photo/${selectedUid}/profile.jpg`
+);
+
+await deleteObject(photoRef);
+
+await updateDoc(
+doc(db,"users",selectedUid),
+{
+profilePhoto:"",
+updatedAt:new Date().toISOString()
+}
+);
+
+selectedUser.profilePhoto="";
+
+const defaultPhoto=
+'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
+
+editPhoto.src=defaultPhoto;
+
+loadMembers();
+
+hideLoader();
+
+}catch(err){
+console.log(err);
+hideLoader();
+}
+
+};
+
+// SAVE MEMBER
+
+document.getElementById("saveMemberBtn")
+.onclick=async()=>{
+
+showLoader();
+
+try{
+
+const adminFields={};
+
+document.querySelectorAll("[data-admin]")
+.forEach(input=>{
+adminFields[input.dataset.admin]=input.value.trim();
+});
+
+const customFields={};
+
+document.querySelectorAll(".custom-block")
+.forEach(block=>{
+
+const key=block.querySelector(".custom-key").value.trim();
+
+if(key){
+
+customFields[key]={
+value:block.querySelector(".custom-value").value.trim(),
+showOnDashboard:block.querySelector(".custom-show").checked
+};
+
+}
+
+});
+
+await setDoc(
+doc(db,"users",selectedUid),
+{
+fullName:document.getElementById("editFullName").value.trim(),
+phone:document.getElementById("editPhone").value.trim(),
+email:document.getElementById("editEmail").value.trim(),
+role:document.getElementById("editRole").value,
+approved:document.getElementById("editApproved").value === 'true',
+adminFields,
+userCustomFields:customFields,
+updatedAt:new Date().toISOString()
+},
+{merge:true}
+);
+
+alert("Member updated successfully");
+
+loadMembers();
+
+hideLoader();
+
+}catch(err){
+console.log(err);
+hideLoader();
+}
+
+};
+
+// DELETE MEMBER
+
+document.getElementById("deleteMemberBtn")
+.onclick=async()=>{
+
+const ok=confirm(
+"Delete this member permanently?"
+);
+
+if(!ok) return;
+
+showLoader();
+
+try{
+
+// DELETE PROFILE PHOTO
+
+try{
+
+const photoRef=ref(
+storage,
+`member-dashboard-profile-photo/${selectedUid}/profile.jpg`
+);
+
+await deleteObject(photoRef);
+
+}catch(err){
+console.log(err);
+}
+
+// DELETE FIRESTORE USER
+
+await deleteDoc(
+doc(db,"users",selectedUid)
+);
+
+// RESET UI
+
+selectedUid="";
+selectedUser={};
+
+editor.style.display="none";
+emptyState.style.display="block";
+
+loadMembers();
+
+hideLoader();
+
+alert("Member deleted successfully");
+
+}catch(err){
+console.log(err);
+hideLoader();
+}
+
+};
+
+</script>
+
+</body>
+</html>
