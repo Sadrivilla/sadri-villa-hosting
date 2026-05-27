@@ -211,10 +211,13 @@ id="deletePhotoBtn"
 class="bg-red-500 px-6 py-4 rounded-2xl font-bold">
 Delete Photo
 </button>
-  <a
-<a
+ <a
 id="downloadPhotoBtn"
 href="#"
+download
+class="bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
+Download Photo
+</a>
 download
 class="bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold text-center">
 Download Photo
@@ -469,6 +472,18 @@ document.getElementById("emptyState").style.display="none";
 document.getElementById("editor").style.display="block";
   document.getElementById("downloadPhotoBtn").href =
 selectedUser.profilePhoto || "#";
+  // OPEN LARGE IMAGE
+
+document.getElementById("editPhoto").onclick=()=>{
+
+document.getElementById("largeImage").src=
+selectedUser.profilePhoto ||
+'https://cdn-icons-png.flaticon.com/512/4140/4140048.png';
+
+document.getElementById("imageModal")
+.style.display="flex";
+
+};
 
 // BASIC
 
