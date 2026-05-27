@@ -11,6 +11,14 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+  input[type=\"checkbox\"]{
+width:20px !important;
+height:20px !important;
+min-height:auto !important;
+padding:0 !important;
+accent-color:#06b6d4;
+cursor:pointer;
+}
 
 *{
 margin:0;
@@ -41,11 +49,16 @@ min-height:64px;
 background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.10);
 color:white;
-padding:20px 24px;
+padding:20px 30px;
 border-radius:20px;
 outline:none;
 font-size:15px;
 line-height:1.5;
+}
+
+select option{
+background:#0f172a;
+color:white;
 }
   label{
 display:block;
@@ -108,7 +121,7 @@ class="max-w-[95vw] max-h-[90vh] rounded-[30px] object-contain">
 
 </div>
 
-<div class="glass rounded-[32px] p-6 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+<div class="glass rounded-[32px] p-6 mb-8 flex flex-col gap-5">
 
 <div>
 <h1 class="text-4xl font-extrabold">
@@ -213,7 +226,13 @@ class="hidden">
 <button
 id="changePhotoBtn"
 class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold">
-Change Photo
+Change Profile Photo
+</button>
+  <button
+id="uploadNewPhotoBtn"
+style="display:none"
+class="bg-emerald-500 text-black px-6 py-4 rounded-2xl font-bold">
+Upload New Profile Photo
 </button>
 
 <button
@@ -338,6 +357,7 @@ const searchInput=document.getElementById("searchInput");
 let selectedUid="";
 let selectedUser={};
 let allUsers=[];
+  let selectedPhotoFile=null;
 
 function showLoader(){
 loader.style.display="flex";
@@ -512,10 +532,30 @@ const adminFields=selectedUser.adminFields || {};
 
 Object.entries(adminFields).forEach(([k,v])=>{
 
+let fieldHTML="";
+
+if(k.toLowerCase()==="gender"){
+
+fieldHTML=`
+<select data-admin="${k}">
+<option value="">Select Gender</option>
+<option value="Male" ${v==="Male" ? "selected" : ""}>Male</option>
+<option value="Female" ${v==="Female" ? "selected" : ""}>Female</option>
+</select>
+`;
+
+}else{
+
+fieldHTML=`
+<input data-admin="${k}" value="${v || ''}">
+`;
+
+}
+
 adminWrap.innerHTML+=`
 <div>
 <label>${k}</label>
-<input data-admin="${k}" value="${v || ''}">
+${fieldHTML}
 </div>
 `;
 
@@ -588,19 +628,39 @@ document.getElementById("changePhotoBtn")
 .onclick=()=>{
 document.getElementById("newPhotoInput").click();
 };
-
-// PHOTO SELECT
-
-document.getElementById("newPhotoInput")
-.onchange=async(e)=>{
+  document.getElementById("newPhotoInput")
+.onchange=(e)=>{
 
 const file=e.target.files[0];
 
 if(!file) return;
 
+selectedPhotoFile=file;
+
+// PREVIEW
+
+document.getElementById("editPhoto").src=
+URL.createObjectURL(file);
+
+// SHOW UPLOAD BUTTON
+
+document.getElementById("uploadNewPhotoBtn")
+.style.display="inline-flex";
+
+};
+
+  // UPLOAD NEW PHOTO
+
+document.getElementById("uploadNewPhotoBtn")
+.onclick=async()=>{
+
+if(!selectedPhotoFile) return;
+
 showLoader();
 
 try{
+
+
 
 // DELETE OLD PHOTO
 
@@ -630,7 +690,7 @@ storage,
 
 const uploadTask=uploadBytesResumable(
 storageRef,
-file
+selectedPhotoFile
 );
 
 uploadTask.on(
