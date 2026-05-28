@@ -757,14 +757,16 @@ addCustomField(k,v.value,v.showOnDashboard);
 hideLoader();
 
 }
-
 function addCustomField(k='',v='',show=false){
 
-const wrap=document.getElementById("customWrap");
+const wrap = document.getElementById("customWrap");
 
-wrap.innerHTML+=`
-<div class="glass rounded-3xl p-5 custom-block">
+const div = document.createElement("div");
 
+div.className =
+"glass rounded-3xl p-5 custom-block";
+
+div.innerHTML = `
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
 <div>
@@ -782,24 +784,33 @@ wrap.innerHTML+=`
 <div class="flex flex-wrap gap-5 mt-5 items-center justify-between">
 
 <label class="flex items-center gap-2 cursor-pointer select-none text-sm">
-<input type="checkbox" class="custom-show" ${show ? 'checked' : ''}>
+
+<input
+type="checkbox"
+class="custom-show"
+${show ? 'checked' : ''}>
+
 <span class="leading-tight">
 Show On Dashboard
 </span>
+
 </label>
 
 <button
-onclick="this.closest('.custom-block').remove()"
-class="bg-red-500 px-5 py-3 rounded-2xl font-bold">
+class="bg-red-500 px-5 py-3 rounded-2xl font-bold delete-custom-btn">
 Delete
 </button>
 
 </div>
-
-</div>
 `;
 
+div.querySelector(".delete-custom-btn")
+.onclick = () => div.remove();
+
+wrap.appendChild(div);
+
 }
+
 
 // ADD CUSTOM FIELD
 
@@ -1011,7 +1022,7 @@ let hasError = false;
 document.querySelectorAll("[data-admin]")
 .forEach(input=>{
 
-const value = input.value.trim();
+const value = String(input.value).trim();
 
 if(input.required && !value){
 
