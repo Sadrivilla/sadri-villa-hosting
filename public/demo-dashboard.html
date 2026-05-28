@@ -279,14 +279,14 @@ Your Shajra Lineage
 <a
 href="shajra.html"
 class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold">
-Open Full Shajra
+Open Shajra
 </a>
 
 </div>
 
 <div
 id="lineagePathDashboard"
-class="flex flex-wrap gap-3 mt-8">
+class="flex flex-wrap lg:flex-nowrap gap-3 mt-8 overflow-x-auto pb-2">
 </div>
 
 </div>
@@ -627,17 +627,23 @@ const btn=document.createElement("button");
 
 btn.className=
 `
-bg-white/10
-hover:bg-cyan-500/20
+bg-gradient-to-br
+from-white/10
+to-white/5
+hover:from-cyan-500/20
+hover:to-blue-500/20
 border
 border-white/10
-hover:border-cyan-400/30
-transition
+hover:border-cyan-400/40
+transition-all
+duration-300
 px-5
 py-3
 rounded-2xl
 font-semibold
 text-sm
+backdrop-blur-xl
+hover:scale-105
 `;
 
 btn.innerText=member.name;
