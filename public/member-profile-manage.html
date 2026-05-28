@@ -593,7 +593,16 @@ membersWrap.appendChild(div);
 
 // OPEN MEMBER
 
-div.onclick=()=>openMember(user.uid);
+div.onclick=()=>{
+
+document.querySelectorAll(".member-card")
+.forEach(card=>card.classList.remove("active"));
+
+div.classList.add("active");
+
+openMember(user.uid);
+
+};
 
 });
 
@@ -604,7 +613,11 @@ searchInput.oninput=()=>{
 const q=searchInput.value.toLowerCase();
 
 const filtered=allUsers.filter(u=>
-(u.fullName || '').toLowerCase().includes(q)
+
+`${u.fullName || ''} ${u.email || ''}`
+.toLowerCase()
+.includes(q)
+
 );
 
 renderMembers(filtered);
@@ -650,7 +663,9 @@ document.getElementById("selectedShajraBox")
 
 document.getElementById("selectedShajraName")
 .innerText =
-found.name;
+found.surname
+? `${found.name} (${found.surname})`
+: found.name;
 
 document.getElementById("shajraSearch")
 .value =
@@ -758,6 +773,7 @@ else if(field.type === "number"){
 fieldHTML = `
 <input
 type="number"
+min="0"
 data-admin="${fieldKey}"
 value="${fieldValue}"
 ${field.required ? "required" : ""}
@@ -1012,7 +1028,10 @@ document.getElementById("editPhoto").src=url;
   document.getElementById("downloadPhotoBtn").href=url;
 
 loadMembers();
+document.getElementById("uploadNewPhotoBtn")
+.style.display="none";
 
+selectedPhotoFile=null;
 hideLoader();
 
 }
@@ -1171,7 +1190,9 @@ document.getElementById("selectedShajraBox")
 
 document.getElementById("selectedShajraName")
 .innerText=
-member.name;
+member.surname
+? `${member.name} (${member.surname})`
+: member.name;
 
 shajraSearch.value=member.name;
 
@@ -1201,6 +1222,18 @@ shajraSuggestions.style.display="none";
 
 });
 
+document.addEventListener("keydown",(e)=>{
+
+if(e.key==="Escape"){
+
+shajraSuggestions.style.display="none";
+
+}
+
+});
+
+
+
 document.getElementById("removeShajraBtn")
 .onclick=()=>{
 
@@ -1211,6 +1244,7 @@ document.getElementById("selectedShajraBox")
 
 document.getElementById("shajraSearch")
 .value="";
+ shajraSuggestions.style.display="none";
 
 };
 // SAVE MEMBER
