@@ -244,9 +244,37 @@ class="bg-white/10 border border-white/10 outline-none rounded-2xl px-4 py-3 w-f
 </div>
 
 <div class="relative">
-<img id="profilePhoto"
+
+<img
+id="profilePhoto"
 src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
-class="w-14 h-14 rounded-2xl object-cover border-2 border-cyan-400 cursor-pointer">
+class="w-14 h-14 rounded-2xl object-cover border-2 border-cyan-400 cursor-pointer"
+>
+
+<div
+id="profileDropdown"
+class="hidden absolute right-0 top-16 w-56 glass-card rounded-2xl p-3 z-50">
+
+<a
+href="profile.html"
+class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">
+<span>Profile</span>
+</a>
+
+<a
+href="change-password.html"
+class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition">
+<span>Change Password</span>
+</a>
+
+<button
+id="logoutBtn"
+class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 transition text-left text-red-300">
+<span>Logout</span>
+</button>
+
+</div>
+
 </div>
 
 </div>
@@ -344,7 +372,7 @@ Open Shajra
 
 <div
 id="lineagePathDashboard"
-class="flex flex-wrap lg:flex-nowrap gap-3 mt-8 overflow-x-auto pb-2">
+class="flex flex-nowrap gap-3 mt-8 overflow-x-auto pb-2">
 </div>
 
 </div>
@@ -532,7 +560,8 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
 getAuth,
-onAuthStateChanged
+onAuthStateChanged,
+signOut
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -555,6 +584,20 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+  document.addEventListener("click",(e)=>{
+
+if(e.target.closest("#logoutBtn")){
+
+signOut(auth)
+.then(()=>{
+
+location.href="login.html";
+
+});
+
+}
+
+});
 
 let allFamilyMembers = [];
 
@@ -640,6 +683,33 @@ lineageCard.style.display="none";
 return;
 
 }
+  const profilePhoto =
+document.getElementById("profilePhoto");
+
+const profileDropdown =
+document.getElementById("profileDropdown");
+
+profilePhoto.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+profileDropdown.classList.toggle("hidden");
+
+});
+
+document.addEventListener("click",(e)=>{
+
+if(
+!profileDropdown.contains(e.target)
+&&
+e.target !== profilePhoto
+){
+
+profileDropdown.classList.add("hidden");
+
+}
+
+});
 
 const memberMap = {};
 
