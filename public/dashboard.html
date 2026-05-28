@@ -598,6 +598,33 @@ location.href="login.html";
 }
 
 });
+  const profilePhoto =
+document.getElementById("profilePhoto");
+
+const profileDropdown =
+document.getElementById("profileDropdown");
+
+profilePhoto.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+profileDropdown.classList.toggle("hidden");
+
+});
+
+document.addEventListener("click",(e)=>{
+
+if(
+!profileDropdown.contains(e.target)
+&&
+e.target !== profilePhoto
+){
+
+profileDropdown.classList.add("hidden");
+
+}
+
+});
 
 let allFamilyMembers = [];
 
@@ -683,33 +710,6 @@ lineageCard.style.display="none";
 return;
 
 }
-  const profilePhoto =
-document.getElementById("profilePhoto");
-
-const profileDropdown =
-document.getElementById("profileDropdown");
-
-profilePhoto.addEventListener("click",(e)=>{
-
-e.stopPropagation();
-
-profileDropdown.classList.toggle("hidden");
-
-});
-
-document.addEventListener("click",(e)=>{
-
-if(
-!profileDropdown.contains(e.target)
-&&
-e.target !== profilePhoto
-){
-
-profileDropdown.classList.add("hidden");
-
-}
-
-});
 
 const memberMap = {};
 
