@@ -41,7 +41,21 @@ backdrop-filter:blur(20px);
 -webkit-backdrop-filter:blur(20px);
 box-shadow:0 10px 40px rgba(0,0,0,0.35);
 }
+#profileDropdown{
+animation:dropdownFade 0.2s ease;
+transform-origin:top right;
+}
 
+@keyframes dropdownFade{
+from{
+opacity:0;
+transform:scale(0.95);
+}
+to{
+opacity:1;
+transform:scale(1);
+}
+}
 .sidebar-link{
 transition:0.3s ease;
 }
@@ -96,8 +110,8 @@ h3{
 word-break:break-word;
 }
   .hero-gradient{
-padding:28px 20px !important;
-border-radius:28px !important;
+padding:22px 16px !important;
+border-radius:24px !important;
 }
 
 .glass-card{
@@ -282,24 +296,24 @@ class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 t
 </div>
 
 <!-- HERO -->
-<section class="hero-gradient rounded-[36px] p-8 lg:p-12 relative overflow-hidden mb-8">
+<section class="hero-gradient rounded-[36px] p-8 lg:p-12 relative overflow-hidden mb-6">
 
 <div class="max-w-3xl relative z-10">
 <p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-4">
 Sadri Villa Digital Heritage
 </p>
 
-<h1 class="text-3xl sm:text-4xl lg:text-6xl font-extrabold leading-tight mb-6">
+<h1 class="text-2xl sm:text-4xl lg:text-6xl font-extrabold leading-tight mb-4">
 Your Modern Family
 Heritage Dashboard
 </h1>
 
-<p class="text-slate-300 text-lg leading-relaxed max-w-2xl">
+<p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
 Access family records, gallery memories, announcements,
 documents, heritage information and your member profile in one secure dashboard.
 </p>
 
-<div class="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
+<div class="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto">
 <button class="bg-cyan-500 hover:bg-cyan-400 transition px-5 py-4 rounded-2xl font-semibold text-black w-full sm:w-auto text-center">
 Open Profile
 </button>
@@ -310,8 +324,8 @@ Explore Gallery
 </div>
 </div>
 
-<div class="absolute right-[-80px] top-[-80px] w-80 h-80 bg-cyan-500/20 blur-3xl rounded-full"></div>
-<div class="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-purple-500/20 blur-3xl rounded-full"></div>
+<div class="absolute right-[-120px] top-[-120px] w-52 h-52 sm:w-80 sm:h-80 bg-cyan-500/20 blur-3xl rounded-full"></div>
+<div class="absolute bottom-[-140px] left-[-140px] w-60 h-60 sm:w-96 sm:h-96 bg-purple-500/20 blur-3xl rounded-full"></div>
 
 </section>
 
