@@ -1,686 +1,732 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sadri Villa Dashboard</title>
+<title>Sadri Villa Member Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f4f6fb;display:none}
-
-/* LOADER */
-.loader{
-  position:fixed;inset:0;
-  background:white;
-  display:flex;justify-content:center;align-items:center;
-  z-index:2000;
-}
-.loader div{
-  width:50px;height:50px;
-  border:5px solid #eee;
-  border-top:5px solid #38bdf8;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* NAVBAR */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:70px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  background:rgba(255,255,255,0.9);
-  backdrop-filter:blur(8px);
-  border-bottom:1px solid rgba(0,0,0,.08);
-  z-index:1000;
-padding:0 15px;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.brand img{
-  height:50px;
-  width:auto;
-  object-fit:contain;
-  display:none;
-}
-.nav-title{
-  display:flex;
-  flex-direction:column;
-  line-height:1.2;
+body{
+font-family:'Inter',sans-serif;
+background:#0f172a;
+overflow-x:hidden;
 }
 
-.nav-title span:first-child{
-  font-size:13px;
-  color:#64748b;
-  font-weight:600;
+::-webkit-scrollbar{
+width:8px;
 }
 
-#welcomeName{
-  font-size:15px;
-  font-weight:700;
-  color:#0f172a;
+::-webkit-scrollbar-thumb{
+background:#334155;
+border-radius:20px;
 }
 
-/* PROFILE */
-.profile-wrapper{position:relative;cursor:pointer}
-#profilePhoto{
-  width:40px;height:40px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid #38bdf8;
-  background:#e0f2fe;
-}
-#profileCard{
-  position:absolute;
-  top:60px;
-  right:0;
-  background:#fff;border-radius:12px;
-  box-shadow:0 5px 20px rgba(0,0,0,.2);
-  width:200px;display:none;overflow:hidden;
-}
-#profileCard a{
-  display:block;padding:12px;
-  text-decoration:none;color:#333;
-  border-bottom:1px solid #eee;
-}
-#profileCard a:hover{background:#f1f5f9}
-#profileCard.show{display:block}
-
-/* DASHBOARD */
-.dashboard{padding:90px 20px 40px}
-/* CARDS */
-.card{
-  background:#fff;
-  padding:20px;
-  border-radius:20px;
-  margin-bottom:25px;
-  box-shadow:0 10px 30px rgba(0,0,0,.05);
+.glass-card{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+box-shadow:0 10px 40px rgba(0,0,0,0.35);
 }
 
-/* PROGRESS */
-.progress-container{
-  background:#eee;height:18px;
-  border-radius:20px;overflow:hidden;margin-top:10px
-}
-#bar{height:100%;width:0%;transition:.4s}
-
-/* GROUP INFO */
-.group-info{
-  margin-top:10px;
-  font-size:14px;
-  color:#475569;
+.sidebar-link{
+transition:0.3s ease;
 }
 
-/* CUSTOM DASHBOARD */
-.qa-card{
-  background:#f8fafc;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px;
+.sidebar-link:hover{
+background:rgba(255,255,255,0.08);
+transform:translateX(4px);
 }
 
-/* SLIDER EDGE TO EDGE */
-.gallery{
-  position:relative;
-    touch-action:pan-y;
-  width:100%;
-  background:#f1f5f9;
-  padding:40px 15px;
-overflow-x:auto;
-scrollbar-width:none;
-}
-  .gallery::-webkit-scrollbar{
-  display:none;
-}
-  .track{
-  display:flex;
-  gap:20px;
-  padding:0 10px;
-  width:max-content;
-}
-@media (max-width:600px){
-
-.track img{
-  width:260px;
-  height:180px;
-  flex-shrink:0;
-  border-radius:16px;
+.hero-gradient{
+background:
+radial-gradient(circle at top left,#2563eb 0%,transparent 30%),
+radial-gradient(circle at bottom right,#7c3aed 0%,transparent 30%),
+linear-gradient(135deg,#111827,#0f172a);
 }
 
+.stat-card:hover{
+transform:translateY(-4px);
+transition:0.3s ease;
 }
 
-
-.track.scrolling{animation:scroll linear infinite}
-.track:hover{animation-play-state:paused}
-.track img{
-  width:320px;
-  height:220px;
-  object-fit:cover;
-  border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
-  transition:transform .35s ease, box-shadow .35s ease;
-  cursor:pointer;
-}
-.track img:hover{
-  transform:scale(1.05);
-  box-shadow:0 18px 40px rgba(0,0,0,0.25);
-}
-  .track img.active{
-  border:4px solid #38bdf8;
-}
-  @keyframes scroll{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
+.gallery-track{
+display:flex;
+gap:20px;
+width:max-content;
+animation:scroll 35s linear infinite;
 }
 
-/* IMAGE MODAL */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.75);
-  backdrop-filter:blur(4px);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:2000;
-}
-.modal-content{
-  position:relative;
-  background:#fff;
-  padding:15px;
-  border-radius:18px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.3);
-  max-width:650px;
-  width:95%;
-}
-.close-btn{
-  position:absolute;
-  top:-10px;
-  right:-10px;
-  width:34px;
-  height:34px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
-  color:#333;
-  background:white;
-  border-radius:50%;
-  box-shadow:0 6px 15px rgba(0,0,0,0.25);
-  z-index:10;
-}
-  .nav-btn{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:40px;
-  height:40px;
-  background:white;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:20px;
-  font-weight:bold;
-  box-shadow:0 6px 15px rgba(0,0,0,0.25);
+.gallery-track:hover{
+animation-play-state:paused;
 }
 
-.prev{
-  left:-20px;
+@keyframes scroll{
+from{transform:translateX(0)}
+to{transform:translateX(-50%)}
 }
 
-.next{
-  right:-20px;
+.mobile-nav{
+display:none;
 }
 
-.nav-btn:hover{
-  background:#f1f5f9;
+@media(max-width:1024px){
+  h1{
+word-break:break-word;
 }
 
-.close-btn:hover{
-  color:#000;
-}
-.modal-content img{
-  max-width:100%;
-  max-height:70vh;
-   object-fit:contain;
-  border-radius:12px;
-  border:1px solid #38bdf8;
-  display:block;
-  margin:15px auto;
-  background:#fff;
-  padding:2px;
-}
-  .download-btn{
-  display:inline-block;margin-top:10px;
-  padding:8px 15px;background:#38bdf8;
-  color:white;border-radius:8px;text-decoration:none
+h2{
+word-break:break-word;
 }
 
-/* LOGOUT MODAL */
-.logout-modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.5);
-  display:none;justify-content:center;align-items:center
+h3{
+word-break:break-word;
 }
-.logout-card{
-  background:white;padding:30px;border-radius:20px;text-align:center;width:300px
+  .hero-gradient{
+padding:28px 20px !important;
+border-radius:28px !important;
 }
-.logout-card button{
-  margin:10px;padding:8px 15px;border:none;border-radius:8px;cursor:pointer
+
+.glass-card{
+border-radius:24px !important;
 }
-.confirm{background:#e53935;color:white}
-.cancel{background:#ccc}
+
+input{
+width:100% !important;
+min-width:0 !important;
+}
+
+button{
+max-width:100%;
+}
+
+#lineagePathDashboard{
+flex-wrap:wrap !important;
+overflow-x:hidden !important;
+}
+
+.gallery-track{
+gap:12px;
+}
+
+#activityChart{
+max-height:260px !important;
+}
+
+canvas{
+width:100% !important;
+}
+
+.stat-card{
+padding:20px !important;
+}
+
+.mobile-nav a{
+flex:1;
+}
+.sidebar{
+display:none;
+}
+
+.mobile-nav{
+display:flex;
+}
+}
 </style>
 </head>
-
 <body>
 
-<div class="loader" id="loader"><div></div></div>
+<div class="min-h-screen flex text-white">
 
-<div class="navbar">
+<!-- SIDEBAR -->
+<aside class="sidebar w-80 bg-black/30 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 bottom-0 z-50">
 
-  <div class="brand">
-    <img id="siteLogo">
+<div class="flex items-center gap-4 mb-10">
+<img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
+<div>
+<h1 class="text-2xl font-extrabold">Sadri Villa</h1>
+<p class="text-slate-400 text-sm">Member Dashboard</p>
+</div>
+</div>
 
-    <div class="nav-title">
-      <span>Welcome to Sadri Villa</span>
-      <span id="welcomeName"></span>
-    </div>
-  </div>
+<div class="space-y-2 text-sm font-medium">
+<a href="#" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl bg-white/10">
+<span>🏠</span>
+<span>Overview</span>
+</a>
 
-  <div class="profile-wrapper">
-    <img id="profilePhoto"
-      src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png">
+<a href="profile.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>👤</span>
+<span>Profile</span>
+</a>
 
-    <div id="profileCard">
-      <a href="profile.html">Profile</a>
-      <a href="change-password.html">Change Password</a>
-      <a href="https://maps.app.goo.gl/CMSPhzq4hsGffxke6" target="_blank">Villa Map</a>
-      <a href="#" id="logoutBtn" style="color:red">Logout</a>
-    </div>
-  </div>
+<a href="change-password.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🔐</span>
+<span>Password</span>
+</a>
+
+<a href="family-tree.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🌳</span>
+<span>Family Tree</span>
+</a>
+
+<a href="gallery.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>🖼️</span>
+<span>Gallery</span>
+</a>
+
+<a href="announcements.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>📢</span>
+<span>Announcements</span>
+</a>
+
+<a href="downloads.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
+<span>📂</span>
+<span>Downloads</span>
+</a>
+</div>
+
+<div class="mt-auto glass-card rounded-3xl p-5">
+<h3 class="font-semibold mb-2">Profile Completion</h3>
+<div class="w-full bg-white/10 rounded-full h-4 overflow-hidden">
+<div id="profileBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full" style="width:0%"></div>
+</div>
+<p class="text-sm mt-3 text-slate-300">
+<span id="profilePercent">0%</span> completed
+</p>
+</div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 lg:ml-80 p-4 sm:p-5 lg:p-8 pb-28">
+
+<!-- TOPBAR -->
+<div class="glass-card rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 sticky top-4 z-40">
+
+<div>
+<p class="text-slate-400 text-sm">Welcome Back</p>
+<h2 id="welcomeName" class="text-3xl font-extrabold mt-1">Member</h2>
+</div>
+
+<div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+
+<div class="relative flex-1 min-w-0">
+<input type="text" placeholder="Search dashboard..."
+class="bg-white/10 border border-white/10 outline-none rounded-2xl px-4 py-3 w-full sm:w-72 text-sm placeholder:text-slate-400">
+</div>
+
+<div class="relative">
+<button class="glass-card w-14 h-14 rounded-2xl text-xl">
+🔔
+</button>
+<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+3
+</span>
+</div>
+
+<div class="relative">
+<img id="profilePhoto"
+src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+class="w-14 h-14 rounded-2xl object-cover border-2 border-cyan-400 cursor-pointer">
+</div>
 
 </div>
 
-<div class="dashboard">
-
-  <!-- PROFILE COMPLETION -->
-  <div class="card">
-    <h3>Profile Completion</h3>
-    <div class="progress-container">
-      <div id="bar"></div>
-    </div>
-    <p><span id="percent">0%</span></p>
-    <div class="group-info" id="groupInfo"></div>
-  </div>
-
-  <!-- USER INFO -->
-  <div class="card">
-    <p><strong>Member Since:</strong> <span id="memberDays"></span></p>
-    <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
-  </div>
-
-  <!-- CUSTOM DASHBOARD -->
-  <div class="card">
-    <h3>Custom Dashboard</h3>
-    <div id="customDashboard"></div>
-  </div>
-
 </div>
 
-<!-- EDGE TO EDGE SLIDER -->
-<section class="gallery">
-  <div class="track" id="galleryTrack"></div>
+<!-- HERO -->
+<section class="hero-gradient rounded-[36px] p-8 lg:p-12 relative overflow-hidden mb-8">
+
+<div class="max-w-3xl relative z-10">
+<p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-4">
+Sadri Villa Digital Heritage
+</p>
+
+<h1 class="text-3xl sm:text-4xl lg:text-6xl font-extrabold leading-tight mb-6">
+Your Modern Family
+Heritage Dashboard
+</h1>
+
+<p class="text-slate-300 text-lg leading-relaxed max-w-2xl">
+Access family records, gallery memories, announcements,
+documents, heritage information and your member profile in one secure dashboard.
+</p>
+
+<div class="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
+<button class="bg-cyan-500 hover:bg-cyan-400 transition px-5 py-4 rounded-2xl font-semibold text-black w-full sm:w-auto text-center">
+Open Profile
+</button>
+
+<button class="bg-white/10 border border-white/10 hover:bg-white/20 transition px-5 py-4 rounded-2xl font-semibold w-full sm:w-auto text-center">
+Explore Gallery
+</button>
+</div>
+</div>
+
+<div class="absolute right-[-80px] top-[-80px] w-80 h-80 bg-cyan-500/20 blur-3xl rounded-full"></div>
+<div class="absolute bottom-[-120px] left-[-120px] w-96 h-96 bg-purple-500/20 blur-3xl rounded-full"></div>
+
 </section>
 
-<!-- IMAGE POPUP -->
-<div class="modal" id="imgModal">
-<div class="modal-content">
+<!-- STATS -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-  <span class="close-btn" id="closeModal">✕</span>
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Profile Strength</p>
+  <h3 id="strengthScore" class="text-3xl sm:text-5xl font-extrabold">82%</h3>
+<p class="text-emerald-400 mt-3 text-sm">Excellent profile quality</p>
+</div>
 
-  <span class="nav-btn prev" id="prevImg">❮</span>
-  <span class="nav-btn next" id="nextImg">❯</span>
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Member Since</p>
+  <h3 id="memberDays" class="text-3xl sm:text-5xl font-extrabold">0</h3>
+<p class="text-slate-300 mt-3 text-sm">Days in community</p>
+</div>
 
-  <img id="modalImg">
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Gallery Photos</p>
+  <h3 id="galleryCount" class="text-3xl sm:text-5xl font-extrabold">0</h3>
+<p class="text-slate-300 mt-3 text-sm">Heritage images available</p>
+</div>
 
-  <br>
-<a id="downloadLink" class="download-btn" href="#">Download</a>
+<div class="glass-card stat-card rounded-3xl p-6">
+<p class="text-slate-400 text-sm mb-4">Announcements</p>
+  <h3 class="text-3xl sm:text-5xl font-extrabold">12</h3>
+<p class="text-cyan-400 mt-3 text-sm">Latest updates available</p>
+</div>
+
+</section>
+  <!-- SHAJRA LINEAGE -->
+
+<div
+id="lineageCard"
+class="glass-card rounded-[36px] p-8 mb-8"
+style="display:none">
+
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+
+<div>
+<p class="text-cyan-300 uppercase tracking-[3px] text-xs font-bold">
+Sadri Heritage
+</p>
+
+<h2 class="text-3xl sm:text-4xl font-extrabold mt-3">
+Your Shajra Lineage
+</h2>
+</div>
+
+<a
+href="shajra.html"
+class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold w-full sm:w-auto text-center">
+Open Shajra
+</a>
+
+</div>
+
+<div
+id="lineagePathDashboard"
+class="flex flex-wrap lg:flex-nowrap gap-3 mt-8 overflow-x-auto pb-2">
+</div>
+
+</div>
+
+<!-- EMPTY SHAJRA -->
+
+<div
+id="emptyLineageCard"
+class="glass-card rounded-[36px] p-8 mb-8"
+style="display:none">
+
+<div class="max-w-2xl">
+
+<p class="uppercase tracking-[4px] text-pink-300 text-xs font-bold mb-4">
+Connect Your Heritage
+</p>
+
+<h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+Link Your Name
+In Shajra
+</h2>
+
+<p class="text-slate-300 mt-5 text-lg leading-relaxed">
+Select your family lineage member from your profile to unlock your beautiful heritage path from root generation.
+</p>
+
+<a
+href="profile.html"
+class="inline-flex mt-8 bg-cyan-500 hover:bg-cyan-400 transition px-7 py-4 rounded-2xl font-bold text-black">
+Select Your Name
+</a>
+
+</div>
+
+</div>
+
+<!-- MAIN GRID -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+
+<!-- LEFT -->
+<div class="xl:col-span-8 space-y-6">
+
+<div class="glass-card rounded-3xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold">Profile Analytics</h3>
+<button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
+Last 30 Days
+</button>
+</div>
+
+<div class="h-[350px]">
+<canvas id="activityChart"></canvas>
 </div>
 </div>
 
-<!-- LOGOUT MODAL -->
-<div class="logout-modal" id="logoutModal">
-  <div class="logout-card">
-    <h3>Are you sure you want to logout?</h3>
-    <button class="confirm" id="confirmLogout">Yes</button>
-    <button class="cancel" id="cancelLogout">Cancel</button>
-  </div>
+<div class="glass-card rounded-3xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-2xl font-bold">Recent Activity</h3>
+<span class="text-sm text-slate-400">Live Updates</span>
+</div>
+
+<div class="space-y-5">
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+📸
+</div>
+<div>
+<h4 class="font-semibold">New gallery uploaded</h4>
+<p class="text-slate-400 text-sm mt-1">Family heritage images added</p>
+</div>
+</div>
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
+✅
+</div>
+<div>
+<h4 class="font-semibold">Profile approved</h4>
+<p class="text-slate-400 text-sm mt-1">Your account has been verified</p>
+</div>
+</div>
+
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center">
+📢
+</div>
+<div>
+<h4 class="font-semibold">New announcement</h4>
+<p class="text-slate-400 text-sm mt-1">Community gathering next week</p>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="xl:col-span-4 space-y-6">
+
+<div class="glass-card rounded-3xl p-6">
+<h3 class="text-2xl font-bold mb-6">Quick Actions</h3>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<button class="bg-cyan-500/20 hover:bg-cyan-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Edit Profile</div>
+</button>
+
+<button class="bg-purple-500/20 hover:bg-purple-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Gallery</div>
+</button>
+
+<button class="bg-emerald-500/20 hover:bg-emerald-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Downloads</div>
+</button>
+
+<button class="bg-pink-500/20 hover:bg-pink-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Family Tree</div>
+</button>
+</div>
+</div>
+
+<div class="glass-card rounded-3xl p-6">
+<h3 class="text-2xl font-bold mb-6">Member Badge</h3>
+
+<div class="bg-gradient-to-br from-cyan-500 to-blue-700 rounded-3xl p-6 relative overflow-hidden">
+<p class="text-cyan-100 text-sm">Verified Member</p>
+<h3 id="badgeName" class="text-2xl font-bold mt-2">Member</h3>
+<p class="text-cyan-100 mt-5 text-sm">Sadri Villa Community</p>
+
+<div class="absolute right-[-30px] bottom-[-30px] w-32 h-32 bg-white/10 rounded-full"></div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- GALLERY -->
+<section class="glass-card rounded-[36px] p-6 overflow-hidden mb-10">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+<h3 class="text-3xl font-bold">Heritage Gallery</h3>
+<button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
+View All
+</button>
+</div>
+
+<div class="overflow-hidden">
+<div class="gallery-track" id="galleryTrack"></div>
+</div>
+</section>
+
+</main>
+
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 justify-around py-4 z-50">
+<a href="#" class="text-center text-cyan-400">
+<div>🏠</div>
+<div class="text-xs mt-1">Home</div>
+</a>
+
+<a href="profile.html" class="text-center text-slate-300">
+<div>👤</div>
+<div class="text-xs mt-1">Profile</div>
+</a>
+
+<a href="gallery.html" class="text-center text-slate-300">
+<div>🖼️</div>
+<div class="text-xs mt-1">Gallery</div>
+</a>
+
+<a href="family-tree.html" class="text-center text-slate-300">
+<div>🌳</div>
+<div class="text-xs mt-1">Tree</div>
+</a>
+
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,doc,onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getStorage, ref, getBlob } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-const app=initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06",
-  storageBucket:"sadri-villa-14c06.firebasestorage.app"
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+getDoc,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
-const auth=getAuth(app);
-const db=getFirestore(app);
-  const storage = getStorage(app);
 
-const loader=document.getElementById("loader");
-const body=document.body;
-  const track=document.getElementById("galleryTrack");
-  const modal=document.getElementById("imgModal");
-  let images = [];
-let currentIndex = 0;
+const auth = getAuth(app);
 
-function formatDate(date){
-  const d=new Date(date);
-  const options={day:'2-digit',month:'short',year:'numeric'};
-  return d.toLocaleDateString('en-GB',options);
+const db = getFirestore(app);
+
+let allFamilyMembers = [];
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user){
+
+location.href="login.html";
+return;
+
 }
 
-onAuthStateChanged(auth,user=>{
-  if(!user){location.href="login.html";return;}
+const snap = await getDoc(
+doc(db,"users",user.uid)
+);
 
-  onSnapshot(doc(db,"users",user.uid),snap=>{
-    if(!snap.exists())return;
-    const data=snap.data();
+if(!snap.exists()) return;
 
-  document.getElementById("welcomeName").innerText=
-(data.fullName || "Member");
+const userData = snap.data();
 
-    if(data.profilePhoto)
-      document.getElementById("profilePhoto").src=data.profilePhoto+"?v="+Date.now();
 
-    const created=data.createdAt?new Date(data.createdAt):null;
-    document.getElementById("memberDays").innerText=
-      created&&!isNaN(created)
-        ? Math.floor((Date.now()-created)/86400000)+" days"
-        : "0 days";
+// USER DATA
 
-    document.getElementById("lastLogin").innerText=
-      data.lastLogin?formatDate(data.lastLogin):"First login";
+document.getElementById("welcomeName")
+.innerText =
+userData.fullName || "Member";
 
-    /* PROFILE COMPLETION CALCULATION */
-    let userTotal=2,userFilled=0;
-    if(data.fullName)userFilled++;
-    if(data.phone)userFilled++;
+document.getElementById("badgeName")
+.innerText =
+userData.fullName || "Member";
 
-    let adminTotal=Object.keys(data.adminFields||{}).length;
-    let adminFilled=Object.values(data.adminFields||{}).filter(v=>v).length;
+document.getElementById("profilePhoto")
+.src =
+userData.profilePhoto ||
+"https://cdn-icons-png.flaticon.com/512/4140/4140048.png";
 
-    let customTotal=Object.keys(data.userCustomFields||{}).length;
-    let customFilled=Object.values(data.userCustomFields||{}).filter(v=>v?.value).length;
 
-    const total=userTotal+adminTotal+customTotal;
-    const filled=userFilled+adminFilled+customFilled;
-    const percent=Math.round((filled/(total||1))*100);
+// LOAD FAMILY MEMBERS
 
-    const bar=document.getElementById("bar");
-    bar.style.width=percent+"%";
-    document.getElementById("percent").innerText=percent+"%";
+const familySnap = await getDocs(
+collection(db,"family_members")
+);
 
-    if(percent<=30)bar.style.background="#e53935";
-    else if(percent<=70)bar.style.background="#38bdf8";
-    else bar.style.background="#22c55e";
+allFamilyMembers = [];
 
-    document.getElementById("groupInfo").innerHTML=
-      `User ${userFilled}/${userTotal} | 
-       Admin ${adminFilled}/${adminTotal} | 
-       Custom ${customFilled}/${customTotal}`;
+familySnap.forEach(docSnap=>{
 
-    /* CUSTOM DASHBOARD */
-    const customDashboard=document.getElementById("customDashboard");
-    customDashboard.innerHTML="";
-    Object.entries(data.userCustomFields||{}).forEach(([k,v])=>{
-      if(v?.showOnDashboard){
-        customDashboard.innerHTML+=`
-          <div class="qa-card">
-            <strong>${k}</strong><br>
-            ${v.value||""}
-          </div>`;
-      }
-    });
-
-    loader.style.display="none";
-    body.style.display="block";
-  });
-
-  /* SLIDER */
-  onSnapshot(doc(db,"siteSettings","home"),snap=>{
-    if(!snap.exists())return;
-    const data=snap.data();
-
-    if(data.logo?.url){
-      const logo=document.getElementById("siteLogo");
-      logo.src=data.logo.url+"?v="+Date.now();
-      logo.style.display="block";
-    }
-
-    const imgs=(data.sliderImages||[]).filter(i=>i.enabled!==false);
-    images = imgs;
-    track.innerHTML="";
-    const list=imgs.length>1?[...imgs,...imgs]:imgs;
-
-    list.forEach(i=>{
-      const img=document.createElement("img");
-      img.src=i.url;
-img.onclick=()=>{
-
-  currentIndex = imgs.indexOf(i);
-
-  track.style.animationPlayState="paused";
-
-  document.querySelectorAll(".track img").forEach(el=>{
-    el.classList.remove("active");
-  });
-
-  img.classList.add("active");
-
-  showImage(currentIndex);
-
-  modal.style.display="flex";
-  document.body.style.overflow="hidden";
-
-};
-      track.appendChild(img);
-    });
-
-    if(imgs.length>1){
-      track.classList.add("scrolling");
-      requestAnimationFrame(()=>{
-        const width=track.scrollWidth/2;
-        track.style.animationDuration=(width/80)+"s";
-      });
-    }
-  });
-});
-document.addEventListener("click",(e)=>{
-
-  if(modal.style.display==="flex") return;
-
-  if(!e.target.closest(".gallery")){
-    track.style.animationPlayState="running";
-  }
-
-});
-  /* TOUCH SWIPE FOR GALLERY */
-
-const gallery = document.querySelector(".gallery");
-/* DESKTOP HOVER CONTROL */
-
-gallery.addEventListener("mouseenter",()=>{
-  track.style.animationPlayState="paused";
+allFamilyMembers.push({
+id:docSnap.id,
+...docSnap.data()
 });
 
-gallery.addEventListener("mouseleave",()=>{
-  if(modal.style.display!=="flex"){
-    track.style.animationPlayState="running";
-  }
-});
-let isDown=false;
-let startX;
-let scrollLeft;
-
-gallery.addEventListener("touchstart",(e)=>{
-  track.style.animationPlayState="paused";
-  isDown=true;
-  startX=e.touches[0].pageX;
-  scrollLeft=gallery.scrollLeft;
 });
 
-gallery.addEventListener("touchmove",(e)=>{
-  if(!isDown)return;
-  const x=e.touches[0].pageX;
-  const walk=(startX-x)*1.5;
-  gallery.scrollLeft=scrollLeft+walk;
+
+// RENDER LINEAGE
+
+renderLineage(
+userData.linkedShajraMemberId || ""
+);
+
 });
 
-gallery.addEventListener("touchend",()=>{
-  isDown=false;
-  track.style.animationPlayState="running";
-});
-function showImage(index){
 
-  if(index < 0) index = images.length-1;
-  if(index >= images.length) index = 0;
 
-  currentIndex = index;
+function renderLineage(memberId){
 
-  const url = images[index].url;
+const lineageCard =
+document.getElementById("lineageCard");
 
-  document.getElementById("modalImg").src = url;
+const emptyLineageCard =
+document.getElementById("emptyLineageCard");
 
-  const link = document.getElementById("downloadLink");
+const lineageWrap =
+document.getElementById("lineagePathDashboard");
 
-link.onclick = async (e)=>{
+if(!memberId){
 
-  e.preventDefault();
+emptyLineageCard.style.display="block";
 
-  try{
+lineageCard.style.display="none";
 
-    const path = decodeURIComponent(
-      url.split("/o/")[1].split("?")[0]
-    );
+return;
 
-    const fileRef = ref(storage, path);
-
-    const blob = await getBlob(fileRef);
-
-    const blobUrl = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = "sadri-villa-image-" + Date.now() + ".jpg";
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(blobUrl);
-
-  }catch(err){
-    alert("Download failed");
-    console.error(err);
-  }
-
-};
 }
-  document.addEventListener("keydown",(e)=>{
 
-  if(modal.style.display!=="flex") return;
+const memberMap = {};
 
-  if(e.key==="ArrowRight"){
-    showImage(currentIndex+1);
-  }
+allFamilyMembers.forEach(m=>{
 
-  if(e.key==="ArrowLeft"){
-    showImage(currentIndex-1);
-  }
+memberMap[m.id]=m;
 
 });
-  let startTouchX = 0;
 
-modal.addEventListener("touchstart",(e)=>{
-  startTouchX = e.touches[0].clientX;
+const lineage=[];
+
+let current = memberMap[memberId];
+
+while(current){
+
+lineage.unshift(current);
+
+if(!current.fatherId) break;
+
+current = memberMap[current.fatherId];
+
+}
+
+if(!lineage.length){
+
+emptyLineageCard.style.display="block";
+
+lineageCard.style.display="none";
+
+return;
+
+}
+
+lineageWrap.innerHTML="";
+
+lineage.forEach((member,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className=
+`
+bg-gradient-to-br
+from-white/10
+to-white/5
+hover:from-cyan-500/20
+hover:to-blue-500/20
+border
+border-white/10
+hover:border-cyan-400/40
+transition-all
+duration-300
+px-5
+py-3
+rounded-2xl
+font-semibold
+text-sm
+backdrop-blur-xl
+hover:scale-105
+`;
+
+btn.innerText=member.name;
+
+btn.onclick=()=>{
+
+location.href=
+`shajra.html#${member.id}`;
+
+};
+
+lineageWrap.appendChild(btn);
+
+if(index < lineage.length-1){
+
+const arrow=document.createElement("div");
+
+arrow.className=
+"flex items-center text-cyan-300 font-bold";
+
+arrow.innerHTML="→";
+
+lineageWrap.appendChild(arrow);
+
+}
+
 });
 
-modal.addEventListener("touchend",(e)=>{
+emptyLineageCard.style.display="none";
 
-  let endX = e.changedTouches[0].clientX;
+lineageCard.style.display="block";
 
-  if(startTouchX - endX > 50){
-    showImage(currentIndex+1);
-  }
+}
 
-  if(endX - startTouchX > 50){
-    showImage(currentIndex-1);
-  }
-
-});
-/* PROFILE DROPDOWN */
-document.getElementById("profilePhoto").onclick=(e)=>{
-  e.stopPropagation();
-  document.getElementById("profileCard").classList.toggle("show");
-};
-document.addEventListener("click",()=>{
-  document.getElementById("profileCard").classList.remove("show");
-});
-/* IMAGE MODAL */
-  document.getElementById("prevImg").onclick=()=>{
-  showImage(currentIndex-1);
-};
-  document.getElementById("nextImg").onclick=()=>{
-  showImage(currentIndex+1);
-};
-
-modal.onclick=(e)=>{
-  if(e.target===modal){
-modal.style.display="none";
-document.body.style.overflow="auto";
-    track.style.animationPlayState="running";
-  }
-};
-
-document.getElementById("closeModal").onclick=()=>{
-  modal.style.display="none";
-  document.body.style.overflow="auto";
-  track.style.animationPlayState="running";
-};
-
-/* LOGOUT */
-document.getElementById("logoutBtn").onclick=(e)=>{
-  e.preventDefault();
-  document.getElementById("logoutModal").style.display="flex";
-};
-document.getElementById("cancelLogout").onclick=()=>{
-  document.getElementById("logoutModal").style.display="none";
-};
-document.getElementById("confirmLogout").onclick=async()=>{
-  await signOut(auth);
-  location.href="login.html";
-};
 </script>
 
 </body>
