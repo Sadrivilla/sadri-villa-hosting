@@ -114,8 +114,11 @@ max-width:100%;
 }
 
 #lineagePathDashboard{
-flex-wrap:wrap !important;
-overflow-x:hidden !important;
+flex-wrap:nowrap !important;
+overflow-x:auto !important;
+white-space:nowrap;
+-webkit-overflow-scrolling:touch;
+padding-bottom:6px;
 }
 
 .gallery-track{
@@ -137,9 +140,7 @@ padding:20px !important;
 .mobile-nav a{
 flex:1;
 }
-.sidebar{
-display:none;
-}
+
 
 .mobile-nav{
 display:flex;
@@ -220,7 +221,7 @@ margin-left:0 !important;
 <main class="w-full lg:ml-80 p-4 sm:p-5 lg:p-8 pb-28">
 
 <!-- TOPBAR -->
-<div class="glass-card rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 sticky top-4 z-40">
+<div class="glass-card rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 lg:z-40">
 
 <div>
 <p class="text-slate-400 text-sm">Welcome Back</p>
