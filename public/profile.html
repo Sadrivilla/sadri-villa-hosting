@@ -390,6 +390,58 @@ class="grid grid-cols-1 md:grid-cols-2 gap-8 grid-cols-mobile-1">
 </div>
 
 </div>
+  <!-- SHAJRA LINK -->
+
+<div class="glass rounded-[32px] p-6 lg:p-8">
+
+<div class="flex items-center justify-between mb-8">
+
+<div>
+<h3 class="text-2xl font-bold">
+Link Your Shajra Lineage
+</h3>
+
+<p class="text-slate-400 mt-2">
+Connect your family tree identity
+</p>
+</div>
+
+<div class="bg-emerald-500/20 text-emerald-300 px-4 py-2 rounded-2xl text-sm font-semibold">
+Heritage Linked
+</div>
+
+</div>
+
+<div class="relative">
+
+<input
+id="shajraSearch"
+type="text"
+placeholder="Search your name in Shajra...">
+
+<div
+id="shajraSuggestions"
+class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hidden z-50 max-h-[320px] overflow-y-auto">
+</div>
+
+</div>
+
+<div
+id="selectedShajraBox"
+class="hidden mt-6 glass rounded-2xl p-5 border border-cyan-400/30">
+
+<p class="text-slate-400 text-sm">
+Selected Lineage Member
+</p>
+
+<h4
+id="selectedShajraName"
+class="text-2xl font-bold mt-2">
+</h4>
+
+</div>
+
+</div>
 
 <!-- CUSTOM FIELDS -->
 
@@ -540,6 +592,8 @@ let uid="";
 let baseUser={};
 let adminValues={};
 let userCustom={};
+  let allShajraMembers = [];
+let selectedShajraMember = null;
 
 const loader=document.getElementById("loader");
 const photoInput=document.getElementById("photoInput");
@@ -574,6 +628,22 @@ const snap=await getDoc(doc(db,"users",uid));
 if(!snap.exists()) return;
 
 baseUser=snap.data();
+  // LOAD SHAJRA MEMBERS
+
+const familySnap = await getDocs(
+collection(db,"family_members")
+);
+
+allShajraMembers = [];
+
+familySnap.forEach(docSnap=>{
+
+allShajraMembers.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
 
 // BASIC
 
@@ -584,6 +654,30 @@ document.getElementById("role").value=baseUser.role || "user";
 
 document.getElementById("headerName").innerText=
 baseUser.fullName || "Member";
+  // RESTORE LINKED SHAJRA
+
+if(baseUser.linkedShajraMemberId){
+
+const found = allShajraMembers.find(
+m => m.id === baseUser.linkedShajraMemberId
+);
+
+if(found){
+
+selectedShajraMember = found;
+
+document.getElementById("selectedShajraBox")
+.style.display = "block";
+
+document.getElementById("selectedShajraName")
+.innerText = found.name;
+
+document.getElementById("shajraSearch")
+.value = found.name;
+
+}
+
+}
 
 // PROFILE PHOTO
 
@@ -618,7 +712,8 @@ const f=d.data();
 
 if(f.visible===false) return;
 
-const value=adminValues[d.id] || "";
+const value=
+adminValues[d.id] ?? "";
 
 let fieldHTML="";
 
@@ -626,7 +721,8 @@ if(!f.type || f.type==="text"){
 fieldHTML=`
 <input
 value="${value}"
-data-admin="${d.id}">
+data-admin="${d.id}"
+${f.required ? "required" : ""}>
 `;
 }
 
@@ -634,8 +730,10 @@ else if(f.type==="number"){
 fieldHTML=`
 <input
 type="number"
+min="0"
 value="${value}"
-data-admin="${d.id}">
+data-admin="${d.id}"
+${f.required ? "required" : ""}>
 `;
 }
 
@@ -644,7 +742,8 @@ fieldHTML=`
 <input
 type="date"
 value="${value}"
-data-admin="${d.id}">
+data-admin="${d.id}"
+${f.required ? "required" : ""}>
 `;
 }
 
@@ -663,7 +762,9 @@ ${opt}
 });
 
 fieldHTML=`
-<select data-admin="${d.id}">
+<select
+data-admin="${d.id}"
+${f.required ? "required" : ""}>
 ${options}
 </select>
 `;
@@ -710,6 +811,106 @@ completionText.innerText=percent+"%";
 completionBar.style.width=percent+"%";
 
 }
+  const shajraSearch =
+document.getElementById("shajraSearch");
+
+const shajraSuggestions =
+document.getElementById("shajraSuggestions");
+
+shajraSearch?.addEventListener("input",()=>{
+
+const q = shajraSearch.value
+.toLowerCase()
+.trim();
+
+if(!q){
+
+shajraSuggestions.style.display = "none";
+return;
+
+}
+
+const filtered = allShajraMembers
+.filter(m =>
+
+`${m.name || ""} ${m.surname || ""}`
+.toLowerCase()
+.includes(q)
+
+)
+.slice(0,20);
+
+shajraSuggestions.innerHTML = "";
+
+filtered.forEach(member=>{
+
+const div = document.createElement("div");
+
+div.className =
+"px-5 py-4 hover:bg-white/10 cursor-pointer border-b border-white/5";
+
+div.innerHTML = `
+<div class="font-semibold">
+${member.name}
+
+${member.surname ? `
+<span class="text-slate-400">
+(${member.surname})
+</span>
+` : ""}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+Generation ${member.generation || "-"}
+</div>
+`;
+
+div.onclick = ()=>{
+
+selectedShajraMember = member;
+
+shajraSearch.value = member.name;
+
+document.getElementById("selectedShajraBox")
+.style.display = "block";
+
+document.getElementById("selectedShajraName")
+.innerText = member.name;
+
+shajraSuggestions.style.display = "none";
+
+};
+
+shajraSuggestions.appendChild(div);
+
+});
+
+shajraSuggestions.style.display =
+filtered.length ? "block" : "none";
+
+});
+
+document.addEventListener("click",(e)=>{
+  document.addEventListener("keydown",(e)=>{
+
+if(e.key==="Escape"){
+
+shajraSuggestions.style.display="none";
+
+}
+
+});
+
+if(
+!shajraSuggestions.contains(e.target)
+&& e.target !== shajraSearch
+){
+
+shajraSuggestions.style.display = "none";
+
+}
+
+});
 
 // IMAGE PREVIEW
 
@@ -876,7 +1077,11 @@ Delete
 </div>
 `;
 
-userWrap.innerHTML+=html;
+const temp=document.createElement("div");
+
+temp.innerHTML=html;
+
+userWrap.appendChild(temp.firstElementChild);
 
 }
 
@@ -896,10 +1101,43 @@ const phone=document.getElementById("phone").value.trim();
 
 adminValues={};
 
+let hasError=false;
+
 document.querySelectorAll("[data-admin]")
 .forEach(input=>{
-adminValues[input.dataset.admin]=input.value.trim();
+
+const value=String(input.value).trim();
+
+if(input.required && !value){
+
+input.style.border=
+"1px solid rgba(248,113,113,0.9)";
+
+input.style.boxShadow=
+"0 0 0 3px rgba(248,113,113,0.15)";
+
+hasError=true;
+
+}else{
+
+input.style.border="";
+input.style.boxShadow="";
+
+}
+
+adminValues[input.dataset.admin]=value;
+
 });
+
+if(hasError){
+
+loader.style.display="none";
+
+alert("Please fill all required fields");
+
+return;
+
+}
 
 // CUSTOM FIELDS
 
@@ -924,9 +1162,16 @@ doc(db,"users",uid),
 {
 fullName,
 phone,
+
+linkedShajraMemberId:
+selectedShajraMember?.id || "",
+
 adminFields:adminValues,
+
 userCustomFields:userCustom,
+
 updatedAt:new Date().toISOString()
+
 },
 {merge:true}
 );
