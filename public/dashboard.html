@@ -144,6 +144,11 @@ display:none;
 .mobile-nav{
 display:flex;
 }
+
+main{
+width:100%;
+margin-left:0 !important;
+}
 }
 </style>
 </head>
@@ -152,7 +157,7 @@ display:flex;
 <div class="min-h-screen flex text-white">
 
 <!-- SIDEBAR -->
-<aside class="sidebar w-80 bg-black/30 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 bottom-0 z-50">
+<aside class="sidebar hidden lg:flex w-80 bg-black/30 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 bottom-0 z-50">
 
 <div class="flex items-center gap-4 mb-10">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
@@ -212,7 +217,7 @@ display:flex;
 </aside>
 
 <!-- MAIN -->
-<main class="flex-1 lg:ml-80 p-4 sm:p-5 lg:p-8 pb-28">
+<main class="w-full lg:ml-80 p-4 sm:p-5 lg:p-8 pb-28">
 
 <!-- TOPBAR -->
 <div class="glass-card rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 sticky top-4 z-40">
@@ -222,9 +227,8 @@ display:flex;
 <h2 id="welcomeName" class="text-3xl font-extrabold mt-1">Member</h2>
 </div>
 
-<div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-
-<div class="relative flex-1 min-w-0">
+<div class="flex items-center gap-2 sm:gap-3 w-full">
+<div class="relative flex-1">
 <input type="text" placeholder="Search dashboard..."
 class="bg-white/10 border border-white/10 outline-none rounded-2xl px-4 py-3 w-full sm:w-72 text-sm placeholder:text-slate-400">
 </div>
