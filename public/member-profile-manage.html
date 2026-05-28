@@ -371,6 +371,8 @@ onAuthStateChanged
 import {
 getFirestore,
 collection,
+query,
+orderBy,
 getDocs,
 doc,
 getDoc,
@@ -611,47 +613,130 @@ selectedUser.profilePhoto || "#";
 const adminWrap=document.getElementById("adminFieldsWrap");
 adminWrap.innerHTML="";
 
-const adminFields=selectedUser.adminFields || {};
+const adminFieldsData = selectedUser.adminFields || {};
 
-Object.entries(adminFields).forEach(([k,v])=>{
+const fieldsQuery = query(
+collection(db,"profileFields"),
+orderBy("sequence","asc")
+);
 
-let fieldHTML="";
+const fieldsSnap = await getDocs(fieldsQuery);
 
-if(k.toLowerCase()==="gender"){
+fieldsSnap.forEach((docSnap)=>{
 
-fieldHTML=`
-<select data-admin="${k}">
-<option value="">Select Gender</option>
-<option value="Male" ${v==="Male" ? "selected" : ""}>Male</option>
-<option value="Female" ${v==="Female" ? "selected" : ""}>Female</option>
-</select>
-`;
+const fieldKey = docSnap.id;
 
-}else if(
-k.toLowerCase()==="date of birth"
-|| k.toLowerCase()==="dob"
-){
+const field = docSnap.data();
 
-fieldHTML=`
+if(field.visible === false) return;
+
+const fieldValue =
+adminFieldsData[fieldKey] ?? "";
+
+let fieldHTML = "";
+
+
+// TEXT
+
+if(field.type === "text"){
+
+fieldHTML = `
 <input
-type="date"
-data-admin="${k}"
-value="${v || ''}">
-`;
-
-}else{
-
-fieldHTML=`
-<input
-data-admin="${k}"
-value="${v || ''}">
+data-admin="${fieldKey}"
+value="${fieldValue}"
+${field.required ? "required" : ""}
+>
 `;
 
 }
 
-adminWrap.innerHTML+=`
+
+// NUMBER
+
+else if(field.type === "number"){
+
+fieldHTML = `
+<input
+type="number"
+data-admin="${fieldKey}"
+value="${fieldValue}"
+${field.required ? "required" : ""}
+>
+`;
+
+}
+
+
+// DATE
+
+else if(field.type === "date"){
+
+fieldHTML = `
+<input
+type="date"
+data-admin="${fieldKey}"
+value="${fieldValue}"
+${field.required ? "required" : ""}
+>
+`;
+
+}
+
+
+// DROPDOWN
+
+else if(field.type === "dropdown"){
+
+fieldHTML = `
+<select
+data-admin="${fieldKey}"
+${field.required ? "required" : ""}
+>
+
+<option value="">
+Select ${fieldKey}
+</option>
+
+${(field.options || []).map(opt => `
+<option
+value="${opt}"
+${fieldValue === opt ? "selected" : ""}
+>
+${opt}
+</option>
+`).join("")}
+
+</select>
+`;
+
+}
+
+
+// DEFAULT
+
+else{
+
+fieldHTML = `
+<input
+data-admin="${fieldKey}"
+value="${fieldValue}"
+>
+`;
+
+}
+
+
+adminWrap.innerHTML += `
 <div>
-<label>${k}</label>
+<label>
+${fieldKey}
+
+${field.required ? `
+<span class="text-red-400">*</span>
+` : ""}
+
+</label>
+
 ${fieldHTML}
 </div>
 `;
@@ -921,10 +1006,40 @@ try{
 
 const adminFields={};
 
+let hasError = false;
+
 document.querySelectorAll("[data-admin]")
 .forEach(input=>{
-adminFields[input.dataset.admin]=input.value.trim();
+
+const value = input.value.trim();
+
+if(input.required && !value){
+
+input.style.border = "1px solid rgba(248,113,113,0.9)";
+input.style.boxShadow = "0 0 0 3px rgba(248,113,113,0.15)";
+
+hasError = true;
+
+}else{
+
+input.style.border = "";
+input.style.boxShadow = "";
+
+}
+
+adminFields[input.dataset.admin] = value;
+
 });
+
+if(hasError){
+
+hideLoader();
+
+alert("Please fill all required fields");
+
+return;
+
+}
 
 const customFields={};
 
