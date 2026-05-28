@@ -299,6 +299,56 @@ Download Photo
 </div>
 
 </div>
+ <!-- SHAJRA LINK -->
+
+<div class="mt-10">
+
+<div class="flex items-center justify-between mb-5">
+
+<h3 class="text-2xl font-bold">
+Linked Shajra Member
+</h3>
+
+<button
+id="removeShajraBtn"
+type="button"
+class="bg-red-500 px-5 py-3 rounded-2xl font-bold">
+Remove Link
+</button>
+
+</div>
+
+<div class="relative">
+
+<input
+id="shajraSearch"
+type="text"
+placeholder="Search lineage member...">
+
+<div
+id="shajraSuggestions"
+class="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-2xl overflow-hidden hidden z-50 max-h-[320px] overflow-y-auto">
+</div>
+
+</div>
+
+<div
+id="selectedShajraBox"
+style="display:none"
+class="glass rounded-2xl p-5 mt-5 border border-cyan-400/20">
+
+<p class="text-slate-400 text-sm">
+Linked Lineage Member
+</p>
+
+<h4
+id="selectedShajraName"
+class="text-2xl font-bold mt-2">
+</h4>
+
+</div>
+
+</div>
 
 <!-- ADMIN FIELDS -->
 
@@ -420,6 +470,8 @@ e.target.value=e.target.value
 let selectedUid="";
 let selectedUser={};
 let allUsers=[];
+let allShajraMembers=[];
+let selectedShajraMember=null;
   let selectedPhotoFile=null;
 
 function showLoader(){
@@ -462,6 +514,20 @@ showLoader();
 membersWrap.innerHTML="";
 
 const snap=await getDocs(collection(db,"users"));
+ const familySnap = await getDocs(
+collection(db,"family_members")
+);
+
+allShajraMembers=[];
+
+familySnap.forEach(docSnap=>{
+
+allShajraMembers.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
 
 allUsers=[];
 
@@ -559,6 +625,40 @@ document.getElementById("emptyState").style.display="none";
 document.getElementById("editor").style.display="block";
   document.getElementById("downloadPhotoBtn").href =
 selectedUser.profilePhoto || "#";
+ // RESTORE SHAJRA LINK
+
+selectedShajraMember=null;
+
+document.getElementById("selectedShajraBox")
+.style.display="none";
+
+document.getElementById("shajraSearch")
+.value="";
+
+if(selectedUser.linkedShajraMemberId){
+
+const found = allShajraMembers.find(
+m => m.id === selectedUser.linkedShajraMemberId
+);
+
+if(found){
+
+selectedShajraMember = found;
+
+document.getElementById("selectedShajraBox")
+.style.display="block";
+
+document.getElementById("selectedShajraName")
+.innerText =
+found.name;
+
+document.getElementById("shajraSearch")
+.value =
+found.name;
+
+}
+
+}
   // OPEN LARGE IMAGE
 
 document.getElementById("editPhoto").onclick=()=>{
@@ -1005,7 +1105,114 @@ console.log(err);
 }
 
 };
+const shajraSearch =
+document.getElementById("shajraSearch");
 
+const shajraSuggestions =
+document.getElementById("shajraSuggestions");
+
+shajraSearch?.addEventListener("input",()=>{
+
+const q = shajraSearch.value
+.toLowerCase()
+.trim();
+
+if(!q){
+
+shajraSuggestions.style.display="none";
+
+return;
+
+}
+
+const filtered = allShajraMembers
+.filter(m =>
+
+`${m.name || ""} ${m.surname || ""}`
+.toLowerCase()
+.includes(q)
+
+)
+.slice(0,20);
+
+shajraSuggestions.innerHTML="";
+
+filtered.forEach(member=>{
+
+const div=document.createElement("div");
+
+div.className=
+"px-5 py-4 hover:bg-white/10 cursor-pointer border-b border-white/5";
+
+div.innerHTML=`
+<div class="font-semibold">
+
+${member.name}
+
+${member.surname ? `
+<span class="text-slate-400">
+(${member.surname})
+</span>
+` : ""}
+
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+Generation ${member.generation || "-"}
+</div>
+`;
+
+div.onclick=()=>{
+
+selectedShajraMember=member;
+
+document.getElementById("selectedShajraBox")
+.style.display="block";
+
+document.getElementById("selectedShajraName")
+.innerText=
+member.name;
+
+shajraSearch.value=member.name;
+
+shajraSuggestions.style.display="none";
+
+};
+
+shajraSuggestions.appendChild(div);
+
+});
+
+shajraSuggestions.style.display=
+filtered.length ? "block" : "none";
+
+});
+
+document.addEventListener("click",(e)=>{
+
+if(
+!shajraSuggestions.contains(e.target)
+&& e.target!==shajraSearch
+){
+
+shajraSuggestions.style.display="none";
+
+}
+
+});
+
+document.getElementById("removeShajraBtn")
+.onclick=()=>{
+
+selectedShajraMember=null;
+
+document.getElementById("selectedShajraBox")
+.style.display="none";
+
+document.getElementById("shajraSearch")
+.value="";
+
+};
 // SAVE MEMBER
 
 document.getElementById("saveMemberBtn")
@@ -1080,6 +1287,10 @@ document.getElementById("editPhone").value.trim(),
 email:document.getElementById("editEmail").value.trim(),
 role:document.getElementById("editRole").value,
 approved:document.getElementById("editApproved").value === 'true',
+
+linkedShajraMemberId:
+selectedShajraMember?.id || "",
+
 adminFields,
 userCustomFields:customFields,
 updatedAt:new Date().toISOString()
