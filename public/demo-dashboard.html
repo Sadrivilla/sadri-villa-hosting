@@ -257,6 +257,71 @@ Explore Gallery
 </div>
 
 </section>
+  <!-- SHAJRA LINEAGE -->
+
+<div
+id="lineageCard"
+class="glass-card rounded-[36px] p-8 mb-8"
+style="display:none">
+
+<div class="flex items-center justify-between mb-6">
+
+<div>
+<p class="text-cyan-300 uppercase tracking-[3px] text-xs font-bold">
+Sadri Heritage
+</p>
+
+<h2 class="text-4xl font-extrabold mt-3">
+Your Shajra Lineage
+</h2>
+</div>
+
+<a
+href="shajra.html"
+class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold">
+Open Full Shajra
+</a>
+
+</div>
+
+<div
+id="lineagePathDashboard"
+class="flex flex-wrap gap-3 mt-8">
+</div>
+
+</div>
+
+<!-- EMPTY SHAJRA -->
+
+<div
+id="emptyLineageCard"
+class="glass-card rounded-[36px] p-8 mb-8"
+style="display:none">
+
+<div class="max-w-2xl">
+
+<p class="uppercase tracking-[4px] text-pink-300 text-xs font-bold mb-4">
+Connect Your Heritage
+</p>
+
+<h2 class="text-4xl font-extrabold leading-tight">
+Link Your Name
+In Shajra
+</h2>
+
+<p class="text-slate-300 mt-5 text-lg leading-relaxed">
+Select your family lineage member from your profile to unlock your beautiful heritage path from root generation.
+</p>
+
+<a
+href="profile.html"
+class="inline-flex mt-8 bg-cyan-500 hover:bg-cyan-400 transition px-7 py-4 rounded-2xl font-bold text-black">
+Select Your Name
+</a>
+
+</div>
+
+</div>
 
 <!-- MAIN GRID -->
 <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
@@ -394,4 +459,224 @@ View All
 <div class="text-xs mt-1">Profile</div>
 </a>
 
-<a 
+<a href="gallery.html" class="text-center text-slate-300"> class="text-center text-slate-300">
+<div>🖼️</div>
+<div class="text-xs mt-1">Gallery</div>
+</a>
+
+<a href="family-tree.html" class="text-center text-slate-300">
+<div>🌳</div>
+<div class="text-xs mt-1">Tree</div>
+</a>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+getDoc,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
+});
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+let allFamilyMembers = [];
+
+onAuthStateChanged(auth, async(user)=>{
+
+if(!user){
+
+location.href="login.html";
+return;
+
+}
+
+const snap = await getDoc(
+doc(db,"users",user.uid)
+);
+
+if(!snap.exists()) return;
+
+const userData = snap.data();
+
+
+// USER DATA
+
+document.getElementById("welcomeName")
+.innerText =
+userData.fullName || "Member";
+
+document.getElementById("badgeName")
+.innerText =
+userData.fullName || "Member";
+
+if(userData.profilePhoto){
+
+document.getElementById("profilePhoto")
+.src =
+userData.profilePhoto ||
+"https://cdn-icons-png.flaticon.com/512/4140/4140048.png";
+
+}
+
+
+// LOAD FAMILY MEMBERS
+
+const familySnap = await getDocs(
+collection(db,"family_members")
+);
+
+allFamilyMembers = [];
+
+familySnap.forEach(docSnap=>{
+
+allFamilyMembers.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+
+// RENDER LINEAGE
+
+renderLineage(
+userData.linkedShajraMemberId || ""
+);
+
+});
+
+
+
+function renderLineage(memberId){
+
+const lineageCard =
+document.getElementById("lineageCard");
+
+const emptyLineageCard =
+document.getElementById("emptyLineageCard");
+
+const lineageWrap =
+document.getElementById("lineagePathDashboard");
+
+if(!memberId){
+
+emptyLineageCard.style.display="block";
+
+lineageCard.style.display="none";
+
+return;
+
+}
+
+const memberMap = {};
+
+allFamilyMembers.forEach(m=>{
+
+memberMap[m.id]=m;
+
+});
+
+const lineage=[];
+
+let current = memberMap[memberId];
+
+while(current){
+
+lineage.unshift(current);
+
+if(!current.fatherId) break;
+
+current = memberMap[current.fatherId];
+
+}
+
+if(!lineage.length){
+
+emptyLineageCard.style.display="block";
+
+lineageCard.style.display="none";
+
+return;
+
+}
+
+lineageWrap.innerHTML="";
+
+lineage.forEach((member,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className=
+`
+bg-white/10
+hover:bg-cyan-500/20
+border
+border-white/10
+hover:border-cyan-400/30
+transition
+px-5
+py-3
+rounded-2xl
+font-semibold
+text-sm
+`;
+
+btn.innerText=member.name;
+
+btn.onclick=()=>{
+
+location.href=
+`shajra.html#${member.id}`;
+
+};
+
+lineageWrap.appendChild(btn);
+
+if(index < lineage.length-1){
+
+const arrow=document.createElement("div");
+
+arrow.className=
+"flex items-center text-cyan-300 font-bold";
+
+arrow.innerHTML="→";
+
+lineageWrap.appendChild(arrow);
+
+}
+
+});
+
+emptyLineageCard.style.display="none";
+
+lineageCard.style.display="block";
+
+}
+
+</script>
+
+</body>
+</html>
