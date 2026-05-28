@@ -58,14 +58,40 @@ width:100%;
 background:rgba(255,255,255,0.05);
 border:1px solid rgba(255,255,255,0.08);
 color:white;
-padding:20px 22px;
+
+padding-top:20px;
+padding-bottom:20px;
+padding-left:24px;
+padding-right:24px;
+
 min-height:64px;
+
 font-size:17px;
 font-weight:500;
-line-height:1.5;
+line-height:1.6;
+
 border-radius:20px;
 outline:none;
 transition:0.3s;
+}
+  input::placeholder,
+textarea::placeholder{
+color:#94a3b8;
+padding-left:2px;
+}
+
+input[type="date"]{
+padding-right:24px;
+}
+
+input[readonly]{
+padding-left:24px !important;
+}
+
+#adminWrap input,
+#adminWrap select,
+#userWrap input{
+padding-left:24px !important;
 }
 
 input:focus,
@@ -202,11 +228,11 @@ Something went wrong
 <img id="largeImage">
 </div>
 
-<div class="min-h-screen p-4 lg:p-8">
+<div class="min-h-screen p-3 lg:p-8">
 
 <!-- TOPBAR -->
 
-<div class="glass rounded-[32px] p-5 lg:p-7 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 sticky top-4 z-50">
+<div class="glass rounded-[32px] p-5 lg:p-7 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 z-50">
 
 <div class="flex items-center gap-5">
 
