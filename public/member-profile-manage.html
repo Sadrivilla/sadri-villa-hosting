@@ -14,12 +14,12 @@
  input[type=\"checkbox\"]{
 appearance:auto !important;
 -webkit-appearance:checkbox !important;
-width:18px !important;
-height:18px !important;
-min-height:18px !important;
+width:14px !important;
+height:14px !important;
+min-height:14px !important;
 padding:0 !important;
 margin:0 !important;
-border-radius:4px !important;
+border-radius:3px !important;
 accent-color:#06b6d4;
 cursor:pointer;
 flex-shrink:0;
@@ -696,9 +696,11 @@ wrap.innerHTML+=`
 
 <div class="flex flex-wrap gap-5 mt-5 items-center justify-between">
 
-<label class="flex items-center gap-3 cursor-pointer select-none">
+<label class="flex items-center gap-2 cursor-pointer select-none text-sm">
 <input type="checkbox" class="custom-show" ${show ? 'checked' : ''}>
+<span class="leading-tight">
 Show On Dashboard
+</span>
 </label>
 
 <button
