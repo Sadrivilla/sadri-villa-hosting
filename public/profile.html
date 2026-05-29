@@ -948,8 +948,7 @@ filtered.length ? "block" : "none";
 
 });
 
-document.addEventListener("click",(e)=>{
-  document.addEventListener("keydown",(e)=>{
+document.addEventListener("keydown",(e)=>{
 
 if(e.key==="Escape"){
 
@@ -958,6 +957,8 @@ shajraSuggestions.style.display="none";
 }
 
 });
+
+document.addEventListener("click",(e)=>{
 
 if(
 !shajraSuggestions.contains(e.target)
@@ -1238,7 +1239,7 @@ loader.style.display="none";
 
 showSuccess();
 
-await calculateCompletion({
+baseUser = {
 ...baseUser,
 fullName,
 phone,
@@ -1247,7 +1248,9 @@ linkedShajraMemberId:
 selectedShajraMember?.id || "",
 profilePhoto:
 previewPhoto.src
-});
+};
+
+await calculateCompletion(baseUser);
 
 headerName.innerText=fullName;
 
