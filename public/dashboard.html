@@ -162,7 +162,7 @@ flex:1;
 
 
 .mobile-nav{
-display:flex;
+display:none;
 }
 
 main{
@@ -177,7 +177,8 @@ margin-left:0 !important;
 <div class="min-h-screen flex text-white">
 
 <!-- SIDEBAR -->
-<aside class="sidebar hidden lg:flex w-80 bg-black/30 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 bottom-0 z-50">
+<aside id="sidebar"
+class="sidebar hidden lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-50">
 
 <div class="flex items-center gap-4 mb-10">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
@@ -237,16 +238,24 @@ margin-left:0 !important;
 </aside>
 
 <!-- MAIN -->
-<main class="w-full lg:ml-80 p-4 sm:p-5 lg:p-8 pb-28">
+<main class="w-full lg:ml-80 p-4 sm:p-5 lg:p-8 pb-10">
 
 <!-- TOPBAR -->
 <div class="glass-card relative z-50 rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 lg:z-40">
+<div class="flex items-center gap-3">
+
+<button
+id="mobileMenuBtn"
+class="lg:hidden glass-card w-12 h-12 rounded-xl">
+☰
+</button>
 
 <div>
 <p class="text-slate-400 text-sm">Welcome Back</p>
 <h2 id="welcomeName" class="text-3xl font-extrabold mt-1">Member</h2>
 </div>
 
+</div>
 <div class="flex items-center gap-2 sm:gap-3 w-full">
 <div class="relative flex-1">
 
@@ -303,41 +312,41 @@ id="logoutBtn"
 class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 transition text-left text-red-300">
 <span>Logout</span>
 </button>
-
 </div>
-
 </div>
-
 </div>
-
 </div>
 
 <!-- HERO -->
-<section class="hero-gradient rounded-[36px] p-8 lg:p-12 relative overflow-hidden mb-6 z-0">
+<section class="hero-gradient rounded-[28px] p-6 lg:p-8 relative overflow-hidden mb-6 z-0">
 
 <div class="max-w-3xl relative z-10">
 <p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-4">
 Sadri Villa Digital Heritage
 </p>
 
-<h1 class="text-2xl sm:text-4xl lg:text-6xl font-extrabold leading-tight mb-4">
+<h1 class="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-tight mb-3">
 Your Modern Family
 Heritage Dashboard
 </h1>
 
-<p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+<p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
 Access family records, gallery memories, announcements,
 documents, heritage information and your member profile in one secure dashboard.
 </p>
 
 <div class="flex flex-col sm:flex-row gap-3 mt-6 w-full sm:w-auto">
-<button class="bg-cyan-500 hover:bg-cyan-400 transition px-5 py-4 rounded-2xl font-semibold text-black w-full sm:w-auto text-center">
+<a
+href="profile.html"
+class="bg-cyan-500 hover:bg-cyan-400 transition px-5 py-4 rounded-2xl font-semibold text-black w-full sm:w-auto text-center">
 Open Profile
-</button>
+</a> 
 
-<button class="bg-white/10 border border-white/10 hover:bg-white/20 transition px-5 py-4 rounded-2xl font-semibold w-full sm:w-auto text-center">
+<a
+href="gallery.html"
+class="bg-white/10 border border-white/10 hover:bg-white/20 transition px-5 py-4 rounded-2xl font-semibold w-full sm:w-auto text-center">
 Explore Gallery
-</button>
+</a>
 </div>
 </div>
 
@@ -361,11 +370,13 @@ Explore Gallery
 <p class="text-slate-300 mt-3 text-sm">Days in community</p>
 </div>
 
-<div class="glass-card stat-card rounded-3xl p-6">
+<a
+href="gallery.html"
+class="glass-card stat-card rounded-3xl p-6 block">
 <p class="text-slate-400 text-sm mb-4">Gallery Photos</p>
   <h3 id="galleryCount" class="text-3xl sm:text-5xl font-extrabold">0</h3>
 <p class="text-slate-300 mt-3 text-sm">Heritage images available</p>
-</div>
+</a>
 
 <div class="glass-card stat-card rounded-3xl p-6">
 <p class="text-slate-400 text-sm mb-4">Announcements</p>
@@ -447,8 +458,10 @@ Select Your Name
 <div class="xl:col-span-8 space-y-6">
 
 <div class="glass-card rounded-3xl p-6">
+
 <div class="flex items-center justify-between mb-6">
 <h3 class="text-2xl font-bold">Profile Analytics</h3>
+
 <button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
 Last 30 Days
 </button>
@@ -457,6 +470,7 @@ Last 30 Days
 <div class="h-[350px]">
 <canvas id="activityChart"></canvas>
 </div>
+
 </div>
 
 <div class="glass-card rounded-3xl p-6">
@@ -508,28 +522,44 @@ Last 30 Days
 <div class="glass-card rounded-3xl p-6">
 <h3 class="text-2xl font-bold mb-6">Quick Actions</h3>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-<button class="bg-cyan-500/20 hover:bg-cyan-500/30 transition rounded-2xl p-5 text-left">
+<div class="grid grid-cols-2 gap-4">
+
+<a href="profile.html"
+class="bg-cyan-500/20 hover:bg-cyan-500/30 transition rounded-2xl p-5 text-left">
 <div class="font-semibold">Edit Profile</div>
-</button>
+</a>
 
-<button class="bg-purple-500/20 hover:bg-purple-500/30 transition rounded-2xl p-5 text-left">
+<a
+href="gallery.html"
+class="bg-purple-500/20 hover:bg-purple-500/30 transition rounded-2xl p-5 text-left">
 <div class="font-semibold">Gallery</div>
-</button>
+</a>
 
-<button class="bg-emerald-500/20 hover:bg-emerald-500/30 transition rounded-2xl p-5 text-left">
+<a href="downloads.html"
+class="bg-emerald-500/20 hover:bg-emerald-500/30 transition rounded-2xl p-5 text-left">
 <div class="font-semibold">Downloads</div>
-</button>
+</a>
 
-<button class="bg-pink-500/20 hover:bg-pink-500/30 transition rounded-2xl p-5 text-left">
+<a href="family-tree.html"
+class="bg-pink-500/20 hover:bg-pink-500/30 transition rounded-2xl p-5 text-left">
 <div class="font-semibold">Family Tree</div>
-</button>
+</a>
+
+<a href="announcements.html"
+class="bg-yellow-500/20 hover:bg-yellow-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Announcements</div>
+</a>
+
+<a href="change-password.html"
+class="bg-red-500/20 hover:bg-red-500/30 transition rounded-2xl p-5 text-left">
+<div class="font-semibold">Password</div>
+</a>
+
 </div>
 </div>
 
 <div class="glass-card rounded-3xl p-6">
 <h3 class="text-2xl font-bold mb-6">Member Badge</h3>
-
 <div class="bg-gradient-to-br from-cyan-500 to-blue-700 rounded-3xl p-6 relative overflow-hidden">
 <p class="text-cyan-100 text-sm">Verified Member</p>
 <h3 id="badgeName" class="text-2xl font-bold mt-2">Member</h3>
@@ -557,30 +587,6 @@ View All
 </section>
 
 </main>
-
-</div>
-
-<!-- MOBILE BOTTOM NAV -->
-<div class="mobile-nav fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-white/10 justify-around py-4 z-50">
-<a href="#" class="text-center text-cyan-400">
-<div>🏠</div>
-<div class="text-xs mt-1">Home</div>
-</a>
-
-<a href="profile.html" class="text-center text-slate-300">
-<div>👤</div>
-<div class="text-xs mt-1">Profile</div>
-</a>
-
-<a href="gallery.html" class="text-center text-slate-300">
-<div>🖼️</div>
-<div class="text-xs mt-1">Gallery</div>
-</a>
-
-<a href="family-tree.html" class="text-center text-slate-300">
-<div>🌳</div>
-<div class="text-xs mt-1">Tree</div>
-</a>
 
 </div>
 
@@ -692,6 +698,7 @@ url:"change-password.html"
 
 let allFamilyMembers = [];
 
+
 onAuthStateChanged(auth, async(user)=>{
 
 if(!user){
@@ -708,6 +715,32 @@ doc(db,"users",user.uid)
 if(!snap.exists()) return;
 
 const userData = snap.data();
+  const gallerySnap =
+await getDocs(
+collection(db,"gallery")
+);
+
+document.getElementById("galleryCount")
+.innerText =
+gallerySnap.size;
+  if(userData.createdAt){
+
+const joinDate =
+new Date(userData.createdAt);
+
+const today =
+new Date();
+
+const days =
+Math.floor(
+(today - joinDate) /
+(1000*60*60*24)
+);
+
+document.getElementById("memberDays")
+.innerText = days;
+
+}
 
 
 // USER DATA
@@ -1033,6 +1066,18 @@ lineageCard.style.display="block";
 }
 
 </script>
+<script>
 
+document
+.getElementById("mobileMenuBtn")
+?.addEventListener("click",()=>{
+
+document
+.getElementById("sidebar")
+.classList.toggle("hidden");
+
+});
+
+</script>
 </body>
 </html>
