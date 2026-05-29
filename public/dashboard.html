@@ -723,6 +723,90 @@ doc(db,"users",user.uid)
 if(!snap.exists()) return;
 
 const userData = snap.data();
+  const profileFields = [
+
+userData.fullName,
+userData.email,
+userData.phone,
+userData.profilePhoto,
+userData.linkedShajraMemberId
+
+];
+
+// Load admin profile fields
+
+const profileFieldSnap =
+await getDocs(
+collection(db,"profileFields")
+);
+
+profileFieldSnap.forEach(docSnap=>{
+
+const field = docSnap.data();
+
+if(field.visible === true){
+
+profileFields.push(
+userData.adminFields?.[docSnap.id]
+);
+
+}
+
+});
+
+const filledFields =
+profileFields.filter(
+field => field && String(field).trim() !== ""
+).length;
+
+const strength =
+Math.round(
+(filledFields / profileFields.length) * 100
+);
+
+document.getElementById("strengthScore")
+.innerText = `${strength}%`;
+  const strengthText =
+document.querySelector(
+"#strengthScore + p"
+);
+
+if(strength >= 90){
+
+strengthText.innerText =
+"Excellent profile quality";
+
+strengthText.className =
+"text-emerald-400 mt-3 text-sm";
+
+}
+else if(strength >= 70){
+
+strengthText.innerText =
+"Good profile quality";
+
+strengthText.className =
+"text-cyan-400 mt-3 text-sm";
+
+}
+else if(strength >= 50){
+
+strengthText.innerText =
+"Profile needs improvement";
+
+strengthText.className =
+"text-yellow-400 mt-3 text-sm";
+
+}
+else{
+
+strengthText.innerText =
+"Complete your profile";
+
+strengthText.className =
+"text-red-400 mt-3 text-sm";
+
+}
 const galleryDoc =
 await getDoc(
 doc(db,"siteSettings","home")
