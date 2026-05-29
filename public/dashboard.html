@@ -373,7 +373,7 @@ Member Duration
 
 <p
 id="memberSinceDate"
-class="text-cyan-300 text-xs mt-2">
+class="text-cyan-400 text-xs mt-2 font-medium">
 --
 </p>
 </div>
@@ -786,6 +786,20 @@ months += 12;
 document.getElementById("memberDays")
 .innerText =
 `${years}Y ${months}M ${days}D`;
+  const formattedDate =
+joinDate.toLocaleDateString(
+"en-GB",
+{
+day:"2-digit",
+month:"short",
+year:"numeric"
+}
+);
+
+document.getElementById(
+"memberSinceDate"
+).innerText =
+`Joined: ${formattedDate}`;
 
 }
 
