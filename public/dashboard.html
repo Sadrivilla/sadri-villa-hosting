@@ -367,7 +367,7 @@ Explore Gallery
 <div class="glass-card stat-card rounded-3xl p-6">
 <p class="text-slate-400 text-sm mb-4">Member Since</p>
   <h3 id="memberDays" class="text-3xl sm:text-5xl font-extrabold">0</h3>
-<p class="text-slate-300 mt-3 text-sm">Days in community</p>
+<p class="text-slate-300 mt-3 text-sm">Member Duration</p>
 </div>
 
 <a
@@ -730,7 +730,7 @@ document.getElementById("galleryCount")
 (galleryData.sliderImages || []).length;
 
 }
- if(userData.createdAt){
+if(userData.createdAt){
 
 const joinDate =
 new Date(userData.createdAt);
@@ -740,14 +740,44 @@ if(!isNaN(joinDate)){
 const today =
 new Date();
 
-const days =
-Math.floor(
-(today - joinDate) /
-(1000*60*60*24)
+let years =
+today.getFullYear() -
+joinDate.getFullYear();
+
+let months =
+today.getMonth() -
+joinDate.getMonth();
+
+let days =
+today.getDate() -
+joinDate.getDate();
+
+if(days < 0){
+
+months--;
+
+const lastMonth =
+new Date(
+today.getFullYear(),
+today.getMonth(),
+0
 );
 
+days += lastMonth.getDate();
+
+}
+
+if(months < 0){
+
+years--;
+
+months += 12;
+
+}
+
 document.getElementById("memberDays")
-.innerText = days;
+.innerText =
+`${years}Y ${months}M ${days}D`;
 
 }
 
