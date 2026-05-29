@@ -724,7 +724,7 @@ document.getElementById("uidText").innerText=uid;
 
 // PROFILE COMPLETION
 
-calculateCompletion(baseUser);
+await calculateCompletion(baseUser);
 
 // ADMIN FIELDS
 
@@ -821,20 +821,52 @@ drawUserCustom(k,v.value,v.showOnDashboard);
 
 });
 
-function calculateCompletion(data){
+async function calculateCompletion(data){
 
-let total=0;
-let filled=0;
+const profileFields = [
 
-Object.entries(data.adminFields || {}).forEach(([k,v])=>{
-total++;
-if(v) filled++;
+data.fullName,
+data.email,
+data.phone,
+data.profilePhoto,
+data.linkedShajraMemberId
+
+];
+
+const profileFieldSnap =
+await getDocs(
+collection(db,"profileFields")
+);
+
+profileFieldSnap.forEach(docSnap=>{
+
+const field = docSnap.data();
+
+if(field.visible === true){
+
+profileFields.push(
+data.adminFields?.[docSnap.id]
+);
+
+}
+
 });
 
-const percent=total===0 ? 0 : Math.round((filled/total)*100);
+const filledFields =
+profileFields.filter(
+field => field && String(field).trim() !== ""
+).length;
 
-completionText.innerText=percent+"%";
-completionBar.style.width=percent+"%";
+const strength =
+Math.round(
+(filledFields / profileFields.length) * 100
+);
+
+document.getElementById("completionText")
+.innerText = `${strength}%`;
+
+document.getElementById("completionBar")
+.style.width = `${strength}%`;
 
 }
   const shajraSearch =
@@ -1206,8 +1238,15 @@ loader.style.display="none";
 
 showSuccess();
 
-calculateCompletion({
-adminFields:adminValues
+await calculateCompletion({
+...baseUser,
+fullName,
+phone,
+adminFields:adminValues,
+linkedShajraMemberId:
+selectedShajraMember?.id || "",
+profilePhoto:
+previewPhoto.src
 });
 
 headerName.innerText=fullName;
