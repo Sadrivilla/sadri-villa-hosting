@@ -103,7 +103,14 @@ display:none;
 }
 
 @media(max-width:1024px){
-  h1{
+
+#sidebar{
+width:85vw;
+max-width:320px;
+z-index:99999 !important;
+}
+
+h1{
 word-break:break-word;
 }
 
@@ -114,6 +121,9 @@ word-break:break-word;
 h3{
 word-break:break-word;
 }
+
+
+
   .hero-gradient{
 padding:22px 16px !important;
 border-radius:24px !important;
@@ -173,12 +183,16 @@ margin-left:0 !important;
 </style>
 </head>
 <body>
+  <div
+id="sidebarOverlay"
+class="hidden fixed inset-0 bg-black/60 z-[99998]">
+</div>
 
 <div class="min-h-screen flex text-white">
 
 <!-- SIDEBAR -->
 <aside id="sidebar"
-class="sidebar hidden lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-50">
+class="sidebar hidden lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 
 <div class="flex items-center gap-4 mb-10">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
@@ -241,7 +255,7 @@ class="sidebar hidden lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex
 <main class="w-full lg:ml-80 p-4 sm:p-5 lg:p-8 pb-10">
 
 <!-- TOPBAR -->
-<div class="glass-card relative z-50 rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 lg:z-40">
+<div class="glass-card relative z-20 rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 lg:z-40">
 <div class="flex items-center gap-3">
 
 <button
@@ -1235,16 +1249,40 @@ lineageCard.style.display="block";
 </script>
 <script>
 
-document
-.getElementById("mobileMenuBtn")
-?.addEventListener("click",()=>{
+const mobileBtn =
+document.getElementById("mobileMenuBtn");
 
-document
-.getElementById("sidebar")
-.classList.toggle("hidden");
+const sidebar =
+document.getElementById("sidebar");
+
+const overlay =
+document.getElementById("sidebarOverlay");
+
+mobileBtn?.addEventListener("click",()=>{
+
+sidebar.classList.toggle("hidden");
+
+if(!sidebar.classList.contains("hidden")){
+
+sidebar.style.display = "flex";
+overlay.classList.remove("hidden");
+
+}else{
+
+sidebar.style.display = "";
+overlay.classList.add("hidden");
+
+}
 
 });
+overlay?.addEventListener("click",()=>{
 
+sidebar.classList.add("hidden");
+sidebar.style.display = "";
+
+overlay.classList.add("hidden");
+
+});
 </script>
 </body>
 </html>
