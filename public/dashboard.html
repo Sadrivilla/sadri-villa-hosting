@@ -715,18 +715,27 @@ doc(db,"users",user.uid)
 if(!snap.exists()) return;
 
 const userData = snap.data();
-  const gallerySnap =
-await getDocs(
-collection(db,"gallery")
+const galleryDoc =
+await getDoc(
+doc(db,"siteSettings","home")
 );
+
+if(galleryDoc.exists()){
+
+const galleryData =
+galleryDoc.data();
 
 document.getElementById("galleryCount")
 .innerText =
-gallerySnap.size;
-  if(userData.createdAt){
+(galleryData.sliderImages || []).length;
+
+}
+ if(userData.createdAt){
 
 const joinDate =
 new Date(userData.createdAt);
+
+if(!isNaN(joinDate)){
 
 const today =
 new Date();
@@ -742,6 +751,7 @@ document.getElementById("memberDays")
 
 }
 
+}
 
 // USER DATA
 
