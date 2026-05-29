@@ -358,11 +358,18 @@ Explore Gallery
 <!-- STATS -->
 <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-<div class="glass-card stat-card rounded-3xl p-6">
+<a
+href="profile.html"
+class="glass-card stat-card rounded-3xl p-6 block cursor-pointer">
 <p class="text-slate-400 text-sm mb-4">Profile Strength</p>
-  <h3 id="strengthScore" class="text-3xl sm:text-5xl font-extrabold">82%</h3>
-<p class="text-emerald-400 mt-3 text-sm">Excellent profile quality</p>
-</div>
+ <h3 id="strengthScore"
+class="text-3xl sm:text-5xl font-extrabold">
+0%
+</h3>
+<p class="text-slate-400 mt-3 text-sm">
+Calculating...
+</p>
+</a>
 
 <div class="glass-card stat-card rounded-3xl p-6">
 <p class="text-slate-400 text-sm mb-4">Member Since</p>
@@ -766,15 +773,29 @@ Math.round(
 
 document.getElementById("strengthScore")
 .innerText = `${strength}%`;
-  const strengthText =
+  document.getElementById("profilePercent")
+.innerText = `${strength}%`;
+
+document.getElementById("profileBar")
+.style.width = `${strength}%`;
+const strengthText =
 document.querySelector(
 "#strengthScore + p"
 );
 
-if(strength >= 90){
+if(strength >= 100){
 
 strengthText.innerText =
-"Excellent profile quality";
+"Profile Complete ✓";
+
+strengthText.className =
+"text-emerald-400 mt-3 text-sm";
+
+}
+else if(strength >= 90){
+
+strengthText.innerText =
+"Almost Complete • Click to improve";
 
 strengthText.className =
 "text-emerald-400 mt-3 text-sm";
@@ -783,7 +804,7 @@ strengthText.className =
 else if(strength >= 70){
 
 strengthText.innerText =
-"Good profile quality";
+"Good Profile • Click to complete";
 
 strengthText.className =
 "text-cyan-400 mt-3 text-sm";
