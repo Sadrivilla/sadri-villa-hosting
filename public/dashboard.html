@@ -489,15 +489,24 @@ Select Your Name
 <div class="glass-card rounded-3xl p-6">
 
 <div class="flex items-center justify-between mb-6">
-<h3 class="text-2xl font-bold">Profile Analytics</h3>
+<h3 class="text-2xl font-bold">Latest Announcements</h3>
 
-<button class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
-Last 30 Days
-</button>
+<a
+href="announcements.html"
+class="bg-white/10 px-5 py-3 rounded-2xl text-sm">
+View All
+</a>
 </div>
 
-<div class="h-[350px]">
-<canvas id="activityChart"></canvas>
+<div id="latestAnnouncements" class="space-y-4">
+
+<div class="p-4 rounded-2xl bg-white/5">
+<h4 class="font-semibold">Loading...</h4>
+<p class="text-slate-400 text-sm">
+Fetching latest announcements
+</p>
+</div>
+
 </div>
 
 </div>
@@ -650,6 +659,80 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+  async function loadLatestAnnouncements(){
+
+const wrap =
+document.getElementById(
+"latestAnnouncements"
+);
+
+if(!wrap) return;
+
+try{
+
+const snap =
+await getDocs(
+collection(db,"announcements")
+);
+
+let announcements=[];
+
+snap.forEach(docSnap=>{
+
+announcements.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+announcements =
+announcements.slice(0,5);
+
+if(!announcements.length){
+
+wrap.innerHTML=
+`
+<div class="text-slate-400">
+No announcements found
+</div>
+`;
+
+return;
+}
+
+wrap.innerHTML="";
+
+announcements.forEach(item=>{
+
+const div =
+document.createElement("div");
+
+div.className=
+"p-4 rounded-2xl bg-white/5";
+
+div.innerHTML=
+`
+<h4 class="font-semibold">
+${item.title || "Announcement"}
+</h4>
+
+<p class="text-slate-400 text-sm mt-1">
+${item.description || ""}
+</p>
+`;
+
+wrap.appendChild(div);
+
+});
+
+}catch(err){
+
+console.error(err);
+
+}
+
+}
   document.addEventListener("click",(e)=>{
 
 if(e.target.closest("#logoutBtn")){
@@ -963,6 +1046,7 @@ id:docSnap.id,
 renderLineage(
 userData.linkedShajraMemberId || ""
 );
+  loadLatestAnnouncements();
 
 });
 
