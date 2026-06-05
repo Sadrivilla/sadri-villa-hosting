@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Announcements - Sadri Villa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+font-family:'Inter',sans-serif;
+background:#0f172a;
+color:white;
+}
+
+.glass-card{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="max-w-7xl mx-auto p-6">
+
+<div class="flex items-center justify-between mb-8">
+
+<div>
+<h1 class="text-4xl font-extrabold">
+📢 Announcements
+</h1>
+
+<p class="text-slate-400 mt-2">
+Latest updates from Sadri Villa
+</p>
+</div>
+
+<a
+href="dashboard.html"
+class="bg-cyan-500 text-black px-5 py-3 rounded-2xl font-semibold">
+← Dashboard
+</a>
+
+</div>
+
+<div
+id="announcementContainer"
+class="grid lg:grid-cols-2 gap-6">
+
+<div class="glass-card rounded-3xl p-6">
+Loading announcements...
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+query,
+where
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
+});
+
+const db = getFirestore(app);
+
+async function loadAnnouncements(){
+
+const container =
+document.getElementById(
+"announcementContainer"
+);
+
+const q = query(
+collection(db,"announcements"),
+where("enabled","==",true)
+);
+
+const snap = await getDocs(q);
+
+let announcements=[];
+
+snap.forEach(docSnap=>{
+
+announcements.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+announcements.sort(
+(a,b)=>
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+);
+
+if(!announcements.length){
+
+container.innerHTML=`
+<div class="glass-card rounded-3xl p-6">
+No announcements found.
+</div>
+`;
+
+return;
+
+}
+
+container.innerHTML="";
+
+announcements.forEach(item=>{
+
+const createdDate =
+item.createdAt?.toDate
+? item.createdAt.toDate().toLocaleDateString("en-GB")
+: "";
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass-card rounded-3xl overflow-hidden";
+
+card.innerHTML = `
+
+${item.imageUrl ? `
+<img
+src="${item.imageUrl}"
+class="w-full h-64 object-cover">
+` : ''}
+
+<div class="p-6">
+
+<h2 class="text-2xl font-bold">
+${item.title || ""}
+</h2>
+
+<p class="text-slate-300 mt-4 leading-relaxed">
+${item.description || ""}
+</p>
+
+<p class="text-cyan-400 text-sm mt-5">
+Posted: ${createdDate}
+</p>
+
+</div>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}
+
+loadAnnouncements();
+
+</script>
+
+</body>
+</html>
