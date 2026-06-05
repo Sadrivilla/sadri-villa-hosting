@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Announcements</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background:#f3f4f6;
+font-family:Arial,sans-serif;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="max-w-6xl mx-auto p-6">
+
+<div class="bg-white rounded-3xl shadow p-6">
+
+<h1 class="text-3xl font-bold mb-6">
+📢 Announcements Management
+</h1>
+
+<form id="announcementForm" class="space-y-4">
+
+<input
+id="title"
+type="text"
+placeholder="Announcement Header"
+required
+class="w-full border rounded-xl p-3">
+
+<textarea
+id="description"
+placeholder="Announcement Details"
+rows="5"
+required
+class="w-full border rounded-xl p-3"></textarea>
+
+<input
+id="image"
+type="file"
+accept="image/*"
+class="w-full border rounded-xl p-3">
+
+<label class="flex gap-3 items-center">
+<input
+id="enabled"
+type="checkbox"
+checked>
+
+<span>
+Enable Announcement
+</span>
+</label>
+
+<button
+class="bg-black text-white px-6 py-3 rounded-xl">
+Publish Announcement
+</button>
+
+</form>
+
+</div>
+
+<div id="announcementList"
+class="grid md:grid-cols-2 gap-5 mt-8">
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+deleteDoc,
+doc,
+serverTimestamp,
+orderBy,
+query
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+getStorage,
+ref,
+uploadBytes,
+getDownloadURL
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const app = initializeApp({
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_AUTH_DOMAIN",
+projectId:"sadri-villa-14c06",
+storageBucket:"YOUR_STORAGE_BUCKET"
+});
+
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const form=document.getElementById("announcementForm");
+
+form.addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+const title=document.getElementById("title").value;
+const description=document.getElementById("description").value;
+const enabled=document.getElementById("enabled").checked;
+
+let imageUrl="";
+
+const file=document.getElementById("image").files[0];
+
+if(file){
+
+const storageRef=ref(
+storage,
+"announcement-images/"+Date.now()+"_"+file.name
+);
+
+await uploadBytes(storageRef,file);
+
+imageUrl=await getDownloadURL(storageRef);
+
+}
+
+await addDoc(collection(db,"announcements"),{
+
+title,
+description,
+imageUrl,
+enabled,
+
+createdAt:serverTimestamp()
+
+});
+
+alert("Announcement Added");
+
+form.reset();
+
+loadAnnouncements();
+
+});
+
+async function loadAnnouncements(){
+
+const container=document.getElementById("announcementList");
+
+container.innerHTML="";
+
+const q=query(
+collection(db,"announcements"),
+orderBy("createdAt","desc")
+);
+
+const snap=await getDocs(q);
+
+snap.forEach((docSnap)=>{
+
+const data=docSnap.data();
+
+container.innerHTML+=`
+
+<div class="bg-white rounded-3xl shadow p-5">
+
+${data.imageUrl ? `
+<img
+src="${data.imageUrl}"
+class="w-full h-56 object-cover rounded-2xl mb-4">
+` : ''}
+
+<h3 class="text-xl font-bold">
+${data.title}
+</h3>
+
+<p class="mt-3 text-gray-600">
+${data.description}
+</p>
+
+<div class="mt-4">
+
+<span class="
+px-3 py-1 rounded-full
+${data.enabled
+? 'bg-green-100 text-green-700'
+: 'bg-red-100 text-red-700'}
+">
+
+${data.enabled
+? 'Enabled'
+: 'Disabled'}
+
+</span>
+
+</div>
+
+<button
+class="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
+onclick="deleteAnnouncement('${docSnap.id}')">
+
+Delete
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+window.deleteAnnouncement=async(id)=>{
+
+if(!confirm("Delete Announcement?"))
+return;
+
+await deleteDoc(
+doc(db,"announcements",id)
+);
+
+loadAnnouncements();
+
+}
+
+loadAnnouncements();
+
+</script>
+
+</body>
+</html>
