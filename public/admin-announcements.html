@@ -1,260 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<title>Announcements</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Sadri Villa Admin Announcements
+</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+
 body{
-background:#f3f4f6;
-font-family:Arial,sans-serif;
+background:#f1f5f9;
+font-family:Inter,Arial,sans-serif;
 }
+
+.card{
+background:white;
+border-radius:24px;
+box-shadow:
+0 10px 30px rgba(0,0,0,.08);
+}
+
+.preview-image{
+height:140px;
+width:140px;
+object-fit:cover;
+border-radius:16px;
+border:1px solid #e2e8f0;
+}
+
+.action-btn{
+padding:10px 16px;
+border-radius:12px;
+font-weight:600;
+}
+
 </style>
 
 </head>
-
 <body>
+  <!-- LOADING -->
 
-<div class="max-w-6xl mx-auto p-6">
+<div
+id="loadingOverlay"
+class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
 
-<div class="bg-white rounded-3xl shadow p-6">
+<div class="bg-white p-6 rounded-3xl">
 
-<h1 class="text-3xl font-bold mb-6">
-📢 Announcements Management
+<div
+class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto">
+</div>
+
+<p class="mt-4 font-semibold">
+Please wait...
+</p>
+
+</div>
+
+</div>
+
+<!-- TOAST -->
+
+<div
+id="toast"
+class="hidden fixed top-5 right-5 z-50">
+
+<div
+id="toastContent"
+class="px-5 py-4 rounded-2xl text-white shadow-xl">
+</div>
+
+</div>
+
+<!-- DELETE MODAL -->
+
+<div
+id="confirmModal"
+class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+
+<div class="bg-white rounded-3xl p-6 w-full max-w-md">
+
+<h3 class="text-xl font-bold">
+Delete Announcement
+</h3>
+
+<p class="text-gray-600 mt-3">
+This action cannot be undone.
+</p>
+
+<div class="flex justify-end gap-3 mt-6">
+
+<button
+id="cancelDelete"
+class="px-5 py-2 bg-gray-200 rounded-xl">
+Cancel
+</button>
+
+<button
+id="confirmDelete"
+class="px-5 py-2 bg-red-600 text-white rounded-xl">
+Delete
+</button>
+
+</div>
+
+</div>
+
+</div>
+<div class="max-w-7xl mx-auto p-6">
+
+<div class="card p-6">
+
+<div class="flex justify-between items-center mb-6">
+
+<h1 class="text-3xl font-bold">
+Announcements Management
 </h1>
 
-<form id="announcementForm" class="space-y-4">
+<input
+id="searchInput"
+type="text"
+placeholder="Search announcement..."
+class="border rounded-xl px-4 py-3 w-80">
+
+</div>
+
+<form
+id="announcementForm"
+class="space-y-4">
 
 <input
 id="title"
 type="text"
-placeholder="Announcement Header"
 required
+placeholder="Announcement Header"
 class="w-full border rounded-xl p-3">
 
 <textarea
 id="description"
-placeholder="Announcement Details"
 rows="5"
 required
-class="w-full border rounded-xl p-3"></textarea>
+placeholder="Announcement Details"
+class="w-full border rounded-xl p-3">
+</textarea>
+
+<div>
+
+<label class="font-semibold">
+Upload Images
+</label>
 
 <input
-id="image"
+id="images"
 type="file"
+multiple
 accept="image/*"
-class="w-full border rounded-xl p-3">
+class="w-full border rounded-xl p-3 mt-2">
 
-<label class="flex gap-3 items-center">
+</div>
+
+<div
+id="previewContainer"
+class="flex flex-wrap gap-3">
+</div>
+
+<div class="flex flex-wrap gap-6">
+
+<label class="flex items-center gap-2">
+
 <input
 id="enabled"
 type="checkbox"
 checked>
 
-<span>
 Enable Announcement
-</span>
+
 </label>
 
+<label class="flex items-center gap-2">
+
+<input
+id="pinned"
+type="checkbox">
+
+Pin To Top
+
+</label>
+
+</div>
+
 <button
+id="saveBtn"
+type="submit"
 class="bg-black text-white px-6 py-3 rounded-xl">
-Publish Announcement
+
+Save Announcement
+
 </button>
 
 </form>
 
 </div>
 
-<div id="announcementList"
-class="grid md:grid-cols-2 gap-5 mt-8">
+<div
+id="announcementList"
+class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
 </div>
 
 </div>
-
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-getAuth,
-onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-getDocs,
-deleteDoc,
-doc,
-serverTimestamp,
-orderBy,
-query
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import {
-getStorage,
-ref,
-uploadBytes,
-getDownloadURL
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-const app = initializeApp({
-apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-authDomain:"sadri-villa-14c06.firebaseapp.com",
-projectId:"sadri-villa-14c06",
-storageBucket:"sadri-villa-14c06.firebasestorage.app"
-});
-
-
-const db = getFirestore(app);
-const storage = getStorage(app);
-  const auth = getAuth(app);
-
-onAuthStateChanged(auth,(user)=>{
-
-if(!user){
-
-location.href="login.html";
-return;
-
-}
-
-});
-
-const form=document.getElementById("announcementForm");
-
-form.addEventListener("submit",async(e)=>{
-
-e.preventDefault();
-
-const title=document.getElementById("title").value;
-const description=document.getElementById("description").value;
-const enabled=document.getElementById("enabled").checked;
-
-let imageUrl="";
-
-const file=document.getElementById("image").files[0];
-
-if(file){
-
-const storageRef=ref(
-storage,
-"announcement-images/"+Date.now()+"_"+file.name
-);
-
-await uploadBytes(storageRef,file);
-
-imageUrl=await getDownloadURL(storageRef);
-
-}
-
-await addDoc(collection(db,"announcements"),{
-
-title,
-description,
-imageUrl,
-enabled,
-
-createdAt:serverTimestamp()
-
-});
-
-alert("Announcement Added");
-
-form.reset();
-
-loadAnnouncements();
-
-});
-
-async function loadAnnouncements(){
-
-const container=document.getElementById("announcementList");
-
-container.innerHTML="";
-
-const q=query(
-collection(db,"announcements"),
-orderBy("createdAt","desc")
-);
-
-const snap=await getDocs(q);
-
-snap.forEach((docSnap)=>{
-
-const data=docSnap.data();
-
-container.innerHTML+=`
-
-<div class="bg-white rounded-3xl shadow p-5">
-
-${data.imageUrl ? `
-<img
-src="${data.imageUrl}"
-class="w-full h-56 object-cover rounded-2xl mb-4">
-` : ''}
-
-<h3 class="text-xl font-bold">
-${data.title}
-</h3>
-
-<p class="mt-3 text-gray-600">
-${data.description}
-</p>
-
-<div class="mt-4">
-
-<span class="
-px-3 py-1 rounded-full
-${data.enabled
-? 'bg-green-100 text-green-700'
-: 'bg-red-100 text-red-700'}
-">
-
-${data.enabled
-? 'Enabled'
-: 'Disabled'}
-
-</span>
-
-</div>
-
-<button
-class="mt-4 bg-red-500 text-white px-4 py-2 rounded-xl"
-onclick="deleteAnnouncement('${docSnap.id}')">
-
-Delete
-
-</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-window.deleteAnnouncement=async(id)=>{
-
-if(!confirm("Delete Announcement?"))
-return;
-
-await deleteDoc(
-doc(db,"announcements",id)
-);
-
-loadAnnouncements();
-
-}
-
-loadAnnouncements();
+// PART 2 CODE WILL COME HERE
 
 </script>
 
