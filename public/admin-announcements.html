@@ -100,14 +100,26 @@ getDownloadURL
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const app = initializeApp({
-apiKey:"YOUR_API_KEY",
-authDomain:"YOUR_AUTH_DOMAIN",
+apiKey:"AIza...",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
 projectId:"sadri-villa-14c06",
-storageBucket:"YOUR_STORAGE_BUCKET"
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 
 const db = getFirestore(app);
 const storage = getStorage(app);
+  const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+location.href="login.html";
+return;
+
+}
+
+});
 
 const form=document.getElementById("announcementForm");
 
