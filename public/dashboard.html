@@ -409,7 +409,11 @@ class="glass-card stat-card rounded-3xl p-6 block">
 
 <div class="glass-card stat-card rounded-3xl p-6">
 <p class="text-slate-400 text-sm mb-4">Announcements</p>
-  <h3 class="text-3xl sm:text-5xl font-extrabold">12</h3>
+  <h3
+id="announcementCount"
+class="text-3xl sm:text-5xl font-extrabold">
+0
+</h3>
 <p class="text-cyan-400 mt-3 text-sm">Latest updates available</p>
 </div>
 
@@ -645,7 +649,9 @@ getFirestore,
 doc,
 getDoc,
 collection,
-getDocs
+getDocs,
+query,
+where
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -670,10 +676,12 @@ if(!wrap) return;
 
 try{
 
-const snap =
-await getDocs(
-collection(db,"announcements")
+const q = query(
+collection(db,"announcements"),
+where("enabled","==",true)
 );
+
+const snap = await getDocs(q);
 
 let announcements=[];
 
@@ -685,6 +693,18 @@ id:docSnap.id,
 });
 
 });
+
+announcements.sort(
+(a,b)=>
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+);
+
+document.getElementById(
+"announcementCount"
+).innerText =
+announcements.length;
 
 announcements =
 announcements.slice(0,5);
@@ -711,14 +731,29 @@ document.createElement("div");
 div.className=
 "p-4 rounded-2xl bg-white/5";
 
+const createdDate =
+item.createdAt?.toDate
+? item.createdAt.toDate().toLocaleDateString("en-GB")
+: "";
+
 div.innerHTML=
 `
-<h4 class="font-semibold">
+${item.imageUrl ? `
+<img
+src="${item.imageUrl}"
+class="w-full h-40 object-cover rounded-xl mb-3">
+` : ''}
+
+<h4 class="font-semibold text-lg">
 ${item.title || "Announcement"}
 </h4>
 
-<p class="text-slate-400 text-sm mt-1">
+<p class="text-slate-400 text-sm mt-2">
 ${item.description || ""}
+</p>
+
+<p class="text-cyan-400 text-xs mt-3">
+${createdDate}
 </p>
 `;
 
