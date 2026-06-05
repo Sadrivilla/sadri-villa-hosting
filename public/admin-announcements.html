@@ -29,8 +29,8 @@ box-shadow:
 }
 
 .preview-image{
-height:140px;
-width:140px;
+height:180px;
+width:180px;
 object-fit:cover;
 border-radius:16px;
 border:1px solid #e2e8f0;
@@ -218,6 +218,55 @@ class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
 <script type="module">
 
 // PART 2 CODE WILL COME HERE
+  const imageInput =
+document.getElementById("images");
+
+const previewContainer =
+document.getElementById("previewContainer");
+
+imageInput.addEventListener("change",(e)=>{
+
+previewContainer.innerHTML="";
+
+const files = e.target.files;
+
+if(!files.length) return;
+
+Array.from(files).forEach(file=>{
+
+const reader =
+new FileReader();
+
+reader.onload=(event)=>{
+
+const wrapper =
+document.createElement("div");
+
+wrapper.className =
+"relative";
+
+wrapper.innerHTML = `
+<img
+src="${event.target.result}"
+class="preview-image">
+
+<div
+class="absolute bottom-1 left-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded-lg truncate">
+${file.name}
+</div>
+`;
+
+previewContainer.appendChild(
+wrapper
+);
+
+};
+
+reader.readAsDataURL(file);
+
+});
+
+});
 
 </script>
 
