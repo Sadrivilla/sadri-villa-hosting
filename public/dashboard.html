@@ -684,13 +684,25 @@ where("enabled","==",true)
 const snap = await getDocs(q);
 
 let announcements=[];
+  let announcements=[];
+
+allAnnouncements = [];
+  
 
 snap.forEach(docSnap=>{
 
-announcements.push({
+const announcementData = {
 id:docSnap.id,
 ...docSnap.data()
-});
+};
+
+announcements.push(
+announcementData
+);
+
+allAnnouncements.push(
+announcementData
+);
 
 });
 
@@ -1008,6 +1020,8 @@ url:"change-password.html"
 ];
 
 let allFamilyMembers = [];
+
+let allAnnouncements = [];
 
 
 onAuthStateChanged(auth, async(user)=>{
@@ -1332,6 +1346,24 @@ id:member.id
 }
 
 });
+  // ANNOUNCEMENT SEARCH
+
+allAnnouncements.forEach(announcement=>{
+
+if(
+announcement.title &&
+announcement.title.toLowerCase().includes(value)
+){
+
+results.push({
+type:"announcement",
+name:announcement.title,
+id:announcement.id
+});
+
+}
+
+});
 
 
 // NO RESULTS
@@ -1389,7 +1421,27 @@ location.href=result.url;
 };
 
 }
+if(result.type==="announcement"){
 
+item.innerHTML=
+`
+<div class="font-medium">
+📢 ${result.name}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+Announcement
+</div>
+`;
+
+item.onclick=()=>{
+
+location.href=
+`announcements.html?id=${result.id}`;
+
+};
+
+}
 
 if(result.type==="member"){
 
