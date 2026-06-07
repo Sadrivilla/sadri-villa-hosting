@@ -216,16 +216,18 @@ class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
 
 </div>
 <script type="module">
-
 import {
 initializeApp
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
+import {
 getFirestore,
 collection,
 addDoc,
-serverTimestamp
+serverTimestamp,
+getDocs,
+query,
+orderBy
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -391,6 +393,121 @@ urls.push(downloadURL);
 return urls;
 
 }
+  /* -----------------------------------
+   LOAD ANNOUNCEMENTS
+----------------------------------- */
+
+const announcementList =
+document.getElementById(
+"announcementList"
+);
+
+async function loadAnnouncements(){
+
+announcementList.innerHTML =
+"Loading...";
+
+const q =
+query(
+collection(db,"announcements"),
+orderBy(
+"createdAt",
+"desc"
+)
+);
+
+let snapshot;
+
+try{
+
+snapshot =
+await getDocs(q);
+
+}
+catch(error){
+
+console.error(
+"Load Announcements Error:",
+error
+);
+
+announcementList.innerHTML =
+"<div class='text-red-600'>Failed to load announcements.</div>";
+
+return;
+
+}
+
+announcementList.innerHTML="";
+
+snapshot.forEach(doc=>{
+
+const data =
+doc.data();
+
+const card =
+document.createElement("div");
+
+card.className =
+"card p-5";
+
+const imagesHtml =
+(data.images || [])
+.map(url=>`
+<img
+src="${url}"
+class="w-full h-40 object-cover rounded-xl mb-2">
+`)
+.join("");
+
+card.innerHTML = `
+
+<div class="flex gap-2 mb-3">
+
+<span class="
+px-3 py-1 rounded-full text-xs
+${data.enabled
+? 'bg-green-100 text-green-700'
+: 'bg-red-100 text-red-700'}
+">
+
+${data.enabled
+? 'Enabled'
+: 'Disabled'}
+
+</span>
+
+${data.pinned
+? `
+<span class="
+px-3 py-1 rounded-full text-xs
+bg-yellow-100 text-yellow-700">
+Pinned
+</span>
+`
+: ""}
+
+</div>
+
+<h3 class="text-xl font-bold mb-2">
+${data.title}
+</h3>
+
+<p class="text-gray-600 mb-4">
+${data.description}
+</p>
+
+${imagesHtml}
+
+`;
+
+announcementList.appendChild(
+card
+);
+
+});
+
+}
 
 /* -----------------------------------
    TEST SAVE BUTTON
@@ -447,6 +564,8 @@ document
 
 previewContainer.innerHTML="";
 
+await loadAnnouncements();
+
 }
 catch(error){
 
@@ -461,6 +580,7 @@ error.message
 hideLoader();
 
 });
+  loadAnnouncements();
 
 </script>
 
