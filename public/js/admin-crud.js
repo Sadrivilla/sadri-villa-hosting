@@ -572,18 +572,33 @@ if (father && dob && father.dob) {
 
     if (!editingId) {
 
-      await addDoc(collection(db, "family_members"), {
-        name,
-        fatherId: fatherId || null,
-        generation,
-        dob: dob || "",
-        profileImage: imageURL || "",
-        teamMemberId:
-  document.getElementById("teamMemberId").value || "",
+    const newMemberRef =
+await addDoc(
+collection(db, "family_members"),
+{
+name,
+fatherId: fatherId || null,
+generation,
+dob: dob || "",
+profileImage: imageURL || "",
+teamMemberId:
+document.getElementById("teamMemberId").value || "",
 createdAt: serverTimestamp()
-      });
+}
+);
 
-      showMessage("Member added successfully.");
+await addDoc(
+collection(db,"notifications"),
+{
+type:"member",
+memberId:newMemberRef.id,
+memberName:name,
+read:false,
+createdAt:serverTimestamp()
+}
+);
+
+showMessage("Member added successfully.");
 
     } else {
 
