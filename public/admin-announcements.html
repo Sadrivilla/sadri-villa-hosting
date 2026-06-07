@@ -229,6 +229,10 @@ uploadBytes,
 getDownloadURL
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  import {
+getAuth
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* -----------------------------------
    FIREBASE CONFIG
@@ -255,6 +259,13 @@ initializeApp(firebaseConfig);
 
 const storage =
 getStorage(app);
+  const auth =
+getAuth(app);
+
+console.log(
+"Current User:",
+auth.currentUser
+);
 
 /* -----------------------------------
    IMAGE PREVIEW
