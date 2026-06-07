@@ -300,7 +300,7 @@ const card =
 document.createElement("div");
 
 card.className =
-"glass-card rounded-3xl overflow-hidden h-fit";
+"glass-card rounded-3xl overflow-hidden flex flex-col min-h-[650px]";
 
 card.innerHTML = `
 
@@ -368,10 +368,18 @@ font-bold">
 ${item.title || ""}
 </h2>
 
-<p class="text-slate-300 mt-4 leading-relaxed whitespace-pre-wrap">
-${item.description || ""}
-</p>
+<div
+class="text-slate-300 mt-4 leading-relaxed whitespace-pre-wrap overflow-hidden max-h-24 transition-all duration-300"
+id="desc-${item.id}">
 
+${item.description || ""}
+
+</div>
+<button
+class="read-more-btn text-cyan-400 mt-3 text-sm font-semibold"
+data-id="${item.id}">
+Read More
+</button>
 <p class="text-cyan-400 text-sm mt-5">
 Posted: ${createdDate}
 </p>
@@ -381,6 +389,51 @@ Posted: ${createdDate}
 `;
 
 container.appendChild(card);
+  const readMoreBtn =
+card.querySelector(
+".read-more-btn"
+);
+
+if(readMoreBtn){
+
+readMoreBtn.addEventListener(
+"click",
+()=>{
+
+const desc =
+document.getElementById(
+`desc-${item.id}`
+);
+
+if(
+desc.classList.contains(
+"max-h-24"
+)
+){
+
+desc.classList.remove(
+"max-h-24"
+);
+
+readMoreBtn.textContent =
+"Read Less";
+
+}
+else{
+
+desc.classList.add(
+"max-h-24"
+);
+
+readMoreBtn.textContent =
+"Read More";
+
+}
+
+}
+);
+
+}
   const previewImage =
 card.querySelector(
 ".announcement-image"
