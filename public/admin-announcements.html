@@ -217,18 +217,63 @@ class="grid md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
 </div>
 <script type="module">
 
-// PART 2 CODE WILL COME HERE
-  const imageInput =
+import {
+initializeApp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getStorage,
+ref,
+uploadBytes,
+getDownloadURL
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+/* -----------------------------------
+   FIREBASE CONFIG
+----------------------------------- */
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+
+authDomain: "sadri-villa-14c06.firebaseapp.com",
+
+projectId: "sadri-villa-14c06",
+
+storageBucket: "sadri-villa-14c06.firebasestorage.app",
+
+messagingSenderId: "687608762860",
+
+appId: "1:687608762860:web:5ffdc557f3893d00e530c9"
+
+};
+
+const app =
+initializeApp(firebaseConfig);
+
+const storage =
+getStorage(app);
+
+/* -----------------------------------
+   IMAGE PREVIEW
+----------------------------------- */
+
+const imageInput =
 document.getElementById("images");
 
 const previewContainer =
 document.getElementById("previewContainer");
 
-imageInput.addEventListener("change",(e)=>{
+imageInput.addEventListener(
+"change",
+(e)=>{
 
 previewContainer.innerHTML="";
 
-const files = e.target.files;
+const files =
+e.target.files;
 
 if(!files.length) return;
 
@@ -242,10 +287,9 @@ reader.onload=(event)=>{
 const wrapper =
 document.createElement("div");
 
-wrapper.className =
-"relative";
+wrapper.className="relative";
 
-wrapper.innerHTML = `
+wrapper.innerHTML=`
 <img
 src="${event.target.result}"
 class="preview-image">
@@ -265,6 +309,112 @@ wrapper
 reader.readAsDataURL(file);
 
 });
+
+});
+
+/* -----------------------------------
+   LOADER
+----------------------------------- */
+
+function showLoader(){
+
+document
+.getElementById("loadingOverlay")
+.classList.remove("hidden");
+
+}
+
+function hideLoader(){
+
+document
+.getElementById("loadingOverlay")
+.classList.add("hidden");
+
+}
+
+/* -----------------------------------
+   UPLOAD IMAGES
+----------------------------------- */
+
+async function uploadImages(files){
+
+const urls = [];
+
+for(const file of files){
+
+const fileName =
+Date.now() +
+"-" +
+file.name;
+
+const storageRef =
+ref(
+storage,
+"announcements/" + fileName
+);
+
+await uploadBytes(
+storageRef,
+file
+);
+
+const downloadURL =
+await getDownloadURL(
+storageRef
+);
+
+urls.push(downloadURL);
+
+}
+
+return urls;
+
+}
+
+/* -----------------------------------
+   TEST SAVE BUTTON
+----------------------------------- */
+
+document
+.getElementById("announcementForm")
+.addEventListener(
+"submit",
+async(e)=>{
+
+e.preventDefault();
+
+const files =
+imageInput.files;
+
+showLoader();
+
+try{
+
+const imageUrls =
+await uploadImages(files);
+
+console.log(
+"Uploaded Images:",
+imageUrls
+);
+
+alert(
+imageUrls.length +
+" image(s) uploaded successfully."
+);
+
+}
+catch(error){
+
+console.error(error);
+
+alert(
+error.message
+);
+
+}
+
+hideLoader();
 
 });
 
