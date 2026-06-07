@@ -411,6 +411,7 @@ const announcementList =
 document.getElementById(
 "announcementList"
 );
+  let allAnnouncements = [];
   let deleteId = null;
 
 let editId = null;
@@ -472,11 +473,16 @@ return;
 }
 
 announcementList.innerHTML="";
+  allAnnouncements = [];
 
 snapshot.forEach(documentSnapshot=>{
 
 const data =
 documentSnapshot.data();
+  allAnnouncements.push({
+id: documentSnapshot.id,
+...data
+});
 
 const docId =
 documentSnapshot.id;
@@ -1052,6 +1058,59 @@ error.message
 hideLoader();
 
 });
+  /* -----------------------------------
+   SEARCH
+----------------------------------- */
+
+const searchInput =
+document.getElementById(
+"searchInput"
+);
+
+searchInput.addEventListener(
+"input",
+()=>{
+
+const keyword =
+searchInput.value
+.toLowerCase()
+.trim();
+
+const cards =
+announcementList.children;
+
+Array.from(cards).forEach(card=>{
+
+const title =
+card.querySelector("h3")
+?.innerText
+.toLowerCase() || "";
+
+const description =
+card.querySelector("p")
+?.innerText
+.toLowerCase() || "";
+
+const text =
+title + " " + description;
+
+if(
+text.includes(keyword)
+){
+
+card.style.display = "";
+
+}
+else{
+
+card.style.display = "none";
+
+}
+
+});
+
+}
+);
   loadAnnouncements();
 
 </script>
