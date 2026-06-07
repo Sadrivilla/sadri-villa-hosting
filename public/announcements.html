@@ -62,6 +62,42 @@ Loading announcements...
 </div>
 
 </div>
+  <!-- IMAGE MODAL -->
+
+<div
+id="imageModal"
+class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center cursor-pointer">
+
+<button
+id="closeModal"
+class="absolute top-5 right-5 text-white text-4xl font-bold">
+×
+</button>
+
+<button
+id="prevImage"
+class="absolute left-2 md:left-4 text-white text-4xl md:text-5xl px-3 md:px-4">
+❮
+</button>
+
+<img
+id="modalImage"
+src=""
+class="max-w-[90%] max-h-[85vh] rounded-2xl cursor-default">
+
+<button
+id="nextImage"
+class="absolute right-2 md:right-4 text-white text-4xl md:text-5xl px-3 md:px-4">
+❯
+</button>
+
+<div
+id="imageCounter"
+class="absolute bottom-6 text-white text-lg">
+1 / 1
+</div>
+
+</div>
 
 <script type="module">
 
@@ -85,8 +121,95 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 
 const db = getFirestore(app);
+  const imageModal =
+document.getElementById("imageModal");
+
+const modalImage =
+document.getElementById("modalImage");
+
+const closeModal =
+document.getElementById("closeModal");
+
+const prevImage =
+document.getElementById("prevImage");
+
+const nextImage =
+document.getElementById("nextImage");
+
+const imageCounter =
+document.getElementById("imageCounter");
+
+let currentImages = [];
+
+let currentIndex = 0;
+  function openGallery(images,index){
+
+currentImages = images;
+
+currentIndex = index;
+
+updateGallery();
+
+imageModal.classList.remove("hidden");
+
+}
+
+function updateGallery(){
+
+modalImage.src =
+currentImages[currentIndex];
+
+imageCounter.textContent =
+`${currentIndex + 1} / ${currentImages.length}`;
+
+}
+
+function closeGallery(){
+
+imageModal.classList.add("hidden");
+
+}
+
+function showNext(){
+
+if(
+currentIndex <
+currentImages.length - 1
+){
+
+currentIndex++;
+
+}
+else{
+
+currentIndex = 0;
+
+}
+
+updateGallery();
+
+}
+
+function showPrev(){
+
+if(currentIndex > 0){
+
+currentIndex--;
+
+}
+else{
+
+currentIndex =
+currentImages.length - 1;
+
+}
+
+updateGallery();
+
+}
 
 async function loadAnnouncements(){
+
 
 const container =
 document.getElementById(
@@ -171,7 +294,8 @@ ${item.images.map(url => `
 src="${url}"
 loading="lazy"
 alt="${item.title || 'Announcement Image'}"
-class="w-full h-56 object-cover rounded-xl cursor-pointer">
+data-index="${item.images.indexOf(url)}"
+class="announcement-image w-full h-56 object-cover rounded-xl cursor-pointer">
 `).join("")}
 
 </div>
@@ -218,10 +342,81 @@ Posted: ${createdDate}
 `;
 
 container.appendChild(card);
+  card
+.querySelectorAll(
+".announcement-image"
+)
+.forEach(img=>{
+
+img.addEventListener(
+"click",
+()=>{
+
+openGallery(
+item.images,
+Number(
+img.dataset.index
+)
+);
+
+}
+);
+
+});
 
 });
 
 }
+  closeModal.addEventListener(
+"click",
+closeGallery
+);
+  imageModal.addEventListener(
+"click",
+(e)=>{
+
+if(
+e.target === imageModal
+){
+
+closeGallery();
+
+}
+
+}
+);
+
+nextImage.addEventListener(
+"click",
+showNext
+);
+
+prevImage.addEventListener(
+"click",
+showPrev
+);
+
+document.addEventListener(
+"keydown",
+(e)=>{
+
+if(
+imageModal.classList.contains(
+"hidden"
+)
+) return;
+
+if(e.key==="Escape")
+closeGallery();
+
+if(e.key==="ArrowRight")
+showNext();
+
+if(e.key==="ArrowLeft")
+showPrev();
+
+}
+);
 
 loadAnnouncements()
 .catch(error=>{
