@@ -221,6 +221,13 @@ import {
 initializeApp
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+getFirestore,
+collection,
+addDoc,
+serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
 getStorage,
@@ -259,6 +266,9 @@ initializeApp(firebaseConfig);
 
 const storage =
 getStorage(app);
+
+const db =
+getFirestore(app);
   const auth =
 getAuth(app);
 
@@ -404,15 +414,38 @@ try{
 const imageUrls =
 await uploadImages(files);
 
-console.log(
-"Uploaded Images:",
-imageUrls
+await addDoc(
+collection(db,"announcements"),
+{
+title:
+document.getElementById("title").value,
+
+description:
+document.getElementById("description").value,
+
+enabled:
+document.getElementById("enabled").checked,
+
+pinned:
+document.getElementById("pinned").checked,
+
+images:
+imageUrls,
+
+createdAt:
+serverTimestamp()
+}
 );
 
 alert(
-imageUrls.length +
-" image(s) uploaded successfully."
+"Announcement saved successfully."
 );
+
+document
+.getElementById("announcementForm")
+.reset();
+
+previewContainer.innerHTML="";
 
 }
 catch(error){
