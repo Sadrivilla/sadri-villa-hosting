@@ -167,6 +167,11 @@ class="w-full border rounded-xl p-3 mt-2">
 </div>
 
 <div
+id="existingImagesContainer"
+class="flex flex-wrap gap-3 mb-4">
+</div>
+
+<div
 id="previewContainer"
 class="flex flex-wrap gap-3">
 </div>
@@ -409,6 +414,8 @@ document.getElementById(
   let deleteId = null;
 
 let editId = null;
+  let existingImages = [];
+let removedImages = [];
 
 const saveBtn =
 document.getElementById(
@@ -569,6 +576,64 @@ card
 
 editId = docId;
 
+removedImages = [];
+
+existingImages =
+[...(data.images || [])];
+  previewContainer.innerHTML = "";
+imageInput.value = "";
+  const existingContainer =
+document.getElementById(
+"existingImagesContainer"
+);
+
+existingContainer.innerHTML = "";
+
+existingImages.forEach(url=>{
+
+const wrapper =
+document.createElement("div");
+
+wrapper.className =
+"relative";
+
+wrapper.innerHTML = `
+<img
+src="${url}"
+class="preview-image">
+
+<button
+type="button"
+class="remove-existing-image absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded">
+X
+</button>
+`;
+
+wrapper
+.querySelector(".remove-existing-image")
+.addEventListener(
+"click",
+()=>{
+
+removedImages.push(url);
+
+existingImages =
+existingImages.filter(
+img=>img !== url
+);
+
+wrapper.remove();
+
+}
+);
+
+existingContainer.appendChild(
+wrapper
+);
+
+});
+
+
 document.getElementById(
 "title"
 ).value =
@@ -724,6 +789,14 @@ deleteId
 )
 );
 
+if(!announcementDoc.exists()){
+
+alert("Announcement not found.");
+hideLoader();
+return;
+
+}
+
 const announcementData =
 announcementDoc.data();
 
@@ -840,8 +913,14 @@ showLoader();
 
 try{
 
-const imageUrls =
+let newImageUrls = [];
+
+if(files.length){
+
+newImageUrls =
 await uploadImages(files);
+
+}
 
 const announcementData = {
 
@@ -858,10 +937,60 @@ pinned:
 document.getElementById("pinned").checked,
 
 images:
-imageUrls
+[
+...existingImages,
+...newImageUrls
+]
 
 };
+if(
+editId &&
+removedImages.length
+){
 
+for(
+const imageUrl of removedImages
+){
+
+try{
+
+const decodedUrl =
+decodeURIComponent(
+imageUrl
+);
+
+const start =
+decodedUrl.indexOf("/o/") + 3;
+
+const end =
+decodedUrl.indexOf("?");
+
+const filePath =
+decodedUrl.substring(
+start,
+end
+);
+
+await deleteObject(
+ref(
+storage,
+filePath
+)
+);
+
+}
+catch(err){
+
+console.error(
+"Image Delete Error:",
+err
+);
+
+}
+
+}
+
+}
 if(editId){
 
 await updateDoc(
@@ -895,10 +1024,17 @@ document
 .reset();
   editId = null;
 
+existingImages = [];
+
+removedImages = [];
+
 saveBtn.textContent =
 "Save Announcement";
 
 previewContainer.innerHTML="";
+  document.getElementById(
+"existingImagesContainer"
+).innerHTML = "";
 
 await loadAnnouncements();
 
