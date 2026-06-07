@@ -1065,11 +1065,23 @@ announcementData
 }
 else{
 
+const announcementRef =
 await addDoc(
 collection(db,"announcements"),
 {
 ...announcementData,
 createdAt: serverTimestamp()
+}
+);
+
+await addDoc(
+collection(db,"notifications"),
+{
+type:"announcement",
+announcementId:announcementRef.id,
+title:announcementData.title,
+read:false,
+createdAt:serverTimestamp()
 }
 );
   }
