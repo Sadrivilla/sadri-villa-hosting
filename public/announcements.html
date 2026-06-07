@@ -24,6 +24,10 @@ background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.08);
 backdrop-filter:blur(20px);
 }
+  .selected-announcement{
+border:2px solid #06b6d4 !important;
+box-shadow:0 0 25px rgba(6,182,212,.5);
+}
 </style>
 </head>
 
@@ -121,6 +125,13 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 });
 
 const db = getFirestore(app);
+  const urlParams =
+new URLSearchParams(
+window.location.search
+);
+
+const selectedAnnouncementId =
+urlParams.get("id");
   const imageModal =
 document.getElementById("imageModal");
 
@@ -300,7 +311,17 @@ const card =
 document.createElement("div");
 
 card.className =
-"glass-card rounded-3xl overflow-hidden flex flex-col min-h-[650px]";
+`
+glass-card
+rounded-3xl
+overflow-hidden
+flex
+flex-col
+min-h-[650px]
+${item.id === selectedAnnouncementId
+? "selected-announcement"
+: ""}
+`;
 
 card.innerHTML = `
 
@@ -392,6 +413,18 @@ Posted: ${createdDate}
 `;
 
 container.appendChild(card);
+  if(item.id === selectedAnnouncementId){
+
+setTimeout(()=>{
+
+card.scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+},500);
+
+}
   const readMoreBtn =
 card.querySelector(
 ".read-more-btn"
