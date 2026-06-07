@@ -333,7 +333,7 @@ class="card-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-whit
 
 </div>
 
-${item.images.length > 1 ? `
+${item.images?.length ? `
 <div
 class="image-preview-counter text-center text-sm text-slate-400 mt-2">
 1 / ${item.images.length}
@@ -344,7 +344,7 @@ class="image-preview-counter text-center text-sm text-slate-400 mt-2">
 
 ` : ''}
 
-<div class="p-6">
+<div class="p-6 flex flex-col flex-1">
 
 ${item.pinned ? `
 <div class="mb-3">
@@ -383,7 +383,7 @@ data-id="${item.id}">
 Read More
 </button>
 ` : ''}
-<p class="text-cyan-400 text-sm mt-5">
+<p class="text-cyan-400 text-sm mt-auto pt-5">
 Posted: ${createdDate}
 </p>
 
@@ -494,7 +494,8 @@ item.images.length;
 
 previewImage.src =
 item.images[previewIndex];
-  if(previewCounter){
+
+if(previewCounter){
 
 previewCounter.textContent =
 `${previewIndex + 1} / ${item.images.length}`;
@@ -502,7 +503,6 @@ previewCounter.textContent =
 }
 
 }
-
 );
 
 }
