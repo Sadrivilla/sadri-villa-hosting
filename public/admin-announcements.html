@@ -229,7 +229,8 @@ getDocs,
 query,
 orderBy,
 deleteDoc,
-doc
+doc,
+getDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -237,7 +238,8 @@ import {
 getStorage,
 ref,
 uploadBytes,
-getDownloadURL
+getDownloadURL,
+deleteObject
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import {
@@ -579,9 +581,75 @@ async()=>{
 
 if(!deleteId) return;
 
+const announcementDoc =
+await getDoc(
+doc(
+db,
+"announcements",
+deleteId
+)
+);
+
+const announcementData =
+announcementDoc.data();
+
 showLoader();
 
 try{
+
+if(
+announcementData &&
+announcementData.images
+){
+
+for(
+const imageUrl of
+announcementData.images
+){
+
+try{
+
+const decodedUrl =
+decodeURIComponent(
+imageUrl
+);
+
+const start =
+decodedUrl.indexOf(
+"/o/"
+) + 3;
+
+const end =
+decodedUrl.indexOf(
+"?"
+);
+
+const filePath =
+decodedUrl.substring(
+start,
+end
+);
+
+await deleteObject(
+ref(
+storage,
+filePath
+)
+);
+
+}
+catch(err){
+
+console.error(
+"Storage Delete Error:",
+err
+);
+
+}
+
+}
+
+}
 
 await deleteDoc(
 doc(
