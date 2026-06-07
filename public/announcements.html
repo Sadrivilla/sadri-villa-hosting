@@ -111,12 +111,19 @@ id:docSnap.id,
 
 });
 
-announcements.sort(
-(a,b)=>
+announcements.sort((a,b)=>{
+
+if(a.pinned && !b.pinned) return -1;
+
+if(!a.pinned && b.pinned) return 1;
+
+return (
 (b.createdAt?.seconds || 0)
 -
 (a.createdAt?.seconds || 0)
 );
+
+});
 
 if(!announcements.length){
 
@@ -143,23 +150,61 @@ const card =
 document.createElement("div");
 
 card.className =
-"glass-card rounded-3xl overflow-hidden";
+"glass-card rounded-3xl overflow-hidden h-fit";
 
 card.innerHTML = `
 
-${item.imageUrl ? `
+${item.images?.length ? `
+
+<div class="p-4">
+
+<div class="
+grid
+gap-2
+${item.images.length === 1 ? 'grid-cols-1' : ''}
+${item.images.length === 2 ? 'grid-cols-2' : ''}
+${item.images.length >= 3 ? 'grid-cols-2' : ''}
+">
+
+${item.images.map(url => `
 <img
-src="${item.imageUrl}"
-class="w-full h-64 object-cover">
+src="${url}"
+loading="lazy"
+class="w-full h-56 object-cover rounded-xl cursor-pointer">
+`).join("")}
+
+</div>
+
+</div>
+
 ` : ''}
 
 <div class="p-6">
+
+${item.pinned ? `
+<div class="mb-3">
+
+<span class="
+bg-yellow-500
+text-black
+px-3
+py-1
+rounded-full
+text-xs
+font-bold">
+
+📌 Pinned
+
+</span>
+
+</div>
+` : ''}
 
 <h2 class="text-2xl font-bold">
 ${item.title || ""}
 </h2>
 
-<p class="text-slate-300 mt-4 leading-relaxed">
+<p class="text-slate-300 mt-4 leading-relaxed whitespace-pre-wrap">
 ${item.description || ""}
 </p>
 
@@ -177,7 +222,20 @@ container.appendChild(card);
 
 }
 
-loadAnnouncements();
+loadAnnouncements()
+.catch(error=>{
+
+console.error(error);
+
+document.getElementById(
+"announcementContainer"
+).innerHTML=`
+<div class="glass-card rounded-3xl p-6">
+Failed to load announcements.
+</div>
+`;
+
+});
 
 </script>
 
