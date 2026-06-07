@@ -431,10 +431,8 @@ announcementList.innerHTML =
 const q =
 query(
 collection(db,"announcements"),
-orderBy(
-"createdAt",
-"desc"
-)
+orderBy("pinned","desc"),
+orderBy("createdAt","desc")
 );
 
 let snapshot;
@@ -461,13 +459,13 @@ return;
 
 announcementList.innerHTML="";
 
-snapshot.forEach(doc=>{
+snapshot.forEach(documentSnapshot=>{
 
 const data =
-doc.data();
+documentSnapshot.data();
 
 const docId =
-doc.id;
+documentSnapshot.id;
 
 const card =
 document.createElement("div");
