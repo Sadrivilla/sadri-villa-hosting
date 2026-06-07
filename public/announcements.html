@@ -195,6 +195,7 @@ currentIndex = 0;
 
 }
 function showNext(){
+  if(!currentImages.length) return;
 
 if(
 currentIndex <
@@ -215,6 +216,7 @@ updateGallery();
 }
 
 function showPrev(){
+  if(!currentImages.length) return;
 
 if(currentIndex > 0){
 
