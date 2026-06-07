@@ -76,7 +76,7 @@ class="absolute top-5 right-5 text-white text-4xl font-bold">
 
 <button
 id="prevImage"
-class="absolute left-2 md:left-4 text-white text-4xl md:text-5xl px-3 md:px-4">
+class="absolute left-2 md:left-4 text-white text-4xl md:text-5xl px-3 md:px-4 transition">
 ❮
 </button>
 
@@ -87,7 +87,7 @@ class="max-w-[90%] max-h-[85vh] rounded-2xl cursor-default">
 
 <button
 id="nextImage"
-class="absolute right-2 md:right-4 text-white text-4xl md:text-5xl px-3 md:px-4">
+class="absolute right-2 md:right-4 text-white text-4xl md:text-5xl px-3 md:px-4 transition">
 ❯
 </button>
 
@@ -162,14 +162,38 @@ currentImages[currentIndex];
 imageCounter.textContent =
 `${currentIndex + 1} / ${currentImages.length}`;
 
+if(currentImages.length <= 1){
+
+prevImage.disabled = true;
+nextImage.disabled = true;
+
+prevImage.style.opacity = "0.4";
+nextImage.style.opacity = "0.4";
+
+}
+else{
+
+prevImage.disabled = false;
+nextImage.disabled = false;
+
+prevImage.style.opacity = "1";
+nextImage.style.opacity = "1";
+
+}
+
 }
 
 function closeGallery(){
 
 imageModal.classList.add("hidden");
 
-}
+modalImage.src = "";
 
+currentImages = [];
+
+currentIndex = 0;
+
+}
 function showNext(){
 
 if(
@@ -281,24 +305,18 @@ ${item.images?.length ? `
 
 <div class="p-4">
 
-<div class="
-grid
-gap-2
-${item.images.length === 1 ? 'grid-cols-1' : ''}
-${item.images.length === 2 ? 'grid-cols-2' : ''}
-${item.images.length >= 3 ? 'grid-cols-2' : ''}
-">
-
-${item.images.map(url => `
 <img
-src="${url}"
+src="${item.images[0]}"
 loading="lazy"
 alt="${item.title || 'Announcement Image'}"
-data-index="${item.images.indexOf(url)}"
-class="announcement-image w-full h-56 object-cover rounded-xl cursor-pointer">
-`).join("")}
+data-index="0"
+class="announcement-image w-full h-64 object-cover rounded-xl cursor-pointer">
 
+${item.images.length > 1 ? `
+<div class="text-center text-sm text-slate-400 mt-2">
+${item.images.length} Images Available
 </div>
+` : ''}
 
 </div>
 
