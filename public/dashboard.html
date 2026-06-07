@@ -739,9 +739,41 @@ item.createdAt?.toDate
 div.innerHTML=
 `
 ${item.images?.length ? `
+
+<div class="relative mb-3">
+
 <img
 src="${item.images[0]}"
-class="w-full h-40 object-cover rounded-xl mb-3">
+class="dashboard-image w-full h-40 object-cover rounded-xl">
+
+${item.images.length > 1 ? `
+
+<button
+class="dashboard-prev absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full">
+❮
+</button>
+
+<button
+class="dashboard-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 rounded-full">
+❯
+</button>
+
+` : ''}
+
+</div>
+
+${
+item.images.length > 1
+?
+`
+<div class="dashboard-counter text-center text-xs text-slate-400 mb-3">
+1 / ${item.images.length}
+</div>
+`
+:
+''
+}
+
 ` : ''}
 
 <h4 class="font-semibold text-lg">
@@ -828,6 +860,65 @@ readMoreBtn.textContent =
 
 }
 );
+
+}
+  let previewIndex = 0;
+
+const previewImage =
+div.querySelector(".dashboard-image");
+
+const prevBtn =
+div.querySelector(".dashboard-prev");
+
+const nextBtn =
+div.querySelector(".dashboard-next");
+
+const counter =
+div.querySelector(".dashboard-counter");
+
+if(prevBtn && nextBtn){
+
+prevBtn.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+previewIndex =
+previewIndex === 0
+? item.images.length - 1
+: previewIndex - 1;
+
+previewImage.src =
+item.images[previewIndex];
+
+if(counter){
+
+counter.textContent =
+`${previewIndex + 1} / ${item.images.length}`;
+
+}
+
+});
+
+nextBtn.addEventListener("click",(e)=>{
+
+e.stopPropagation();
+
+previewIndex =
+(previewIndex + 1)
+%
+item.images.length;
+
+previewImage.src =
+item.images[previewIndex];
+
+if(counter){
+
+counter.textContent =
+`${previewIndex + 1} / ${item.images.length}`;
+
+}
+
+});
 
 }
 wrap.appendChild(div);
