@@ -288,12 +288,24 @@ class="hidden absolute top-16 left-0 right-0 bg-slate-900/95 border border-white
 </div>
 
 <div class="relative">
-<button class="glass-card w-14 h-14 rounded-2xl text-xl">
+
+<button
+id="notificationBtn"
+class="glass-card w-14 h-14 rounded-2xl text-xl">
 🔔
 </button>
-<span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
-3
+
+<span
+id="notificationCount"
+class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+0
 </span>
+
+<div
+id="notificationDropdown"
+class="hidden absolute right-0 top-16 w-96 max-h-96 overflow-y-auto rounded-2xl bg-slate-900 border border-white/10 backdrop-blur-xl z-[99999]">
+</div>
+
 </div>
 
 <div class="relative">
@@ -651,7 +663,9 @@ getDoc,
 collection,
 getDocs,
 query,
-where
+where,
+orderBy,
+onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -665,6 +679,7 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+  let notifications = [];
   async function loadLatestAnnouncements(){
 
 const wrap =
@@ -983,6 +998,39 @@ profileDropdown.classList.add("hidden");
 }
 
 });
+  const notificationBtn =
+document.getElementById(
+"notificationBtn"
+);
+
+const notificationDropdown =
+document.getElementById(
+"notificationDropdown"
+);
+
+notificationBtn?.addEventListener(
+"click",
+(e)=>{
+
+e.stopPropagation();
+
+notificationDropdown.classList.toggle(
+"hidden"
+);
+
+}
+);
+
+document.addEventListener(
+"click",
+()=>{
+
+notificationDropdown?.classList.add(
+"hidden"
+);
+
+}
+);
   const dashboardPages = [
 
 {
@@ -1020,6 +1068,84 @@ url:"change-password.html"
 let allFamilyMembers = [];
 
 let allAnnouncements = [];
+  function renderNotifications(){
+
+const wrap =
+document.getElementById(
+"notificationDropdown"
+);
+
+if(!wrap) return;
+
+wrap.innerHTML="";
+
+if(!notifications.length){
+
+wrap.innerHTML=`
+<div class="p-4 text-slate-400">
+No notifications
+</div>
+`;
+
+return;
+
+}
+
+notifications.forEach(item=>{
+
+const div =
+document.createElement("div");
+
+div.className =
+"p-4 border-b border-white/10 cursor-pointer hover:bg-white/10";
+
+if(item.type==="member"){
+
+div.innerHTML=`
+<div class="font-semibold">
+👤 ${item.memberName}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+New Family Member Added
+</div>
+`;
+
+div.onclick=()=>{
+
+location.href =
+`shajra.html#${item.memberId}`;
+
+};
+
+}
+
+if(item.type==="announcement"){
+
+div.innerHTML=`
+<div class="font-semibold">
+📢 ${item.title}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+New Announcement
+</div>
+`;
+
+div.onclick=()=>{
+
+location.href =
+`announcements.html?id=${item.announcementId}`;
+
+};
+
+}
+
+wrap.appendChild(div);
+
+});
+
+}
 
 
 onAuthStateChanged(auth, async(user)=>{
@@ -1030,6 +1156,38 @@ location.href="login.html";
 return;
 
 }
+  const notificationQuery =
+query(
+collection(db,"notifications"),
+orderBy("createdAt","desc")
+);
+
+onSnapshot(
+notificationQuery,
+(snapshot)=>{
+
+notifications=[];
+
+snapshot.forEach(docSnap=>{
+
+notifications.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+document.getElementById(
+"notificationCount"
+).innerText =
+notifications.filter(
+n => !n.read
+).length;
+
+renderNotifications();
+
+}
+);
 
 const snap = await getDoc(
 doc(db,"users",user.uid)
