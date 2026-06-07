@@ -227,7 +227,9 @@ addDoc,
 serverTimestamp,
 getDocs,
 query,
-orderBy
+orderBy,
+deleteDoc,
+doc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -401,6 +403,22 @@ const announcementList =
 document.getElementById(
 "announcementList"
 );
+  let deleteId = null;
+
+const confirmModal =
+document.getElementById(
+"confirmModal"
+);
+
+const confirmDeleteBtn =
+document.getElementById(
+"confirmDelete"
+);
+
+const cancelDeleteBtn =
+document.getElementById(
+"cancelDelete"
+);
 
 async function loadAnnouncements(){
 
@@ -444,6 +462,9 @@ snapshot.forEach(doc=>{
 
 const data =
 doc.data();
+
+const docId =
+doc.id;
 
 const card =
 document.createElement("div");
@@ -499,15 +520,104 @@ ${data.description}
 
 ${imagesHtml}
 
+<div class="flex justify-end mt-4">
+
+<button
+class="delete-btn bg-red-600 text-white px-4 py-2 rounded-xl"
+data-id="${docId}">
+Delete
+</button>
+
+</div>
+
 `;
 
 announcementList.appendChild(
 card
 );
 
+card
+.querySelector(".delete-btn")
+.addEventListener(
+"click",
+()=>{
+
+deleteId = docId;
+
+confirmModal
+.classList
+.remove("hidden");
+
+}
+);
+
 });
 
 }
+  /* -----------------------------------
+   DELETE ANNOUNCEMENT
+----------------------------------- */
+
+cancelDeleteBtn
+.addEventListener(
+"click",
+()=>{
+
+confirmModal
+.classList
+.add("hidden");
+
+deleteId = null;
+
+}
+);
+
+confirmDeleteBtn
+.addEventListener(
+"click",
+async()=>{
+
+if(!deleteId) return;
+
+showLoader();
+
+try{
+
+await deleteDoc(
+doc(
+db,
+"announcements",
+deleteId
+)
+);
+
+confirmModal
+.classList
+.add("hidden");
+
+deleteId = null;
+
+await loadAnnouncements();
+
+alert(
+"Announcement deleted successfully."
+);
+
+}
+catch(error){
+
+console.error(error);
+
+alert(
+error.message
+);
+
+}
+
+hideLoader();
+
+}
+);
 
 /* -----------------------------------
    TEST SAVE BUTTON
