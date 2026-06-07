@@ -334,7 +334,8 @@ class="card-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-whit
 </div>
 
 ${item.images.length > 1 ? `
-<div class="text-center text-sm text-slate-400 mt-2">
+<div
+class="image-preview-counter text-center text-sm text-slate-400 mt-2">
 1 / ${item.images.length}
 </div>
 ` : ''}
@@ -375,11 +376,13 @@ id="desc-${item.id}">
 ${item.description || ""}
 
 </div>
+${item.description?.length > 120 ? `
 <button
 class="read-more-btn text-cyan-400 mt-3 text-sm font-semibold"
 data-id="${item.id}">
 Read More
 </button>
+` : ''}
 <p class="text-cyan-400 text-sm mt-5">
 Posted: ${createdDate}
 </p>
@@ -448,7 +451,10 @@ const nextBtn =
 card.querySelector(
 ".card-next"
 );
-
+const previewCounter =
+card.querySelector(
+".image-preview-counter"
+);
 if(prevBtn && nextBtn){
 
 prevBtn.addEventListener(
@@ -464,6 +470,13 @@ previewIndex === 0
 
 previewImage.src =
 item.images[previewIndex];
+
+if(previewCounter){
+
+previewCounter.textContent =
+`${previewIndex + 1} / ${item.images.length}`;
+
+}
 
 }
 );
@@ -481,8 +494,15 @@ item.images.length;
 
 previewImage.src =
 item.images[previewIndex];
+  if(previewCounter){
+
+previewCounter.textContent =
+`${previewIndex + 1} / ${item.images.length}`;
 
 }
+
+}
+
 );
 
 }
