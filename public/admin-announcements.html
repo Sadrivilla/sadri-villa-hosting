@@ -231,8 +231,7 @@ orderBy,
 deleteDoc,
 doc,
 getDoc,
-updateDoc,
-setDoc
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -859,10 +858,7 @@ pinned:
 document.getElementById("pinned").checked,
 
 images:
-imageUrls,
-
-createdAt:
-serverTimestamp()
+imageUrls
 
 };
 
@@ -882,29 +878,13 @@ else{
 
 await addDoc(
 collection(db,"announcements"),
-announcementData
-);
-
-}
-title:
-document.getElementById("title").value,
-
-description:
-document.getElementById("description").value,
-
-enabled:
-document.getElementById("enabled").checked,
-
-pinned:
-document.getElementById("pinned").checked,
-
-images:
-imageUrls,
-
-createdAt:
-serverTimestamp()
+{
+...announcementData,
+createdAt: serverTimestamp()
 }
 );
+  }
+
 
 alert(
 "Announcement saved successfully."
