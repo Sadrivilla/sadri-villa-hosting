@@ -230,7 +230,8 @@ query,
 orderBy,
 deleteDoc,
 doc,
-getDoc
+getDoc,
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -522,10 +523,22 @@ ${data.description}
 
 ${imagesHtml}
 
-<div class="flex justify-end mt-4">
+<div class="flex flex-wrap gap-2 justify-end mt-4">
 
 <button
-class="delete-btn bg-red-600 text-white px-4 py-2 rounded-xl"
+class="toggle-enable-btn bg-blue-600 text-white px-3 py-2 rounded-xl"
+data-id="${docId}">
+${data.enabled ? "Disable" : "Enable"}
+</button>
+
+<button
+class="toggle-pin-btn bg-yellow-500 text-white px-3 py-2 rounded-xl"
+data-id="${docId}">
+${data.pinned ? "Unpin" : "Pin"}
+</button>
+
+<button
+class="delete-btn bg-red-600 text-white px-3 py-2 rounded-xl"
 data-id="${docId}">
 Delete
 </button>
@@ -549,6 +562,79 @@ deleteId = docId;
 confirmModal
 .classList
 .remove("hidden");
+
+}
+);
+  card
+.querySelector(".toggle-enable-btn")
+.addEventListener(
+"click",
+async()=>{
+
+showLoader();
+
+try{
+
+await updateDoc(
+doc(
+db,
+"announcements",
+docId
+),
+{
+enabled: !data.enabled
+}
+);
+
+await loadAnnouncements();
+
+}
+catch(error){
+
+console.error(error);
+
+alert(error.message);
+
+}
+
+hideLoader();
+
+}
+);
+
+card
+.querySelector(".toggle-pin-btn")
+.addEventListener(
+"click",
+async()=>{
+
+showLoader();
+
+try{
+
+await updateDoc(
+doc(
+db,
+"announcements",
+docId
+),
+{
+pinned: !data.pinned
+}
+);
+
+await loadAnnouncements();
+
+}
+catch(error){
+
+console.error(error);
+
+alert(error.message);
+
+}
+
+hideLoader();
 
 }
 );
