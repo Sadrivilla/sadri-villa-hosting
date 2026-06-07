@@ -231,7 +231,8 @@ orderBy,
 deleteDoc,
 doc,
 getDoc,
-updateDoc
+updateDoc,
+setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -408,6 +409,13 @@ document.getElementById(
 );
   let deleteId = null;
 
+let editId = null;
+
+const saveBtn =
+document.getElementById(
+"saveBtn"
+);
+
 const confirmModal =
 document.getElementById(
 "confirmModal"
@@ -536,6 +544,12 @@ ${data.pinned ? "Unpin" : "Pin"}
 </button>
 
 <button
+class="edit-btn bg-green-600 text-white px-3 py-2 rounded-xl"
+data-id="${docId}">
+Edit
+</button>
+
+<button
 class="delete-btn bg-red-600 text-white px-3 py-2 rounded-xl"
 data-id="${docId}">
 Delete
@@ -548,7 +562,44 @@ Delete
 announcementList.appendChild(
 card
 );
+card
+.querySelector(".edit-btn")
+.addEventListener(
+"click",
+()=>{
 
+editId = docId;
+
+document.getElementById(
+"title"
+).value =
+data.title || "";
+
+document.getElementById(
+"description"
+).value =
+data.description || "";
+
+document.getElementById(
+"enabled"
+).checked =
+data.enabled || false;
+
+document.getElementById(
+"pinned"
+).checked =
+data.pinned || false;
+
+saveBtn.textContent =
+"Update Announcement";
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+);
 card
 .querySelector(".delete-btn")
 .addEventListener(
@@ -793,9 +844,48 @@ try{
 const imageUrls =
 await uploadImages(files);
 
+const announcementData = {
+
+title:
+document.getElementById("title").value,
+
+description:
+document.getElementById("description").value,
+
+enabled:
+document.getElementById("enabled").checked,
+
+pinned:
+document.getElementById("pinned").checked,
+
+images:
+imageUrls,
+
+createdAt:
+serverTimestamp()
+
+};
+
+if(editId){
+
+await updateDoc(
+doc(
+db,
+"announcements",
+editId
+),
+announcementData
+);
+
+}
+else{
+
 await addDoc(
 collection(db,"announcements"),
-{
+announcementData
+);
+
+}
 title:
 document.getElementById("title").value,
 
@@ -823,6 +913,10 @@ alert(
 document
 .getElementById("announcementForm")
 .reset();
+  editId = null;
+
+saveBtn.textContent =
+"Save Announcement";
 
 previewContainer.innerHTML="";
 
