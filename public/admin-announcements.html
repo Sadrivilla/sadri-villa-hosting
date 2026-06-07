@@ -364,6 +364,59 @@ document
 .classList.add("hidden");
 
 }
+  /* -----------------------------------
+   TOAST
+----------------------------------- */
+
+function showToast(
+message,
+type="success"
+){
+
+const toast =
+document.getElementById(
+"toast"
+);
+
+const toastContent =
+document.getElementById(
+"toastContent"
+);
+
+toastContent.textContent =
+message;
+
+toastContent.className =
+"px-5 py-4 rounded-2xl text-white shadow-xl";
+
+if(type === "success"){
+
+toastContent.classList.add(
+"bg-green-600"
+);
+
+}
+else{
+
+toastContent.classList.add(
+"bg-red-600"
+);
+
+}
+
+toast.classList.remove(
+"hidden"
+);
+
+setTimeout(()=>{
+
+toast.classList.add(
+"hidden"
+);
+
+},3000);
+
+}
 
 /* -----------------------------------
    UPLOAD IMAGES
@@ -880,7 +933,7 @@ deleteId = null;
 
 await loadAnnouncements();
 
-alert(
+showToast(
 "Announcement deleted successfully."
 );
 
@@ -889,8 +942,9 @@ catch(error){
 
 console.error(error);
 
-alert(
-error.message
+showToast(
+error.message,
+"error"
 );
 
 }
@@ -1021,7 +1075,7 @@ createdAt: serverTimestamp()
   }
 
 
-alert(
+showToast(
 "Announcement saved successfully."
 );
 
