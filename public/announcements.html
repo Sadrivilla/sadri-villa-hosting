@@ -289,6 +289,7 @@ return;
 container.innerHTML="";
 
 announcements.forEach(item=>{
+  let previewIndex = 0;
 
 const createdDate =
 item.createdAt?.toDate
@@ -307,6 +308,8 @@ ${item.images?.length ? `
 
 <div class="p-4">
 
+<div class="relative">
+
 <img
 src="${item.images[0]}"
 loading="lazy"
@@ -315,8 +318,24 @@ data-index="0"
 class="announcement-image w-full h-64 object-cover rounded-xl cursor-pointer">
 
 ${item.images.length > 1 ? `
+
+<button
+class="card-prev absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-10 h-10 rounded-full">
+❮
+</button>
+
+<button
+class="card-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white w-10 h-10 rounded-full">
+❯
+</button>
+
+` : ''}
+
+</div>
+
+${item.images.length > 1 ? `
 <div class="text-center text-sm text-slate-400 mt-2">
-${item.images.length} Images Available
+1 / ${item.images.length}
 </div>
 ` : ''}
 
@@ -362,6 +381,58 @@ Posted: ${createdDate}
 `;
 
 container.appendChild(card);
+  const previewImage =
+card.querySelector(
+".announcement-image"
+);
+
+const prevBtn =
+card.querySelector(
+".card-prev"
+);
+
+const nextBtn =
+card.querySelector(
+".card-next"
+);
+
+if(prevBtn && nextBtn){
+
+prevBtn.addEventListener(
+"click",
+(e)=>{
+
+e.stopPropagation();
+
+previewIndex =
+previewIndex === 0
+? item.images.length - 1
+: previewIndex - 1;
+
+previewImage.src =
+item.images[previewIndex];
+
+}
+);
+
+nextBtn.addEventListener(
+"click",
+(e)=>{
+
+e.stopPropagation();
+
+previewIndex =
+(previewIndex + 1)
+%
+item.images.length;
+
+previewImage.src =
+item.images[previewIndex];
+
+}
+);
+
+}
   card
 .querySelectorAll(
 ".announcement-image"
