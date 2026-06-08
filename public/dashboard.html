@@ -559,41 +559,18 @@ View All
 </div>
 
 </div>
-<div class="space-y-5">
 
-<div class="flex items-start gap-4">
-<div class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
-📸
-</div>
-<div>
-<h4 class="font-semibold">New gallery uploaded</h4>
-<p class="text-slate-400 text-sm mt-1">Family heritage images added</p>
-</div>
-</div>
+<div
+id="recentActivityContainer"
+class="space-y-5">
 
-<div class="flex items-start gap-4">
-<div class="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center">
-✅
-</div>
-<div>
-<h4 class="font-semibold">Profile approved</h4>
-<p class="text-slate-400 text-sm mt-1">Your account has been verified</p>
-</div>
-</div>
-
-<div class="flex items-start gap-4">
-<div class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center">
-📢
-</div>
-<div>
-<h4 class="font-semibold">New announcement</h4>
-<p class="text-slate-400 text-sm mt-1">Community gathering next week</p>
-</div>
+<div class="text-slate-400">
+Loading activities...
 </div>
 
 </div>
-</div>
 
+</div>
 </div>
 
 <!-- RIGHT -->
@@ -1144,6 +1121,98 @@ url:"change-password.html"
 let allFamilyMembers = [];
 
 let allAnnouncements = [];
+  async function loadRecentActivities(){
+
+const container =
+document.getElementById(
+"recentActivityContainer"
+);
+
+if(!container) return;
+
+try{
+
+const activityQuery =
+query(
+collection(
+db,
+"user_dashboard_activity"
+),
+orderBy(
+"createdAt",
+"desc"
+)
+);
+
+const snap =
+await getDocs(
+activityQuery
+);
+
+container.innerHTML="";
+
+let count = 0;
+
+snap.forEach(docSnap=>{
+
+if(count >= 5) return;
+
+const data =
+docSnap.data();
+
+const div =
+document.createElement("div");
+
+div.className =
+"flex items-start gap-4";
+
+div.innerHTML = `
+
+<div
+class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center">
+📝
+</div>
+
+<div>
+
+<h4 class="font-semibold">
+${data.title || "Activity"}
+</h4>
+
+<p class="text-slate-400 text-sm mt-1">
+${data.description || ""}
+</p>
+
+</div>
+
+`;
+
+container.appendChild(div);
+
+count++;
+
+});
+
+if(count === 0){
+
+container.innerHTML = `
+<div class="text-slate-400">
+No activities found
+</div>
+`;
+
+}
+
+}catch(error){
+
+console.error(
+"Activity Load Error",
+error
+);
+
+}
+
+}
   function renderNotifications(){
 
 const wrap =
@@ -1509,6 +1578,8 @@ renderLineage(
 userData.linkedShajraMemberId || ""
 );
   loadLatestAnnouncements();
+
+loadRecentActivities();
 
 });
 
