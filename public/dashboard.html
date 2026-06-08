@@ -539,11 +539,16 @@ Fetching latest announcements
 
 <div class="glass-card rounded-3xl p-6">
 <div class="flex items-center justify-between mb-6">
-<div class="flex items-center justify-between w-full">
 
 <h3 class="text-2xl font-bold">
 Recent Activity
 </h3>
+
+<div class="flex items-center gap-4">
+
+<span class="text-sm text-slate-400">
+Live Updates
+</span>
 
 <a
 href="user-dashboard-activity.html"
@@ -552,9 +557,8 @@ View All
 </a>
 
 </div>
-<span class="text-sm text-slate-400">Live Updates</span>
-</div>
 
+</div>
 <div class="space-y-5">
 
 <div class="flex items-start gap-4">
@@ -1262,6 +1266,23 @@ doc(db,"users",user.uid)
 if(!snap.exists()) return;
 
 const userData = snap.data();
+  await addActivityLog({
+
+userId:user.uid,
+
+userName:userData.fullName || "Member",
+
+action:"login",
+
+title:"User Login",
+
+description:"Logged into dashboard",
+
+module:"authentication",
+
+targetId:user.uid
+
+});
   const profileFields = [
 
 userData.fullName,
