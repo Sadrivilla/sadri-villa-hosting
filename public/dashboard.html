@@ -722,7 +722,7 @@ targetId = ""
 
 try{
 
-await addDoc(
+const docRef = await addDoc(
 collection(db,"user_dashboard_activity"),
 {
 userId,
@@ -739,10 +739,16 @@ createdAt:new Date()
 }
 );
 
+console.log(
+"Activity Saved",
+docRef.id
+);
+
 }catch(error){
 
 console.error(
 "Activity Log Error",
+error.message,
 error
 );
 
