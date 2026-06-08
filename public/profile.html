@@ -593,7 +593,8 @@ doc,
 getDoc,
 setDoc,
 collection,
-getDocs
+getDocs,
+addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
@@ -613,7 +614,49 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 const auth=getAuth(app);
 const db=getFirestore(app);
 const storage=getStorage(app);
+async function addActivityLog({
 
+userId="",
+userName="",
+
+action="",
+title="",
+description="",
+
+module="",
+targetId=""
+
+}){
+
+try{
+
+await addDoc(
+collection(db,"user_dashboard_activity"),
+{
+userId,
+userName,
+
+action,
+title,
+description,
+
+module,
+targetId,
+
+createdAt:new Date()
+}
+);
+
+}catch(error){
+
+console.error(
+"Activity Log Error",
+error
+);
+
+}
+
+}
 let uid="";
 let baseUser={};
 let adminValues={};
@@ -1234,6 +1277,23 @@ updatedAt:new Date().toISOString()
 },
 {merge:true}
 );
+  await addActivityLog({
+
+userId:uid,
+
+userName:fullName,
+
+action:"profile_updated",
+
+title:"Profile Updated",
+
+description:"Member profile information updated",
+
+module:"profile",
+
+targetId:uid
+
+});
 
 loader.style.display="none";
 
