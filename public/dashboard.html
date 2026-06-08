@@ -675,7 +675,8 @@ getDocs,
 query,
 where,
 orderBy,
-onSnapshot
+onSnapshot,
+addDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -689,6 +690,49 @@ storageBucket:"sadri-villa-14c06.firebasestorage.app"
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+  async function addActivityLog({
+
+userId = "",
+userName = "",
+
+action = "",
+title = "",
+description = "",
+
+module = "",
+targetId = ""
+
+}){
+
+try{
+
+await addDoc(
+collection(db,"user_dashboard_activity"),
+{
+userId,
+userName,
+
+action,
+title,
+description,
+
+module,
+targetId,
+
+createdAt:new Date()
+}
+);
+
+}catch(error){
+
+console.error(
+"Activity Log Error",
+error
+);
+
+}
+
+}
   let notifications = [];
   async function loadLatestAnnouncements(){
 
