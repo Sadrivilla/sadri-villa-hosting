@@ -174,6 +174,12 @@ flex:1;
 .mobile-nav{
 display:none;
 }
+#notificationDropdown{
+right:0 !important;
+left:auto !important;
+width:280px !important;
+max-width:280px !important;
+}
 
 main{
 width:100%;
@@ -303,7 +309,7 @@ class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 
 
 <div
 id="notificationDropdown"
-class="hidden absolute right-0 top-16 w-[92vw] sm:w-96 max-h-96 overflow-y-auto rounded-2xl bg-slate-900 border border-white/10 backdrop-blur-xl z-[99999]">
+class="hidden absolute top-16 right-0 w-[280px] sm:w-96 max-h-96 overflow-y-auto rounded-2xl bg-slate-900 border border-white/10 backdrop-blur-xl z-[99999]">
 </div>
 
 </div>
@@ -670,6 +676,7 @@ getDocs,
 query,
 where,
 orderBy,
+limit,
 onSnapshot,
 addDoc,
 updateDoc
@@ -1239,6 +1246,22 @@ return;
 
 }
 
+wrap.innerHTML = `
+<div class="p-3 border-b border-white/10 flex items-center justify-between">
+
+<div class="font-semibold">
+Notifications
+</div>
+
+<a
+href="notifications.html"
+class="text-cyan-400 text-sm">
+View All
+</a>
+
+</div>
+`;
+
 notifications.forEach(item=>{
 
 const div =
@@ -1247,7 +1270,7 @@ document.createElement("div");
 div.className =
 `p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 ${
 !item.read
-? "bg-cyan-500/10"
+? "bg-cyan-500/10 border-l-4 border-cyan-400"
 : ""
 }`;
 
@@ -1274,7 +1297,6 @@ read:true
 }
 );
 
-alert("Notification marked as read");
 
 }catch(error){
 
@@ -1293,7 +1315,7 @@ location.href =
 if(item.type==="announcement"){
 
 div.innerHTML=`
-<div class="font-semibold">
+<div class="font-semibold break-words">
 📢 ${item.title}
 </div>
 
@@ -1313,7 +1335,6 @@ read:true
 }
 );
 
-alert("Notification marked as read");
 
 }catch(error){
 
@@ -1344,10 +1365,11 @@ location.href="login.html";
 return;
 
 }
-  const notificationQuery =
+const notificationQuery =
 query(
 collection(db,"notifications"),
-orderBy("createdAt","desc")
+orderBy("createdAt","desc"),
+limit(50)
 );
 
 onSnapshot(
