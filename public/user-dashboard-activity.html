@@ -1,20 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Activity Log - Sadri Villa</title>
+
+<title>Activity Log | Sadri Villa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#020617;
+color:white;
+margin:0;
+}
+
+.glass{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
+}
+
+.activity-card{
+transition:.3s;
+}
+
+.activity-card:hover{
+transform:translateY(-3px);
+}
+
+</style>
 </head>
 
 <body>
 
-<h1>Activity Log</h1>
+<div class="max-w-7xl mx-auto p-4 lg:p-8">
 
-<div id="activityContainer">
-Loading Activities...
+<div class="glass rounded-3xl p-6 mb-6">
+
+<div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+
+<div>
+
+<h1 class="text-4xl font-extrabold">
+Activity Log
+</h1>
+
+<p class="text-slate-400 mt-2">
+View all recent account activities
+</p>
+
 </div>
 
-</body>
+<a
+href="dashboard.html"
+class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-6 py-3 rounded-2xl text-center">
+Back To Dashboard
+</a>
 
+</div>
+
+</div>
+
+<div class="glass rounded-3xl p-6 mb-6">
+
+<input
+id="activitySearch"
+type="text"
+placeholder="Search activity..."
+class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 outline-none">
+
+</div>
+
+<div
+id="activityContainer"
+class="space-y-4">
+
+<div class="text-slate-400">
+Loading activities...
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+query,
+orderBy,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+
+projectId:"sadri-villa-14c06",
+
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
+
+});
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+let allActivities = [];
+
+function getIcon(action){
+
+switch(action){
+
+case "login":
+return "🔐";
+
+case "profile_updated":
+return "📝";
+
+case "password_changed":
+return "🔑";
+
+default:
+return "📌";
+
+}
+
+}
+
+function renderActivities(list){
+
+const container =
+document.getElementById(
+"activityContainer"
+);
+
+if(!list.length){
+
+container.innerHTML=`
+<div class="glass rounded-3xl p-6 text-slate-400">
+No activities found
+</div>
+`;
+
+return;
+
+}
+
+container.innerHTML="";
+
+list.forEach(activity=>{
+
+const date =
+activity.createdAt?.toDate
+?
+activity.createdAt
+.toDate()
+.toLocaleString("en-GB")
+:
+"-";
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass rounded-3xl p-5 activity-card";
+
+card.innerHTML = `
+
+<div class="flex gap-4">
+
+<div
+class="w-14 h-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-2xl">
+
+${getIcon(activity.action)}
+
+</div>
+
+<div class="flex-1">
+
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+
+<h3 class="text-xl font-bold">
+
+${activity.title || "Activity"}
+
+</h3>
+
+<span class="text-slate-400 text-sm">
+
+${date}
+
+</span>
+
+</div>
+
+<p class="text-slate-300 mt-2">
+
+${activity.description || ""}
+
+</p>
+
+<div class="mt-3 text-cyan-400 text-sm">
+
+${activity.userName || "Member"}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}
+
+async function loadActivities(){
+
+const q =
+query(
+collection(
+db,
+"user_dashboard_activity"
+),
+orderBy(
+"createdAt",
+"desc"
+)
+);
+
+const snap =
+await getDocs(q);
+
+allActivities = [];
+
+snap.forEach(docSnap=>{
+
+allActivities.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+renderActivities(
+allActivities
+);
+
+}
+
+onAuthStateChanged(
+auth,
+(user)=>{
+
+if(!user){
+
+location.href =
+"login.html";
+
+return;
+
+}
+
+loadActivities();
+
+}
+);
+
+document
+.getElementById(
+"activitySearch"
+)
+.addEventListener(
+"input",
+(e)=>{
+
+const value =
+e.target.value
+.toLowerCase();
+
+const filtered =
+allActivities.filter(a=>
+
+(a.title || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(a.description || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(a.userName || "")
+.toLowerCase()
+.includes(value)
+
+);
+
+renderActivities(
+filtered
+);
+
+}
+);
+
+</script>
+
+</body>
 </html>
