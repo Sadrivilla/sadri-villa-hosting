@@ -1341,23 +1341,7 @@ doc(db,"users",user.uid)
 if(!snap.exists()) return;
 
 const userData = snap.data();
-  await addActivityLog({
-
-userId:user.uid,
-
-userName:userData.fullName || "Member",
-
-action:"login",
-
-title:"User Login",
-
-description:"Logged into dashboard",
-
-module:"authentication",
-
-targetId:user.uid
-
-});
+  
   const profileFields = [
 
 userData.fullName,
