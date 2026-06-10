@@ -466,6 +466,8 @@ lastLogin:new Date().toISOString()
 }
 );
 
+console.log("Before Activity");
+
 await addActivityLog({
 
 userId:cred.user.uid,
@@ -483,6 +485,8 @@ module:"authentication",
 targetId:cred.user.uid
 
 });
+
+console.log("After Activity");
   }catch{
     statusMsg.style.display="none";
     errorMsg.style.display="block";
