@@ -671,7 +671,8 @@ query,
 where,
 orderBy,
 onSnapshot,
-addDoc
+addDoc,
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1244,7 +1245,11 @@ const div =
 document.createElement("div");
 
 div.className =
-"p-4 border-b border-white/10 cursor-pointer hover:bg-white/10";
+`p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 ${
+!item.read
+? "bg-cyan-500/10"
+: ""
+}`;
 
 if(item.type==="member"){
 
@@ -1258,7 +1263,14 @@ New Family Member Added
 </div>
 `;
 
-div.onclick=()=>{
+div.onclick = async()=>{
+
+await updateDoc(
+doc(db,"notifications",item.id),
+{
+read:true
+}
+);
 
 location.href =
 `shajra.html#${item.memberId}`;
@@ -1279,7 +1291,14 @@ New Announcement
 </div>
 `;
 
-div.onclick=()=>{
+div.onclick = async()=>{
+
+await updateDoc(
+doc(db,"notifications",item.id),
+{
+read:true
+}
+);
 
 location.href =
 `announcements.html?id=${item.announcementId}`;
