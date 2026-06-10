@@ -351,7 +351,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -366,6 +367,46 @@ const app = initializeApp(firebaseConfig);
 // Initialize services
 const auth = getAuth(app);
 const db = getFirestore(app);
+  async function addActivityLog({
+
+userId = "",
+userName = "",
+
+action = "",
+title = "",
+description = "",
+
+module = "",
+targetId = ""
+
+}){
+
+try{
+
+await addDoc(
+collection(db,"user_dashboard_activity"),
+{
+userId,
+userName,
+
+action,
+title,
+description,
+
+module,
+targetId,
+
+createdAt:new Date()
+}
+);
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
 
 /* DOM */
 const eye = document.getElementById("eye");
@@ -418,7 +459,30 @@ loginBtn.onclick=async()=>{
       location.href="pending.html";
       return;
     }
-    await updateDoc(ref,{lastLogin:new Date().toISOString()});
+    await updateDoc(
+ref,
+{
+lastLogin:new Date().toISOString()
+}
+);
+
+await addActivityLog({
+
+userId:cred.user.uid,
+
+userName:snap.data().fullName || "Member",
+
+action:"login",
+
+title:"User Login",
+
+description:"Logged into dashboard",
+
+module:"authentication",
+
+targetId:cred.user.uid
+
+});
   }catch{
     statusMsg.style.display="none";
     errorMsg.style.display="block";
