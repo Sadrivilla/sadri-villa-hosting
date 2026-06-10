@@ -1265,12 +1265,23 @@ New Family Member Added
 
 div.onclick = async()=>{
 
+try{
+
 await updateDoc(
 doc(db,"notifications",item.id),
 {
 read:true
 }
 );
+
+alert("Notification marked as read");
+
+}catch(error){
+
+alert("Update Failed");
+console.error(error);
+
+}
 
 location.href =
 `shajra.html#${item.memberId}`;
@@ -1293,12 +1304,23 @@ New Announcement
 
 div.onclick = async()=>{
 
+try{
+
 await updateDoc(
 doc(db,"notifications",item.id),
 {
 read:true
 }
 );
+
+alert("Notification marked as read");
+
+}catch(error){
+
+alert("Update Failed");
+console.error(error);
+
+}
 
 location.href =
 `announcements.html?id=${item.announcementId}`;
