@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Notifications | Sadri Villa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:#0f172a;
+color:white;
+}
+
+.glass{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="max-w-6xl mx-auto p-4 lg:p-8">
+
+<div class="glass rounded-3xl p-6 mb-6">
+
+<div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+
+<div>
+
+<h1 class="text-3xl font-extrabold">
+Notifications
+</h1>
+
+<p class="text-slate-400 mt-2">
+View all notification history
+</p>
+
+</div>
+
+<a
+href="dashboard.html"
+class="bg-cyan-500 text-black px-5 py-3 rounded-2xl font-semibold text-center">
+Back To Dashboard
+</a>
+
+</div>
+
+</div>
+
+<div class="glass rounded-3xl p-5 mb-6">
+
+<div class="flex flex-col sm:flex-row gap-3">
+
+<input
+id="searchBox"
+type="text"
+placeholder="Search notifications..."
+class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 outline-none">
+
+<button
+id="markAllReadBtn"
+class="bg-cyan-500 text-black px-5 py-3 rounded-2xl font-semibold">
+Mark All Read
+</button>
+
+</div>
+
+</div>
+
+<div
+id="notificationContainer"
+class="space-y-4">
+
+<div class="text-slate-400">
+Loading notifications...
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+query,
+orderBy,
+getDocs,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+authDomain:"sadri-villa-14c06.firebaseapp.com",
+projectId:"sadri-villa-14c06",
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
+});
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let notifications=[];
+
+function renderNotifications(list){
+
+const container =
+document.getElementById(
+"notificationContainer"
+);
+
+if(!list.length){
+
+container.innerHTML=`
+<div class="glass rounded-3xl p-6 text-slate-400">
+No notifications found
+</div>
+`;
+
+return;
+
+}
+
+container.innerHTML="";
+
+list.forEach(item=>{
+
+const date =
+item.createdAt?.toDate
+?
+item.createdAt.toDate().toLocaleString("en-GB")
+:
+"-";
+
+const card =
+document.createElement("div");
+
+card.className =
+`glass rounded-3xl p-5 cursor-pointer ${
+!item.read
+? "border-l-4 border-cyan-400"
+: ""
+}`;
+
+let title = "";
+let desc = "";
+
+if(item.type==="announcement"){
+
+title =
+`📢 ${item.title}`;
+
+desc =
+"Announcement Notification";
+
+}
+
+if(item.type==="member"){
+
+title =
+`👤 ${item.memberName}`;
+
+desc =
+"New Family Member Added";
+
+}
+
+card.innerHTML = `
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+<div>
+
+<h3 class="font-bold text-lg break-words">
+${title}
+</h3>
+
+<p class="text-slate-400 text-sm mt-1">
+${desc}
+</p>
+
+</div>
+
+<div class="text-xs text-slate-400">
+${date}
+</div>
+
+</div>
+
+`;
+
+card.onclick = async()=>{
+
+if(!item.read){
+
+await updateDoc(
+doc(db,"notifications",item.id),
+{
+read:true
+}
+);
+
+}
+
+if(item.type==="announcement"){
+
+location.href =
+`announcements.html?id=${item.announcementId}`;
+
+}
+
+if(item.type==="member"){
+
+location.href =
+`shajra.html#${item.memberId}`;
+
+}
+
+};
+
+container.appendChild(card);
+
+});
+
+}
+
+async function loadNotifications(){
+
+const snap =
+await getDocs(
+query(
+collection(db,"notifications"),
+orderBy("createdAt","desc")
+)
+);
+
+notifications=[];
+
+snap.forEach(docSnap=>{
+
+notifications.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+renderNotifications(
+notifications
+);
+
+}
+
+onAuthStateChanged(
+auth,
+user=>{
+
+if(!user){
+
+location.href =
+"login.html";
+
+return;
+
+}
+
+loadNotifications();
+
+}
+);
+
+document
+.getElementById("searchBox")
+.addEventListener(
+"input",
+e=>{
+
+const value =
+e.target.value
+.toLowerCase();
+
+const filtered =
+notifications.filter(item=>
+
+(item.title || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(item.memberName || "")
+.toLowerCase()
+.includes(value)
+
+);
+
+renderNotifications(
+filtered
+);
+
+}
+);
+
+document
+.getElementById(
+"markAllReadBtn"
+)
+.addEventListener(
+"click",
+async()=>{
+
+for(const item of notifications){
+
+if(!item.read){
+
+await updateDoc(
+doc(
+db,
+"notifications",
+item.id
+),
+{
+read:true
+}
+);
+
+}
+
+}
+
+loadNotifications();
+
+}
+);
+
+</script>
+
+</body>
+</html>
