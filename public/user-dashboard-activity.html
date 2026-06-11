@@ -107,7 +107,8 @@ getFirestore,
 collection,
 query,
 orderBy,
-getDocs
+getDocs,
+where
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -240,13 +241,16 @@ container.appendChild(card);
 
 }
 
-async function loadActivities(){
-
 const q =
 query(
 collection(
 db,
 "user_dashboard_activity"
+),
+where(
+"userId",
+"==",
+auth.currentUser.uid
 ),
 orderBy(
 "createdAt",
@@ -256,7 +260,6 @@ orderBy(
 
 const snap =
 await getDocs(q);
-
 allActivities = [];
 
 snap.forEach(docSnap=>{
