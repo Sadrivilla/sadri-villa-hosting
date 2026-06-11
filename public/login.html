@@ -426,19 +426,39 @@ const fpSendBtn = document.getElementById("fpSendBtn");
 eye.onclick=()=>password.type=password.type==="password"?"text":"password";
 
 /* AUTO REDIRECT */
+/* AUTO REDIRECT */
+
+let loginInProgress = false;
+
 onAuthStateChanged(auth, async user=>{
+
   if(!user) return;
-  const ref=doc(db,"users",user.uid);
-  const snap=await getDoc(ref);
+
+  if(loginInProgress) return;
+
+  const ref = doc(db,"users",user.uid);
+
+  const snap = await getDoc(ref);
+
   if(!snap.exists()) return;
-  if(snap.data().approved!==true){
-    location.href="pending.html";return;
+
+  if(snap.data().approved !== true){
+
+    location.href = "pending.html";
+    return;
+
   }
-  location.href=snap.data().role==="admin"?"admin-dashboard.html":"dashboard.html";
+
+  location.href =
+  snap.data().role === "admin"
+  ? "admin-dashboard.html"
+  : "dashboard.html";
+
 });
 
 /* LOGIN */
 loginBtn.onclick=async()=>{
+  loginInProgress = true;
   errorMsg.style.display="none";
   statusMsg.style.display="block";
   statusMsg.textContent="Logging in…";
@@ -466,7 +486,6 @@ lastLogin:new Date().toISOString()
 }
 );
 
-console.log("Before Activity");
 
 await addActivityLog({
 
@@ -485,10 +504,12 @@ module:"authentication",
 targetId:cred.user.uid
 
 });
+    location.href =
+snap.data().role === "admin"
+? "admin-dashboard.html"
+: "dashboard.html";
 
-console.log("After Activity");
 
-alert("Activity Saved Test");
   }catch{
     statusMsg.style.display="none";
     errorMsg.style.display="block";
