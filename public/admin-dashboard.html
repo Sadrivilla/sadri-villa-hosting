@@ -1155,6 +1155,9 @@ logo.classList.remove(
 );
 
 }
+
+await loadRecentActivities();
+await loadGallery();
 });
 document.getElementById(
 "logoutBtn"
@@ -1184,6 +1187,203 @@ location.href =
 "member-profile-manage.html";
 
 };
+async function loadRecentActivities(){
+
+try{
+
+const activitySnap =
+await getDocs(
+collection(
+db,
+"user_dashboard_activity"
+)
+);
+
+const activities = [];
+
+activitySnap.forEach(docSnap=>{
+
+activities.push(
+docSnap.data()
+);
+
+});
+
+activities.sort(
+(a,b)=>
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+);
+
+const container =
+document.getElementById(
+"recentActivityContainer"
+);
+
+container.innerHTML = "";
+
+activities
+.slice(0,5)
+.forEach(activity=>{
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass rounded-2xl p-4";
+
+card.innerHTML = `
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<div class="font-semibold">
+${activity.title || "Activity"}
+</div>
+
+<div class="text-slate-400 text-sm">
+${activity.userName || "Member"}
+</div>
+
+</div>
+
+<div class="text-cyan-400 text-sm">
+${activity.action || ""}
+</div>
+
+</div>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+async function loadGallery(){
+
+try{
+
+const gallerySnap =
+await getDocs(
+collection(
+db,
+"slider"
+)
+);
+
+const track =
+document.getElementById(
+"galleryTrack"
+);
+
+track.innerHTML = "";
+
+gallerySnap.forEach(docSnap=>{
+
+const data =
+docSnap.data();
+
+const image =
+data.imageUrl ||
+data.image ||
+data.url;
+
+if(!image) return;
+
+const card =
+document.createElement("div");
+
+card.innerHTML = `
+
+<img
+src="${image}"
+class="gallery-image w-64 h-40 object-cover rounded-3xl cursor-pointer">
+
+`;
+
+track.appendChild(card);
+
+});
+
+attachGalleryEvents();
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+function attachGalleryEvents(){
+
+document
+.querySelectorAll(
+".gallery-image"
+)
+.forEach(img=>{
+
+img.addEventListener(
+"click",
+()=>{
+
+document.getElementById(
+"modalImg"
+).src = img.src;
+
+document.getElementById(
+"imgModal"
+).classList.remove(
+"hidden"
+);
+
+document.getElementById(
+"imgModal"
+).classList.add(
+"flex"
+);
+
+}
+);
+
+});
+
+}
+
+document
+.getElementById(
+"imgModal"
+)
+?.addEventListener(
+"click",
+()=>{
+
+document
+.getElementById(
+"imgModal"
+)
+.classList.add(
+"hidden"
+);
+
+document
+.getElementById(
+"imgModal"
+)
+.classList.remove(
+"flex"
+);
+
+}
+);
 </script>
 </body>
 </html>
