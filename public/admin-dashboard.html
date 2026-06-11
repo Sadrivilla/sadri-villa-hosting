@@ -927,30 +927,106 @@ pendingUsers++;
 CHART PLACEHOLDERS
 ========================= */
 
+let ageGroups = {
+
+"0-18":0,
+"19-30":0,
+"31-45":0,
+"46-60":0,
+"60+":0
+
+};
+
+usersSnap.forEach(docSnap=>{
+
+const userData =
+docSnap.data();
+
+const dob =
+userData.adminFields?.["Date of birth"];
+
+if(!dob) return;
+
+const birthDate =
+new Date(dob);
+
+const age =
+Math.floor(
+(
+Date.now()
+-
+birthDate.getTime()
+)
+/
+31557600000
+);
+
+if(age <= 18){
+
+ageGroups["0-18"]++;
+
+}
+else if(age <= 30){
+
+ageGroups["19-30"]++;
+
+}
+else if(age <= 45){
+
+ageGroups["31-45"]++;
+
+}
+else if(age <= 60){
+
+ageGroups["46-60"]++;
+
+}
+else{
+
+ageGroups["60+"]++;
+
+}
+
+});
+
 new Chart(
 
 document.getElementById(
-"approvalChart"
+"ageChart"
 ),
 
 {
 
-type:"doughnut",
+type:"bar",
 
 data:{
+
 labels:[
-"Approved",
-"Pending"
+"0-18",
+"19-30",
+"31-45",
+"46-60",
+"60+"
 ],
 
 datasets:[{
 
+label:"Members",
+
 data:[
-totalUsers - pendingUsers,
-pendingUsers
-]
+
+ageGroups["0-18"],
+ageGroups["19-30"],
+ageGroups["31-45"],
+ageGroups["46-60"],
+ageGroups["60+"]
+
+],
+
+backgroundColor:"#06b6d4"
 
 }]
+
 }
 
 }
