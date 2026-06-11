@@ -753,7 +753,11 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
 getFirestore,
 doc,
-getDoc
+getDoc,
+collection,
+getDocs,
+query,
+where
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -891,6 +895,236 @@ location.href =
 return;
 
 }
+/* =========================
+LOAD DASHBOARD STATS
+========================= */
+
+const usersSnap =
+await getDocs(
+collection(db,"users")
+);
+
+let totalUsers = 0;
+let pendingUsers = 0;
+
+usersSnap.forEach(docSnap=>{
+
+totalUsers++;
+
+const userData =
+docSnap.data();
+
+if(
+userData.approved !== true
+){
+
+pendingUsers++;
+
+}
+
+});
+/* =========================
+CHART PLACEHOLDERS
+========================= */
+
+new Chart(
+
+document.getElementById(
+"approvalChart"
+),
+
+{
+
+type:"doughnut",
+
+data:{
+labels:[
+"Approved",
+"Pending"
+],
+
+datasets:[{
+
+data:[
+totalUsers - pendingUsers,
+pendingUsers
+]
+
+}]
+}
+
+}
+);
+
+new Chart(
+
+document.getElementById(
+"profileChart"
+),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:[
+"Completed",
+"Incomplete"
+],
+
+datasets:[{
+
+data:[
+totalUsers,
+0
+]
+
+}]
+
+}
+
+}
+);
+
+new Chart(
+
+document.getElementById(
+"ageChart"
+),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:[
+"0-18",
+"19-30",
+"31-45",
+"46-60",
+"60+"
+],
+
+datasets:[{
+
+data:[
+0,
+0,
+0,
+0,
+0
+]
+
+}]
+
+}
+
+}
+);
+
+document.getElementById(
+"totalUsers"
+).textContent =
+totalUsers;
+
+document.getElementById(
+"pendingTop"
+).textContent =
+pendingUsers;
+
+document.getElementById(
+"pendingApprovalBig"
+).textContent =
+pendingUsers;
+/* =========================
+PAGE VIEWS
+========================= */
+
+try{
+
+const analyticsSnap =
+await getDocs(
+collection(
+db,
+"analytics"
+)
+);
+
+let totalViews = 0;
+
+analyticsSnap.forEach(docSnap=>{
+
+const data =
+docSnap.data();
+
+totalViews +=
+Number(
+data.views || 0
+);
+
+});
+
+document.getElementById(
+"pageViews"
+).textContent =
+totalViews;
+
+}catch(error){
+
+console.log(error);
+
+}
+/* =========================
+VISITOR COUNT
+========================= */
+
+try{
+
+const visitorSnap =
+await getDocs(
+collection(
+db,
+"analytics_logs"
+)
+);
+
+document.getElementById(
+"visitorCount"
+).textContent =
+visitorSnap.size;
+
+}catch(error){
+
+console.log(error);
+
+}
+/* =========================
+GALLERY COUNT
+========================= */
+
+try{
+
+const gallerySnap =
+await getDocs(
+collection(
+db,
+"slider"
+)
+);
+
+document.getElementById(
+"photosTop"
+).textContent =
+gallerySnap.size;
+
+}catch(error){
+
+console.log(error);
+
+}
+
 document.getElementById(
 "welcomeName"
 ).textContent =
@@ -937,6 +1171,19 @@ location.href =
 
 }
 );
+window.showAllApprovals = function(){
+
+location.href =
+"admin-bulk-approval.html";
+
+};
+
+window.showAllProfiles = function(){
+
+location.href =
+"member-profile-manage.html";
+
+};
 </script>
 </body>
 </html>
