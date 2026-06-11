@@ -241,6 +241,8 @@ container.appendChild(card);
 
 }
 
+async function loadActivities(){
+
 const q =
 query(
 collection(
@@ -260,6 +262,7 @@ orderBy(
 
 const snap =
 await getDocs(q);
+
 allActivities = [];
 
 snap.forEach(docSnap=>{
