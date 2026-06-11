@@ -1148,6 +1148,11 @@ collection(
 db,
 "user_dashboard_activity"
 ),
+where(
+"userId",
+"==",
+auth.currentUser.uid
+),
 orderBy(
 "createdAt",
 "desc"
