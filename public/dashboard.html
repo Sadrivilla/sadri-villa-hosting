@@ -1685,14 +1685,14 @@ const div =
 document.createElement("div");
 
 div.className =
-"flex justify-between items-center border-b border-white/10 pb-3";
+"flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 border-b border-white/10 pb-3";
 
 div.innerHTML = `
-<div class="text-slate-400">
+<div class="text-slate-400 font-medium break-words">
 ${key}
 </div>
 
-<div class="font-semibold text-right">
+<div class="font-semibold break-all sm:text-right">
 ${data.value || "-"}
 </div>
 `;
