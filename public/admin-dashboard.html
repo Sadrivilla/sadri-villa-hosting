@@ -107,6 +107,19 @@ text-overflow:ellipsis;
 box-shadow:
 0 0 80px rgba(6,182,212,.12);
 }
+  @media(max-width:640px){
+
+#notificationPanel{
+width:auto;
+min-width:unset;
+max-width:unset;
+}
+
+#profileCard{
+width:220px;
+}
+
+}
 
 @media(max-width:1024px){
 
@@ -757,7 +770,7 @@ class="flex gap-5 w-max">
 
 <div
 id="notificationPanel"
-class="hidden fixed top-24 right-32 glass rounded-3xl min-w-[320px] max-w-[360px] overflow-hidden z-50">
+class="hidden fixed top-20 left-3 right-3 lg:left-auto lg:right-32 lg:top-24 glass rounded-3xl overflow-hidden z-50">
 
 <div class="p-4 border-b border-white/10">
 
@@ -794,7 +807,7 @@ View All
 
 <div
 id="profileCard"
-class="hidden fixed top-24 right-6 glass rounded-3xl overflow-hidden min-w-[220px] z-50">
+class="hidden fixed top-20 right-3 lg:top-24 lg:right-6 glass rounded-3xl overflow-hidden min-w-[220px] max-w-[calc(100vw-24px)] z-50">
 
 <a
 href="profile.html"
