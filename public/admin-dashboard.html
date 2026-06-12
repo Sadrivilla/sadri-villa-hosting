@@ -351,8 +351,7 @@ Administrator
 
 <div
 id="profileCard"
-class="hidden fixed glass rounded-3xl overflow-hidden min-w-[220px] z-[99999]"
-style="top:90px;right:30px;">
+class="hidden absolute top-full mt-2 right-0 glass rounded-3xl overflow-hidden min-w-[220px] z-[99999]">
 
 <a
 href="profile.html"
@@ -954,15 +953,6 @@ profileCard.classList.add(
 profileWrapper?.addEventListener(
 "click",
 ()=>{
-
-const rect =
-profileWrapper.getBoundingClientRect();
-
-profileCard.style.top =
-(rect.bottom + 8) + "px";
-
-profileCard.style.left =
-(rect.right - 220) + "px";
 
 profileCard.classList.toggle(
 "hidden"
