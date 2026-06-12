@@ -114,7 +114,11 @@ button:hover{
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
   getAuth, 
   onAuthStateChanged,
@@ -130,14 +134,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===== FIREBASE INIT ===== */
-const app = initializeApp({
+const firebaseConfig = {
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
-});
+};
 
-const auth = getAuth();
-const db = getFirestore();
+const app = getApps().length
+  ? getApp()
+  : initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
   /* ===== INPUT REFERENCES ===== */
 const phoneInput = document.getElementById("phone");
 const passwordInput = document.getElementById("password");
@@ -244,7 +252,25 @@ window.createAdmin = async () => {
 
  try {
 
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
+ const secondaryApp =
+  getApps().some(app => app.name === "Secondary")
+    ? getApp("Secondary")
+    : initializeApp(
+        {
+          apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+          authDomain:"sadri-villa-14c06.firebaseapp.com",
+          projectId:"sadri-villa-14c06"
+        },
+        "Secondary"
+      );
+
+const secondaryAuth = getAuth(secondaryApp);
+
+const cred = await createUserWithEmailAndPassword(
+  secondaryAuth,
+  email,
+  password
+);
 
   // ✅ First save admin data
   await setDoc(doc(db, "users", cred.user.uid), {
@@ -256,14 +282,24 @@ window.createAdmin = async () => {
     createdAt: new Date().toISOString()
   });
 
-  // ✅ THEN logout the newly created admin
-  await auth.signOut();
+// Sign out only the secondary auth user
+await secondaryAuth.signOut();
+   document.getElementById("name").value = "";
+document.getElementById("email").value = "";
+phoneInput.value = "";
+passwordInput.value = "";
+confirmInput.value = "";
 
-  // ✅ Reload so original admin session returns
-  location.reload();
+strengthBar.style.width = "0%";
+   strengthBar.style.background = "transparent";
+   msg.textContent = "Admin created successfully";
+msg.classList.add("success");
 
 } catch (err) {
-  msg.textContent = err.message;
+  msg.textContent =
+  err.code === "auth/email-already-in-use"
+    ? "Email already exists"
+    : err.message;
   msg.classList.add("error");
 }
 };
