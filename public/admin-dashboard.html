@@ -92,6 +92,17 @@ transform:translateX(-50%);
 }
 
 }
+  .break-text{
+word-break:break-word;
+overflow-wrap:break-word;
+}
+
+#adminNameTop{
+max-width:120px;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
 
 @media(max-width:1024px){
 
@@ -221,9 +232,9 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <!-- TOPBAR -->
 
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-<div class="flex items-center gap-4">
+<div class="flex items-start gap-3 w-full">
 
 <button
 id="menuBtn"
@@ -232,11 +243,11 @@ class="lg:hidden glass p-3 rounded-2xl">
 
 <div>
 
-<h1 class="text-3xl font-extrabold">
+<h1 class="text-2xl lg:text-3xl font-extrabold leading-tight">
 Admin Dashboard
 </h1>
 
-<p class="text-slate-400">
+<p class="text-slate-400 text-sm lg:text-base">
 Sadri Villa Administration Center
 </p>
 
@@ -246,7 +257,7 @@ Sadri Villa Administration Center
 
 <div
 id="profileWrapper"
-class="glass rounded-2xl px-4 py-2 flex items-center gap-3 cursor-pointer">
+class="glass rounded-2xl px-3 py-2 flex items-center gap-3 cursor-pointer w-full lg:w-auto">
 
 <img
 id="profilePhoto"
@@ -255,7 +266,9 @@ class="w-10 h-10 rounded-full object-cover">
 
 <div>
 
-<div class="font-semibold">
+<div
+id="adminNameTop"
+class="font-semibold truncate max-w-[140px]">
 Admin
 </div>
 
@@ -1063,42 +1076,7 @@ totalUsers,
 }
 );
 
-new Chart(
 
-document.getElementById(
-"ageChart"
-),
-
-{
-
-type:"bar",
-
-data:{
-
-labels:[
-"0-18",
-"19-30",
-"31-45",
-"46-60",
-"60+"
-],
-
-datasets:[{
-
-data:[
-0,
-0,
-0,
-0,
-0
-]
-
-}]
-
-}
-
-}
-);
 
 document.getElementById(
 "totalUsers"
@@ -1201,11 +1179,28 @@ console.log(error);
 
 }
 
+const adminName =
+data.fullName ||
+data.name ||
+data.displayName ||
+"Admin";
+
 document.getElementById(
 "welcomeName"
 ).textContent =
-`Welcome ${data.fullName || "Admin"}`;
-if(data.photoURL){
+`Welcome ${adminName}`;
+
+document.getElementById(
+"adminNameTop"
+).textContent =
+adminName;
+const photoUrl =
+data.photoURL ||
+data.profilePhoto ||
+data.photo ||
+data.imageUrl;
+
+if(photoUrl){
 
 const img =
 document.getElementById(
@@ -1213,7 +1208,7 @@ document.getElementById(
 );
 
 img.src =
-data.photoURL;
+photoUrl;
 
 }
 if(data.logoURL){
