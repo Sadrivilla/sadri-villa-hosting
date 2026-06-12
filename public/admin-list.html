@@ -75,16 +75,34 @@ th{background:#f8fafc;text-align:left}
 </table>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore,collection,getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-/* FIREBASE */
-const app = initializeApp({
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
   authDomain:"sadri-villa-14c06.firebaseapp.com",
   projectId:"sadri-villa-14c06"
-});
+};
+
+const app = getApps().length
+  ? getApp()
+  : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const list = document.getElementById("list");
@@ -93,8 +111,12 @@ const list = document.getElementById("list");
 onAuthStateChanged(auth, async user=>{
   if(!user) return location.href="login.html";
 
-  const token = await user.getIdTokenResult(true);
-  if(!token.claims.admin){
+  const userDoc = await getDoc(doc(db,"users",user.uid));
+
+  if(
+    !userDoc.exists() ||
+    userDoc.data().role !== "admin"
+  ){
     alert("Admin access only");
     return location.href="dashboard.html";
   }
