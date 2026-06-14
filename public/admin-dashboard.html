@@ -779,7 +779,6 @@ Please wait
 </div>
 
 <!-- APPROVAL STATUS -->
-
 <div
 class="xl:col-span-5 glass rounded-3xl p-6">
 
@@ -790,23 +789,19 @@ Pending Approvals
 </h3>
 
 <a
-href="admin-bulk-approval.html"
+href="admin-approval-requests.html"
 class="text-amber-400 font-semibold">
-Open </a>
+View All
+</a>
 
 </div>
 
 <div
-class="flex flex-col justify-center items-center py-10">
+id="pendingApprovalList"
+class="space-y-3">
 
-<div
-id="pendingApprovalBig"
-class="text-7xl font-extrabold text-amber-400">
---
-</div>
-
-<div class="text-slate-400 mt-3">
-Users Waiting Approval
+<div class="text-slate-400">
+Loading pending users...
 </div>
 
 </div>
@@ -1456,6 +1451,7 @@ logo.classList.remove(
 }
 
 await loadRecentActivities();
+await loadPendingApprovals();
 await loadGallery();
 });
 document.getElementById(
@@ -1553,6 +1549,126 @@ ${activity.action || ""}
 </div>
 
 </div>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+  async function loadPendingApprovals(){
+
+try{
+
+const pendingQuery =
+query(
+collection(db,"users"),
+where("approved","==",false)
+);
+
+const pendingSnap =
+await getDocs(pendingQuery);
+
+const users = [];
+
+pendingSnap.forEach(docSnap=>{
+
+users.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+users.sort((a,b)=>{
+
+const aCount =
+a.approvalRequests?.length || 0;
+
+const bCount =
+b.approvalRequests?.length || 0;
+
+return bCount - aCount;
+
+});
+
+const container =
+document.getElementById(
+"pendingApprovalList"
+);
+
+container.innerHTML = "";
+
+if(users.length === 0){
+
+container.innerHTML = `
+<div class="text-center py-8">
+✅ No pending approvals
+</div>
+`;
+
+return;
+
+}
+
+users.slice(0,5).forEach(user=>{
+
+const reminderCount =
+user.approvalRequests?.length || 0;
+
+const lastReminder =
+reminderCount > 0
+? user.approvalRequests[reminderCount - 1]
+: null;
+
+const reminderColor =
+reminderCount >= 5
+? "text-red-400"
+: reminderCount >= 3
+? "text-orange-400"
+: "text-green-400";
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass rounded-2xl p-4";
+
+card.innerHTML = `
+
+<div class="font-semibold">
+${user.fullName || "User"}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+${user.email || ""}
+</div>
+
+<div class="${reminderColor} text-sm mt-2">
+🔔 ${reminderCount} reminders
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+🕒 ${
+lastReminder
+? new Date(lastReminder)
+.toLocaleString("en-IN")
+: "No reminders"
+}
+</div>
+
+<button
+class="mt-3 bg-emerald-500 text-black px-3 py-2 rounded-xl font-semibold"
+onclick="approveDashboardUser('${user.id}','${user.fullName || "User"}',this)">
+Approve
+</button>
 
 `;
 
