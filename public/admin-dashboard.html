@@ -1382,6 +1382,41 @@ GALLERY COUNT
 
 try{
 
+const settingsSnap =
+await getDoc(
+doc(
+db,
+"siteSettings",
+"home"
+)
+);
+
+if(settingsSnap.exists()){
+
+const data =
+settingsSnap.data();
+
+const images =
+(data.sliderImages || [])
+.filter(
+item => item.enabled !== false
+);
+
+document.getElementById(
+"photosTop"
+).textContent =
+images.length;
+
+}
+
+}catch(error){
+
+console.log(error);
+
+}
+
+try{
+
 const gallerySnap =
 await getDocs(
 collection(
