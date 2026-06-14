@@ -1646,7 +1646,19 @@ ${user.fullName || "User"}
 </div>
 
 <div class="text-xs text-slate-400 mt-1">
-${user.email || ""}
+📧 ${user.email || "No Email"}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+📱 ${user.phone || "No Mobile"}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+📅 ${
+user.createdAt
+? new Date(user.createdAt).toLocaleDateString("en-IN")
+: "Unknown"
+}
 </div>
 
 <div class="${reminderColor} text-sm mt-2">
