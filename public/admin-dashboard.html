@@ -1712,6 +1712,7 @@ btn.textContent = "Approved";
 btn.classList.remove("bg-emerald-500");
 btn.classList.add("bg-green-700");
 
+await refreshDashboardCounts();
 await loadPendingApprovals();
 
 }catch(error){
@@ -1727,6 +1728,96 @@ alert(
 }
 
 };
+  async function refreshDashboardCounts(){
+
+try{
+
+const usersSnap =
+await getDocs(
+collection(db,"users")
+);
+
+let totalUsers = 0;
+let pendingUsers = 0;
+
+usersSnap.forEach(docSnap=>{
+
+totalUsers++;
+
+const data =
+docSnap.data();
+
+if(data.approved !== true){
+
+pendingUsers++;
+
+}
+
+});
+
+document.getElementById(
+"totalUsers"
+).textContent =
+totalUsers;
+
+document.getElementById(
+"pendingTop"
+).textContent =
+pendingUsers;
+
+const notificationCount =
+document.getElementById(
+"notificationCount"
+);
+
+notificationCount.textContent =
+pendingUsers;
+
+if(pendingUsers === 0){
+
+notificationCount.classList.add(
+"hidden"
+);
+
+}else{
+
+notificationCount.classList.remove(
+"hidden"
+);
+
+}
+
+document.getElementById(
+"notificationList"
+).innerHTML = `
+
+<div class="p-4 border-b border-white/10">
+<div class="font-semibold text-amber-400">
+✅ ${pendingUsers} Pending Approvals
+</div>
+<div class="text-xs text-slate-400 mt-1">
+Require admin review
+</div>
+</div>
+
+<div class="p-4 border-b border-white/10">
+<div class="font-semibold text-cyan-400">
+👥 ${totalUsers} Total Members
+</div>
+<div class="text-xs text-slate-400 mt-1">
+Registered community members
+</div>
+</div>
+
+`;
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
 async function loadGallery(){
 
 try{
