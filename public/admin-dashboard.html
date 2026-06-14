@@ -877,7 +877,8 @@ getDoc,
 collection,
 getDocs,
 query,
-where
+where,
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1680,6 +1681,52 @@ console.error(error);
 }
 
 }
+  window.approveDashboardUser = async (
+uid,
+name,
+btn
+)=>{
+
+if(
+!confirm(
+`Approve ${name}?`
+)
+){
+return;
+}
+
+try{
+
+btn.disabled = true;
+
+await updateDoc(
+doc(db,"users",uid),
+{
+approved:true,
+approvalReminder:false,
+approvedAt:new Date().toISOString()
+}
+);
+
+btn.textContent = "Approved";
+btn.classList.remove("bg-emerald-500");
+btn.classList.add("bg-green-700");
+
+await loadPendingApprovals();
+
+}catch(error){
+
+console.error(error);
+
+btn.disabled = false;
+
+alert(
+"Failed to approve user"
+);
+
+}
+
+};
 async function loadGallery(){
 
 try{
