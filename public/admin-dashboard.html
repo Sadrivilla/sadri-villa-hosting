@@ -23,6 +23,7 @@ font-family:'Inter',sans-serif;
 background:#020617;
 color:white;
 margin:0;
+overflow-x:hidden;
 }
 
 .glass{
@@ -74,6 +75,8 @@ height:100%!important;
 display:none;
 }
 .gallery-scroll{
+display:flex;
+width:max-content;
 animation:scrollGallery 40s linear infinite;
 }
 
@@ -151,7 +154,7 @@ transform:translateX(0);
 
 <body>
 
-<div class="min-h-screen flex">
+<div class="min-h-screen flex overflow-x-hidden">
 
 <!-- SIDEBAR -->
 
@@ -252,7 +255,7 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <!-- MAIN -->
 
-<main class="flex-1 p-4 lg:p-8 overflow-visible">
+<main class="flex-1 p-4 lg:p-8 overflow-x-hidden">
 
 <!-- TOPBAR -->
 
@@ -832,7 +835,7 @@ Manage </a>
 
 <div
 id="galleryTrack"
-class="flex gap-5 w-max">
+class="flex gap-5">
 
 </div>
 
@@ -1408,27 +1411,6 @@ document.getElementById(
 images.length;
 
 }
-
-}catch(error){
-
-console.log(error);
-
-}
-
-try{
-
-const gallerySnap =
-await getDocs(
-collection(
-db,
-"slider"
-)
-);
-
-document.getElementById(
-"photosTop"
-).textContent =
-gallerySnap.size;
 
 }catch(error){
 
