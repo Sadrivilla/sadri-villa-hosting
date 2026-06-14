@@ -878,7 +878,8 @@ collection,
 getDocs,
 query,
 where,
-updateDoc
+updateDoc,
+onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1834,12 +1835,24 @@ async function loadGallery(){
 
 try{
 
-const gallerySnap =
-await getDocs(
-collection(
+const settingsSnap =
+await getDoc(
+doc(
 db,
-"slider"
+"siteSettings",
+"home"
 )
+);
+
+if(!settingsSnap.exists()) return;
+
+const data =
+settingsSnap.data();
+
+const images =
+(data.sliderImages || [])
+.filter(
+item => item.enabled !== false
 );
 
 const track =
@@ -1848,36 +1861,42 @@ document.getElementById(
 );
 
 track.innerHTML = "";
-  track.classList.add(
-"gallery-scroll"
-);
 
-gallerySnap.forEach(docSnap=>{
+if(images.length === 0){
 
-const data =
-docSnap.data();
+track.innerHTML = `
+<div class="text-slate-400">
+No gallery images found
+</div>
+`;
 
-const image =
-data.imageUrl ||
-data.image ||
-data.url;
+return;
 
-if(!image) return;
+}
+
+const displayImages =
+images.length > 1
+? [...images,...images]
+: images;
+
+displayImages.forEach(item=>{
 
 const card =
 document.createElement("div");
 
 card.innerHTML = `
-
 <img
-src="${image}"
+src="${item.url}"
 class="gallery-image w-64 h-40 object-cover rounded-3xl cursor-pointer">
-
 `;
 
 track.appendChild(card);
 
 });
+
+track.classList.add(
+"gallery-scroll"
+);
 
 attachGalleryEvents();
 
