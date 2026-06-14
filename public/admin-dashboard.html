@@ -1192,6 +1192,49 @@ backgroundColor:"#06b6d4"
 }
 );
 
+  new Chart(
+document.getElementById(
+"approvalChart"
+),
+{
+type:"doughnut",
+
+data:{
+labels:[
+"Approved",
+"Pending"
+],
+
+datasets:[{
+data:[
+totalUsers - pendingUsers,
+pendingUsers
+],
+
+backgroundColor:[
+"#10b981",
+"#f59e0b"
+],
+
+borderWidth:0
+}]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+
+plugins:{
+legend:{
+labels:{
+color:"#ffffff"
+}
+}
+}
+}
+}
+);
+
 new Chart(
 
 document.getElementById(
