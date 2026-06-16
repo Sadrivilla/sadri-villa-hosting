@@ -112,7 +112,14 @@ animation:spin 1s linear infinite;
 .member-card.active{
 border:2px solid #06b6d4;
 }
+.member-card{
+overflow:hidden;
+}
 
+.member-card .text-amber-300{
+word-break:break-word;
+overflow-wrap:anywhere;
+}
 </style>
 </head>
 
@@ -247,7 +254,7 @@ placeholder="10 digit number">
 
 <div>
 <label>Role</label>
-<select id="editRole">
+<select id="editRole" class="pl-8">
 <option value="user">User</option>
 <option value="admin">Admin</option>
 </select>
@@ -255,7 +262,7 @@ placeholder="10 digit number">
 
 <div>
 <label>Approved</label>
-<select id="editApproved">
+<select id="editApproved" class="pl-8">
 <option value="true">Approved</option>
 <option value="false">Pending</option>
 </select>
@@ -951,6 +958,7 @@ else if(field.type === "dropdown"){
 fieldHTML = `
 <select
 data-admin="${fieldKey}"
+class="pl-8"
 ${field.required ? "required" : ""}
 >
 
