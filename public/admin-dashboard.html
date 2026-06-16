@@ -1699,6 +1699,8 @@ Approve
 
 `;
 
+
+
 container.appendChild(card);
 
 });
@@ -2053,6 +2055,8 @@ poor++;
 
 userProfiles.push({
 
+uid: docSnap.id,
+
 name:
 user.fullName || "Unknown User",
 
@@ -2127,7 +2131,7 @@ const card =
 document.createElement("div");
 
 card.className =
-"glass rounded-2xl p-4";
+"glass rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition";
 
 card.innerHTML = `
 
@@ -2149,7 +2153,16 @@ ${user.phone}
 
 </div>
 
-<div class="font-bold text-red-400">
+<div class="font-bold
+${
+user.completion >= 90
+? "text-emerald-400"
+: user.completion >= 70
+? "text-cyan-400"
+: user.completion >= 40
+? "text-amber-400"
+: "text-red-400"
+}">
 ${user.completion}%
 </div>
 
@@ -2165,7 +2178,15 @@ ${user.missingFields
 </div>
 
 `;
+card.addEventListener(
+"click",
+()=>{
 
+location.href =
+`member-profile-manage.html?uid=${user.uid}`;
+
+}
+);
 container.appendChild(card);
 
 });
