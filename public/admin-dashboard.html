@@ -1114,6 +1114,33 @@ pendingUsers++;
 
 }
 
+/* New Registration Notification */
+
+if(userData.createdAt){
+
+const createdDate =
+new Date(userData.createdAt);
+
+const daysOld =
+(
+Date.now() -
+createdDate.getTime()
+)
+/
+86400000;
+
+if(daysOld <= 7){
+
+notifications.push({
+icon:"👤",
+title:"New Registration",
+message:`${userData.fullName || "User"} joined Sadri Villa`
+});
+
+}
+
+}
+
 });
 /* =========================
 CHART PLACEHOLDERS
