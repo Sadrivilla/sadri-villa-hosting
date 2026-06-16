@@ -1511,6 +1511,49 @@ icon:"🖼",
 title:"Gallery",
 message:`${images.length} active gallery images`
 });
+  notificationList.innerHTML = "";
+
+notifications.forEach((item,index)=>{
+
+const notificationId =
+`${item.title}-${item.message}`;
+
+if(
+readNotifications.includes(
+notificationId
+)
+){
+return;
+}
+
+notificationList.innerHTML += `
+
+<div
+class="p-4 border-b border-white/10"
+id="notification-${index}">
+
+<div class="font-semibold">
+${item.icon} ${item.title}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+${item.message}
+</div>
+
+<button
+class="mt-3 px-3 py-1 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
+onclick="markNotificationRead(
+'${notificationId}',
+'notification-${index}'
+)">
+Read
+</button>
+
+</div>
+
+`;
+
+});
 
 }
 
