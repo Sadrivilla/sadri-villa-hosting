@@ -470,6 +470,11 @@ e.target.value=e.target.value
 let selectedUid="";
 let selectedUser={};
 let allUsers=[];
+
+const urlUid =
+new URLSearchParams(
+location.search
+).get("uid");
 let allShajraMembers=[];
 let selectedShajraMember=null;
   let selectedPhotoFile=null;
@@ -541,6 +546,12 @@ uid:docSnap.id,
 });
 
 renderMembers(allUsers);
+
+if(urlUid){
+
+await openMember(urlUid);
+
+}
 
 hideLoader();
 
