@@ -1074,6 +1074,9 @@ return;
 const data =
 userSnap.data();
   const notifications = [];
+
+window.dashboardNotifications =
+notifications;
 if(
 data.role !== "admin"
 ){
@@ -1265,6 +1268,22 @@ color:"#ffffff"
 );
 
 await loadProfileCompletionAnalytics();
+
+if(
+window.profileIncompleteCount > 0
+){
+
+notifications.push({
+
+icon:"⚠️",
+
+title:"Incomplete Profiles",
+
+message:`${window.profileIncompleteCount} members below 40% completion`
+
+});
+
+}
 
 
 document.getElementById(
@@ -1500,7 +1519,6 @@ notifications.length;
 await loadRecentActivities();
 await loadPendingApprovals();
 await loadGallery();
-await loadProfileCompletionAnalytics();
 });
 document.getElementById(
 "logoutBtn"
@@ -2188,13 +2206,12 @@ location.href =
 container.appendChild(card);
 
 });
-if(poorProfiles > 0){
+window.profileIncompleteCount =
+poorProfiles;
 
 console.log(
 `${poorProfiles} incomplete profiles`
 );
-
-}
 }catch(error){
 
 console.error(error);
