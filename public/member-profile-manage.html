@@ -470,6 +470,7 @@ e.target.value=e.target.value
 let selectedUid="";
 let selectedUser={};
 let allUsers=[];
+let profileFields=[];
 
 const urlUid =
 new URLSearchParams(
@@ -536,6 +537,27 @@ id:docSnap.id,
 
 allUsers=[];
 
+const profileFieldsSnap =
+await getDocs(
+collection(db,"profileFields")
+);
+
+profileFields=[];
+
+profileFieldsSnap.forEach(docSnap=>{
+
+const field = docSnap.data();
+
+if(
+field.visible === true ||
+field.required === true ||
+field.showOnDashboard === true
+){
+profileFields.push(docSnap.id);
+}
+
+});
+
 snap.forEach(docSnap=>{
 
 allUsers.push({
@@ -556,7 +578,66 @@ await openMember(urlUid);
 hideLoader();
 
 }
+function calculateCompletion(user){
 
+let totalFields = 4;
+let filledFields = 0;
+
+const missingFields = [];
+
+if(user.fullName){
+filledFields++;
+}else{
+missingFields.push("Full Name");
+}
+
+if(user.email){
+filledFields++;
+}else{
+missingFields.push("Email");
+}
+
+if(user.phone){
+filledFields++;
+}else{
+missingFields.push("Phone");
+}
+
+if(user.profilePhoto){
+filledFields++;
+}else{
+missingFields.push("Photo");
+}
+
+profileFields.forEach(fieldKey=>{
+
+totalFields++;
+
+const value =
+user.adminFields?.[fieldKey];
+
+if(
+value &&
+String(value).trim() !== ""
+){
+filledFields++;
+}else{
+missingFields.push(fieldKey);
+}
+
+});
+
+const percentage =
+Math.round(
+(filledFields / totalFields) * 100
+);
+
+return {
+percentage,
+missingFields
+};
+
+}
 function renderMembers(users){
 
 membersWrap.innerHTML="";
@@ -564,7 +645,24 @@ membersWrap.innerHTML="";
 users.forEach(user=>{
 
 const div=document.createElement("div");
+ const completion =
+calculateCompletion(user);
+
+const percent =
+completion.percentage;
+
+const missing =
+completion.missingFields;
  
+const percentColor =
+percent >= 90
+? "text-emerald-400"
+: percent >= 70
+? "text-cyan-400"
+: percent >= 40
+? "text-amber-400"
+: "text-red-400";
+
 div.className=
 `member-card glass rounded-3xl p-4 cursor-pointer ${
 user.uid === urlUid ? "active" : ""
@@ -582,10 +680,31 @@ class="w-20 h-20 rounded-2xl object-cover">
 ${user.fullName || 'Member'}
 </h3>
 
-<p class="text-slate-400 text-sm mt-1">
+<div class="flex justify-between items-center mt-1">
+
+<p class="text-slate-400 text-sm">
 ${user.email || ''}
 </p>
 
+<div class="${percentColor} font-bold">
+${percent}%
+</div>
+
+</div>
+${
+missing.length
+? `
+<div class="text-xs text-amber-300 mt-2 break-all">
+Missing:
+${missing.slice(0,3).join(", ")}
+</div>
+`
+: `
+<div class="text-xs text-emerald-400 mt-2">
+Profile Complete
+</div>
+`
+}
 <div class="flex gap-2 mt-3 flex-wrap">
 
 <div class="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-xl text-xs">
