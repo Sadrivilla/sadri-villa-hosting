@@ -1741,26 +1741,43 @@ notificationCount.textContent
 );
 
 };
-  window.markAllNotificationsRead =
+window.markAllNotificationsRead =
 async function(){
 
-const unreadNotifications =
-document.querySelectorAll(
-"[id^='notification-']"
+for(const item of window.dashboardNotifications){
+
+const notificationId =
+`${item.title}-${item.message}`;
+
+await setDoc(
+
+doc(
+db,
+"admin_notification_reads",
+`${auth.currentUser.uid}_${notificationId}`
+),
+
+{
+adminUid:
+auth.currentUser.uid,
+
+notificationId,
+
+readAt:
+new Date().toISOString()
+}
+
 );
-
-for(const element of unreadNotifications){
-
-element.remove();
 
 }
 
-const notificationCount =
+document.getElementById(
+"notificationList"
+).innerHTML = "";
+
 document.getElementById(
 "notificationCount"
-);
-
-notificationCount.textContent = "0";
+).textContent = "0";
 
 };
 async function loadRecentActivities(){
