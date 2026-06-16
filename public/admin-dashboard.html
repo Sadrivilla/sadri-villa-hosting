@@ -1073,10 +1073,17 @@ return;
 
 const data =
 userSnap.data();
-  const notifications = [];
+ const notifications = [];
 
 window.dashboardNotifications =
 notifications;
+
+const readNotifications =
+JSON.parse(
+localStorage.getItem(
+"adminReadNotifications"
+) || "[]"
+);
 if(
 data.role !== "admin"
 ){
@@ -1337,14 +1344,26 @@ const notificationList =
 document.getElementById(
 "notificationList"
 );
-
 notificationList.innerHTML = "";
 
-notifications.forEach(item=>{
+notifications.forEach((item,index)=>{
+
+const notificationId =
+`${item.title}-${item.message}`;
+
+if(
+readNotifications.includes(
+notificationId
+)
+){
+return;
+}
 
 notificationList.innerHTML += `
 
-<div class="p-4 border-b border-white/10">
+<div
+class="p-4 border-b border-white/10"
+id="notification-${index}">
 
 <div class="font-semibold">
 ${item.icon} ${item.title}
@@ -1354,11 +1373,21 @@ ${item.icon} ${item.title}
 ${item.message}
 </div>
 
+<button
+class="mt-3 px-3 py-1 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
+onclick="markNotificationRead(
+'${notificationId}',
+'notification-${index}'
+)">
+Read
+</button>
+
 </div>
 
 `;
 
 });
+
 const notificationCount =
 document.getElementById(
 "notificationCount"
@@ -1540,8 +1569,20 @@ ${item.message}
 
 });
 
+const unreadCount =
+notifications.filter(item=>{
+
+const notificationId =
+`${item.title}-${item.message}`;
+
+return !readNotifications.includes(
+notificationId
+);
+
+}).length;
+
 notificationCount.textContent =
-notifications.length;
+unreadCount;
 
 await loadRecentActivities();
 await loadPendingApprovals();
@@ -1573,6 +1614,63 @@ window.showAllProfiles = function(){
 
 location.href =
 "member-profile-manage.html";
+
+};
+  window.markNotificationRead =
+function(
+notificationId,
+elementId
+){
+
+const readNotifications =
+JSON.parse(
+localStorage.getItem(
+"adminReadNotifications"
+) || "[]"
+);
+
+if(
+!readNotifications.includes(
+notificationId
+)
+){
+
+readNotifications.push(
+notificationId
+);
+
+localStorage.setItem(
+"adminReadNotifications",
+JSON.stringify(
+readNotifications
+)
+);
+
+}
+
+const element =
+document.getElementById(
+elementId
+);
+
+if(element){
+
+element.remove();
+
+}
+
+const notificationCount =
+document.getElementById(
+"notificationCount"
+);
+
+notificationCount.textContent =
+Math.max(
+0,
+parseInt(
+notificationCount.textContent
+) - 1
+);
 
 };
 async function loadRecentActivities(){
