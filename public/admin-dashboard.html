@@ -1548,9 +1548,7 @@ logo.classList.remove(
 
 }
 
-const unreadCount =
-notifications.filter(item=>{
-  notificationList.innerHTML = "";
+notificationList.innerHTML = "";
 
 notifications.forEach((item,index)=>{
 
@@ -1593,6 +1591,9 @@ Read
 `;
 
 });
+
+const unreadCount =
+notifications.filter(item=>{
 
 const notificationId =
 `${item.title}-${item.message}`;
