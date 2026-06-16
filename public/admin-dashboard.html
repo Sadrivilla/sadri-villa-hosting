@@ -905,6 +905,7 @@ import {
 getFirestore,
 doc,
 getDoc,
+setDoc,
 collection,
 getDocs,
 query,
@@ -1078,12 +1079,31 @@ userSnap.data();
 window.dashboardNotifications =
 notifications;
 
-const readNotifications =
-JSON.parse(
-localStorage.getItem(
-"adminReadNotifications"
-) || "[]"
+const readNotifications = [];
+
+const readSnap =
+await getDocs(
+query(
+collection(
+db,
+"admin_notification_reads"
+),
+where(
+"adminUid",
+"==",
+user.uid
+)
+)
 );
+
+readSnap.forEach(docSnap=>{
+
+readNotifications.push(
+docSnap.data()
+.notificationId
+);
+
+});
 if(
 data.role !== "admin"
 ){
@@ -1548,49 +1568,6 @@ logo.classList.remove(
 
 }
 
-notificationList.innerHTML = "";
-
-notifications.forEach((item,index)=>{
-
-const notificationId =
-`${item.title}-${item.message}`;
-
-if(
-readNotifications.includes(
-notificationId
-)
-){
-return;
-}
-
-notificationList.innerHTML += `
-
-<div
-class="p-4 border-b border-white/10"
-id="notification-${index}">
-
-<div class="font-semibold">
-${item.icon} ${item.title}
-</div>
-
-<div class="text-xs text-slate-400 mt-1">
-${item.message}
-</div>
-
-<button
-class="mt-3 px-3 py-1 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
-onclick="markNotificationRead(
-'${notificationId}',
-'notification-${index}'
-)">
-Read
-</button>
-
-</div>
-
-`;
-
-});
 
 const unreadCount =
 notifications.filter(item=>{
@@ -1639,18 +1616,13 @@ location.href =
 "member-profile-manage.html";
 
 };
-  window.markNotificationRead =
-function(
+window.markNotificationRead =
+async function(
 notificationId,
 elementId
 ){
 
-const readNotifications =
-JSON.parse(
-localStorage.getItem(
-"adminReadNotifications"
-) || "[]"
-);
+const readNotifications = [];
 
 if(
 !readNotifications.includes(
@@ -1662,11 +1634,25 @@ readNotifications.push(
 notificationId
 );
 
-localStorage.setItem(
-"adminReadNotifications",
-JSON.stringify(
-readNotifications
-)
+await setDoc(
+
+doc(
+db,
+"admin_notification_reads",
+`${auth.currentUser.uid}_${notificationId}`
+),
+
+{
+adminUid:
+auth.currentUser.uid,
+
+notificationId,
+
+readAt:
+new Date()
+.toISOString()
+}
+
 );
 
 }
