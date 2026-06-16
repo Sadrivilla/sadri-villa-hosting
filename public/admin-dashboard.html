@@ -1738,6 +1738,7 @@ container.appendChild(card);
 
 });
 
+
 }catch(error){
 
 console.error(error);
@@ -1836,30 +1837,6 @@ document.getElementById(
 
 notificationCount.textContent =
 pendingUsers;
-
-document.getElementById(
-"notificationList"
-).innerHTML = `
-
-<div class="p-4 border-b border-white/10">
-<div class="font-semibold text-amber-400">
-✅ ${pendingUsers} Pending Approvals
-</div>
-<div class="text-xs text-slate-400 mt-1">
-Require admin review
-</div>
-</div>
-
-<div class="p-4 border-b border-white/10">
-<div class="font-semibold text-cyan-400">
-👥 ${totalUsers} Total Members
-</div>
-<div class="text-xs text-slate-400 mt-1">
-Registered community members
-</div>
-</div>
-
-`;
 
 }catch(error){
 
@@ -2211,7 +2188,13 @@ location.href =
 container.appendChild(card);
 
 });
+if(poorProfiles > 0){
 
+console.log(
+`${poorProfiles} incomplete profiles`
+);
+
+}
 }catch(error){
 
 console.error(error);
