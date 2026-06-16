@@ -303,11 +303,17 @@ class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-fu
 id="notificationPanel"
 class="hidden absolute top-full mt-2 left-0 glass rounded-3xl overflow-hidden z-50 w-[320px] max-w-[calc(100vw-24px)]">
 
-<div class="p-4 border-b border-white/10">
+<div class="p-4 border-b border-white/10 flex items-center justify-between">
 
 <h3 class="font-bold text-lg">
 Notifications
 </h3>
+
+<button
+id="markAllReadBtn"
+class="text-cyan-400 text-sm font-semibold">
+Mark All Read
+</button>
 
 </div>
 
@@ -1659,6 +1665,16 @@ location.href =
 "member-profile-manage.html";
 
 };
+  document.getElementById(
+"markAllReadBtn"
+)?.addEventListener(
+"click",
+()=>{
+
+window.markAllNotificationsRead();
+
+}
+);
 window.markNotificationRead =
 async function(
 notificationId,
@@ -1723,6 +1739,28 @@ parseInt(
 notificationCount.textContent
 ) - 1
 );
+
+};
+  window.markAllNotificationsRead =
+async function(){
+
+const unreadNotifications =
+document.querySelectorAll(
+"[id^='notification-']"
+);
+
+for(const element of unreadNotifications){
+
+element.remove();
+
+}
+
+const notificationCount =
+document.getElementById(
+"notificationCount"
+);
+
+notificationCount.textContent = "0";
 
 };
 async function loadRecentActivities(){
