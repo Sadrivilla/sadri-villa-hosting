@@ -1263,11 +1263,13 @@ let allFamilyMembers = [];
 
 try{
 
-const snap =
-await getDocs(
-collection(db,"family_members")
+const q = query(
+collection(db,"team"),
+where("enabled","==",true),
+orderBy("order","asc")
 );
 
+const snap = await getDocs(q);
 let members = [];
 
 snap.forEach(docSnap=>{
@@ -1296,10 +1298,24 @@ document.createElement("div");
 card.className =
 "member-card";
 
-const image =
-member.photoURL ||
-member.profilePhoto ||
+let image =
 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+if(Array.isArray(member.contentBlocks)){
+
+const profileBlock =
+member.contentBlocks.find(
+b =>
+b.type === "image" &&
+b.imageType === "profile" &&
+b.url
+);
+
+if(profileBlock){
+image = profileBlock.url;
+}
+
+}
 
 const slug =
 member.slug ||
@@ -1314,11 +1330,11 @@ card.innerHTML = `
 <p>Sadri Family</p>
 
 ${
-member.profession
+member.role
 ?
 `
 <div class="member-role-badge">
-${member.profession}
+${member.role}
 </div>
 `
 :
@@ -1341,30 +1357,7 @@ track.appendChild(card);
 
 });
 
-const image =
-member.photoURL ||
-member.profilePhoto ||
-"https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
 
-card.innerHTML = `
-<img src="${image}" alt="${member.name || ''}">
-
-<h3>${member.name || 'Family Member'}</h3>
-
-<p>Sadri Family</p>
-
-${
-member.profession
-?
-`<div class="member-role-badge">
-${member.profession}
-</div>`
-:
-''
-}
-`;
-
-track.appendChild(card);
 
 });
 
