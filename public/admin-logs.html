@@ -2,258 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Login – Sadri Villa</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Activity Logs</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-*{box-sizing:border-box}
 body{
-  font-family:Arial,sans-serif;
-  background:#eef2ff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  margin:0;
+background:#020617;
+color:white;
+font-family:Inter,sans-serif;
 }
-.card{
-  background:rgba(255,255,255,.95);
-  padding:40px 36px;
-  border-radius:24px;
-  width:100%;
-  max-width:420px;
-  box-shadow:0 25px 60px rgba(0,0,0,.15);
-  text-align:center;
-}
-.field{margin-bottom:18px}
-.field input{
-  width:100%;
-  height:56px;
-  padding:0 18px;
-  border-radius:16px;
-  border:1.5px solid #d1d5db;
-  font-size:15px;
-}
-.password-wrap{position:relative}
-.password-wrap .eye{
-  position:absolute;
-  right:18px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
-}
-button{
-  width:100%;
-  height:56px;
-  margin-top:14px;
-  border:none;
-  border-radius:18px;
-  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  color:#fff;
-  font-size:16px;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(56,189,248,.45);
-}
-.status{display:none;font-size:14px;margin-bottom:14px}
-.success{color:#16a34a}
-.error{color:#ef4444}
-.links{margin-top:18px;font-size:14px}
-.links a{color:#0ea5e9;font-weight:600;cursor:pointer;display:block;margin-top:6px}
-.remember{display:flex;align-items:center;gap:6px;font-size:13px;margin:8px 0 6px}
 
-/* Forgot modal */
-#fpModal{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.35);
-  backdrop-filter:blur(4px);
-  align-items:center;justify-content:center;
+.glass{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
 }
-#fpModal .box{
-  background:#fff;padding:28px;border-radius:22px;
-  width:100%;max-width:360px;text-align:center
+
+.activity-card{
+transition:.25s;
 }
-#fpModal input{
-  width:100%;height:52px;padding:0 16px;
-  border-radius:14px;border:1.5px solid #d1d5db
+
+.activity-card:hover{
+transform:translateY(-2px);
+background:rgba(255,255,255,.08);
 }
-#fpMsg{font-size:13px;margin:10px 0}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2>🔐 Login</h2>
+<div class="max-w-7xl mx-auto p-6">
 
-  <div class="status success" id="statusMsg">Checking session…</div>
-  <div class="status error" id="errorMsg"></div>
+<div class="flex items-center justify-between mb-8">
 
-  <div class="field">
-    <input id="identifier" placeholder="Email or Phone number">
-  </div>
+<div>
+<h1 class="text-4xl font-extrabold">
+📋 Admin Activity Logs
+</h1>
 
-  <div class="field password-wrap">
-    <input id="password" type="password" placeholder="Password">
-    <span class="eye" id="eye">👁</span>
-  </div>
-
-  <label class="remember">
-    <input type="checkbox" id="rememberMe" checked> Remember me
-  </label>
-
-  <button id="loginBtn">Login</button>
-
-  <div class="links">
-    <a href="signup.html">Sign Up</a>
-    <a id="forgotLink">Forgot Password?</a>
-  </div>
+<p class="text-slate-400 mt-2">
+Complete activity history of Sadri Villa
+</p>
 </div>
 
-<!-- Forgot password modal -->
-<div id="fpModal">
-  <div class="box">
-    <h3>Reset Password</h3>
-    <input id="fpEmail" placeholder="Registered email">
-    <div id="fpMsg"></div>
-    <button id="fpSendBtn">Send Reset Link</button>
-    <button onclick="closeFP()" style="background:none;color:#64748b">Cancel</button>
-  </div>
+<a
+href="admin.html"
+class="px-5 py-3 rounded-2xl bg-cyan-500 text-black font-semibold">
+← Dashboard
+</a>
+
+</div>
+
+<div class="glass rounded-3xl p-6 mb-6">
+
+<input
+id="searchBox"
+type="text"
+placeholder="Search activities..."
+class="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-4 outline-none">
+
+</div>
+
+<div
+id="activityContainer"
+class="space-y-4">
+
+<div class="glass rounded-2xl p-5">
+Loading activities...
+</div>
+
+</div>
+
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
-  sendPasswordResetEmail,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+getFirestore,
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
-const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
-});
-const auth=getAuth(app);
-const db=getFirestore(app);
+const firebaseConfig = {
 
-/* 👁 Toggle password */
-eye.onclick=()=>password.type=
-  password.type==="password"?"text":"password";
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
 
-/* ✅ AUTO REDIRECT IF ALREADY LOGGED IN */
-onAuthStateChanged(auth, async user=>{
-  if(!user) return;
+authDomain:"sadri-villa-14c06.firebaseapp.com",
 
-  const token = await user.getIdTokenResult(true);
+projectId:"sadri-villa-14c06",
 
-  const ref = doc(db,"users",user.uid);
-  const snap = await getDoc(ref);
+storageBucket:"sadri-villa-14c06.firebasestorage.app"
 
-  if(snap.exists() && snap.data().approved !== true){
-    location.href="pending.html";
-    return;
-  }
-
-  location.href =
-    token.claims.admin === true
-      ? "admin-dashboard.html"
-      : "dashboard.html";
-});
-
-/* LOGIN */
-loginBtn.onclick=async()=>{
-  errorMsg.style.display="none";
-  statusMsg.style.display="block";
-  statusMsg.textContent="Logging in…";
-
-  const idVal=identifier.value.trim();
-  const pass=password.value;
-
-  try{
-    await setPersistence(
-      auth,
-      rememberMe.checked
-        ? browserLocalPersistence
-        : browserSessionPersistence
-    );
-
-    let email=idVal;
-
-    /* 📱 phone → email */
-    if(!idVal.includes("@")){
-      const phone=idVal.startsWith("+")?idVal:"+91"+idVal;
-      const q=query(collection(db,"users"),where("phone","==",phone));
-      const s=await getDocs(q);
-      if(s.empty) throw "no-record";
-      email=s.docs[0].data().email;
-    }
-
-    const cred=await signInWithEmailAndPassword(auth,email,pass);
-    const token=await cred.user.getIdTokenResult(true);
-
-    const ref=doc(db,"users",cred.user.uid);
-    const snap=await getDoc(ref);
-
-    if(snap.exists() && snap.data().approved!==true){
-      await updateDoc(ref,{approvalReminder:true});
-      location.href="pending.html";
-      return;
-    }
-
-    if(snap.exists()){
-      await updateDoc(ref,{lastLogin:new Date().toISOString()});
-    }
-
-    location.href =
-      token.claims.admin === true
-        ? "admin-dashboard.html"
-        : "dashboard.html";
-
-  }catch{
-    statusMsg.style.display="none";
-    errorMsg.style.display="block";
-    errorMsg.textContent="Invalid login credentials";
-  }
 };
 
-/* FORGOT PASSWORD */
-forgotLink.onclick=()=>fpModal.style.display="flex";
-window.closeFP=()=>{fpModal.style.display="none";fpMsg.textContent="";};
+const app =
+initializeApp(firebaseConfig);
 
-fpSendBtn.onclick=async()=>{
-  const email=fpEmail.value.trim();
-  if(!email){
-    fpMsg.style.color="#ef4444";
-    fpMsg.textContent="Email required";
-    return;
-  }
-  fpMsg.style.color="#0284c7";
-  fpMsg.textContent="Sending reset link…";
+const auth =
+getAuth(app);
 
-  try{
-    await sendPasswordResetEmail(auth,email);
-    fpMsg.style.color="#16a34a";
-    fpMsg.textContent="Reset link sent to your email";
-  }catch{
-    fpMsg.style.color="#ef4444";
-    fpMsg.textContent="Email not registered";
-  }
-};
+const db =
+getFirestore(app);
+
+let allActivities = [];
+
+onAuthStateChanged(
+auth,
+async(user)=>{
+
+if(!user){
+
+location.href =
+"login.html";
+
+return;
+
+}
+
+loadActivities();
+
+}
+);
+
+async function loadActivities(){
+
+try{
+
+const snap =
+await getDocs(
+collection(
+db,
+"user_dashboard_activity"
+)
+);
+
+allActivities = [];
+
+snap.forEach(docSnap=>{
+
+allActivities.push({
+
+id:docSnap.id,
+...docSnap.data()
+
+});
+
+});
+
+allActivities.sort(
+(a,b)=>
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+);
+
+renderActivities(
+allActivities
+);
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+
+function getIcon(action){
+
+switch(action){
+
+case "login":
+return "🔐";
+
+case "profile_updated":
+return "👤";
+
+case "password_changed":
+return "🔑";
+
+case "announcement_added":
+return "📢";
+
+case "gallery_uploaded":
+return "🖼";
+
+default:
+return "📌";
+
+}
+
+}
+
+function renderActivities(data){
+
+const container =
+document.getElementById(
+"activityContainer"
+);
+
+container.innerHTML = "";
+
+if(data.length === 0){
+
+container.innerHTML = `
+<div class="glass rounded-2xl p-5">
+No activity found
+</div>
+`;
+
+return;
+
+}
+
+data.forEach(activity=>{
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass rounded-2xl p-5 activity-card";
+
+card.innerHTML = `
+
+<div class="flex justify-between items-start">
+
+<div>
+
+<div class="font-bold text-lg">
+${getIcon(activity.action)}
+${activity.title || "Activity"}
+</div>
+
+<div class="text-slate-400 mt-1">
+${activity.userName || "Unknown User"}
+</div>
+
+</div>
+
+<div class="text-cyan-400 text-sm">
+${activity.action || ""}
+</div>
+
+</div>
+
+`;
+
+container.appendChild(card);
+
+});
+
+}
+
+document
+.getElementById(
+"searchBox"
+)
+.addEventListener(
+"input",
+e=>{
+
+const value =
+e.target.value.toLowerCase();
+
+const filtered =
+allActivities.filter(item=>
+
+(item.title || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(item.userName || "")
+.toLowerCase()
+.includes(value)
+
+||
+
+(item.action || "")
+.toLowerCase()
+.includes(value)
+
+);
+
+renderActivities(
+filtered
+);
+
+}
+);
+
 </script>
 
 </body>
