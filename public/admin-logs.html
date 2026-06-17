@@ -741,27 +741,46 @@ if(selectedDate){
 filtered =
 filtered.filter(item=>{
 
-if(
-!item.createdAt
-)
+if(!item.createdAt)
 return false;
 
-const date =
+let date;
+
+if(item.createdAt.toDate){
+
+date =
+item.createdAt.toDate();
+
+}else if(item.createdAt.seconds){
+
+date =
 new Date(
-item.createdAt.seconds
-*
-1000
+item.createdAt.seconds * 1000
 );
+
+}else{
+
+return false;
+
+}
+
+const year =
+date.getFullYear();
+
+const month =
+String(
+date.getMonth()+1
+).padStart(2,"0");
+
+const day =
+String(
+date.getDate()
+).padStart(2,"0");
 
 const itemDate =
-date
-.toISOString()
-.split("T")[0];
+`${year}-${month}-${day}`;
 
-return (
-itemDate ===
-selectedDate
-);
+return itemDate === selectedDate;
 
 });
 
