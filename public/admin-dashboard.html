@@ -117,6 +117,35 @@ box-shadow:0 20px 50px rgba(0,0,0,0.45);
 box-shadow:
 0 0 80px rgba(6,182,212,.12);
 }
+  .skeleton{
+position:relative;
+overflow:hidden;
+background:rgba(255,255,255,.06);
+border-radius:12px;
+}
+
+.skeleton::after{
+content:"";
+position:absolute;
+top:0;
+left:-150%;
+width:150%;
+height:100%;
+background:
+linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.08),
+transparent
+);
+animation:skeletonLoading 1.3s infinite;
+}
+
+@keyframes skeletonLoading{
+100%{
+left:150%;
+}
+}
   @media(max-width:640px){
 
 #notificationPanel{
@@ -463,7 +492,7 @@ Total Members
 <div
 id="totalUsers"
 class="text-4xl font-extrabold mt-3">
---
+<div class="skeleton h-10 w-20"></div>
 </div>
 
 </div>
@@ -477,7 +506,7 @@ Pending Approvals
 <div
 id="pendingTop"
 class="text-4xl font-extrabold mt-3 text-amber-400">
---
+<div class="skeleton h-10 w-20"></div>
 </div>
 
 </div>
@@ -491,7 +520,7 @@ Gallery Images
 <div
 id="photosTop"
 class="text-4xl font-extrabold mt-3 text-cyan-400">
---
+<div class="skeleton h-10 w-20"></div>
 </div>
 
 </div>
@@ -505,7 +534,7 @@ Page Views
 <div
 id="pageViews"
 class="text-4xl font-extrabold mt-3 text-emerald-400">
---
+<div class="skeleton h-10 w-20"></div>
 </div>
 
 </div>
@@ -741,7 +770,21 @@ id="profileCompletionList"
 class="space-y-3">
 
 <div class="text-slate-400">
-Loading profile completion...
+<div class="space-y-3">
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-40 mb-3"></div>
+<div class="skeleton h-4 w-full mb-2"></div>
+<div class="skeleton h-4 w-1/2"></div>
+</div>
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-32 mb-3"></div>
+<div class="skeleton h-4 w-full mb-2"></div>
+<div class="skeleton h-4 w-2/3"></div>
+</div>
+
+</div>
 </div>
 
 </div>
@@ -801,12 +844,23 @@ class="space-y-4">
 
 <div class="glass rounded-2xl p-4">
 
-<div class="font-semibold">
-Loading Activities...
+<div class="space-y-4">
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-40 mb-3"></div>
+<div class="skeleton h-4 w-24"></div>
 </div>
 
-<div class="text-slate-400 text-sm mt-1">
-Please wait
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-48 mb-3"></div>
+<div class="skeleton h-4 w-32"></div>
+</div>
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-36 mb-3"></div>
+<div class="skeleton h-4 w-20"></div>
+</div>
+
 </div>
 
 </div>
@@ -838,7 +892,21 @@ id="pendingApprovalList"
 class="space-y-3">
 
 <div class="text-slate-400">
-Loading pending users...
+<div class="space-y-3">
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-40 mb-3"></div>
+<div class="skeleton h-4 w-full mb-2"></div>
+<div class="skeleton h-4 w-2/3"></div>
+</div>
+
+<div class="glass rounded-2xl p-4">
+<div class="skeleton h-5 w-32 mb-3"></div>
+<div class="skeleton h-4 w-full mb-2"></div>
+<div class="skeleton h-4 w-1/2"></div>
+</div>
+
+</div>
 </div>
 
 </div>
@@ -870,6 +938,10 @@ Manage </a>
 <div
 id="galleryTrack"
 class="flex gap-5">
+
+<div class="skeleton w-64 h-40 rounded-3xl"></div>
+<div class="skeleton w-64 h-40 rounded-3xl"></div>
+<div class="skeleton w-64 h-40 rounded-3xl"></div>
 
 </div>
 
