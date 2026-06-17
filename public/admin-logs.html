@@ -993,7 +993,7 @@ document
 ()=>{
 
 let csv =
-"Title,Action,User,Description,Created At\n";
+"Title,Action,User,Description,Created At,Relative Time\n";
 
 filteredActivities.forEach(
 item=>{
@@ -1037,8 +1037,13 @@ csv +=
 csv +=
 `"${item.description || ""}",`;
 
+const relativeTime =
+timeAgo(
+item.createdAt
+);
+
 csv +=
-`"${createdAt}"\n`;
+`"${createdAt}","${relativeTime}"\n`;
 
 });
 
