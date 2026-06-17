@@ -181,8 +181,25 @@ id="dateFilter"
 type="date"
 class="bg-white/10 rounded-2xl px-4 py-3 border border-white/10">
 
+<div class="flex gap-2">
+
+<button
+id="clearFiltersBtn"
+class="bg-slate-600 text-white rounded-2xl px-4">
+
+Clear
+
+</button>
+
 <button
 id="exportCsvBtn"
+class="bg-cyan-500 text-black rounded-2xl px-4 font-semibold">
+
+Export CSV
+
+</button>
+
+</div>
 class="bg-cyan-500 text-black rounded-2xl font-semibold">
 
 Export CSV
@@ -270,7 +287,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey:"YOUR_API_KEY",
+apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
 authDomain:"sadri-villa-14c06.firebaseapp.com",
 projectId:"sadri-villa-14c06",
 storageBucket:"sadri-villa-14c06.firebasestorage.app"
@@ -643,6 +660,191 @@ document.getElementById(
 currentPage;
 
 }
+  /* =========================
+FILTERS
+========================= */
+
+function applyFilters(){
+
+const searchValue =
+document.getElementById(
+"searchBox"
+)
+.value
+.toLowerCase()
+.trim();
+
+const activityType =
+document.getElementById(
+"activityFilter"
+)
+.value;
+
+const selectedDate =
+document.getElementById(
+"dateFilter"
+)
+.value;
+
+let filtered =
+[...allActivities];
+
+/* Search */
+
+if(searchValue){
+
+filtered =
+filtered.filter(item=>{
+
+return (
+
+(item.title || "")
+.toLowerCase()
+.includes(searchValue)
+
+||
+
+(item.description || "")
+.toLowerCase()
+.includes(searchValue)
+
+||
+
+(item.userName || "")
+.toLowerCase()
+.includes(searchValue)
+
+||
+
+(item.action || "")
+.toLowerCase()
+.includes(searchValue)
+
+);
+
+});
+
+}
+
+/* Activity Type */
+
+if(activityType){
+
+filtered =
+filtered.filter(item=>
+
+item.action ===
+activityType
+
+);
+
+}
+
+/* Date Filter */
+
+if(selectedDate){
+
+filtered =
+filtered.filter(item=>{
+
+if(
+!item.createdAt
+)
+return false;
+
+const date =
+new Date(
+item.createdAt.seconds
+*
+1000
+);
+
+const itemDate =
+date
+.toISOString()
+.split("T")[0];
+
+return (
+itemDate ===
+selectedDate
+);
+
+});
+
+}
+
+currentPage = 1;
+
+renderActivities(
+filtered
+);
+
+}
+  /* =========================
+SEARCH
+========================= */
+
+document
+.getElementById(
+"searchBox"
+)
+.addEventListener(
+"input",
+applyFilters
+);
+  /* =========================
+ACTIVITY FILTER
+========================= */
+
+document
+.getElementById(
+"activityFilter"
+)
+.addEventListener(
+"change",
+applyFilters
+);
+  /* =========================
+CLEAR FILTERS
+========================= */
+
+document
+.getElementById(
+"clearFiltersBtn"
+)
+.addEventListener(
+"click",
+()=>{
+
+document.getElementById(
+"searchBox"
+).value = "";
+
+document.getElementById(
+"activityFilter"
+).value = "";
+
+document.getElementById(
+"dateFilter"
+).value = "";
+
+renderActivities(
+allActivities
+);
+
+});
+  /* =========================
+DATE FILTER
+========================= */
+
+document
+.getElementById(
+"dateFilter"
+)
+.addEventListener(
+"change",
+applyFilters
+);
 
 </script>
 
