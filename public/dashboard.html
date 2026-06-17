@@ -1301,6 +1301,51 @@ member.photoURL ||
 member.profilePhoto ||
 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
 
+const slug =
+member.slug ||
+member.pageSlug ||
+member.id;
+
+card.innerHTML = `
+<img src="${image}" alt="${member.name || ''}">
+
+<h3>${member.name || 'Family Member'}</h3>
+
+<p>Sadri Family</p>
+
+${
+member.profession
+?
+`
+<div class="member-role-badge">
+${member.profession}
+</div>
+`
+:
+''
+}
+`;
+
+card.style.cursor = "pointer";
+
+card.addEventListener("click",()=>{
+
+window.open(
+`/team/${slug}.html`,
+"_blank"
+);
+
+});
+
+track.appendChild(card);
+
+});
+
+const image =
+member.photoURL ||
+member.profilePhoto ||
+"https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
 card.innerHTML = `
 <img src="${image}" alt="${member.name || ''}">
 
