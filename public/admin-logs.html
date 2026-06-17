@@ -303,6 +303,8 @@ let allActivities = [];
 let currentPage = 1;
 
 const pageSize = 20;
+
+let filteredActivities = [];
   /* =========================
 AUTH CHECK
 ========================= */
@@ -410,8 +412,11 @@ allActivities.sort(
 
 updateStatistics();
 
+filteredActivities =
+[...allActivities];
+
 renderActivities(
-allActivities
+filteredActivities
 );
 
 }catch(error){
@@ -648,10 +653,19 @@ card
 
 });
 
+const totalPages =
+Math.max(
+1,
+Math.ceil(
+data.length /
+pageSize
+)
+);
+
 document.getElementById(
 "pageNumber"
 ).textContent =
-currentPage;
+`${currentPage} / ${totalPages}`;
 
 }
   /* =========================
@@ -788,8 +802,11 @@ return itemDate === selectedDate;
 
 currentPage = 1;
 
+filteredActivities =
+filtered;
+
 renderActivities(
-filtered
+filteredActivities
 );
 
 }
@@ -841,8 +858,13 @@ document.getElementById(
 "dateFilter"
 ).value = "";
 
+filteredActivities =
+[...allActivities];
+
+currentPage = 1;
+
 renderActivities(
-allActivities
+filteredActivities
 );
 
 });
@@ -858,6 +880,127 @@ document
 "change",
 applyFilters
 );
+  /* =========================
+PREVIOUS PAGE
+========================= */
+
+document
+.getElementById(
+"prevPage"
+)
+.addEventListener(
+"click",
+()=>{
+
+if(
+currentPage > 1
+){
+
+currentPage--;
+
+renderActivities(
+filteredActivities
+);
+
+}
+
+});
+
+  /* =========================
+NEXT PAGE
+========================= */
+
+document
+.getElementById(
+"nextPage"
+)
+.addEventListener(
+"click",
+()=>{
+
+const totalPages =
+Math.ceil(
+filteredActivities.length /
+pageSize
+);
+
+if(
+currentPage <
+totalPages
+){
+
+currentPage++;
+
+renderActivities(
+filteredActivities
+);
+
+}
+
+});
+
+  /* =========================
+EXPORT CSV
+========================= */
+
+document
+.getElementById(
+"exportCsvBtn"
+)
+.addEventListener(
+"click",
+()=>{
+
+let csv =
+"Title,Action,User,Description\n";
+
+filteredActivities.forEach(
+item=>{
+
+csv +=
+`"${item.title || ""}",`;
+
+csv +=
+`"${item.action || ""}",`;
+
+csv +=
+`"${item.userName || ""}",`;
+
+csv +=
+`"${item.description || ""}"\n`;
+
+});
+
+const blob =
+new Blob(
+[csv],
+{
+type:"text/csv"
+}
+);
+
+const url =
+URL.createObjectURL(
+blob
+);
+
+const a =
+document.createElement(
+"a"
+);
+
+a.href = url;
+
+a.download =
+"activity-logs.csv";
+
+a.click();
+
+URL.revokeObjectURL(
+url
+);
+
+});
 
 </script>
 
