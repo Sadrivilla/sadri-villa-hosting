@@ -8,16 +8,19 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+
 body{
 background:#020617;
 color:white;
 font-family:Inter,sans-serif;
+margin:0;
 }
 
 .glass{
 background:rgba(255,255,255,.05);
 border:1px solid rgba(255,255,255,.08);
 backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
 }
 
 .activity-card{
@@ -28,6 +31,37 @@ transition:.25s;
 transform:translateY(-2px);
 background:rgba(255,255,255,.08);
 }
+
+.skeleton{
+position:relative;
+overflow:hidden;
+background:rgba(255,255,255,.06);
+border-radius:12px;
+}
+
+.skeleton::after{
+content:"";
+position:absolute;
+top:0;
+left:-150%;
+width:150%;
+height:100%;
+background:
+linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.08),
+transparent
+);
+animation:skeletonLoading 1.3s infinite;
+}
+
+@keyframes skeletonLoading{
+100%{
+left:150%;
+}
+}
+
 </style>
 </head>
 
@@ -38,13 +72,15 @@ background:rgba(255,255,255,.08);
 <div class="flex items-center justify-between mb-8">
 
 <div>
+
 <h1 class="text-4xl font-extrabold">
-📋 Admin Activity Logs
+📋 Activity Logs
 </h1>
 
 <p class="text-slate-400 mt-2">
-Complete activity history of Sadri Villa
+Sadri Villa Activity Tracking
 </p>
+
 </div>
 
 <a
@@ -55,23 +91,158 @@ class="px-5 py-3 rounded-2xl bg-cyan-500 text-black font-semibold">
 
 </div>
 
+<!-- STATS -->
+
+<div
+class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+<div class="glass rounded-3xl p-5">
+<div class="text-slate-400 text-sm">
+Total Activities
+</div>
+<div
+id="totalActivities"
+class="text-3xl font-bold mt-2">
+0
+</div>
+</div>
+
+<div class="glass rounded-3xl p-5">
+<div class="text-slate-400 text-sm">
+Profile Updates
+</div>
+<div
+id="profileUpdates"
+class="text-3xl font-bold mt-2 text-cyan-400">
+0
+</div>
+</div>
+
+<div class="glass rounded-3xl p-5">
+<div class="text-slate-400 text-sm">
+Password Changes
+</div>
+<div
+id="passwordChanges"
+class="text-3xl font-bold mt-2 text-amber-400">
+0
+</div>
+</div>
+
+<div class="glass rounded-3xl p-5">
+<div class="text-slate-400 text-sm">
+Logins
+</div>
+<div
+id="loginCount"
+class="text-3xl font-bold mt-2 text-emerald-400">
+0
+</div>
+</div>
+
+</div>
+
+<!-- FILTERS -->
+
 <div class="glass rounded-3xl p-6 mb-6">
+
+<div class="grid md:grid-cols-4 gap-4">
 
 <input
 id="searchBox"
 type="text"
 placeholder="Search activities..."
-class="w-full bg-white/10 border border-white/10 rounded-2xl px-5 py-4 outline-none">
+class="bg-white/10 rounded-2xl px-4 py-3 border border-white/10">
+
+<select
+id="activityFilter"
+class="bg-white/10 rounded-2xl px-4 py-3 border border-white/10">
+
+<option value="">
+All Activities
+</option>
+
+<option value="profile_updated">
+Profile Updated
+</option>
+
+<option value="password_changed">
+Password Changed
+</option>
+
+<option value="login">
+Login
+</option>
+
+</select>
+
+<input
+id="dateFilter"
+type="date"
+class="bg-white/10 rounded-2xl px-4 py-3 border border-white/10">
+
+<button
+id="exportCsvBtn"
+class="bg-cyan-500 text-black rounded-2xl font-semibold">
+
+Export CSV
+
+</button>
 
 </div>
+
+</div>
+
+<!-- ACTIVITY LIST -->
 
 <div
 id="activityContainer"
 class="space-y-4">
 
 <div class="glass rounded-2xl p-5">
-Loading activities...
+
+<div class="skeleton h-6 w-40 mb-3"></div>
+<div class="skeleton h-4 w-24"></div>
+
 </div>
+
+<div class="glass rounded-2xl p-5">
+
+<div class="skeleton h-6 w-52 mb-3"></div>
+<div class="skeleton h-4 w-32"></div>
+
+</div>
+
+</div>
+
+<!-- PAGINATION -->
+
+<div
+class="flex justify-center gap-3 mt-8">
+
+<button
+id="prevPage"
+class="glass px-5 py-3 rounded-xl">
+
+Previous
+
+</button>
+
+<div
+id="pageNumber"
+class="px-5 py-3">
+
+1
+
+</div>
+
+<button
+id="nextPage"
+class="glass px-5 py-3 rounded-xl">
+
+Next
+
+</button>
 
 </div>
 
@@ -91,18 +262,17 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
 getFirestore,
 collection,
-getDocs
+getDocs,
+doc,
+getDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-
+apiKey:"YOUR_API_KEY",
 authDomain:"sadri-villa-14c06.firebaseapp.com",
-
 projectId:"sadri-villa-14c06",
-
 storageBucket:"sadri-villa-14c06.firebasestorage.app"
 
 };
@@ -118,6 +288,13 @@ getFirestore(app);
 
 let allActivities = [];
 
+let currentPage = 1;
+
+const pageSize = 20;
+  /* =========================
+AUTH CHECK
+========================= */
+
 onAuthStateChanged(
 auth,
 async(user)=>{
@@ -131,10 +308,61 @@ return;
 
 }
 
-loadActivities();
+try{
+
+const userRef =
+doc(
+db,
+"users",
+user.uid
+);
+
+const userSnap =
+await getDoc(
+userRef
+);
+
+if(
+!userSnap.exists()
+){
+
+location.href =
+"login.html";
+
+return;
 
 }
-);
+
+const userData =
+userSnap.data();
+
+if(
+userData.role !== "admin"
+){
+
+location.href =
+"dashboard.html";
+
+return;
+
+}
+
+await loadActivities();
+
+}catch(error){
+
+console.error(error);
+
+location.href =
+"login.html";
+
+}
+
+});
+
+/* =========================
+LOAD ACTIVITIES
+========================= */
 
 async function loadActivities(){
 
@@ -155,6 +383,7 @@ snap.forEach(docSnap=>{
 allActivities.push({
 
 id:docSnap.id,
+
 ...docSnap.data()
 
 });
@@ -168,6 +397,8 @@ allActivities.sort(
 (a.createdAt?.seconds || 0)
 );
 
+updateStatistics();
+
 renderActivities(
 allActivities
 );
@@ -180,18 +411,70 @@ console.error(error);
 
 }
 
+/* =========================
+STATISTICS
+========================= */
+
+function updateStatistics(){
+
+document.getElementById(
+"totalActivities"
+).textContent =
+allActivities.length;
+
+const profileCount =
+allActivities.filter(
+a=>
+a.action ===
+"profile_updated"
+).length;
+
+const passwordCount =
+allActivities.filter(
+a=>
+a.action ===
+"password_changed"
+).length;
+
+const loginCount =
+allActivities.filter(
+a=>
+a.action ===
+"login"
+).length;
+
+document.getElementById(
+"profileUpdates"
+).textContent =
+profileCount;
+
+document.getElementById(
+"passwordChanges"
+).textContent =
+passwordCount;
+
+document.getElementById(
+"loginCount"
+).textContent =
+loginCount;
+
+}
+  /* =========================
+ACTIVITY ICONS
+========================= */
+
 function getIcon(action){
 
 switch(action){
-
-case "login":
-return "🔐";
 
 case "profile_updated":
 return "👤";
 
 case "password_changed":
 return "🔑";
+
+case "login":
+return "🔐";
 
 case "announcement_added":
 return "📢";
@@ -206,6 +489,51 @@ return "📌";
 
 }
 
+/* =========================
+TIME AGO
+========================= */
+
+function timeAgo(timestamp){
+
+if(!timestamp)
+return "";
+
+const date =
+new Date(
+timestamp.seconds * 1000
+);
+
+const seconds =
+Math.floor(
+(
+Date.now() -
+date.getTime()
+)
+/
+1000
+);
+
+if(seconds < 60)
+return `${seconds}s ago`;
+
+if(seconds < 3600)
+return `${Math.floor(seconds/60)}m ago`;
+
+if(seconds < 86400)
+return `${Math.floor(seconds/3600)}h ago`;
+
+if(seconds < 2592000)
+return `${Math.floor(seconds/86400)}d ago`;
+
+return date.toLocaleDateString(
+"en-IN"
+);
+
+}
+  /* =========================
+RENDER ACTIVITIES
+========================= */
+
 function renderActivities(data){
 
 const container =
@@ -218,16 +546,36 @@ container.innerHTML = "";
 if(data.length === 0){
 
 container.innerHTML = `
-<div class="glass rounded-2xl p-5">
+
+<div
+class="glass rounded-2xl p-5 text-center">
+
 No activity found
+
 </div>
+
 `;
 
 return;
 
 }
 
-data.forEach(activity=>{
+const start =
+(currentPage - 1)
+*
+pageSize;
+
+const end =
+start +
+pageSize;
+
+const pageData =
+data.slice(
+start,
+end
+);
+
+pageData.forEach(activity=>{
 
 const card =
 document.createElement("div");
@@ -242,68 +590,59 @@ card.innerHTML = `
 <div>
 
 <div class="font-bold text-lg">
+
 ${getIcon(activity.action)}
+
 ${activity.title || "Activity"}
+
 </div>
 
 <div class="text-slate-400 mt-1">
+
 ${activity.userName || "Unknown User"}
+
+</div>
+
+<div class="text-slate-500 text-sm mt-2">
+
+${activity.description || ""}
+
 </div>
 
 </div>
+
+<div class="text-right">
 
 <div class="text-cyan-400 text-sm">
+
 ${activity.action || ""}
+
+</div>
+
+<div class="text-slate-500 text-xs mt-1">
+
+${timeAgo(activity.createdAt)}
+
+</div>
+
 </div>
 
 </div>
 
 `;
 
-container.appendChild(card);
+container.appendChild(
+card
+);
 
 });
 
-}
-
-document
-.getElementById(
-"searchBox"
-)
-.addEventListener(
-"input",
-e=>{
-
-const value =
-e.target.value.toLowerCase();
-
-const filtered =
-allActivities.filter(item=>
-
-(item.title || "")
-.toLowerCase()
-.includes(value)
-
-||
-
-(item.userName || "")
-.toLowerCase()
-.includes(value)
-
-||
-
-(item.action || "")
-.toLowerCase()
-.includes(value)
-
-);
-
-renderActivities(
-filtered
-);
+document.getElementById(
+"pageNumber"
+).textContent =
+currentPage;
 
 }
-);
 
 </script>
 
