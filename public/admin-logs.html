@@ -993,10 +993,37 @@ document
 ()=>{
 
 let csv =
-"Title,Action,User,Description\n";
+"Title,Action,User,Description,Created At\n";
 
 filteredActivities.forEach(
 item=>{
+
+let createdAt = "";
+
+if(item.createdAt){
+
+if(item.createdAt.toDate){
+
+createdAt =
+item.createdAt
+.toDate()
+.toLocaleString(
+"en-IN"
+);
+
+}else if(item.createdAt.seconds){
+
+createdAt =
+new Date(
+item.createdAt.seconds * 1000
+)
+.toLocaleString(
+"en-IN"
+);
+
+}
+
+}
 
 csv +=
 `"${item.title || ""}",`;
@@ -1008,7 +1035,10 @@ csv +=
 `"${item.userName || ""}",`;
 
 csv +=
-`"${item.description || ""}"\n`;
+`"${item.description || ""}",`;
+
+csv +=
+`"${createdAt}"\n`;
 
 });
 
