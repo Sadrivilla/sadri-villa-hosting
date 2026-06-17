@@ -200,13 +200,6 @@ Export CSV
 </button>
 
 </div>
-class="bg-cyan-500 text-black rounded-2xl font-semibold">
-
-Export CSV
-
-</button>
-
-</div>
 
 </div>
 
@@ -350,11 +343,11 @@ return;
 
 }
 
-const userData =
-userSnap.data();
+const token =
+await user.getIdTokenResult();
 
 if(
-userData.role !== "admin"
+token.claims.admin !== true
 ){
 
 location.href =
@@ -363,7 +356,6 @@ location.href =
 return;
 
 }
-
 await loadActivities();
 
 }catch(error){
