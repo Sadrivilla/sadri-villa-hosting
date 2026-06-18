@@ -36,14 +36,12 @@ backdrop-filter:blur(18px);
 .sidebar-link{
 display:flex;
 align-items:center;
-justify-content:center;
-width:36px;
-height:36px;
-margin:0 auto;
-padding:0;
-border-radius:10px;
+justify-content:flex-start;
+padding:12px;
+border-radius:12px;
 transition:.3s;
 font-size:18px;
+position:relative;
 }
 .sidebar-link:hover{
 background:rgba(255,255,255,.06);
@@ -264,7 +262,7 @@ transform:translateX(0);
 /* Desktop Auto Hide Sidebar */
 
 .admin-sidebar{
-width:44px;
+width:60px;
 transition:all .3s ease;
 overflow:hidden;
 }
@@ -281,11 +279,23 @@ overflow:hidden;
 
 .admin-sidebar .sidebar-link span{
 opacity:0;
+width:0;
+overflow:hidden;
+white-space:nowrap;
 transition:.2s;
+}
+  .admin-sidebar .sidebar-link div{
+min-width:24px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
 }
 
 .admin-sidebar:hover .sidebar-link span{
 opacity:1;
+width:auto;
+margin-left:12px;
 }
 .admin-sidebar:hover .sidebar-link{
 width:auto;
@@ -324,7 +334,7 @@ margin-left:260px !important;
 }
 
 .admin-sidebar:not(:hover) ~ main{
-margin-left:44px !important;
+margin-left:60px !important;
 }
 /* Invisible hover zone on left edge */
 
@@ -452,7 +462,7 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <main
 class="flex-1 p-4 lg:p-8 overflow-x-hidden"
-style="margin-left:44px;">
+style="margin-left:60px;">
 
 <!-- TOPBAR -->
 
