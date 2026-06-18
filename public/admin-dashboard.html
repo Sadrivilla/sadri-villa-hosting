@@ -86,6 +86,11 @@ gap:24px;
 width:max-content;
 flex-wrap:nowrap;
 animation:membersScroll 45s linear infinite;
+pointer-events:none;
+}
+
+.member-card{
+pointer-events:auto;
 }
 
 .members-track:hover{
@@ -105,6 +110,11 @@ transform:translateX(calc(-50% - 12px));
 width:260px;
 flex-shrink:0;
 text-align:center;
+position:relative;
+z-index:10;
+cursor:pointer;
+pointer-events:auto;
+}
 padding:24px 18px;
 border-radius:28px;
 background:rgba(255,255,255,0.08);
@@ -980,9 +990,10 @@ class="space-y-3">
 </div>
 
 </div>
+
 <!-- FAMILY MEMBERS -->
 
-<div class="glass rounded-none lg:rounded-3xl p-6 mb-6 overflow-hidden -mx-4 lg:-mx-8">
+<div class="glass rounded-none p-6 mb-6 overflow-hidden relative left-[-32px] w-[calc(100%+64px)]">
 
 <div class="text-center mb-8">
 
@@ -1009,9 +1020,7 @@ id="adminMembersTrack">
 
 </div>
 <!-- GALLERY -->
-
-<div
-class="glass rounded-none lg:rounded-3xl p-6 mb-6 -mx-4 lg:-mx-8">
+<div class="glass rounded-none p-6 mb-6 relative left-[-32px] w-[calc(100%+64px)]">
 
 <div class="flex items-center justify-between mb-5">
 
@@ -2385,7 +2394,7 @@ const card =
 document.createElement("div");
 
 card.className =
-"member-card";
+"member-card border-4 border-red-500";
 
 card.innerHTML = `
 <img src="${image}">
