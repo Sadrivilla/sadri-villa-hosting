@@ -1202,7 +1202,13 @@ hideLoader();
 document.getElementById("deletePhotoBtn")
 .onclick=async()=>{
 
-if(!confirm("Delete profile photo?")) return;
+const confirmed =
+await showConfirmModal(
+"Delete Photo",
+"Delete profile photo?"
+);
+
+if(!confirmed) return;
 
 showLoader();
 
@@ -1440,7 +1446,10 @@ if(hasError){
 
 hideLoader();
 
-alert("Please fill all required fields");
+await showConfirmModal(
+"Validation Required",
+"Please fill all required fields"
+);
 
 return;
 
@@ -1485,7 +1494,10 @@ updatedAt:new Date().toISOString()
 {merge:true}
 );
 
-alert("Member updated successfully");
+await showConfirmModal(
+"Success",
+"Member updated successfully"
+);
 
 loadMembers();
 
@@ -1506,17 +1518,78 @@ document.getElementById("imageModal")
 .style.display="none";
 
 };
+window.showConfirmModal = function(
+title,
+message
+){
 
+return new Promise(resolve=>{
+
+const modal =
+document.getElementById(
+"confirmModal"
+);
+
+document.getElementById(
+"confirmTitle"
+).textContent = title;
+
+document.getElementById(
+"confirmMessage"
+).textContent = message;
+
+const okBtn =
+document.getElementById(
+"confirmOkBtn"
+);
+
+const cancelBtn =
+document.getElementById(
+"confirmCancelBtn"
+);
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+function closeModal(){
+
+modal.classList.add("hidden");
+modal.classList.remove("flex");
+
+okBtn.onclick = null;
+cancelBtn.onclick = null;
+
+}
+
+okBtn.onclick = ()=>{
+
+closeModal();
+resolve(true);
+
+};
+
+cancelBtn.onclick = ()=>{
+
+closeModal();
+resolve(false);
+
+};
+
+});
+
+};
 // DELETE MEMBER
 
 document.getElementById("deleteMemberBtn")
 .onclick=async()=>{
 
-const ok=confirm(
+const confirmed =
+await showConfirmModal(
+"Delete Member",
 "Delete this member permanently?"
 );
 
-if(!ok) return;
+if(!confirmed) return;
 
 showLoader();
 
@@ -1555,7 +1628,10 @@ loadMembers();
 
 hideLoader();
 
-alert("Member deleted successfully");
+await showConfirmModal(
+"Success",
+"Member deleted successfully"
+);
 
 }catch(err){
 console.log(err);
@@ -1565,6 +1641,44 @@ hideLoader();
 };
 
 </script>
+<!-- GLOBAL CONFIRM MODAL -->
 
+<div
+id="confirmModal"
+class="hidden fixed inset-0 z-[999999] bg-black/70 items-center justify-center p-4">
+
+<div class="glass rounded-[32px] p-6 w-full max-w-md">
+
+<h3
+id="confirmTitle"
+class="text-2xl font-bold text-center mb-3">
+Confirm Action
+</h3>
+
+<p
+id="confirmMessage"
+class="text-slate-300 text-center mb-6">
+Are you sure?
+</p>
+
+<div class="flex gap-3">
+
+<button
+id="confirmCancelBtn"
+class="flex-1 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600">
+Cancel
+</button>
+
+<button
+id="confirmOkBtn"
+class="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-600 font-bold">
+Confirm
+</button>
+
+</div>
+
+</div>
+
+</div>
 </body>
 </html>
