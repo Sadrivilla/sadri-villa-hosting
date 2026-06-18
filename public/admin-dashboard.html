@@ -36,8 +36,8 @@ backdrop-filter:blur(18px);
 .sidebar-link{
 display:flex;
 align-items:center;
-justify-content:center;
-padding:6px 0;
+justify-content:flex-start;
+padding:8px 0;
 border-radius:12px;
 transition:.3s;
 font-size:18px;
@@ -51,8 +51,6 @@ background:rgba(255,255,255,.06);
 background:#06b6d4;
 color:black;
 font-weight:700;
-width:36px;
-height:36px;
 }
 
 .stat-card{
@@ -262,9 +260,13 @@ transform:translateX(0);
 /* Desktop Auto Hide Sidebar */
 
 .admin-sidebar{
-width:48px;
+width:42px;
 transition:all .3s ease;
 overflow:hidden;
+}
+
+.admin-sidebar:hover{
+width:260px;
 }
 
 .admin-sidebar:hover{
@@ -291,7 +293,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-size:18px;
-margin:0 auto;
+margin-left:8px;
 }
 
 .admin-sidebar:hover .sidebar-link span{
@@ -336,7 +338,7 @@ margin-left:260px !important;
 }
 
 .admin-sidebar:not(:hover) ~ main{
-margin-left:48px !important;
+margin-left:42px !important;
 }
 /* Invisible hover zone on left edge */
 
@@ -464,7 +466,7 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <main
 class="flex-1 p-4 lg:p-8 overflow-x-hidden"
-style="margin-left:48px;">
+style="margin-left:42px;">
 
 <!-- TOPBAR -->
 
