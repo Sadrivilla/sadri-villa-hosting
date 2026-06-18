@@ -232,6 +232,13 @@ width:220px;
 display:block;
 }
   .admin-sidebar{
+width:320px !important;
+}
+
+main{
+margin-left:0 !important;
+}
+  .admin-sidebar{
 transform:translateX(-100%);
 }
 
@@ -252,30 +259,57 @@ transform:translateX(0);
 /* Desktop Auto Hide Sidebar */
 
 .admin-sidebar{
-transform:translateX(-100%);
-transition:transform .3s ease;
+width:72px;
+transition:all .3s ease;
+overflow:hidden;
 }
 
-.admin-sidebar.show{
-transform:translateX(0);
+.admin-sidebar:hover{
+width:320px;
+}
+  /* Premium Sidebar */
+
+.admin-sidebar .sidebar-link{
+white-space:nowrap;
+overflow:hidden;
 }
 
+.admin-sidebar .sidebar-link span{
+opacity:0;
+transition:.2s;
+}
+
+.admin-sidebar:hover .sidebar-link span{
+opacity:1;
+}
+
+.sidebar-header h2,
+.sidebar-header p{
+opacity:0;
+white-space:nowrap;
+transition:.2s;
+}
+
+.admin-sidebar:hover .sidebar-header h2,
+.admin-sidebar:hover .sidebar-header p{
+opacity:1;
+}
+
+main{
+transition:.3s ease;
+}
+
+.admin-sidebar:hover ~ main{
+margin-left:320px !important;
+}
 /* Invisible hover zone on left edge */
 
-#sidebarTrigger{
-position:fixed;
-left:0;
-top:0;
-width:15px;
-height:100vh;
-z-index:60;
-}
+
 </style>
 
 </head>
 
 <body>
-  <div id="sidebarTrigger"></div>
 
 <div class="min-h-screen flex overflow-x-hidden">
 
@@ -287,7 +321,7 @@ class="fixed z-50 top-0 left-0 h-full w-80 glass border-r border-white/10 overfl
 
 <div class="p-6 border-b border-white/10">
 
-<div class="flex items-center gap-3">
+<div class="flex items-center gap-3 sidebar-header">
 
 <img
 id="siteLogo"
@@ -312,59 +346,73 @@ Administration Center
 <nav class="p-4 space-y-2">
 
 <a href="admin.html" class="sidebar-link active">
-🏠 Dashboard
+<div>🏠</div>
+<span>Dashboard</span>
 </a>
-
+  
 <a href="member-profile-manage.html" class="sidebar-link">
-👥 Members
+<div>👥</div>
+<span>Members</span>
 </a>
 
 <a href="admin-profile-fields.html" class="sidebar-link">
-📄 Profile Fields
+<div>📄</div>
+<span>Profile Fields</span>
 </a>
 
 <a href="admin-shajra.html" class="sidebar-link">
-🌳 Shajra
+<div>🌳</div>
+<span>Shajra</span>
 </a>
 
 <a href="team-admin.html" class="sidebar-link">
-🏛 Heritage
+<div>🏛</div>
+<span>Heritage</span>
 </a>
 
 <a href="admin-announcements.html" class="sidebar-link">
-📢 Announcements
+<div>📢</div>
+<span>Announcements</span>
 </a>
 
 <a href="admin-slider.html" class="sidebar-link">
-🖼 Gallery
+<div>🖼</div>
+<span>Gallery</span>
 </a>
 
 <a href="admin-role-management.html" class="sidebar-link">
-🛡 Roles
+<div>🛡</div>
+<span>Roles</span>
 </a>
 
 <a href="admin-storage-analytics.html" class="sidebar-link">
-📦 Storage
+<div>📦</div>
+<span>Storage</span>
 </a>
 
 <a href="admin-scheduled-reports.html" class="sidebar-link">
-📊 Reports
+<div>📊</div>
+<span>Reports</span>
 </a>
 
 <a href="admin-approval-requests.html" class="sidebar-link">
-✅ Bulk Approval
+<div>✅</div>
+<span>Bulk Approval</span>
 </a>
 
 <a href="admin-visitor-analytics.html" class="sidebar-link">
-📈 Visitors
+<div>📈</div>
+<span>Visitors</span>
 </a>
 
 <a href="admin-list.html" class="sidebar-link">
-👨‍💼 Admin List
+<div>👨‍💼</div>
+<span>Admin List</span>
 </a>
 
 <a href="dashboard.html" class="sidebar-link">
-👤 User Dashboard
+<div>👤</div>
+<span>User Dashboard</span>
 </a>
 
 </nav>
@@ -378,7 +426,9 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <!-- MAIN -->
 
-<main class="flex-1 p-4 lg:p-8 overflow-x-hidden">
+<main
+class="flex-1 p-4 lg:p-8 overflow-x-hidden"
+style="margin-left:72px;">
 
 <!-- TOPBAR -->
 
@@ -1133,8 +1183,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const sidebar =
 document.getElementById("sidebar");
-  const sidebarTrigger =
-document.getElementById("sidebarTrigger");
+
 
 const overlay =
 document.getElementById("overlay");
@@ -1154,19 +1203,7 @@ overlay.classList.add("show");
 );
   /* Desktop Hover Sidebar */
 
-sidebarTrigger?.addEventListener(
-"mouseenter",
-()=>{
-sidebar.classList.add("show");
-}
-);
 
-sidebar?.addEventListener(
-"mouseleave",
-()=>{
-sidebar.classList.remove("show");
-}
-);
 
 overlay?.addEventListener(
 "click",
