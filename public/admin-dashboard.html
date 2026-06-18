@@ -73,6 +73,73 @@ display:block;
 .mobile-overlay{
 display:none;
 }
+  .members-slider{
+position:relative;
+width:100%;
+overflow:hidden;
+padding:10px 0;
+}
+
+.members-track{
+display:flex;
+gap:24px;
+width:max-content;
+flex-wrap:nowrap;
+animation:membersScroll 45s linear infinite;
+}
+
+.members-track:hover{
+animation-play-state:paused;
+}
+
+@keyframes membersScroll{
+from{
+transform:translateX(0);
+}
+to{
+transform:translateX(calc(-50% - 12px));
+}
+}
+
+.member-card{
+width:260px;
+flex-shrink:0;
+text-align:center;
+padding:24px 18px;
+border-radius:28px;
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.18);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+cursor:pointer;
+transition:.3s;
+}
+
+.member-card:hover{
+transform:translateY(-8px);
+}
+
+.member-card img{
+width:160px;
+height:160px;
+border-radius:50%;
+object-fit:cover;
+margin:0 auto 16px;
+border:4px solid rgba(14,165,233,.25);
+}
+
+.member-role-badge{
+display:inline-block;
+margin-top:10px;
+padding:6px 12px;
+border-radius:999px;
+background:rgba(14,165,233,0.15);
+border:1px solid rgba(14,165,233,0.30);
+color:#7dd3fc;
+font-size:11px;
+font-weight:700;
+text-transform:uppercase;
+}
 .gallery-scroll{
 display:flex;
 width:max-content;
@@ -913,7 +980,34 @@ class="space-y-3">
 </div>
 
 </div>
+<!-- FAMILY MEMBERS -->
 
+<div class="glass rounded-3xl p-6 mb-6 overflow-hidden">
+
+<div class="text-center mb-8">
+
+<p class="uppercase tracking-[4px] text-cyan-300 text-xs font-bold mb-3">
+Our Family Members
+</p>
+
+<h2 class="text-3xl sm:text-4xl font-extrabold">
+Meet Our Family Members
+</h2>
+
+<p class="text-slate-400 mt-3">
+Honoring the members of the Sadri family across generations.
+</p>
+
+</div>
+
+<div class="members-slider">
+<div
+class="members-track"
+id="adminMembersTrack">
+</div>
+</div>
+
+</div>
 <!-- GALLERY -->
 
 <div
@@ -1767,6 +1861,7 @@ unreadCount;
 await loadRecentActivities();
 await loadPendingApprovals();
 await loadGallery();
+await loadAdminMembers();
 });
 document.getElementById(
 "logoutBtn"
@@ -2224,6 +2319,108 @@ pendingUsers;
 }catch(error){
 
 console.error(error);
+
+}
+
+}
+  async function loadAdminMembers(){
+
+try{
+
+const q = query(
+collection(db,"team"),
+where("enabled","==",true),
+orderBy("order","asc")
+);
+
+const snap = await getDocs(q);
+
+const track =
+document.getElementById(
+"adminMembersTrack"
+);
+
+if(!track) return;
+
+track.innerHTML = "";
+
+let members = [];
+
+snap.forEach(docSnap=>{
+
+members.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+members.forEach(member=>{
+
+let image =
+"https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+if(Array.isArray(member.contentBlocks)){
+
+const profileBlock =
+member.contentBlocks.find(
+b =>
+b.type === "image" &&
+b.imageType === "profile" &&
+b.url
+);
+
+if(profileBlock){
+image = profileBlock.url;
+}
+
+}
+
+const slug =
+member.slug ||
+member.pageSlug ||
+member.id;
+
+const card =
+document.createElement("div");
+
+card.className =
+"member-card";
+
+card.innerHTML = `
+<img src="${image}">
+<h3>${member.name || "Family Member"}</h3>
+<p>Sadri Family</p>
+${
+member.role
+?
+`<div class="member-role-badge">${member.role}</div>`
+:
+''
+}
+`;
+
+card.addEventListener("click",()=>{
+
+window.open(
+`https://sadrivilla.in/team/${slug}.html`,
+"_blank"
+);
+
+});
+
+track.appendChild(card);
+
+});
+
+track.innerHTML += track.innerHTML;
+
+}catch(error){
+
+console.error(
+"Admin Members Error",
+error
+);
 
 }
 
