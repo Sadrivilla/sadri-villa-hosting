@@ -2170,8 +2170,7 @@ btn.disabled = false;
 
 await showConfirmModal(
 "Error",
-"Failed to approve user",
-"❌"
+"Failed to approve user"
 );
 
 }
@@ -2586,11 +2585,10 @@ console.error(error);
 }
 
 }
-  window.showConfirmModal = function(
+window.showConfirmModal = function(
 title,
-message,
-icon = "⚠️"
-){
+message
+)
 
 return new Promise(resolve=>{
 
@@ -2609,10 +2607,7 @@ document.getElementById(
 "confirmMessage"
 );
 
-const iconEl =
-document.getElementById(
-"confirmIcon"
-);
+
 
 const okBtn =
 document.getElementById(
@@ -2626,7 +2621,6 @@ document.getElementById(
 
 titleEl.textContent = title;
 messageEl.textContent = message;
-iconEl.textContent = icon;
 
 modal.classList.remove("hidden");
 modal.classList.add("flex");
@@ -2693,11 +2687,7 @@ class="hidden fixed inset-0 z-[999999] bg-black/70 items-center justify-center p
 
 <div class="glass rounded-3xl p-6 w-full max-w-md">
 
-<div
-id="confirmIcon"
-class="text-5xl mb-4 text-center">
-⚠️
-</div>
+
 
 <h3
 id="confirmTitle"
