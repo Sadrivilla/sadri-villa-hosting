@@ -37,8 +37,11 @@ backdrop-filter:blur(18px);
 display:flex;
 align-items:center;
 justify-content:center;
-padding:10px 0;
-border-radius:12px;
+width:36px;
+height:36px;
+margin:0 auto;
+padding:0;
+border-radius:10px;
 transition:.3s;
 font-size:18px;
 }
@@ -50,6 +53,8 @@ background:rgba(255,255,255,.06);
 background:#06b6d4;
 color:black;
 font-weight:700;
+width:36px;
+height:36px;
 }
 
 .stat-card{
@@ -259,7 +264,7 @@ transform:translateX(0);
 /* Desktop Auto Hide Sidebar */
 
 .admin-sidebar{
-width:48px;
+width:44px;
 transition:all .3s ease;
 overflow:hidden;
 }
@@ -282,10 +287,13 @@ transition:.2s;
 .admin-sidebar:hover .sidebar-link span{
 opacity:1;
 }
-  .admin-sidebar:hover .sidebar-link{
+.admin-sidebar:hover .sidebar-link{
+width:auto;
+height:auto;
 justify-content:flex-start;
 gap:12px;
 padding:14px 16px;
+margin:0;
 }
 
 .sidebar-header{
@@ -316,7 +324,7 @@ margin-left:260px !important;
 }
 
 .admin-sidebar:not(:hover) ~ main{
-margin-left:48px !important;
+margin-left:44px !important;
 }
 /* Invisible hover zone on left edge */
 
@@ -359,7 +367,7 @@ Administration Center
 
 </div>
 
-<nav class="p-4 space-y-2">
+<nav class="py-2 space-y-1">
 
 <a href="admin.html" class="sidebar-link active">
 <div>🏠</div>
@@ -444,7 +452,7 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <main
 class="flex-1 p-4 lg:p-8 overflow-x-hidden"
-style="margin-left:48px;">
+style="margin-left:44px;">
 
 <!-- TOPBAR -->
 
