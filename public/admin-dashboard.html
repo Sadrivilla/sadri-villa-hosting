@@ -231,6 +231,13 @@ width:220px;
 .mobile-overlay.show{
 display:block;
 }
+  .admin-sidebar{
+transform:translateX(-100%);
+}
+
+.admin-sidebar.show{
+transform:translateX(0);
+}
 
 .sidebar-mobile{
 transform:translateX(-100%);
@@ -242,12 +249,33 @@ transform:translateX(0);
 }
 
 }
+/* Desktop Auto Hide Sidebar */
 
+.admin-sidebar{
+transform:translateX(-100%);
+transition:transform .3s ease;
+}
+
+.admin-sidebar.show{
+transform:translateX(0);
+}
+
+/* Invisible hover zone on left edge */
+
+#sidebarTrigger{
+position:fixed;
+left:0;
+top:0;
+width:15px;
+height:100vh;
+z-index:60;
+}
 </style>
 
 </head>
 
 <body>
+  <div id="sidebarTrigger"></div>
 
 <div class="min-h-screen flex overflow-x-hidden">
 
@@ -255,7 +283,7 @@ transform:translateX(0);
 
 <aside
 id="sidebar"
-class="sidebar-mobile fixed lg:static z-50 top-0 left-0 h-full w-80 glass border-r border-white/10 overflow-y-auto">
+class="fixed z-50 top-0 left-0 h-full w-80 glass border-r border-white/10 overflow-y-auto admin-sidebar">
 
 <div class="p-6 border-b border-white/10">
 
@@ -1105,6 +1133,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const sidebar =
 document.getElementById("sidebar");
+  const sidebarTrigger =
+document.getElementById("sidebarTrigger");
 
 const overlay =
 document.getElementById("overlay");
@@ -1120,6 +1150,21 @@ sidebar.classList.add("show");
 
 overlay.classList.add("show");
 
+}
+);
+  /* Desktop Hover Sidebar */
+
+sidebarTrigger?.addEventListener(
+"mouseenter",
+()=>{
+sidebar.classList.add("show");
+}
+);
+
+sidebar?.addEventListener(
+"mouseleave",
+()=>{
+sidebar.classList.remove("show");
 }
 );
 
