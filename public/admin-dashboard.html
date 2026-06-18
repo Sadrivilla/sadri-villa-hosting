@@ -67,8 +67,7 @@ width:100%;
 }
 
 .chart-box canvas{
-width:100%!important;
-height:100%!important;
+display:block;
 }
 
 .mobile-overlay{
@@ -1251,108 +1250,168 @@ message:`${userData.fullName || "User"} joined Sadri Villa`
 CHART PLACEHOLDERS
 ========================= */
 
+/* =========================
+AGE DISTRIBUTION
+========================= */
+
 let ageGroups = {
-
-"0-18":0,
-"19-30":0,
-"31-45":0,
-"46-60":0,
-"60+":0
-
+"Children (0-12)":0,
+"Teenagers (13-18)":0,
+"Youth (19-25)":0,
+"Adults (26-40)":0,
+"Middle Age (41-60)":0,
+"Senior Citizens (60+)":0
 };
+
+let totalAgeUsers = 0;
 
 usersSnap.forEach(docSnap=>{
 
-const userData =
-docSnap.data();
+const userData = docSnap.data();
 
 const dob =
 userData.adminFields?.["Date of birth"];
 
 if(!dob) return;
 
-const birthDate =
-new Date(dob);
+const birthDate = new Date(dob);
 
-const age =
-Math.floor(
-(
-Date.now()
--
-birthDate.getTime()
-)
+if(isNaN(birthDate.getTime())) return;
+
+const age = Math.floor(
+(Date.now() - birthDate.getTime())
 /
 31557600000
 );
 
-if(age <= 18){
+totalAgeUsers++;
 
-ageGroups["0-18"]++;
-
+if(age <= 12){
+ageGroups["Children (0-12)"]++;
 }
-else if(age <= 30){
-
-ageGroups["19-30"]++;
-
+else if(age <= 18){
+ageGroups["Teenagers (13-18)"]++;
 }
-else if(age <= 45){
-
-ageGroups["31-45"]++;
-
+else if(age <= 25){
+ageGroups["Youth (19-25)"]++;
+}
+else if(age <= 40){
+ageGroups["Adults (26-40)"]++;
 }
 else if(age <= 60){
-
-ageGroups["46-60"]++;
-
+ageGroups["Middle Age (41-60)"]++;
 }
 else{
-
-ageGroups["60+"]++;
-
+ageGroups["Senior Citizens (60+)"]++;
 }
 
 });
 
 new Chart(
-
-document.getElementById(
-"ageChart"
-),
-
+document.getElementById("ageChart"),
 {
-
 type:"bar",
 
 data:{
-
-labels:[
-"0-18",
-"19-30",
-"31-45",
-"46-60",
-"60+"
-],
+labels:Object.keys(ageGroups),
 
 datasets:[{
-
 label:"Members",
 
-data:[
+data:Object.values(ageGroups),
 
-ageGroups["0-18"],
-ageGroups["19-30"],
-ageGroups["31-45"],
-ageGroups["46-60"],
-ageGroups["60+"]
-
+backgroundColor:[
+"#06b6d4",
+"#3b82f6",
+"#8b5cf6",
+"#10b981",
+"#f59e0b",
+"#ef4444"
 ],
 
-backgroundColor:"#06b6d4"
-
+borderRadius:12,
+borderSkipped:false
 }]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false,
+
+interaction:{
+mode:"nearest",
+intersect:true
+},
+
+plugins:{
+
+legend:{
+display:false
+},
+
+title:{
+display:true,
+text:`Age Distribution (${totalAgeUsers} Members)`,
+color:"#ffffff",
+font:{
+size:18,
+weight:"bold"
+}
+},
+
+tooltip:{
+backgroundColor:"#0f172a",
+titleColor:"#ffffff",
+bodyColor:"#ffffff",
+
+callbacks:{
+
+label:function(context){
+
+const count = context.raw;
+
+const percentage =
+totalAgeUsers > 0
+? ((count / totalAgeUsers) * 100).toFixed(1)
+: 0;
+
+return `${count} Members (${percentage}%)`;
 
 }
 
+}
+}
+
+},
+
+scales:{
+
+x:{
+ticks:{
+color:"#cbd5e1",
+font:{
+weight:"bold"
+}
+},
+grid:{
+display:false
+}
+},
+
+y:{
+beginAtZero:true,
+ticks:{
+color:"#cbd5e1",
+stepSize:1
+},
+grid:{
+color:"rgba(255,255,255,0.05)"
+}
+}
+
+}
+
+}
 }
 );
 
