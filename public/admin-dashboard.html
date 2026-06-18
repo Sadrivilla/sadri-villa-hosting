@@ -982,7 +982,7 @@ class="space-y-3">
 </div>
 <!-- FAMILY MEMBERS -->
 
-<div class="glass rounded-3xl p-6 mb-6 overflow-hidden">
+<div class="glass rounded-none lg:rounded-3xl p-6 mb-6 overflow-hidden -mx-4 lg:-mx-8">
 
 <div class="text-center mb-8">
 
@@ -1011,7 +1011,7 @@ id="adminMembersTrack">
 <!-- GALLERY -->
 
 <div
-class="glass rounded-3xl p-6 mb-6">
+class="glass rounded-none lg:rounded-3xl p-6 mb-6 -mx-4 lg:-mx-8">
 
 <div class="flex items-center justify-between mb-5">
 
@@ -2401,6 +2401,11 @@ member.role
 `;
 
 card.addEventListener("click",()=>{
+
+console.log(
+"Member Slug:",
+slug
+);
 
 window.open(
 `https://sadrivilla.in/team/${slug}.html`,
