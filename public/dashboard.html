@@ -2329,27 +2329,47 @@ sidebar.classList.add("hidden");
 sidebar.style.display = "";
 
 overlay.classList.add("hidden");
-  /* Desktop Hover Sidebar */
+
+
+});
+
+    /* Desktop Hover Sidebar */
+
+
 
 if(window.innerWidth > 1024){
 
+
+
 sidebarTrigger?.addEventListener(
+
 "mouseenter",
+
 ()=>{
+
 sidebar.classList.add("show");
+
 }
+
 );
+
+
 
 sidebar?.addEventListener(
+
 "mouseleave",
+
 ()=>{
+
 sidebar.classList.remove("show");
+
 }
+
 );
 
-}
 
-});
+
+}
 </script>
 </body>
 </html>
