@@ -36,8 +36,9 @@ backdrop-filter:blur(18px);
 .sidebar-link{
 display:flex;
 align-items:center;
-gap:12px;
-padding:14px 16px;
+justify-content:center;
+gap:0;
+padding:14px 0;
 border-radius:18px;
 transition:.3s;
 }
@@ -259,7 +260,7 @@ transform:translateX(0);
 /* Desktop Auto Hide Sidebar */
 
 .admin-sidebar{
-width:72px;
+width:64px;
 transition:all .3s ease;
 overflow:hidden;
 }
@@ -282,17 +283,28 @@ transition:.2s;
 .admin-sidebar:hover .sidebar-link span{
 opacity:1;
 }
+  .admin-sidebar:hover .sidebar-link{
+justify-content:flex-start;
+gap:12px;
+padding:14px 16px;
+}
+
+.sidebar-header{
+justify-content:center;
+}
 
 .sidebar-header h2,
 .sidebar-header p{
-opacity:0;
-white-space:nowrap;
-transition:.2s;
+display:none;
+}
+
+.admin-sidebar:hover .sidebar-header{
+justify-content:flex-start;
 }
 
 .admin-sidebar:hover .sidebar-header h2,
 .admin-sidebar:hover .sidebar-header p{
-opacity:1;
+display:block;
 }
 
 main{
@@ -301,6 +313,10 @@ transition:.3s ease;
 
 .admin-sidebar:hover ~ main{
 margin-left:320px !important;
+}
+
+.admin-sidebar:not(:hover) ~ main{
+margin-left:64px !important;
 }
 /* Invisible hover zone on left edge */
 
@@ -428,7 +444,7 @@ class="mobile-overlay fixed inset-0 bg-black/70 z-40">
 
 <main
 class="flex-1 p-4 lg:p-8 overflow-x-hidden"
-style="margin-left:72px;">
+style="margin-left:64px;">
 
 <!-- TOPBAR -->
 
