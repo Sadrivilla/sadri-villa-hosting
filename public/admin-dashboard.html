@@ -2133,14 +2133,16 @@ name,
 btn
 )=>{
 
-if(
-!confirm(
-`Approve ${name}?`
-)
-){
+const confirmed =
+await showConfirmModal(
+"Approve Member",
+`Approve ${name}?`,
+"✅"
+);
+
+if(!confirmed){
 return;
 }
-
 try{
 
 btn.disabled = true;
@@ -2167,8 +2169,10 @@ console.error(error);
 
 btn.disabled = false;
 
-alert(
-"Failed to approve user"
+await showConfirmModal(
+"Error",
+"Failed to approve user",
+"❌"
 );
 
 }
@@ -2583,6 +2587,78 @@ console.error(error);
 }
 
 }
+  window.showConfirmModal = function(
+title,
+message,
+icon = "⚠️"
+){
+
+return new Promise(resolve=>{
+
+const modal =
+document.getElementById(
+"confirmModal"
+);
+
+const titleEl =
+document.getElementById(
+"confirmTitle"
+);
+
+const messageEl =
+document.getElementById(
+"confirmMessage"
+);
+
+const iconEl =
+document.getElementById(
+"confirmIcon"
+);
+
+const okBtn =
+document.getElementById(
+"confirmOkBtn"
+);
+
+const cancelBtn =
+document.getElementById(
+"confirmCancelBtn"
+);
+
+titleEl.textContent = title;
+messageEl.textContent = message;
+iconEl.textContent = icon;
+
+modal.classList.remove("hidden");
+modal.classList.add("flex");
+
+function closeModal(){
+
+modal.classList.add("hidden");
+modal.classList.remove("flex");
+
+okBtn.onclick = null;
+cancelBtn.onclick = null;
+
+}
+
+okBtn.onclick = ()=>{
+
+closeModal();
+resolve(true);
+
+};
+
+cancelBtn.onclick = ()=>{
+
+closeModal();
+resolve(false);
+
+};
+
+});
+
+};
 document
 .getElementById(
 "imgModal"
@@ -2610,5 +2686,50 @@ document
 }
 );
 </script>
+  <!-- GLOBAL CONFIRM MODAL -->
+
+<div
+id="confirmModal"
+class="hidden fixed inset-0 z-[999999] bg-black/70 items-center justify-center p-4">
+
+<div class="glass rounded-3xl p-6 w-full max-w-md">
+
+<div
+id="confirmIcon"
+class="text-5xl mb-4 text-center">
+⚠️
+</div>
+
+<h3
+id="confirmTitle"
+class="text-2xl font-bold text-center mb-3">
+Confirm Action
+</h3>
+
+<p
+id="confirmMessage"
+class="text-slate-300 text-center mb-6">
+Are you sure?
+</p>
+
+<div class="flex gap-3">
+
+<button
+id="confirmCancelBtn"
+class="flex-1 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600">
+Cancel
+</button>
+
+<button
+id="confirmOkBtn"
+class="flex-1 py-3 rounded-2xl bg-red-500 hover:bg-red-600 font-bold">
+Confirm
+</button>
+
+</div>
+
+</div>
+
+</div>
 </body>
 </html>
