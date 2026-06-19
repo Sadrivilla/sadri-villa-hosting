@@ -221,6 +221,12 @@ transition:.25s;
 overflow-y:auto;
 position:fixed;
 z-index:99999;
+
+background:rgba(15,23,42,.88);
+backdrop-filter:blur(24px);
+-webkit-backdrop-filter:blur(24px);
+border-right:1px solid rgba(255,255,255,.08);
+box-shadow:0 10px 40px rgba(0,0,0,.35);
 }
 
 .admin-sidebar .sidebar-link span{
@@ -231,11 +237,13 @@ white-space:nowrap;
 }
 
 .admin-sidebar .sidebar-link div{
-width:24px;
+width:40px;
+height:40px;
 display:flex;
+align-items:center;
 justify-content:center;
-font-size:18px;
-margin-left:8px;
+font-size:20px;
+margin:0 auto;
 }
 
 .admin-sidebar:hover{
@@ -253,16 +261,29 @@ gap:12px;
 padding:14px 16px;
 }
 
-.sidebar-header{
-display:none;
+.sidebar-header,
+.sidebar-footer{
+opacity:0;
+visibility:hidden;
+height:0;
+overflow:hidden;
+margin:0;
+padding:0;
 }
 
-.admin-sidebar:hover .sidebar-header{
+.admin-sidebar:hover .sidebar-header,
+.admin-sidebar:hover .sidebar-footer{
+opacity:1;
+visibility:visible;
+height:auto;
+overflow:visible;
 display:flex;
+flex-direction:column;
 }
 
 main{
 margin-left:60px !important;
+padding-left:10px !important;
 }
 
 @media(max-width:1024px){
@@ -387,7 +408,7 @@ class="hidden fixed inset-0 bg-black/60 z-[99998]">
 
 <!-- SIDEBAR -->
 <aside id="sidebar"
-class="admin-sidebar bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
+class="admin-sidebar p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 
 <div class="flex items-center gap-4 mb-10 sidebar-header">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
@@ -397,7 +418,7 @@ class="admin-sidebar bg-black/95 border-r border-white/10 p-6 flex-col fixed lef
 </div>
 </div>
 
-<div class="space-y-2 text-sm font-medium">
+<div class="space-y-2 text-sm font-medium mt-12">
 <a href="#" class="sidebar-link active">
 <div>🏠</div>
 <span>Overview</span>
@@ -434,7 +455,7 @@ class="admin-sidebar bg-black/95 border-r border-white/10 p-6 flex-col fixed lef
 </a>
 </div>
 
-<div class="mt-auto glass-card rounded-3xl p-5">
+<div class="mt-auto glass-card rounded-3xl p-5 sidebar-footer">
 <h3 class="font-semibold mb-2">Profile Completion</h3>
 <div class="w-full bg-white/10 rounded-full h-4 overflow-hidden">
 <div id="profileBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full" style="width:0%"></div>
@@ -2358,8 +2379,7 @@ document.getElementById("sidebar");
 
 const overlay =
 document.getElementById("sidebarOverlay");
-  const sidebarTrigger =
-document.getElementById("sidebarTrigger");
+ 
 
 mobileBtn?.addEventListener("click",()=>{
 
@@ -2392,39 +2412,7 @@ overlay.classList.add("hidden");
 
 
 
-if(window.innerWidth > 1024){
 
-
-
-sidebarTrigger?.addEventListener(
-
-"mouseenter",
-
-()=>{
-
-sidebar.classList.add("show");
-
-}
-
-);
-
-
-
-sidebar?.addEventListener(
-
-"mouseleave",
-
-()=>{
-
-sidebar.classList.remove("show");
-
-}
-
-);
-
-
-
-}
 </script>
 </body>
 </html>
