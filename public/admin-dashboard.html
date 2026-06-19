@@ -78,6 +78,23 @@ white-space:nowrap;
 padding-bottom:6px;
 }
 
+  #lineagePathDashboard::-webkit-scrollbar{
+height:3px;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-track{
+background:transparent;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-thumb{
+background:rgba(255,255,255,0.15);
+border-radius:20px;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-thumb:hover{
+background:rgba(255,255,255,0.30);
+}
+
 .mobile-overlay{
 display:none;
 }
@@ -3275,7 +3292,26 @@ const box =
 document.createElement("div");
 
 box.className =
-"glass rounded-2xl px-5 py-4 min-w-max text-center";
+`
+bg-gradient-to-br
+from-white/10
+to-white/5
+hover:from-cyan-500/20
+hover:to-blue-500/20
+border
+border-white/10
+hover:border-cyan-400/40
+transition-all
+duration-300
+px-5
+py-3
+rounded-2xl
+font-semibold
+text-sm
+backdrop-blur-xl
+hover:scale-105
+cursor-pointer
+`;
 
 box.innerHTML=`
 <div class="font-bold">
@@ -3286,6 +3322,14 @@ Generation ${item.generation || "-"}
 </div>
 `;
 
+box.style.cursor = "pointer";
+
+box.onclick = () => {
+
+location.href =
+`shajra.html#${item.id}`;
+
+};
 container.appendChild(box);
 
 if(index < lineage.length-1){
