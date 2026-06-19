@@ -3183,6 +3183,7 @@ const userData =
 userDoc.data();
 
 const teamMemberId =
+userData.linkedShajraMemberId ||
 userData.teamMemberId ||
 userData.familyMemberId ||
 "";
@@ -3214,7 +3215,7 @@ id:docSnap.id,
 
 const current =
 allShajraMembers.find(
-m=>m.teamMemberId===teamMemberId
+m=>m.id===teamMemberId
 );
 
 if(!current){
