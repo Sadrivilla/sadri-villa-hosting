@@ -274,7 +274,10 @@ overflow:hidden;
 }
 
 .admin-sidebar .sidebar-link span{
-display:none;
+opacity:0;
+visibility:hidden;
+white-space:nowrap;
+transition:.2s;
 }
 .admin-sidebar .sidebar-link div{
 width:24px;
@@ -287,7 +290,8 @@ margin-left:8px;
 }
 
 .admin-sidebar:hover .sidebar-link span{
-display:block;
+opacity:1;
+visibility:visible;
 margin-left:12px;
 }
 .admin-sidebar:hover .sidebar-link{
@@ -327,19 +331,18 @@ transition:.3s ease;
 /* Invisible hover zone on left edge */
 
 .sidebar-trigger{
-position:fixed;
-left:0;
-top:0;
-width:8px;
-height:100vh;
-z-index:9998;
+display:none;
 }
 
 .admin-sidebar{
-width:220px;
-transform:translateX(-100%);
-transition:transform .25s ease;
+width:60px;
+transition:width .25s ease;
 overflow-y:auto;
+z-index:9999;
+}
+
+.admin-sidebar:hover{
+width:220px;
 }
 main{
 margin-left:0 !important;
@@ -350,7 +353,6 @@ margin-left:0 !important;
 
 <body>
 
-<div class="sidebar-trigger"></div>
 
 <div class="min-h-screen flex overflow-x-hidden">
 
@@ -1255,28 +1257,7 @@ overlay.classList.remove("show");
 
 }
 );
-  const trigger =
-document.querySelector(".sidebar-trigger");
 
-if(window.innerWidth > 1024){
-
-trigger.addEventListener(
-"mouseenter",
-()=>{
-sidebar.style.transform =
-"translateX(0)";
-}
-);
-
-sidebar.addEventListener(
-"mouseleave",
-()=>{
-sidebar.style.transform =
-"translateX(-100%)";
-}
-);
-
-}
 const profileWrapper =
 document.getElementById(
 "profileWrapper"
