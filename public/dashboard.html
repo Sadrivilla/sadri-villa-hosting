@@ -194,6 +194,100 @@ to{transform:translateX(-50%)}
 .mobile-nav{
 display:none;
 }
+  /* Premium Sidebar */
+
+.sidebar-link{
+display:flex;
+align-items:center;
+justify-content:flex-start;
+padding:12px 0;
+border-radius:12px;
+transition:.3s;
+position:relative;
+}
+
+.sidebar-link:hover{
+background:rgba(255,255,255,.06);
+}
+
+.sidebar-link.active{
+background:rgba(255,255,255,.06);
+font-weight:700;
+}
+
+.admin-sidebar{
+width:60px;
+transition:.25s;
+overflow-y:auto;
+position:fixed;
+z-index:99999;
+}
+
+.admin-sidebar .sidebar-link span{
+opacity:0;
+visibility:hidden;
+transition:.2s;
+white-space:nowrap;
+}
+
+.admin-sidebar .sidebar-link div{
+width:24px;
+display:flex;
+justify-content:center;
+font-size:18px;
+margin-left:8px;
+}
+
+.admin-sidebar:hover{
+width:280px;
+}
+
+.admin-sidebar:hover .sidebar-link span{
+opacity:1;
+visibility:visible;
+margin-left:12px;
+}
+
+.admin-sidebar:hover .sidebar-link{
+gap:12px;
+padding:14px 16px;
+}
+
+.sidebar-header{
+display:none;
+}
+
+.admin-sidebar:hover .sidebar-header{
+display:flex;
+}
+
+main{
+margin-left:60px !important;
+}
+
+@media(max-width:1024px){
+
+.admin-sidebar{
+width:280px !important;
+transform:translateX(-100%);
+height:100vh;
+}
+
+.admin-sidebar.show{
+transform:translateX(0);
+}
+
+.admin-sidebar .sidebar-link span{
+opacity:1 !important;
+visibility:visible !important;
+margin-left:12px;
+}
+
+main{
+margin-left:0 !important;
+}
+
+}
 
 @media(max-width:1024px){
 
@@ -279,50 +373,11 @@ width:100%;
 margin-left:0 !important;
 }
 }
-  /* Desktop Auto Hide Sidebar */
 
-.auto-sidebar{
-transform:translateX(-100%);
-transition:transform .3s ease;
-}
-
-.auto-sidebar.show{
-transform:translateX(0);
-}
-
-/* Left Edge Hover Area */
-
-#sidebarTrigger{
-position:fixed;
-left:0;
-top:0;
-width:15px;
-height:100vh;
-z-index:999999;
-}
-
-/* Keep Sidebar Visible On Mobile */
-
-@media(max-width:1024px){
-
-.auto-sidebar{
-transform:none;
-}
-
-.auto-sidebar.show{
-transform:none;
-}
-
-#sidebarTrigger{
-display:none;
-}
-
-}
 </style>
 </head>
 <body>
 
-<div id="sidebarTrigger"></div>
   <div
 id="sidebarOverlay"
 class="hidden fixed inset-0 bg-black/60 z-[99998]">
@@ -332,9 +387,9 @@ class="hidden fixed inset-0 bg-black/60 z-[99998]">
 
 <!-- SIDEBAR -->
 <aside id="sidebar"
-class="sidebar lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999] auto-sidebar">
+class="admin-sidebar bg-black/95 border-r border-white/10 p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 
-<div class="flex items-center gap-4 mb-10">
+<div class="flex items-center gap-4 mb-10 sidebar-header">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
 <div>
 <h1 class="text-2xl font-extrabold">Sadri Villa</h1>
@@ -343,38 +398,38 @@ class="sidebar lg:flex w-80 bg-black/95 border-r border-white/10 p-6 flex-col fi
 </div>
 
 <div class="space-y-2 text-sm font-medium">
-<a href="#" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl bg-white/10">
-<span>🏠</span>
+<a href="#" class="sidebar-link active">
+<div>🏠</div>
 <span>Overview</span>
 </a>
 
-<a href="profile.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>👤</span>
+<a href="profile.html" class="sidebar-link">
+<div>👤</div>
 <span>Profile</span>
 </a>
 
-<a href="change-password.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>🔐</span>
+<a href="change-password.html" class="sidebar-link">
+<div>🔐</div>
 <span>Password</span>
 </a>
 
-<a href="family-tree.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>🌳</span>
+<a href="family-tree.html" class="sidebar-link">
+<div>🌳</div>
 <span>Family Tree</span>
 </a>
 
-<a href="gallery.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>🖼️</span>
+<a href="gallery.html" class="sidebar-link">
+<div>🖼️</div>
 <span>Gallery</span>
 </a>
 
-<a href="announcements.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>📢</span>
+<a href="announcements.html" class="sidebar-link">
+<div>📢</div>
 <span>Announcements</span>
 </a>
 
-<a href="downloads.html" class="sidebar-link flex items-center gap-3 px-4 py-4 rounded-2xl">
-<span>📂</span>
+<a href="downloads.html" class="sidebar-link">
+<div>📂</div>
 <span>Downloads</span>
 </a>
 </div>
