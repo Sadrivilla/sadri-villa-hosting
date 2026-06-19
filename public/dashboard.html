@@ -86,7 +86,23 @@ transition:0.3s ease;
 display:flex;
 gap:20px;
 width:max-content;
-animation:scroll 35s linear infinite;
+animation:scrollGallery 40s linear infinite;
+}
+
+.gallery-track:hover{
+animation-play-state:paused;
+}
+
+@keyframes scrollGallery{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-50%);
+}
+
 }
   .members-slider{
 position:relative;
@@ -1544,6 +1560,71 @@ error
 }
 
 let allAnnouncements = [];
+  async function loadGallerySlider(){
+
+try{
+
+const settingsSnap =
+await getDoc(
+doc(db,"siteSettings","home")
+);
+
+if(!settingsSnap.exists()) return;
+
+const galleryData =
+settingsSnap.data();
+
+const images =
+(galleryData.sliderImages || [])
+.filter(img => img.enabled !== false);
+
+const track =
+document.getElementById("galleryTrack");
+
+if(!track) return;
+
+track.innerHTML = "";
+
+if(!images.length){
+
+track.innerHTML =
+`
+<div class="text-slate-400">
+No gallery images available
+</div>
+`;
+
+return;
+
+}
+
+images.forEach(item=>{
+
+const image =
+document.createElement("img");
+
+image.src =
+item.url || item.imageUrl || item;
+
+image.className =
+"w-72 h-48 object-cover rounded-3xl cursor-pointer hover:scale-105 transition";
+
+track.appendChild(image);
+
+});
+
+track.innerHTML += track.innerHTML;
+
+}catch(error){
+
+console.error(
+"Gallery Slider Error",
+error
+);
+
+}
+
+}
   async function loadRecentActivities(){
 
 const container =
@@ -2047,10 +2128,13 @@ id:docSnap.id,
 renderLineage(
 userData.linkedShajraMemberId || ""
 );
-  loadLatestAnnouncements();
+loadLatestAnnouncements();
 
 loadRecentActivities();
-  loadDashboardMembers();
+
+loadDashboardMembers();
+
+loadGallerySlider();
 
 });
 
