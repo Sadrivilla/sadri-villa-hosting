@@ -403,7 +403,27 @@ flex-wrap:nowrap !important;
 overflow-x:auto !important;
 white-space:nowrap;
 -webkit-overflow-scrolling:touch;
-padding-bottom:6px;
+padding-bottom:4px;
+
+scrollbar-width:thin;
+scrollbar-color:rgba(255,255,255,.15) transparent;
+}
+
+#lineagePathDashboard::-webkit-scrollbar{
+height:2px;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-track{
+background:transparent;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-thumb{
+background:rgba(255,255,255,.10);
+border-radius:20px;
+}
+
+#lineagePathDashboard::-webkit-scrollbar-thumb:hover{
+background:rgba(255,255,255,.25);
 }
 
 .gallery-track{
