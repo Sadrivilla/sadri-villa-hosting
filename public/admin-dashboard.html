@@ -70,6 +70,13 @@ width:100%;
 .chart-box canvas{
 display:block;
 }
+  #lineagePathDashboard{
+flex-wrap:nowrap !important;
+overflow-x:auto !important;
+white-space:nowrap;
+-webkit-overflow-scrolling:touch;
+padding-bottom:6px;
+}
 
 .mobile-overlay{
 display:none;
@@ -917,6 +924,72 @@ Visitors
 
 </div>
 
+  <!-- SHAJRA LINEAGE -->
+
+<div
+id="lineageCard"
+class="glass rounded-3xl p-8 mb-6"
+style="display:none">
+
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+
+<div>
+<p class="text-cyan-300 uppercase tracking-[3px] text-xs font-bold">
+Sadri Heritage
+</p>
+
+<h2 class="text-3xl sm:text-4xl font-extrabold mt-3">
+Your Shajra Lineage
+</h2>
+</div>
+
+<a
+href="shajra.html"
+class="bg-cyan-500 text-black px-6 py-4 rounded-2xl font-bold w-full sm:w-auto text-center">
+Open Shajra
+</a>
+
+</div>
+
+<div
+id="lineagePathDashboard"
+class="flex flex-nowrap gap-3 mt-8 overflow-x-auto pb-2">
+</div>
+
+</div>
+
+<!-- EMPTY SHAJRA -->
+
+<div
+id="emptyLineageCard"
+class="glass rounded-3xl p-8 mb-6"
+style="display:none">
+
+<div class="max-w-2xl">
+
+<p class="uppercase tracking-[4px] text-pink-300 text-xs font-bold mb-4">
+Connect Your Heritage
+</p>
+
+<h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">
+Link Your Name
+In Shajra
+</h2>
+
+<p class="text-slate-300 mt-5 text-lg leading-relaxed">
+Select your family lineage member from your profile to unlock your beautiful heritage path from root generation.
+</p>
+
+<a
+href="profile.html"
+class="inline-flex mt-8 bg-cyan-500 hover:bg-cyan-400 transition px-7 py-4 rounded-2xl font-bold text-black">
+Select Your Name
+</a>
+
+</div>
+
+</div>
+
 <!-- PART 3 WILL START HERE -->
 <!-- =========================
 PART 3 : ANALYTICS SECTION
@@ -1298,6 +1371,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+  let allShajraMembers = [];
 const sidebar =
 document.getElementById("sidebar");
 
@@ -1502,6 +1576,7 @@ location.href =
 return;
 
 }
+  await loadAdminLineage(user.uid);
 /* =========================
 LOAD DASHBOARD STATS
 ========================= */
@@ -3092,6 +3167,143 @@ document
 
 }
 );
+
+  async function loadAdminLineage(userId){
+
+try{
+
+const userDoc =
+await getDoc(
+doc(db,"users",userId)
+);
+
+if(!userDoc.exists()) return;
+
+const userData =
+userDoc.data();
+
+const teamMemberId =
+userData.teamMemberId ||
+userData.familyMemberId ||
+"";
+
+if(!teamMemberId){
+
+document.getElementById(
+"emptyLineageCard"
+).style.display="block";
+
+return;
+}
+
+const snap =
+await getDocs(
+collection(db,"family_members")
+);
+
+allShajraMembers=[];
+
+snap.forEach(docSnap=>{
+
+allShajraMembers.push({
+id:docSnap.id,
+...docSnap.data()
+});
+
+});
+
+const current =
+allShajraMembers.find(
+m=>m.teamMemberId===teamMemberId
+);
+
+if(!current){
+
+document.getElementById(
+"emptyLineageCard"
+).style.display="block";
+
+return;
+}
+
+document.getElementById(
+"lineageCard"
+).style.display="block";
+
+buildLineagePath(current);
+
+}catch(error){
+
+console.error(
+"Lineage Error",
+error
+);
+
+}
+}
+
+function buildLineagePath(member){
+
+const container =
+document.getElementById(
+"lineagePathDashboard"
+);
+
+if(!container) return;
+
+container.innerHTML="";
+
+let lineage=[];
+
+let current=member;
+
+while(current){
+
+lineage.unshift(current);
+
+current =
+allShajraMembers.find(
+m=>m.id===current.fatherId
+);
+
+}
+
+lineage.forEach((item,index)=>{
+
+const box =
+document.createElement("div");
+
+box.className =
+"glass rounded-2xl px-5 py-4 min-w-max text-center";
+
+box.innerHTML=`
+<div class="font-bold">
+${item.name || "Member"}
+</div>
+<div class="text-xs text-slate-400 mt-1">
+Generation ${item.generation || "-"}
+</div>
+`;
+
+container.appendChild(box);
+
+if(index < lineage.length-1){
+
+const arrow =
+document.createElement("div");
+
+arrow.className =
+"flex items-center text-cyan-400 font-bold";
+
+arrow.innerHTML="→";
+
+container.appendChild(arrow);
+
+}
+
+});
+
+}
 </script>
   <!-- GLOBAL CONFIRM MODAL -->
 
