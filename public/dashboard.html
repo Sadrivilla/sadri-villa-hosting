@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>f
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -270,6 +270,15 @@ width:100%;
 .sidebar-header{
 display:none;
 }
+  @media(max-width:1024px){
+
+.admin-sidebar.show .sidebar-header{
+display:flex !important;
+align-items:center;
+padding:20px;
+}
+
+}
 
 .admin-sidebar:hover .sidebar-header{
 display:flex;
@@ -286,8 +295,8 @@ display:block !important;
 }
 
 main{
-margin-left:70px !important;
-width:calc(100% - 70px);
+margin-left:60px !important;
+width:calc(100% - 60px);
 transition:.3s ease;
 }
 
