@@ -273,6 +273,28 @@ visibility:hidden;
 white-space:nowrap;
 transition:.2s;
 }
+
+@media(max-width:1024px){
+
+.admin-sidebar .sidebar-link span{
+opacity:1 !important;
+visibility:visible !important;
+margin-left:12px;
+}
+
+}
+  @media(max-width:1024px){
+
+.admin-sidebar .sidebar-link{
+display:flex;
+align-items:center;
+justify-content:flex-start;
+gap:12px;
+padding:14px 16px;
+width:100%;
+}
+
+}
 .admin-sidebar .sidebar-link div{
 width:24px;
 height:24px;
@@ -330,16 +352,38 @@ display:none;
 
 .admin-sidebar{
 width:60px;
-transition:width .25s ease;
+transition:all .25s ease;
 overflow-y:auto;
-z-index:9999;
+z-index:99999;
 }
+
+@media(max-width:1024px){
+
+.admin-sidebar{
+width:280px !important;
+transform:translateX(-100%);
+left:0;
+top:0;
+height:100vh;
+}
+
+}
+
+@media(min-width:1025px){
 
 .admin-sidebar:hover{
 width:220px;
 }
+
+}
 main{
 margin-left:60px !important;
+}
+
+@media(max-width:1024px){
+main{
+margin-left:0 !important;
+}
 }
 </style>
 
@@ -354,7 +398,7 @@ margin-left:60px !important;
 
 <aside
 id="sidebar"
-class="fixed z-50 top-0 left-0 h-full glass border-r border-white/10 overflow-y-auto admin-sidebar">
+class="fixed z-[99999] top-0 left-0 h-full glass border-r border-white/10 overflow-y-auto admin-sidebar">
 
 <div class="p-2 border-b border-white/10">
 
@@ -510,7 +554,7 @@ class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-fu
 
 <div
 id="notificationPanel"
-class="hidden absolute top-full mt-2 left-0 glass rounded-3xl overflow-hidden z-50 w-[320px] max-w-[calc(100vw-24px)]">
+class="hidden absolute z-[100000] top-full mt-2 left-0 glass rounded-3xl overflow-hidden z-50 w-[320px] max-w-[calc(100vw-24px)]">
 
 <div class="p-4 border-b border-white/10 flex items-center justify-between">
 
@@ -552,7 +596,7 @@ View All
 
 <div
 id="profileWrapper"
-class="relative glass rounded-2xl px-4 py-2 flex items-center gap-3 cursor-pointer min-w-[240px] overflow-visible">
+class="relative glass rounded-2xl px-4 py-2 flex items-center gap-3 cursor-pointer min-w-[200px] lg:min-w-[240px] overflow-visible">
 
 <img
 id="profilePhoto"
@@ -577,7 +621,7 @@ Administrator
 
 <div
 id="profileCard"
-class="hidden absolute top-full mt-2 right-0 rounded-3xl overflow-hidden min-w-[220px] z-[99999]"
+class="hidden absolute z-[100000] top-full mt-2 right-0 rounded-3xl overflow-hidden min-w-[220px] z-[99999]"
 style="
 background:rgba(15,23,42,0.96);
 border:1px solid rgba(255,255,255,0.08);
@@ -1237,6 +1281,23 @@ overlay.classList.add("show");
 
 }
 );
+
+  document
+.querySelectorAll(".sidebar-link")
+.forEach(link=>{
+
+link.addEventListener("click",()=>{
+
+if(window.innerWidth <= 1024){
+
+sidebar.classList.remove("show");
+overlay.classList.remove("show");
+
+}
+
+});
+
+});
   /* Desktop Hover Sidebar */
 
 
