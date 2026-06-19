@@ -300,11 +300,12 @@ margin-left:70px !important;
 width:calc(100% - 70px);
 padding:24px !important;
 }
-  @media(min-width:1025px){
+@media(min-width:1025px){
 
 main{
-margin-left:82px !important;
-width:calc(100% - 82px);
+margin-left:70px !important;
+width:calc(100vw - 70px) !important;
+max-width:none !important;
 }
 
 }
@@ -333,7 +334,8 @@ margin-left:12px;
 }
 
 main{
-margin-left:0 !important;
+margin-left:70px !important;
+width:calc(100% - 70px);
 }
 
 }
@@ -425,7 +427,23 @@ width:100%;
 margin-left:0 !important;
 }
 }
+@media(min-width:1025px){
 
+body{
+overflow-x:hidden;
+}
+
+main{
+margin-left:70px !important;
+width:calc(100vw - 70px) !important;
+}
+
+.hero-gradient,
+.glass-card{
+max-width:100%;
+}
+
+}
 </style>
 </head>
 <body>
@@ -506,7 +524,7 @@ class="admin-sidebar flex flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 </aside>
 
 <!-- MAIN -->
-<main class="px-6 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-8 pb-10">
+<main class="p-4 pb-10">
 
 <!-- TOPBAR -->
 <div class="glass-card relative z-20 rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8 lg:sticky lg:top-4 lg:z-40">
