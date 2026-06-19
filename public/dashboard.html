@@ -216,7 +216,7 @@ font-weight:700;
 }
 
 .admin-sidebar{
-width:60px;
+width:68px;
 transition:.25s;
 overflow-y:auto;
 position:fixed;
@@ -237,8 +237,8 @@ white-space:nowrap;
 }
 
 .admin-sidebar .sidebar-link div{
-width:24px;
-height:24px;
+width:32px;
+height:32px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -247,7 +247,7 @@ margin-left:8px;
 }
 
 .admin-sidebar:hover{
-width:300px;
+width:320px;
 }
 
 .admin-sidebar:hover .sidebar-link span{
@@ -400,7 +400,7 @@ class="hidden fixed inset-0 bg-black/60 z-[99998]">
 
 <!-- SIDEBAR -->
 <aside id="sidebar"
-class="admin-sidebar p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
+class="admin-sidebar p-6 flex flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 
 <div class="flex items-center gap-4 mb-10 sidebar-header">
 <img id="siteLogo" class="w-14 h-14 rounded-2xl object-cover hidden">
@@ -410,7 +410,7 @@ class="admin-sidebar p-6 flex-col fixed left-0 top-0 bottom-0 z-[99999]">
 </div>
 </div>
 
-<div class="space-y-2 text-sm font-medium">
+<div class="space-y-2 text-sm font-medium flex-1">
 <a href="#" class="sidebar-link active">
 <div>🏠</div>
 <span>Overview</span>
@@ -2373,14 +2373,7 @@ const overlay =
 document.getElementById("sidebarOverlay");
  
 
-mobileBtn?.addEventListener("click",()=>{
 
-mobileBtn?.addEventListener("click",()=>{
-
-sidebar.classList.toggle("show");
-overlay.classList.toggle("hidden");
-
-});
 
 overlay?.addEventListener("click",()=>{
 
@@ -2400,7 +2393,19 @@ overlay.classList.add("hidden");
 
     /* Desktop Hover Sidebar */
 
+mobileBtn?.addEventListener("click",()=>{
 
+sidebar.classList.toggle("show");
+overlay.classList.toggle("hidden");
+
+});
+
+overlay?.addEventListener("click",()=>{
+
+sidebar.classList.remove("show");
+overlay.classList.add("hidden");
+
+});
 
 
 </script>
