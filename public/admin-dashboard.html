@@ -355,6 +355,17 @@ width:60px;
 transition:all .25s ease;
 overflow-y:auto;
 z-index:99999;
+position:fixed;
+}
+
+.admin-sidebar::after{
+content:"";
+position:absolute;
+top:0;
+right:0;
+width:1px;
+height:100%;
+background:rgba(255,255,255,.04);
 }
 
 @media(max-width:1024px){
@@ -398,7 +409,7 @@ margin-left:0 !important;
 
 <aside
 id="sidebar"
-class="fixed z-[99999] top-0 left-0 h-full glass border-r border-white/10 overflow-y-auto admin-sidebar">
+class="fixed z-[99999] top-0 left-0 h-full glass border-r-0 overflow-y-auto admin-sidebar">
 
 <div class="p-2 border-b border-white/10">
 
