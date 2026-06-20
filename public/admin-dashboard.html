@@ -2018,53 +2018,7 @@ pendingUsers;
 
 
 
-const notificationList =
-document.getElementById(
-"notificationList"
-);
-notificationList.innerHTML = "";
 
-notifications.forEach((item,index)=>{
-
-const notificationId =
-`${item.title}-${item.message}`;
-
-if(
-readNotifications.includes(
-notificationId
-)
-){
-return;
-}
-
-notificationList.innerHTML += `
-
-<div
-class="p-4 border-b border-white/10"
-id="notification-${index}">
-
-<div class="font-semibold">
-${item.icon} ${item.title}
-</div>
-
-<div class="text-xs text-slate-400 mt-1">
-${item.message}
-</div>
-
-<button
-class="mt-3 px-3 py-1 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
-onclick="markNotificationRead(
-'${notificationId}',
-'notification-${index}'
-)">
-Read
-</button>
-
-</div>
-
-`;
-
-});
 
 const notificationCount =
 document.getElementById(
@@ -2132,6 +2086,51 @@ visitorSnap.size;
 }catch(error){
 
 console.log(error);
+
+}
+ /* =========================
+ANNOUNCEMENT NOTIFICATIONS
+========================= */
+
+try{
+
+const announcementSnap =
+await getDocs(
+query(
+collection(db,"announcements"),
+where("enabled","==",true),
+orderBy("createdAt","desc")
+)
+);
+
+announcementSnap.forEach(docSnap=>{
+
+const data = docSnap.data();
+
+notifications.push({
+
+icon:"📢",
+
+title:data.title || "Announcement",
+
+message:"New announcement published",
+
+page:`announcements.html?id=${docSnap.id}`,
+
+announcementId:docSnap.id,
+
+createdAt:data.createdAt
+
+});
+
+});
+
+}catch(error){
+
+console.error(
+"Announcement Notifications Error",
+error
+);
 
 }
 /* =========================
@@ -2841,6 +2840,10 @@ pendingUsers;
 const notificationCount =
 document.getElementById(
 "notificationCount"
+);
+ const notificationList =
+document.getElementById(
+"notificationList"
 );
 
 notificationCount.textContent =
