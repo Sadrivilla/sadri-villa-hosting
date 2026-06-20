@@ -1333,6 +1333,50 @@ class="space-y-3">
 </div>
 
 </div>
+ <!-- =========================
+LATEST ANNOUNCEMENTS
+========================= -->
+
+<div
+class="glass rounded-3xl p-6 mb-6">
+
+<div class="flex items-center justify-between mb-5">
+
+<div>
+
+<p class="uppercase tracking-[3px] text-cyan-300 text-xs font-bold">
+Latest Updates
+</p>
+
+<h3 class="text-2xl font-bold mt-2">
+📢 Latest Announcements
+</h3>
+
+<p class="text-slate-400 mt-2">
+Stay updated with the latest Sadri Villa announcements.
+</p>
+
+</div>
+
+<a
+href="announcements.html"
+class="text-cyan-400 font-semibold">
+View All
+</a>
+
+</div>
+
+<div
+id="dashboardAnnouncementContainer"
+class="grid md:grid-cols-2 gap-5">
+
+<div class="glass rounded-2xl p-5 text-slate-400">
+Loading announcements...
+</div>
+
+</div>
+
+</div>
 <!-- FAMILY MEMBERS -->
 
 <div class="glass rounded-3xl p-6 mb-6 overflow-hidden">
@@ -2321,8 +2365,13 @@ notificationCount.textContent =
 unreadCount;
 
 await loadRecentActivities();
+
 await loadPendingApprovals();
+
+await loadDashboardAnnouncements();
+
 await loadGallery();
+
 await loadAdminMembers();
 });
 document.getElementById(
@@ -2905,6 +2954,132 @@ error
 
 }
 
+}
+ async function loadDashboardAnnouncements(){
+
+try{
+
+const container =
+document.getElementById(
+"dashboardAnnouncementContainer"
+);
+
+if(!container) return;
+
+container.innerHTML = `
+<div class="glass rounded-2xl p-5 text-slate-400">
+Loading announcements...
+</div>
+`;
+
+const q = query(
+collection(db,"announcements"),
+where("enabled","==",true),
+orderBy("pinned","desc"),
+orderBy("createdAt","desc")
+);
+
+const snap = await getDocs(q);
+
+container.innerHTML = "";
+
+if(snap.empty){
+
+container.innerHTML = `
+<div class="glass rounded-2xl p-5 text-slate-400">
+No announcements available.
+</div>
+`;
+
+return;
+
+}
+
+let count = 0;
+
+snap.forEach(docSnap=>{
+
+if(count >= 2) return;
+
+const item = docSnap.data();
+
+const card =
+document.createElement("div");
+
+card.className =
+"glass rounded-3xl overflow-hidden cursor-pointer hover:bg-white/10 transition";
+
+const image =
+item.images?.length
+? item.images[0]
+: "";
+
+const created =
+item.createdAt?.toDate
+? item.createdAt.toDate().toLocaleDateString("en-IN")
+: "";
+
+card.innerHTML = `
+
+${image ? `
+<img
+src="${image}"
+class="w-full h-52 object-cover">
+` : ""}
+
+<div class="p-5">
+
+${
+item.pinned
+?
+
+`<span class="inline-block px-3 py-1 rounded-full bg-yellow-500 text-black text-xs font-bold mb-3">
+📌 Pinned
+</span>`
+
+:
+
+""
+
+}
+
+<h3 class="text-xl font-bold">
+${item.title}
+</h3>
+
+<p class="text-slate-400 mt-3 line-clamp-3">
+${item.description || ""}
+</p>
+
+<div class="text-cyan-400 text-sm mt-5">
+📅 ${created}
+</div>
+
+</div>
+
+`;
+
+card.onclick = ()=>{
+
+location.href =
+`announcements.html?id=${docSnap.id}`;
+
+};
+
+container.appendChild(card);
+
+count++;
+
+});
+
+}catch(error){
+
+console.error(
+"Dashboard Announcements Error",
+error
+);
+
+}
 }
 async function loadGallery(){
 
