@@ -36,11 +36,14 @@ backdrop-filter:blur(18px);
 display:flex;
 align-items:center;
 justify-content:flex-start;
-padding:12px 0;
+padding:14px 16px;
+min-height:56px;
+box-sizing:border-box;
 border-radius:12px;
 transition:.3s;
 font-size:18px;
 position:relative;
+z-index:1;
 }
 .sidebar-link:hover{
 background:rgba(255,255,255,.06);
@@ -1424,14 +1427,12 @@ overlay.classList.add("show");
 .querySelectorAll(".sidebar-link")
 .forEach(link=>{
 
-link.addEventListener("click",()=>{
+link.addEventListener("click",(e)=>{
 
-if(window.innerWidth <= 1024){
-
-sidebar.classList.remove("show");
-overlay.classList.remove("show");
-
-}
+alert(
+"Clicked: " +
+link.querySelector("span").textContent
+);
 
 });
 
