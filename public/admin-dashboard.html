@@ -3007,7 +3007,17 @@ const card =
 document.createElement("div");
 
 card.className =
-"glass rounded-3xl overflow-hidden cursor-pointer hover:bg-white/10 transition";
+`
+glass
+rounded-3xl
+overflow-hidden
+cursor-pointer
+hover:bg-white/10
+transition
+flex
+flex-col
+min-h-[520px]
+`;
 
 const image =
 item.images?.length
@@ -3027,7 +3037,7 @@ src="${image}"
 class="w-full h-52 object-cover">
 ` : ""}
 
-<div class="p-5">
+<div class="p-5 flex flex-col flex-1">
 
 ${
 item.pinned
@@ -3051,7 +3061,7 @@ ${item.title}
 ${item.description || ""}
 </p>
 
-<div class="text-cyan-400 text-sm mt-5">
+<div class="text-cyan-400 text-sm mt-auto pt-5">
 📅 ${created}
 </div>
 
