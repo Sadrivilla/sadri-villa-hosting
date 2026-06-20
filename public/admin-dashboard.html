@@ -559,7 +559,7 @@ Administration Center
 
 </div>
 
-<nav class="py-2 space-y-1">
+<nav class="py-2 flex flex-col gap-0">
 
 <a href="admin.html" class="sidebar-link active">
 <div>🏠</div>
@@ -1486,20 +1486,7 @@ overlay.classList.add("show");
 }
 );
 
-  document
-.querySelectorAll(".sidebar-link")
-.forEach(link=>{
 
-link.addEventListener("click",(e)=>{
-
-alert(
-"Clicked: " +
-link.querySelector("span").textContent
-);
-
-});
-
-});
   /* Desktop Hover Sidebar */
 
 
