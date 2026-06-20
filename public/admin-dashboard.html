@@ -394,22 +394,7 @@ transparent
 opacity:.25;
 }
 
-@media(max-width:1024px){
 
-.admin-sidebar{
-width:280px !important;
-left:0;
-top:0;
-height:100vh;
-transform:translate3d(-100%,0,0);
-transition:transform .25s ease;
-}
-
-.admin-sidebar.show{
-transform:translate3d(0,0,0);
-}
-
-}
 
 @media(min-width:1025px){
 
@@ -422,82 +407,111 @@ main{
 margin-left:60px !important;
 }
 
-@media(max-width:1024px){
+/* ==========================
+   MOBILE SIDEBAR
+==========================*/
+
+@media (max-width:1024px){
+
 main{
 margin-left:0 !important;
 }
-}
-  @media(max-width:1024px){
 
-.admin-sidebar nav{
+.mobile-overlay{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+z-index:99998;
+}
+
+.mobile-overlay.show{
+display:block;
+}
+
+.admin-sidebar{
+
+width:280px !important;
+height:100vh;
+
+position:fixed;
+top:0;
+left:0;
+
+transform:translateX(-100%);
+transition:transform .25s ease;
+
+overflow-y:auto;
+overflow-x:hidden;
+
+background:#08111f;
+
+z-index:99999;
+}
+
+.admin-sidebar.show{
+transform:translateX(0);
+}
+
+.admin-sidebar:hover{
+width:280px !important;
+}
+
+.sidebar-header{
 display:flex !important;
-flex-direction:column !important;
-gap:0 !important;
+align-items:center;
+padding:20px;
+}
+
+.sidebar-header h2,
+.sidebar-header p{
+display:block !important;
 }
 
 .admin-sidebar .sidebar-link{
-height:56px !important;
-min-height:56px !important;
-margin:0 !important;
-padding:14px 16px !important;
-position:relative !important;
-transform:none !important;
+
+display:flex;
+align-items:center;
+
+gap:14px;
+
+height:56px;
+
+padding:0 18px;
+
+width:100%;
 }
 
+.admin-sidebar .sidebar-link span{
+
+display:block !important;
+
+opacity:1 !important;
+
+visibility:visible !important;
+
+margin-left:0 !important;
+
 }
 
-@media(max-width:1024px){
-
-.admin-sidebar .sidebar-link span,
 .admin-sidebar .sidebar-link div{
-pointer-events:auto;
-}
 
-}
-   @media(max-width:1024px){
+width:24px;
 
+display:flex;
 
+justify-content:center;
 
-.admin-sidebar{
-
-overflow-y:auto !important;
-
-overflow-x:hidden !important;
-
-height:100vh !important;
+flex-shrink:0;
 
 }
 
-.admin-sidebar .sidebar-link{
-
-height:56px !important;
-
-min-height:56px !important;
-
-flex-shrink:0 !important;
-
 }
+  
 
 
+  
 
-}
-  @media(max-width:1024px){
-
-.admin-sidebar{
--webkit-overflow-scrolling:touch;
-overscroll-behavior-y:contain;
-touch-action:pan-y;
-}
-
-.admin-sidebar nav{
-padding-bottom:60px;
-}
-
-.admin-sidebar .sidebar-link{
-touch-action:manipulation;
-}
-
-}
 </style>
 
 </head>
@@ -537,7 +551,7 @@ Administration Center
 
 </div>
 
-<nav class="py-2 flex flex-col gap-0">
+<nav class="py-2 flex flex-col gap-0" id="sidebarNav">
 
 <a href="admin.html" class="sidebar-link active">
 <div>🏠</div>
@@ -604,7 +618,7 @@ Administration Center
 <span>Admin List</span>
 </a>
 
-<a href="dashboard.html" class="sidebar-link">
+<a href="dashboard.html" class="sidebar-link" id="lastSidebarItem">
 <div>👤</div>
 <span>User Dashboard</span>
 </a>
@@ -1453,35 +1467,32 @@ document.getElementById("overlay");
 const menuBtn =
 document.getElementById("menuBtn");
 
-menuBtn?.addEventListener(
-"click",
-()=>{
+menuBtn?.addEventListener("click", () => {
 
-sidebar.classList.add("show");
-overlay.classList.add("show");
+sidebar.classList.toggle("show");
+overlay.classList.toggle("show");
 
-document.documentElement.style.overflow = "hidden";
-document.body.style.overflow = "hidden";
-
+if (sidebar.classList.contains("show")) {
+    document.body.style.overflow = "hidden";
+} else {
+    document.body.style.overflow = "";
 }
-);
+
+});
 
 
   /* Desktop Hover Sidebar */
 
 
 
-overlay?.addEventListener(
-"click",
-()=>{
+overlay?.addEventListener("click", () => {
 
 sidebar.classList.remove("show");
 overlay.classList.remove("show");
 
-document.documentElement.style.overflow = "";
 document.body.style.overflow = "";
-}
-);
+
+});
 
 const profileWrapper =
 document.getElementById(
@@ -3391,6 +3402,17 @@ container.appendChild(arrow);
 });
 
 }
+ document.querySelectorAll(".sidebar-link").forEach(link => {
+
+link.addEventListener("click", () => {
+
+sidebar.classList.remove("show");
+overlay.classList.remove("show");
+document.body.style.overflow = "";
+
+});
+
+});
 </script>
   <!-- GLOBAL CONFIRM MODAL -->
 
