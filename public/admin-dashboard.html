@@ -1672,11 +1672,36 @@ userData.approved !== true
 
 pendingUsers++;
 
+notifications.push({
+
+icon:"👤",
+
+title:userData.fullName || "Unknown User",
+
+message:"Waiting for Admin Approval",
+
+page:"admin-approval-requests.html",
+
+targetId:docSnap.id,
+
+userName:userData.fullName || "Unknown User",
+
+email:userData.email || "",
+
+phone:userData.phone || "",
+
+createdAt:userData.createdAt || ""
+
+});
+
 }
 
 /* New Registration Notification */
 
-if(userData.createdAt){
+if(
+userData.approved === true &&
+userData.createdAt
+){
 
 const createdDate =
 new Date(userData.createdAt);
@@ -1692,9 +1717,13 @@ createdDate.getTime()
 if(daysOld <= 7){
 
 notifications.push({
+
 icon:"👤",
+
 title:"New Registration",
+
 message:`${userData.fullName || "User"} joined Sadri Villa`
+
 });
 
 }
@@ -1942,21 +1971,7 @@ document.getElementById(
 "pendingTop"
 ).textContent =
 pendingUsers;
-if (pendingUsers > 0) {
 
-const firstPendingUser = usersSnap.docs.find(docSnap => {
-    return docSnap.data().approved !== true;
-});
-
-notifications.push({
-    icon: "✅",
-    title: "Pending Approvals",
-    message: `${pendingUsers} members awaiting approval`,
-    page: "admin-approval-requests.html",
-    targetId: firstPendingUser ? firstPendingUser.id : ""
-});
-
-}
 
 
 const notificationList =
@@ -2132,6 +2147,80 @@ class="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition"
 id="notification-${index}"
 onclick="openNotification(${index})">
 
+${
+item.page === "admin-approval-requests.html"
+?
+
+`
+
+<div class="flex items-start gap-3">
+
+<div class="text-3xl">
+👤
+</div>
+
+<div class="flex-1">
+
+<div class="font-bold text-white">
+${item.userName}
+</div>
+
+<div class="flex items-center gap-2 mt-2">
+
+<span
+class="px-2 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold">
+
+PENDING
+
+</span>
+
+<span class="text-sm text-slate-300">
+
+Waiting for Admin Approval
+
+</span>
+
+</div>
+
+<div class="text-xs text-slate-400 mt-2">
+📧 ${item.email || "No Email"}
+</div>
+
+<div class="text-xs text-slate-400">
+📱 ${item.phone || "No Mobile"}
+</div>
+${
+item.createdAt
+?
+
+`<div class="text-xs text-slate-400 mt-1">
+📅 ${
+new Date(item.createdAt).toLocaleString(
+"en-IN",
+{
+dateStyle:"medium",
+timeStyle:"short"
+}
+)
+}
+</div>`
+
+:
+
+""
+
+}
+
+</div>
+
+</div>
+
+`
+
+:
+
+`
+
 <div class="font-semibold">
 ${item.icon} ${item.title}
 </div>
@@ -2139,6 +2228,10 @@ ${item.icon} ${item.title}
 <div class="text-xs text-slate-400 mt-1">
 ${item.message}
 </div>
+
+`
+
+}
 
 <button
 class="mt-3 px-3 py-1 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
