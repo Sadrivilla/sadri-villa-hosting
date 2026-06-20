@@ -291,6 +291,39 @@ small{
     font-size:19px;
   }
 }
+  /* =========================================
+   APPROVAL CARD HIGHLIGHT
+========================================= */
+
+.highlight-card{
+
+  border:2px solid #4f46e5 !important;
+
+  background:
+  linear-gradient(135deg,#eef2ff,#ede9fe);
+
+  box-shadow:
+  0 0 0 4px rgba(79,70,229,.18),
+  0 18px 40px rgba(79,70,229,.28);
+
+  animation:highlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes highlightPulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.02);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
 </style>
 </head>
 
@@ -335,6 +368,15 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* =========================================
+   HIGHLIGHT FROM URL
+========================================= */
+
+const urlParams = new URLSearchParams(window.location.search);
+
+const highlightApprovalId =
+urlParams.get("highlight");
+
 /* ADMIN CHECK */
 onAuthStateChanged(auth, async user=>{
   if(!user){
@@ -372,7 +414,8 @@ const q = query(
       const u = {id:docSnap.id,...docSnap.data()};
 
       const card = document.createElement("div");
-      card.className="card";
+card.className = "card";
+card.id = `approval-${u.id}`;
   card.innerHTML=`
   <h3>${u.fullName || "User"}</h3>
 
@@ -416,6 +459,34 @@ const q = query(
   </button>
 `;
       list.appendChild(card);
+
+/* =========================================
+   AUTO HIGHLIGHT CARD
+========================================= */
+
+if (
+    highlightApprovalId &&
+    highlightApprovalId === u.id
+){
+
+    setTimeout(()=>{
+
+        card.scrollIntoView({
+            behavior:"smooth",
+            block:"center"
+        });
+
+        card.classList.add("highlight-card");
+
+        setTimeout(()=>{
+
+            card.classList.remove("highlight-card");
+
+        },5000);
+
+    },300);
+
+}
     });
   });
 }
