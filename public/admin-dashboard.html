@@ -15,6 +15,25 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  @media(max-width:1024px){
+
+.admin-sidebar{
+overflow-y:auto !important;
+overflow-x:hidden !important;
+height:100vh !important;
+}
+
+.admin-sidebar:hover{
+width:280px !important;
+}
+
+.admin-sidebar .sidebar-link{
+height:56px !important;
+min-height:56px !important;
+flex-shrink:0 !important;
+}
+
+}
 
 <style>
 
@@ -314,6 +333,17 @@ transition:.2s;
 .admin-sidebar .sidebar-link span{
 opacity:1 !important;
 visibility:visible !important;
+display:block !important;
+margin-left:12px;
+}
+
+}
+
+@media(max-width:1024px){
+
+.admin-sidebar .sidebar-link span{
+opacity:1 !important;
+visibility:visible !important;
 margin-left:12px;
 }
 
@@ -341,11 +371,17 @@ margin-left:0;
 flex-shrink:0;
 }
 
+@media(min-width:1025px){
+
 .admin-sidebar:hover .sidebar-link span{
 opacity:1;
 visibility:visible;
 margin-left:12px;
 }
+
+}
+@media(min-width:1025px){
+
 .admin-sidebar:hover .sidebar-link{
 width:auto;
 height:auto;
@@ -353,6 +389,8 @@ justify-content:flex-start;
 gap:12px;
 padding:14px 16px;
 margin:0;
+}
+
 }
 
 .sidebar-header{
