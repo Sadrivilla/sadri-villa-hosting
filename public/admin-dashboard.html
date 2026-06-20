@@ -3002,7 +3002,15 @@ snap.forEach(docSnap=>{
 if(count >= 2) return;
 
 const item = docSnap.data();
+const fullDescription = item.description || "";
 
+const shortDescription =
+fullDescription.length > 160
+? fullDescription.substring(0,160) + "..."
+: fullDescription;
+
+const hasLongDescription =
+fullDescription.length > 160;
 const card =
 document.createElement("div");
 
@@ -3028,13 +3036,16 @@ const created =
 item.createdAt?.toDate
 ? item.createdAt.toDate().toLocaleDateString("en-IN")
 : "";
+ const imageId =
+"announcementImage_" + docSnap.id;
 
 card.innerHTML = `
 
 ${image ? `
 <img
+id="${imageId}"
 src="${image}"
-class="w-full h-52 object-cover">
+class="w-full h-52 object-cover cursor-zoom-in">
 ` : ""}
 
 <div class="p-5 flex flex-col flex-1">
@@ -3057,9 +3068,29 @@ item.pinned
 ${item.title}
 </h3>
 
-<p class="text-slate-400 mt-3 line-clamp-3">
-${item.description || ""}
+<div class="text-slate-400 mt-3 leading-7 break-words flex-1">
+
+<p class="announcement-desc">
+${shortDescription}
 </p>
+
+${
+hasLongDescription
+?
+
+`
+<button
+class="mt-3 text-cyan-400 text-sm font-semibold read-more-btn">
+Read More
+</button>
+`
+
+:
+
+""
+}
+
+</div>
 
 <div class="text-cyan-400 text-sm mt-auto pt-5">
 📅 ${created}
@@ -3075,6 +3106,58 @@ location.href =
 `announcements.html?id=${docSnap.id}`;
 
 };
+const imageElement =
+card.querySelector("#" + imageId);
+
+if(imageElement){
+
+imageElement.onclick = (e)=>{
+
+e.stopPropagation();
+
+document.getElementById("modalImg").src =
+image;
+
+document.getElementById("imgModal")
+.classList.remove("hidden");
+
+document.getElementById("imgModal")
+.classList.add("flex");
+
+};
+
+}
+const btn = card.querySelector(".read-more-btn");
+
+const desc = card.querySelector(".announcement-desc");
+
+if(btn){
+
+let expanded = false;
+
+btn.onclick = (e)=>{
+
+e.stopPropagation();
+
+expanded = !expanded;
+
+if(expanded){
+
+desc.textContent = fullDescription;
+
+btn.textContent = "Read Less";
+
+}else{
+
+desc.textContent = shortDescription;
+
+btn.textContent = "Read More";
+
+}
+
+};
+
+}
 
 container.appendChild(card);
 
