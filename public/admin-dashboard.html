@@ -3027,9 +3027,12 @@ flex-col
 min-h-[560px]
 `;
 
+const images =
+item.images || [];
+
 const image =
-item.images?.length
-? item.images[0]
+images.length
+? images[0]
 : "";
 
 const created =
@@ -3038,14 +3041,34 @@ item.createdAt?.toDate
 : "";
  const imageId =
 "announcementImage_" + docSnap.id;
+ const counterId =
+"announcementCounter_" + docSnap.id;
 
 card.innerHTML = `
 
 ${image ? `
+
+<div class="relative">
+
 <img
 id="${imageId}"
 src="${image}"
 class="w-full h-60 object-cover cursor-zoom-in">
+
+${images.length > 1 ? `
+
+<div
+id="${counterId}"
+class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+
+1 / ${images.length}
+
+</div>
+
+` : ""}
+
+</div>
+
 ` : ""}
 
 <div class="p-6 flex flex-col flex-1">
