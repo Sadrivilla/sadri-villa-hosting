@@ -3142,12 +3142,42 @@ card.querySelector("#" + imageId);
 
 if(imageElement){
 
+let currentImage = 0;
+
+if(images.length > 1){
+
+setInterval(()=>{
+
+currentImage++;
+
+if(currentImage >= images.length){
+
+currentImage = 0;
+
+}
+
+imageElement.src = images[currentImage];
+
+const counter =
+card.querySelector("#" + counterId);
+
+if(counter){
+
+counter.textContent =
+`${currentImage + 1} / ${images.length}`;
+
+}
+
+},4000);
+
+}
+
 imageElement.onclick = (e)=>{
 
 e.stopPropagation();
 
 document.getElementById("modalImg").src =
-image;
+images[currentImage];
 
 document.getElementById("imgModal")
 .classList.remove("hidden");
