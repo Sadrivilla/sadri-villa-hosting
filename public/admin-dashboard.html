@@ -1942,12 +1942,18 @@ document.getElementById(
 "pendingTop"
 ).textContent =
 pendingUsers;
-  if(pendingUsers > 0){
+if (pendingUsers > 0) {
+
+const firstPendingUser = usersSnap.docs.find(docSnap => {
+    return docSnap.data().approved !== true;
+});
 
 notifications.push({
-icon:"✅",
-title:"Pending Approvals",
-message:`${pendingUsers} members awaiting approval`
+    icon: "✅",
+    title: "Pending Approvals",
+    message: `${pendingUsers} members awaiting approval`,
+    page: "admin-approval-requests.html",
+    targetId: firstPendingUser ? firstPendingUser.id : ""
 });
 
 }
