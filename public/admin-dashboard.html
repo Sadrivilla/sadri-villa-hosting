@@ -3024,7 +3024,7 @@ hover:bg-white/10
 transition
 flex
 flex-col
-min-h-[520px]
+min-h-[560px]
 `;
 
 const image =
@@ -3045,32 +3045,40 @@ ${image ? `
 <img
 id="${imageId}"
 src="${image}"
-class="w-full h-52 object-cover cursor-zoom-in">
+class="w-full h-60 object-cover cursor-zoom-in">
 ` : ""}
 
-<div class="p-5 flex flex-col flex-1">
+<div class="p-6 flex flex-col flex-1">
 
-${
-item.pinned
-?
 
-`<span class="inline-block px-3 py-1 rounded-full bg-yellow-500 text-black text-xs font-bold mb-3">
+${item.pinned ? `
+
+<div class="mb-3">
+
+<span class="
+bg-yellow-500
+text-black
+px-3
+py-1
+rounded-full
+text-xs
+font-bold">
+
 📌 Pinned
-</span>`
 
-:
+</span>
 
-""
+</div>
 
-}
+` : ""}
 
-<h3 class="text-xl font-bold">
+<h3 class="text-xl font-bold break-words leading-tight min-h-[56px]">
 ${item.title}
 </h3>
 
 <div class="text-slate-400 mt-3 leading-7 break-words flex flex-col flex-1">
 
-<p class="announcement-desc flex-1 min-h-[120px]">
+<p class="announcement-desc flex-1 min-h-[150px] leading-7">
 ${shortDescription}
 </p>
 
@@ -3080,7 +3088,7 @@ hasLongDescription
 
 `
 <button
-class="mt-auto pt-3 text-cyan-400 text-sm font-semibold read-more-btn">
+class="mt-4 inline-flex text-cyan-400 hover:text-cyan-300 text-sm font-semibold read-more-btn">
 Read More
 </button>
 `
@@ -3092,7 +3100,7 @@ Read More
 
 </div>
 
-<div class="text-cyan-400 text-sm border-t border-white/10 mt-5 pt-4">
+<div class="mt-auto pt-5 border-t border-white/10 text-cyan-400 text-sm">
 📅 ${created}
 </div>
 
