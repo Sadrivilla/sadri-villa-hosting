@@ -15,25 +15,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  @media(max-width:1024px){
-
-.admin-sidebar{
-overflow-y:auto !important;
-overflow-x:hidden !important;
-height:100vh !important;
-}
-
-.admin-sidebar:hover{
-width:280px !important;
-}
-
-.admin-sidebar .sidebar-link{
-height:56px !important;
-min-height:56px !important;
-flex-shrink:0 !important;
-}
-
-}
+ 
 
 <style>
 
@@ -426,7 +408,7 @@ display:none;
 
 .admin-sidebar{
 width:60px;
-transition:all .25s ease;
+transition:width .25s ease, transform .25s ease;
 overflow-y:auto;
 overflow-x:hidden;
 z-index:99999;
@@ -473,10 +455,15 @@ opacity:.25;
 
 .admin-sidebar{
 width:280px !important;
-transform:translateX(-100%);
 left:0;
 top:0;
 height:100vh;
+transform:translate3d(-100%,0,0);
+transition:transform .25s ease;
+}
+
+.admin-sidebar.show{
+transform:translate3d(0,0,0);
 }
 
 }
@@ -517,6 +504,59 @@ transform:none !important;
 .admin-sidebar .sidebar-link span,
 .admin-sidebar .sidebar-link div{
 pointer-events:none;
+}
+
+}
+   @media(max-width:1024px){
+
+
+
+.admin-sidebar{
+
+overflow-y:auto !important;
+
+overflow-x:hidden !important;
+
+height:100vh !important;
+
+}
+
+
+
+.admin-sidebar:hover{
+
+width:280px !important;
+
+}
+
+
+
+.admin-sidebar .sidebar-link{
+
+height:56px !important;
+
+min-height:56px !important;
+
+flex-shrink:0 !important;
+
+}
+
+
+
+}
+  @media(max-width:1024px){
+
+.admin-sidebar{
+-webkit-overflow-scrolling:touch;
+overscroll-behavior:contain;
+}
+
+.admin-sidebar nav{
+padding-bottom:60px;
+}
+
+.admin-sidebar .sidebar-link{
+touch-action:manipulation;
 }
 
 }
@@ -1480,8 +1520,9 @@ menuBtn?.addEventListener(
 ()=>{
 
 sidebar.classList.add("show");
-
 overlay.classList.add("show");
+
+document.body.style.overflow="hidden";
 
 }
 );
@@ -1496,8 +1537,9 @@ overlay?.addEventListener(
 ()=>{
 
 sidebar.classList.remove("show");
-
 overlay.classList.remove("show");
+
+document.body.style.overflow="auto";
 
 }
 );
