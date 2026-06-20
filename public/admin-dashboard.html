@@ -263,36 +263,6 @@ width:220px;
 
 }
 
-@media(max-width:1024px){
-
-.mobile-overlay.show{
-display:block;
-}
-  .admin-sidebar{
-width:320px !important;
-}
-
-main{
-margin-left:0 !important;
-}
-  .admin-sidebar{
-transform:translateX(-100%);
-}
-
-.admin-sidebar.show{
-transform:translateX(0);
-}
-
-.sidebar-mobile{
-transform:translateX(-100%);
-transition:.3s;
-}
-
-.sidebar-mobile.show{
-transform:translateX(0);
-}
-
-}
 /* Desktop Auto Hide Sidebar */
 
 
@@ -310,38 +280,10 @@ white-space:nowrap;
 transition:.2s;
 }
 
-@media(max-width:1024px){
 
-.admin-sidebar .sidebar-link span{
-opacity:1 !important;
-visibility:visible !important;
-display:block !important;
-margin-left:12px;
-}
 
-}
 
-@media(max-width:1024px){
 
-.admin-sidebar .sidebar-link span{
-opacity:1 !important;
-visibility:visible !important;
-margin-left:12px;
-}
-
-}
-  @media(max-width:1024px){
-
-.admin-sidebar .sidebar-link{
-display:flex;
-align-items:center;
-justify-content:flex-start;
-gap:12px;
-padding:14px 16px;
-width:100%;
-}
-
-}
 .admin-sidebar .sidebar-link div{
 width:24px;
 height:24px;
@@ -411,6 +353,7 @@ width:60px;
 transition:width .25s ease, transform .25s ease;
 overflow-y:auto;
 overflow-x:hidden;
+ overscroll-behavior-y:contain;
 z-index:99999;
 position:fixed;
 
@@ -501,9 +444,13 @@ position:relative !important;
 transform:none !important;
 }
 
+}
+
+@media(max-width:1024px){
+
 .admin-sidebar .sidebar-link span,
 .admin-sidebar .sidebar-link div{
-pointer-events:none;
+pointer-events:auto;
 }
 
 }
@@ -520,16 +467,6 @@ overflow-x:hidden !important;
 height:100vh !important;
 
 }
-
-
-
-.admin-sidebar:hover{
-
-width:280px !important;
-
-}
-
-
 
 .admin-sidebar .sidebar-link{
 
@@ -548,7 +485,8 @@ flex-shrink:0 !important;
 
 .admin-sidebar{
 -webkit-overflow-scrolling:touch;
-overscroll-behavior:contain;
+overscroll-behavior-y:contain;
+touch-action:pan-y;
 }
 
 .admin-sidebar nav{
@@ -1522,7 +1460,8 @@ menuBtn?.addEventListener(
 sidebar.classList.add("show");
 overlay.classList.add("show");
 
-document.body.style.overflow="hidden";
+document.documentElement.style.overflow = "hidden";
+document.body.style.overflow = "hidden";
 
 }
 );
@@ -1539,8 +1478,8 @@ overlay?.addEventListener(
 sidebar.classList.remove("show");
 overlay.classList.remove("show");
 
-document.body.style.overflow="auto";
-
+document.documentElement.style.overflow = "";
+document.body.style.overflow = "";
 }
 );
 
