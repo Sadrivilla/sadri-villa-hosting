@@ -2006,22 +2006,6 @@ color:"#ffffff"
 
 await loadProfileCompletionAnalytics();
 
-if(
-window.profileIncompleteCount > 0
-){
-
-notifications.push({
-
-icon:"⚠️",
-
-title:"Incomplete Profiles",
-
-message:`${window.profileIncompleteCount} members below 70% completion`
-
-});
-
-}
-
 
 document.getElementById(
 "totalUsers"
