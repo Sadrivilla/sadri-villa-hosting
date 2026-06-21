@@ -472,6 +472,10 @@ const downloadBtn=document.getElementById("downloadBtn");
 let images=[];
 
 let currentIndex=0;
+  const urlParams = new URLSearchParams(window.location.search);
+
+const highlightImage =
+urlParams.get("highlightImage");
 
 onSnapshot(doc(db,"siteSettings","home"),(snap)=>{
 
@@ -501,6 +505,14 @@ items.forEach((item,index)=>{
 const div=document.createElement("div");
 
 div.className="gallery-item glass";
+  div.className="gallery-item glass";
+
+if(
+highlightImage &&
+item.url===highlightImage
+){
+div.id="highlightGalleryImage";
+}
 
 div.innerHTML=`
 
@@ -533,6 +545,46 @@ Heritage Collection
 div.onclick=()=>openModal(index);
 
 galleryGrid.appendChild(div);
+
+if(
+highlightImage &&
+item.url===highlightImage
+){
+
+setTimeout(()=>{
+
+const target =
+document.getElementById(
+"highlightGalleryImage"
+);
+
+if(target){
+
+target.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+target.style.boxShadow =
+"0 0 0 5px #06b6d4,0 0 35px #06b6d4";
+
+target.style.transition =
+".4s";
+
+setTimeout(()=>{
+
+target.style.boxShadow="";
+
+},5000);
+
+}
+
+},700);
+
+}
 
 });
 
