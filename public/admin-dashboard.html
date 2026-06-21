@@ -1716,69 +1716,73 @@ userData.approved !== true
 
 pendingUsers++;
 
-notifications.push({
+/* =========================
+USER REGISTRATION / REMINDER NOTIFICATION
+========================= */
 
-icon:"👤",
+const reminderCount =
+userData.approvalRequests?.length || 0;
 
-title:userData.fullName || "Unknown User",
+if(reminderCount > 0){
 
-message:"Waiting for Admin Approval",
+    notifications.push({
 
-page:"admin-approval-requests.html",
+        icon:"🔔",
 
-targetId:docSnap.id,
+      title:`${reminderCount}${getReminderSuffix(reminderCount)} Reminder`,
 
-userName:userData.fullName || "Unknown User",
+        message:`${userData.fullName || "User"} requested approval again. Kindly approve the registration.`,
 
-email:userData.email || "",
+        page:"admin-approval-requests.html",
 
-phone:userData.phone || "",
+        targetId:docSnap.id,
 
-createdAt:userData.createdAt || ""
+        userName:userData.fullName || "User",
 
-});
+        email:userData.email || "",
 
-}
+        phone:userData.phone || "",
 
-/* New Registration Notification */
+        createdAt:userData.approvalRequests[reminderCount-1]
 
-if(
-userData.approved === true &&
-userData.createdAt
-){
-
-const createdDate =
-new Date(userData.createdAt);
-
-const daysOld =
-(
-Date.now() -
-createdDate.getTime()
-)
-/
-86400000;
-
-if(daysOld <= 7){
-
-notifications.push({
-
-icon:"👤",
-
-title:"New Registration",
-
-message:`${userData.fullName || "User"} joined Sadri Villa`,
-
-page:"member-profile-manage.html",
-
-targetId:docSnap.id
-
-});
+    });
 
 }
+else if(userData.createdAt){
+
+    const createdDate =
+    new Date(userData.createdAt);
+
+    const daysOld =
+    (Date.now() - createdDate.getTime()) / 86400000;
+
+    if(daysOld <= 1){
+
+        notifications.push({
+
+            icon:"👤",
+
+            title:"New User Joined",
+
+            message:`${userData.fullName || "User"} joined Sadri Villa. Kindly approve the registration.`,
+
+            page:"admin-approval-requests.html",
+
+            targetId:docSnap.id,
+
+            userName:userData.fullName || "User",
+
+            email:userData.email || "",
+
+            phone:userData.phone || "",
+
+            createdAt:userData.createdAt || ""
+
+        });
+
+    }
 
 }
-
-});
 /* =========================
 CHART PLACEHOLDERS
 ========================= */
@@ -2227,14 +2231,19 @@ PENDING
 
 </span>
 
-<span class="text-sm text-white font-medium">
+<span
+class="text-sm text-white font-medium">
 
-Waiting for Admin Approval
+${item.title}
 
 </span>
 
 </div>
+<div class="text-xs text-slate-300 mt-2">
 
+${item.message}
+
+</div>
 <div class="text-xs text-slate-200 mt-2">
 📧 ${item.email || "No Email"}
 </div>
@@ -2398,6 +2407,18 @@ location.href =
 
 }
 );
+function getReminderSuffix(number){
+
+if(number===1) return "st";
+
+if(number===2) return "nd";
+
+if(number===3) return "rd";
+
+return "th";
+
+}
+
 window.showAllApprovals = function(){
 
 location.href =
