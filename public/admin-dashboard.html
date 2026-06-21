@@ -2918,6 +2918,11 @@ orderBy("order","asc")
 );
 
 const snap = await getDocs(q);
+ console.log("Team documents:", snap.size);
+
+snap.forEach(docSnap=>{
+    console.log(docSnap.id, docSnap.data());
+});
 
 const track =
 document.getElementById(
