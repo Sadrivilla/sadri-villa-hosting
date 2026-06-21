@@ -1475,6 +1475,7 @@ doc,
 getDoc,
 setDoc,
 collection,
+addDoc,
 getDocs,
 query,
 where,
@@ -2813,6 +2814,21 @@ isFirstRegistration:false,
 approvedAt:new Date().toISOString()
 }
 );
+ /* Create approval notification */
+
+await addDoc(
+collection(db,"notifications"),
+{
+type:"approval",
+userId:uid,
+title:"Account Approved",
+message:"Your Sadri Villa account has been approved by the administrator.",
+read:false,
+createdAt:new Date()
+}
+);
+
+console.log("✅ Approval notification created from Admin Dashboard");
 
 btn.textContent = "Approved";
 btn.classList.remove("bg-emerald-500");
