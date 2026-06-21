@@ -2180,6 +2180,8 @@ message:`${images.length} active gallery images`,
 page:"https://sadrivilla.in/gallery.html",
 highlightImage: images.length ? images[images.length - 1].url : ""
 });
+ const notificationList =
+document.getElementById("notificationList");
   notificationList.innerHTML = "";
 
 notifications.forEach((item,index)=>{
