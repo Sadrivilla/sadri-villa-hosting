@@ -1802,10 +1802,10 @@ minute:"2-digit"
 : "";
 
 div.className =
-`p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 ${
+`p-4 border-b border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 ${
 !item.read
 ? "bg-cyan-500/10 border-l-4 border-cyan-400"
-: ""
+: "opacity-80"
 }`;
 
 if(item.type==="member"){
@@ -1832,9 +1832,20 @@ await updateDoc(
 doc(db,"notifications",item.id),
 {
 read:true
-}
-);
+});
 
+/* Update local notification */
+
+item.read = true;
+
+/* Update bell count */
+
+document.getElementById("notificationCount").innerText =
+notifications.filter(n => !n.read).length;
+
+/* Refresh notification UI */
+
+renderNotifications();
 
 }catch(error){
 
@@ -1874,9 +1885,20 @@ await updateDoc(
 doc(db,"notifications",item.id),
 {
 read:true
-}
-);
+});
 
+/* Update local notification */
+
+item.read = true;
+
+/* Update bell count */
+
+document.getElementById("notificationCount").innerText =
+notifications.filter(n => !n.read).length;
+
+/* Refresh notification UI */
+
+renderNotifications();
 
 }catch(error){
 
@@ -1925,25 +1947,26 @@ ${notificationTime}
 
 div.onclick = async()=>{
 
-
-
 try{
 
-
-
 await updateDoc(
-
 doc(db,"notifications",item.id),
-
 {
-
 read:true
+});
 
-}
+/* Update local notification */
 
-);
+item.read = true;
 
+/* Update notification count */
 
+document.getElementById("notificationCount").innerText =
+notifications.filter(n => !n.read).length;
+
+/* Refresh notification list */
+
+renderNotifications();
 
 }catch(error){
 
