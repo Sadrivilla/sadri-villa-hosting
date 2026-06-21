@@ -356,9 +356,9 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-  getDoc
+  getDoc,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 /* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -495,13 +495,27 @@ if (
 window.approveUser = async (uid,name,btn)=>{
   btn.disabled=true;
 
- await updateDoc(doc(db,"users",uid),{
+await updateDoc(doc(db,"users",uid),{
   approved:true,
   approvalReminder:false,
   approvedAt:new Date().toISOString()
 });
 
-  showMessage(`✅ User <b>${name}</b> approved successfully`);
+/* Create notification for approved user */
+
+await addDoc(
+collection(db,"notifications"),
+{
+type:"approval",
+userId:uid,
+title:"Account Approved",
+message:"Your Sadri Villa account has been approved by the administrator.",
+read:false,
+createdAt:new Date()
+}
+);
+
+showMessage(`✅ User <b>${name}</b> approved successfully`);
 };
 
 /* MESSAGE */
