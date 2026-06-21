@@ -186,13 +186,19 @@ button{
 .status{display:none;font-size:14px;margin-bottom:14px}
 .success{color:#16a34a}
 .error{color:#ef4444}
-.links{margin-top:18px;font-size:14px}
+.links{
+  margin-top:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:14px;
+}
+
 .links a{
   color:#0ea5e9;
   font-weight:600;
+  text-decoration:none;
   cursor:pointer;
-  display:block;
-  margin-top:6px
 }
 .remember{
   display:flex;
@@ -312,10 +318,10 @@ button{
 
     <button id="loginBtn">Login</button>
 
-    <div class="links">
-      <a href="signup.html">Sign Up</a>
-      <a id="forgotLink">Forgot Password?</a>
-    </div>
+<div class="links">
+  <a href="signup.html">Sign Up</a>
+  <a href="javascript:void(0)" id="forgotLink">Forgot Password?</a>
+</div>
   </div>
 </div>
 
