@@ -503,6 +503,8 @@ await updateDoc(doc(db,"users",uid),{
 
 /* Create notification for approved user */
 
+try{
+
 await addDoc(
 collection(db,"notifications"),
 {
@@ -514,6 +516,16 @@ read:false,
 createdAt:new Date()
 }
 );
+
+console.log("✅ Approval notification created");
+
+}catch(error){
+
+console.error("Notification Error:",error);
+
+alert("Notification Error:\n"+error.message);
+
+}
 
 showMessage(`✅ User <b>${name}</b> approved successfully`);
 };
