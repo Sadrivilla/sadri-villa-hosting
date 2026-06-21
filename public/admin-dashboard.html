@@ -2166,7 +2166,9 @@ images.length;
   notifications.push({
 icon:"🖼",
 title:"Gallery",
-message:`${images.length} active gallery images`
+message:`${images.length} active gallery images`,
+page:"https://sadrivilla.in/gallery.html",
+highlightImage: images.length ? images[images.length - 1].url : ""
 });
   notificationList.innerHTML = "";
 
@@ -2426,7 +2428,16 @@ if(item.page){
 let url = item.page;
 
 if(item.targetId){
-    url += `?highlight=${item.targetId}`;
+url += `?highlight=${item.targetId}`;
+}
+
+if(item.highlightImage){
+
+url +=
+(url.includes("?") ? "&" : "?") +
+"highlightImage=" +
+encodeURIComponent(item.highlightImage);
+
 }
 
 location.href = url;
