@@ -1723,6 +1723,8 @@ USER REGISTRATION / REMINDER NOTIFICATION
 const reminderCount =
 userData.approvalRequests?.length || 0;
 
+if(userData.isFirstRegistration === true){
+
 if(reminderCount > 0){
 
     notifications.push({
@@ -2820,6 +2822,8 @@ doc(db,"users",uid),
 {
 approved:true,
 approvalReminder:false,
+approvalRequests:[],
+isFirstRegistration:false,
 approvedAt:new Date().toISOString()
 }
 );
