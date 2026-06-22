@@ -359,6 +359,10 @@ import {
   getDoc,
   addDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+  getFunctions,
+  httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 /* FIREBASE */
 const app = initializeApp({
   apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -367,6 +371,10 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 const db = getFirestore(app);
+const functions = getFunctions(app, "us-central1");
+
+const sendPushNotification =
+httpsCallable(functions, "sendPushNotification");
 
 /* =========================================
    HIGHLIGHT FROM URL
@@ -500,6 +508,42 @@ await updateDoc(doc(db,"users",uid),{
   approvalReminder:false,
   approvedAt:new Date().toISOString()
 });
+  // ===============================
+// Send Browser Push Notification
+// ===============================
+
+try{
+
+const userSnap = await getDoc(doc(db,"users",uid));
+
+const userData = userSnap.data();
+
+if(
+userData?.notificationsEnabled === true &&
+userData?.fcmToken
+){
+
+await sendPushNotification({
+
+token: userData.fcmToken,
+
+title: "🎉 Account Approved",
+
+body: "Congratulations! Your Sadri Villa account has been approved.",
+
+url: "/login.html"
+
+});
+
+console.log("✅ Push notification sent");
+
+}
+
+}catch(error){
+
+console.error("Push Notification Error:", error);
+
+}
 
 /* Create notification for approved user */
 
