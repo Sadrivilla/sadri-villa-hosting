@@ -216,6 +216,154 @@ await loadUsers();
 
 window.db=db;
 window.sendPushNotification=sendPushNotification;
+  // ===============================
+// Send Notification
+// ===============================
+
+document
+.getElementById("sendBtn")
+.addEventListener("click", async () => {
+
+const recipient =
+document.getElementById("recipient").value;
+
+const title =
+document.getElementById("title").value.trim();
+
+const message =
+document.getElementById("message").value.trim();
+
+const url =
+document.getElementById("url").value.trim();
+
+if(!title){
+
+alert("Enter notification title.");
+
+return;
+
+}
+
+if(!message){
+
+alert("Enter notification message.");
+
+return;
+
+}
+
+try{
+
+const btn=document.getElementById("sendBtn");
+
+btn.disabled=true;
+
+btn.innerHTML="Sending...";
+
+if(recipient==="all"){
+
+const snap=await getDocs(collection(db,"users"));
+
+let sent=0;
+
+for(const docSnap of snap.docs){
+
+const user=docSnap.data();
+
+if(
+!user.fcmToken ||
+user.notificationsEnabled===false
+){
+continue;
+}
+
+try{
+
+await sendPushNotification({
+
+token:user.fcmToken,
+
+title:title,
+
+body:message,
+
+url:url
+
+});
+
+sent++;
+
+}catch(err){
+
+console.error(err);
+
+}
+
+}
+
+alert(`Notification sent to ${sent} users.`);
+
+}else{
+
+const snap=await getDocs(collection(db,"users"));
+
+let token="";
+
+snap.forEach(doc=>{
+
+if(doc.id===recipient){
+
+token=doc.data().fcmToken;
+
+}
+
+});
+
+if(!token){
+
+alert("User has no FCM token.");
+
+btn.disabled=false;
+
+btn.innerHTML="🔔 Send Notification";
+
+return;
+
+}
+
+await sendPushNotification({
+
+token:token,
+
+title:title,
+
+body:message,
+
+url:url
+
+});
+
+alert("Notification sent successfully.");
+
+}
+
+btn.disabled=false;
+
+btn.innerHTML="🔔 Send Notification";
+
+}catch(error){
+
+console.error(error);
+
+alert(error.message);
+
+document.getElementById("sendBtn").disabled=false;
+
+document.getElementById("sendBtn").innerHTML="🔔 Send Notification";
+
+}
+
+});
 
 </script>
 
