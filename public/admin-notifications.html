@@ -130,5 +130,94 @@ class="bg-cyan-500 hover:bg-cyan-600 px-8 py-3 rounded-xl font-bold">
 
 </div>
 
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+import {
+getFunctions,
+httpsCallable
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-functions.js";
+
+import {
+getAuth,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import { firebaseConfig } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const auth = getAuth(app);
+
+const functions = getFunctions(app);
+
+const sendPushNotification = httpsCallable(
+functions,
+"sendPushNotification"
+);
+
+const recipientSelect =
+document.getElementById("recipient");
+
+async function loadUsers(){
+
+recipientSelect.innerHTML =
+'<option value="all">📢 All Users</option>';
+
+const snap = await getDocs(collection(db,"users"));
+
+snap.forEach(doc=>{
+
+const user = doc.data();
+
+if(
+!user.fcmToken ||
+user.notificationsEnabled===false
+){
+return;
+}
+
+const option =
+document.createElement("option");
+
+option.value = doc.id;
+
+option.textContent =
+`${user.fullName || "Unknown User"} (${user.role || "user"})`;
+
+recipientSelect.appendChild(option);
+
+});
+
+}
+
+onAuthStateChanged(auth,async(user)=>{
+
+if(!user){
+
+location.href="login.html";
+
+return;
+
+}
+
+await loadUsers();
+
+});
+
+window.db=db;
+window.sendPushNotification=sendPushNotification;
+
+</script>
+
 </body>
 </html>
