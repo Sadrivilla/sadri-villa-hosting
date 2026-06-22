@@ -374,3 +374,11 @@ function escapeHtml(text) {
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+// ==========================================
+// Push Notifications
+// ==========================================
+
+exports.sendPushNotification =
+require("./pushNotifications")
+.sendPushNotification;
