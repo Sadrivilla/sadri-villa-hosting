@@ -2,12 +2,12 @@ importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js
 importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+    authDomain: "sadri-villa-14c06.firebaseapp.com",
+    projectId: "sadri-villa-14c06",
+    storageBucket: "sadri-villa-14c06.firebasestorage.app",
+    messagingSenderId: "687608762860",
+    appId: "1:687608762860:web:5ffdc557f3893d00e530c9"
 });
 
 const messaging = firebase.messaging();
