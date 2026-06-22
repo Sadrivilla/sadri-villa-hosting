@@ -46,6 +46,88 @@ Notification Management
 Send push notifications to Sadri Villa members.
 </p>
 
+<div class="glass rounded-3xl p-8">
+
+<h2 class="text-2xl font-bold mb-6">
+Create Notification
+</h2>
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<div>
+
+<label class="block mb-2 font-semibold">
+Recipient
+</label>
+
+<select
+id="recipient"
+class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3">
+
+<option value="all">📢 All Users</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label class="block mb-2 font-semibold">
+Click URL
+</label>
+
+<input
+id="url"
+type="text"
+value="/dashboard.html"
+class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3">
+
+</div>
+
+</div>
+
+<div class="mt-6">
+
+<label class="block mb-2 font-semibold">
+Notification Title
+</label>
+
+<input
+id="title"
+type="text"
+placeholder="Notification title..."
+class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3">
+
+</div>
+
+<div class="mt-6">
+
+<label class="block mb-2 font-semibold">
+Message
+</label>
+
+<textarea
+id="message"
+rows="5"
+placeholder="Write your notification..."
+class="w-full rounded-xl bg-slate-900 border border-slate-700 p-3"></textarea>
+
+</div>
+
+<div class="mt-8">
+
+<button
+id="sendBtn"
+class="bg-cyan-500 hover:bg-cyan-600 px-8 py-3 rounded-xl font-bold">
+
+🔔 Send Notification
+
+</button>
+
+</div>
+
+</div>
+
 </div>
 
 </body>
