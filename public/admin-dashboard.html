@@ -1512,85 +1512,7 @@ const auth = getAuth(app);
 
 const db = getFirestore(app);
  const messaging = getMessaging(app);
- let swRegistration = null;
 
-if ("serviceWorker" in navigator) {
-
-    try {
-
-        swRegistration = await navigator.serviceWorker.register(
-            "/firebase-messaging-sw.js"
-        );
-
-        console.log("✅ Service Worker Registered", swRegistration);
-
-    } catch (error) {
-
-        console.error(
-            "❌ Service Worker Registration Failed",
-            error
-        );
-
-    }
-
-}
- try {
-
-    const permission = await Notification.requestPermission();
-
-    console.log("Notification Permission:", permission);
-
-    if (permission === "granted") {
-
-        const token = await getToken(messaging, {
-
-            vapidKey: "BHfVzupJayu14hZoGRDQuKK_3v-kR-VYRIk2PMyHgkw0x0S-cA-N_G4-r-KO2H9-e6h7apCCjzTBlGOaYyEY0d0",
-
-            serviceWorkerRegistration: swRegistration
-
-        });
-
-        console.log("✅ FCM Token:", token);
-     if (auth.currentUser) {
-
-    await updateDoc(
-        doc(db, "users", auth.currentUser.uid),
-        {
-            fcmToken: token,
-            notificationsEnabled: true,
-            fcmUpdatedAt: new Date()
-        }
-    );
-
-    console.log("✅ FCM Token saved to Firestore");
-
-}
-     if (auth.currentUser) {
-
-    await updateDoc(
-        doc(db, "users", auth.currentUser.uid),
-        {
-            fcmToken: token,
-            notificationsEnabled: true,
-            fcmUpdatedAt: new Date().toISOString()
-        }
-    );
-
-    console.log("✅ FCM Token saved to Firestore");
-
-}
-
-    } else {
-
-        console.warn("❌ Notification permission denied.");
-
-    }
-
-} catch (error) {
-
-    console.error("❌ Error getting FCM token:", error);
-
-}
   let allShajraMembers = [];
 const sidebar =
 document.getElementById("sidebar");
@@ -1717,7 +1639,142 @@ location.href =
 return;
 
 }
+ let swRegistration = null;
 
+
+
+if ("serviceWorker" in navigator) {
+
+
+
+    try {
+
+
+
+        swRegistration = await navigator.serviceWorker.register(
+
+            "/firebase-messaging-sw.js"
+
+        );
+
+
+
+        console.log("✅ Service Worker Registered", swRegistration);
+
+
+
+    } catch (error) {
+
+
+
+        console.error(
+
+            "❌ Service Worker Registration Failed",
+
+            error
+
+        );
+
+
+
+    }
+
+
+
+}
+
+ try {
+
+
+
+    const permission = await Notification.requestPermission();
+
+
+
+    console.log("Notification Permission:", permission);
+
+
+
+    if (permission === "granted") {
+
+
+
+        const token = await getToken(messaging, {
+
+
+
+            vapidKey: "BHfVzupJayu14hZoGRDQuKK_3v-kR-VYRIk2PMyHgkw0x0S-cA-N_G4-r-KO2H9-e6h7apCCjzTBlGOaYyEY0d0",
+
+
+
+            serviceWorkerRegistration: swRegistration
+
+
+
+        });
+
+
+
+        console.log("✅ FCM Token:", token);
+     console.log("User UID:", user.uid);
+
+console.log("Saving token to Firestore...");
+
+console.log(doc(db, "users", user.uid).path);
+
+     if (user) {
+
+
+
+    await updateDoc(
+
+       doc(db, "users", user.uid),
+
+        {
+
+            fcmToken: token,
+
+            notificationsEnabled: true,
+
+            fcmUpdatedAt: new Date().toISOString()
+
+        }
+
+    );
+
+
+
+    console.log("✅ FCM Token saved to Firestore");
+const verifyDoc = await getDoc(doc(db, "users", user.uid));
+
+console.log("Updated User Document:", verifyDoc.data());
+
+
+}
+
+
+
+    } else {
+
+
+
+        console.warn("❌ Notification permission denied.");
+
+
+
+    }
+
+
+
+} catch (error) {
+
+
+
+    console.error("❌ Error getting FCM token:", error);
+
+
+
+}
 const userRef =
 doc(
 db,
