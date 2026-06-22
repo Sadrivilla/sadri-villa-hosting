@@ -1551,6 +1551,20 @@ if ("serviceWorker" in navigator) {
         });
 
         console.log("✅ FCM Token:", token);
+     if (auth.currentUser) {
+
+    await updateDoc(
+        doc(db, "users", auth.currentUser.uid),
+        {
+            fcmToken: token,
+            notificationsEnabled: true,
+            fcmUpdatedAt: new Date().toISOString()
+        }
+    );
+
+    console.log("✅ FCM Token saved to Firestore");
+
+}
 
     } else {
 
