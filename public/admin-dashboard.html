@@ -1484,6 +1484,13 @@ updateDoc,
 onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+ import {
+getMessaging,
+getToken,
+onMessage
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 const firebaseConfig = {
 
 apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
@@ -1492,15 +1499,70 @@ authDomain:"sadri-villa-14c06.firebaseapp.com",
 
 projectId:"sadri-villa-14c06",
 
-storageBucket:"sadri-villa-14c06.firebasestorage.app"
+storageBucket:"sadri-villa-14c06.firebasestorage.app",
+
+messagingSenderId:"687608762860",
+
+appId:"1:687608762860:web:5ffdc557f3893d00e530c9"
 
 };
-
 const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
 const db = getFirestore(app);
+ const messaging = getMessaging(app);
+ let swRegistration = null;
+
+if ("serviceWorker" in navigator) {
+
+    try {
+
+        swRegistration = await navigator.serviceWorker.register(
+            "/firebase-messaging-sw.js"
+        );
+
+        console.log("✅ Service Worker Registered", swRegistration);
+
+    } catch (error) {
+
+        console.error(
+            "❌ Service Worker Registration Failed",
+            error
+        );
+
+    }
+
+}
+ try {
+
+    const permission = await Notification.requestPermission();
+
+    console.log("Notification Permission:", permission);
+
+    if (permission === "granted") {
+
+        const token = await getToken(messaging, {
+
+            vapidKey: "BHfVzupJayu14hZoGRDQuKK_3v-kR-VYRIk2PMyHgkw0x0S-cA-N_G4-r-KO2H9-e6h7apCCjzTBlGOaYyEY0d0",
+
+            serviceWorkerRegistration: swRegistration
+
+        });
+
+        console.log("✅ FCM Token:", token);
+
+    } else {
+
+        console.warn("❌ Notification permission denied.");
+
+    }
+
+} catch (error) {
+
+    console.error("❌ Error getting FCM token:", error);
+
+}
   let allShajraMembers = [];
 const sidebar =
 document.getElementById("sidebar");
