@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Notification Communication Center | Sadri Villa</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:'Inter',sans-serif;
+background:#020617;
+color:#fff;
+}
+
+.glass{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+}
+
+.card{
+padding:24px;
+border-radius:24px;
+}
+
+.number{
+font-size:34px;
+font-weight:800;
+margin-top:8px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+font-weight:600;
+}
+
+input,
+select{
+
+width:100%;
+padding:12px 16px;
+
+background:#0f172a;
+
+border:1px solid #334155;
+
+border-radius:14px;
+
+color:white;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+th{
+
+background:#0f172a;
+
+padding:14px;
+
+text-align:left;
+
+font-size:14px;
+
+}
+
+td{
+
+padding:14px;
+
+border-top:1px solid rgba(255,255,255,.06);
+
+font-size:14px;
+
+}
+
+.badge{
+
+padding:5px 12px;
+
+border-radius:999px;
+
+font-size:12px;
+
+font-weight:700;
+
+display:inline-block;
+
+}
+
+.badge-success{
+
+background:#16a34a;
+
+}
+
+.badge-warning{
+
+background:#f59e0b;
+
+}
+
+.badge-danger{
+
+background:#dc2626;
+
+}
+
+.badge-info{
+
+background:#0284c7;
+
+}
+
+button{
+
+cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="max-w-7xl mx-auto p-6">
+
+<h1 class="text-4xl font-extrabold">
+
+Notification Communication Center
+
+</h1>
+
+<p class="text-slate-400 mt-2 mb-8">
+
+Monitor every Browser Notification and In-App Notification.
+
+</p>
+
+<!-- Statistics -->
+
+<div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
+
+<div class="glass card">
+
+<div>Total Notifications</div>
+
+<div
+id="totalNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>Browser Notifications</div>
+
+<div
+id="browserNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>In-App Notifications</div>
+
+<div
+id="appNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>Unread</div>
+
+<div
+id="unreadNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+</div>
+
+<div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mt-6">
+
+<div class="glass card">
+
+<div>Read</div>
+
+<div
+id="readNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>Failed</div>
+
+<div
+id="failedNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>Admin Notifications</div>
+
+<div
+id="adminNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+<div class="glass card">
+
+<div>User Notifications</div>
+
+<div
+id="userNotifications"
+class="number">
+0
+</div>
+
+</div>
+
+</div>
+
+<!-- Filters -->
+
+<div class="glass rounded-3xl p-8 mt-8">
+
+<h2 class="text-2xl font-bold mb-6">
+
+Filters
+
+</h2>
+
+<div
+class="grid lg:grid-cols-4 gap-6">
+
+<div>
+
+<label>
+
+Search
+
+</label>
+
+<input
+id="searchInput"
+placeholder="Name / Email">
+
+</div>
+
+<div>
+
+<label>
+
+User Type
+
+</label>
+
+<select id="userType">
+
+<option value="all">All</option>
+
+<option value="admin">Admin</option>
+
+<option value="user">User</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>
+
+Notification Type
+
+</label>
+
+<select id="notificationType">
+
+<option value="all">All</option>
+
+<option value="approval">Approval</option>
+
+<option value="announcement">Announcement</option>
+
+<option value="gallery">Gallery</option>
+
+<option value="team">Team</option>
+
+<option value="custom">Custom</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label>
+
+Delivery
+
+</label>
+
+<select id="deliveryType">
+
+<option value="all">All</option>
+
+<option value="browser">Browser</option>
+
+<option value="app">In-App</option>
+
+<option value="both">Both</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Table -->
+
+<div class="glass rounded-3xl p-8 mt-8">
+
+<h2 class="text-2xl font-bold mb-6">
+
+Notification History
+
+</h2>
+
+<div class="overflow-auto">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>User</th>
+
+<th>Role</th>
+
+<th>Type</th>
+
+<th>Delivery</th>
+
+<th>Status</th>
+
+<th>Date</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="notificationTable">
+
+<tr>
+
+<td colspan="7" style="text-align:center;padding:60px;">
+
+Loading notifications...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+<!-- Notification Details Modal -->
+
+<div
+id="notificationModal"
+class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-6">
+
+<div
+class="glass rounded-3xl w-full max-w-3xl p-8">
+
+<div class="flex justify-between items-center mb-6">
+
+<h2 class="text-2xl font-bold">
+
+Notification Details
+
+</h2>
+
+<button
+id="closeModal"
+class="text-3xl">
+
+×
+
+</button>
+
+</div>
+
+<div
+id="notificationDetails"
+class="space-y-4">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+query,
+orderBy,
+onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+import {
+getAuth,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import { firebaseConfig } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const auth = getAuth(app);
+
+let notifications = [];
+
+let filteredNotifications = [];
+
+const table =
+document.getElementById("notificationTable");
+const totalNotifications =
+document.getElementById("totalNotifications");
+
+const browserNotifications =
+document.getElementById("browserNotifications");
+
+const appNotifications =
+document.getElementById("appNotifications");
+
+const unreadNotifications =
+document.getElementById("unreadNotifications");
+
+const readNotifications =
+document.getElementById("readNotifications");
+
+const failedNotifications =
+document.getElementById("failedNotifications");
+
+const adminNotifications =
+document.getElementById("adminNotifications");
+
+const userNotifications =
+document.getElementById("userNotifications");
+  onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+
+location.href="login.html";
+
+return;
+
+}
+
+loadNotifications();
+
+});
+  function loadNotifications(){
+
+const q = query(
+
+collection(db,"notifications"),
+
+orderBy("createdAt","desc")
+
+);
+
+onSnapshot(q,(snapshot)=>{
+
+notifications=[];
+
+snapshot.forEach(doc=>{
+
+notifications.push({
+
+id:doc.id,
+
+...doc.data()
+
+});
+
+});
+
+console.log("Notifications Loaded:",notifications.length);
+
+applyFilters();
+
+});
+
+}
+function renderDashboard(){
+
+
+let browser = 0;
+
+let app = 0;
+
+let unread = 0;
+
+let read = 0;
+
+let failed = 0;
+
+let admin = 0;
+
+let user = 0;
+
+let total = filteredNotifications.length;
+
+// Browser Notifications
+
+if(
+n.delivery==="browser" ||
+n.delivery==="both" ||
+n.browser===true
+){
+browser++;
+}
+
+// In-App Notifications
+
+if(
+n.delivery==="app" ||
+n.delivery==="both" ||
+n.app===true
+){
+app++;
+}
+
+// Read / Unread
+
+if(
+n.read===true ||
+n.status==="read"
+){
+read++;
+}else{
+unread++;
+}
+
+// Failed
+
+if(
+n.status==="failed" ||
+n.browserStatus==="failed" ||
+n.appStatus==="failed"
+){
+failed++;
+}
+
+// Admin/User
+
+if(
+n.userRole==="admin" ||
+n.role==="admin"
+){
+admin++;
+}else{
+user++;
+}
+
+});
+
+totalNotifications.textContent = total;
+
+browserNotifications.textContent = browser;
+
+appNotifications.textContent = app;
+
+unreadNotifications.textContent = unread;
+
+readNotifications.textContent = read;
+
+failedNotifications.textContent = failed;
+
+adminNotifications.textContent = admin;
+
+userNotifications.textContent = user;
+
+}
+
+function renderTable(){
+
+filteredNotifications.forEach(notification=>{
+
+table.innerHTML=`
+<tr>
+<td colspan="7" style="text-align:center;padding:60px;">
+No notifications found.
+</td>
+</tr>
+`;
+
+return;
+
+}
+
+let html="";
+
+filteredNotifications.forEach(notification=>{
+
+const user =
+notification.userName ||
+notification.fullName ||
+"Unknown User";
+
+const role =
+notification.userRole ||
+notification.role ||
+"user";
+
+const type =
+notification.notificationType ||
+notification.type ||
+"General";
+
+let delivery="App";
+
+if(
+notification.delivery==="browser"
+){
+delivery="Browser";
+}
+else if(
+notification.delivery==="both"
+){
+delivery="Browser + App";
+}
+else if(notification.browser===true){
+delivery="Browser";
+}
+else if(notification.app===true){
+delivery="App";
+}
+
+let statusClass="badge-info";
+
+let statusText=
+notification.status || "Sent";
+
+if(statusText==="read")
+statusClass="badge-success";
+
+if(statusText==="failed")
+statusClass="badge-danger";
+
+if(statusText==="pending")
+statusClass="badge-warning";
+
+let date="-";
+
+if(notification.createdAt){
+
+try{
+
+if(notification.createdAt.toDate){
+
+date=
+notification.createdAt
+.toDate()
+.toLocaleString();
+
+}else{
+
+date=
+new Date(notification.createdAt)
+.toLocaleString();
+
+}
+
+}catch(e){}
+
+}
+
+html+=`
+
+<tr>
+
+<td>
+
+${user}
+
+</td>
+
+<td>
+
+<span class="badge badge-info">
+
+${role}
+
+</span>
+
+</td>
+
+<td>
+
+${type}
+
+</td>
+
+<td>
+
+${delivery}
+
+</td>
+
+<td>
+
+<span class="badge ${statusClass}">
+
+${statusText}
+
+</span>
+
+</td>
+
+<td>
+
+${date}
+
+</td>
+
+<td>
+
+<button
+class="bg-cyan-500 hover:bg-cyan-600 px-4 py-2 rounded-lg"
+onclick="viewNotification('${notification.id}')">
+
+View
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+table.innerHTML=html;
+
+}
+const modal =
+document.getElementById("notificationModal");
+
+const notificationDetails =
+document.getElementById("notificationDetails");
+
+document
+.getElementById("closeModal")
+.onclick=()=>{
+
+modal.classList.add("hidden");
+
+};
+
+window.viewNotification=viewNotification;
+
+function viewNotification(id){
+
+const n =
+notifications.find(x=>x.id===id);
+
+if(!n)return;
+
+notificationDetails.innerHTML=`
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<div>
+
+<b>User</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.userName || n.fullName || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Role</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.userRole || n.role || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Notification Type</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.notificationType || n.type || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Status</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.status || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Delivery</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.delivery || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Triggered By</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.triggeredByName || n.adminName || "System"}
+
+</div>
+
+</div>
+
+<div class="md:col-span-2">
+
+<b>Title</b>
+
+<div class="mt-2 text-slate-300">
+
+${n.title || "-"}
+
+</div>
+
+</div>
+
+<div class="md:col-span-2">
+
+<b>Message</b>
+
+<div class="mt-2 text-slate-300 whitespace-pre-wrap">
+
+${n.message || n.body || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Click URL</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.clickUrl || n.url || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Created At</b>
+
+<div class="mt-1 text-slate-300">
+
+${
+n.createdAt?.toDate
+?
+
+n.createdAt.toDate().toLocaleString()
+
+:
+
+n.createdAt || "-"
+
+}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Browser Status</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.browserStatus || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>App Status</b>
+
+<div class="mt-1 text-slate-300">
+
+${n.appStatus || "-"}
+
+</div>
+
+</div>
+
+<div>
+
+<b>Read At</b>
+
+<div class="mt-1 text-slate-300">
+
+${
+n.readAt?.toDate
+?
+
+n.readAt.toDate().toLocaleString()
+
+:
+
+n.readAt || "-"
+
+}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+modal.classList.remove("hidden");
+
+modal.classList.add("flex");
+
+}
+</script>
+
+</body>
+
+</html>
