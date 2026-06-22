@@ -160,8 +160,9 @@ const db = getFirestore(app);
 
 const auth = getAuth(app);
 
-const functions = getFunctions(app);
-
+const functions = getFunctions(app, "us-central1");
+  console.log("Project:", app.options.projectId);
+console.log("Functions:", functions);
 const sendPushNotification = httpsCallable(
 functions,
 "sendPushNotification"
