@@ -56,7 +56,29 @@ button:disabled{
   <p id="requestInfo" style="margin-top:10px;font-size:14px;color:#6b7280;"></p>
 
   <button id="resendBtn">Resend Approval Request</button>
-  <div id="msg" class="msg"></div>
+ <div id="msg" class="msg"></div>
+
+<hr style="margin:28px 0;border:none;border-top:1px solid #e5e7eb;">
+
+<h3 style="margin:0 0 10px;">
+🔔 Get Instant Approval Notification
+</h3>
+
+<p style="font-size:14px;color:#6b7280;margin-bottom:18px;">
+Enable browser notifications and we'll notify you immediately when your account is approved.
+</p>
+
+<button
+id="enableNotificationsBtn"
+style="background:#16a34a;width:100%;">
+Enable Notifications
+</button>
+
+<div
+id="notificationMsg"
+class="msg">
+</div>
+
 </div>
 
 <script type="module">
@@ -71,25 +93,110 @@ import {
   arrayUnion,
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+  getMessaging,
+  getToken
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
 /* FIREBASE */
 const app = initializeApp({
-  apiKey:"AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
-  authDomain:"sadri-villa-14c06.firebaseapp.com",
-  projectId:"sadri-villa-14c06"
+  apiKey: "AIzaSyC7gkT4F_dRJpWfef12y6cwV3F2PTMJ6fY",
+  authDomain: "sadri-villa-14c06.firebaseapp.com",
+  projectId: "sadri-villa-14c06",
+  storageBucket: "sadri-villa-14c06.firebasestorage.app",
+  messagingSenderId: "687608762860",
+  appId: "1:687608762860:web:5ffdc557f3893d00e530c9"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const messaging = getMessaging(app);
 
 const resendBtn = document.getElementById("resendBtn");
 const msg = document.getElementById("msg");
 const requestInfo = document.getElementById("requestInfo");
+  const enableNotificationsBtn =
+document.getElementById("enableNotificationsBtn");
+
+const notificationMsg =
+document.getElementById("notificationMsg");
 
 const MAX_REQUESTS = 3;
 
 let currentUser = null;
 let countdownStarted = false;
+  // ===============================
+// Enable Browser Notifications
+// ===============================
+
+enableNotificationsBtn.addEventListener("click", async () => {
+
+  if (!currentUser) return;
+
+  notificationMsg.textContent = "";
+
+  if (!("Notification" in window)) {
+
+    notificationMsg.className = "msg error";
+    notificationMsg.textContent =
+      "This browser does not support notifications.";
+    return;
+
+  }
+
+  try {
+
+    const permission = await Notification.requestPermission();
+
+    if (permission !== "granted") {
+
+      notificationMsg.className = "msg error";
+      notificationMsg.textContent =
+        "Notification permission was denied.";
+      return;
+
+    }
+
+    const token = await getToken(messaging, {
+
+      vapidKey: "BHfVzupJayu14hZoGRDQuKK_3v-kR-VYRIk2PMyHgkw0x0S-cA-N_G4-r-KO2H9-e6h7apCCjzTBlGOaYyEY0d0"
+
+    });
+
+    if (!token) {
+
+      notificationMsg.className = "msg error";
+      notificationMsg.textContent =
+        "Unable to get notification token.";
+      return;
+
+    }
+
+    await updateDoc(doc(db, "users", currentUser.uid), {
+
+      fcmToken: token,
+      notificationsEnabled: true
+
+    });
+
+    notificationMsg.className = "msg success";
+    notificationMsg.textContent =
+      "Notifications enabled successfully.";
+
+    enableNotificationsBtn.disabled = true;
+    enableNotificationsBtn.textContent = "Notifications Enabled ✓";
+
+  } catch (error) {
+
+    console.error(error);
+
+    notificationMsg.className = "msg error";
+    notificationMsg.textContent =
+      "Failed to enable notifications.";
+
+  }
+
+});
 
 /* AUTH CHECK */
 onAuthStateChanged(auth, user => {
@@ -111,6 +218,21 @@ onAuthStateChanged(auth, user => {
     const requests = data.approvalRequests || [];
     const count = requests.length;
     const remaining = MAX_REQUESTS - count;
+    // ===============================
+// Notification Status
+// ===============================
+
+if (data.notificationsEnabled === true) {
+
+  enableNotificationsBtn.disabled = true;
+  enableNotificationsBtn.textContent =
+    "Notifications Enabled ✓";
+
+  notificationMsg.className = "msg success";
+  notificationMsg.textContent =
+    "You will receive an instant notification when your account is approved.";
+
+}
 
     // ===== REQUEST INFO DISPLAY =====
     if(count > 0){
