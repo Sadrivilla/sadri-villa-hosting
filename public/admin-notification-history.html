@@ -576,6 +576,8 @@ let user = 0;
 
 let total = filteredNotifications.length;
 
+filteredNotifications.forEach(n=>{
+
 // Browser Notifications
 
 if(
@@ -586,7 +588,7 @@ n.browser===true
 browser++;
 }
 
-// In-App Notifications
+// App
 
 if(
 n.delivery==="app" ||
@@ -650,10 +652,13 @@ userNotifications.textContent = user;
 
 function renderTable(){
 
-filteredNotifications.forEach(notification=>{
+if(filteredNotifications.length===0){
 
 table.innerHTML=`
+
 <tr>
+
+
 <td colspan="7" style="text-align:center;padding:60px;">
 No notifications found.
 </td>
@@ -820,6 +825,7 @@ document
 .getElementById("closeModal")
 .onclick=()=>{
 
+modal.classList.remove("flex");
 modal.classList.add("hidden");
 
 };
@@ -1020,6 +1026,122 @@ n.readAt || "-"
 modal.classList.remove("hidden");
 
 modal.classList.add("flex");
+
+}
+  // ===========================================
+// SEARCH & FILTERS
+// ===========================================
+
+const searchInput =
+document.getElementById("searchInput");
+
+const userType =
+document.getElementById("userType");
+
+const notificationType =
+document.getElementById("notificationType");
+
+const deliveryType =
+document.getElementById("deliveryType");
+
+searchInput.addEventListener(
+"input",
+applyFilters
+);
+
+userType.addEventListener(
+"change",
+applyFilters
+);
+
+notificationType.addEventListener(
+"change",
+applyFilters
+);
+
+deliveryType.addEventListener(
+"change",
+applyFilters
+);
+
+function applyFilters(){
+
+const search =
+searchInput.value
+.toLowerCase()
+.trim();
+
+filteredNotifications =
+notifications.filter(n=>{
+
+const user =
+(n.userName ||
+n.fullName ||
+"")
+.toLowerCase();
+
+const email =
+(n.email || "")
+.toLowerCase();
+
+const role =
+(n.userRole ||
+n.role ||
+"user")
+.toLowerCase();
+
+const type =
+(n.notificationType ||
+n.type ||
+"")
+.toLowerCase();
+
+const delivery =
+(n.delivery ||
+"")
+.toLowerCase();
+
+const searchMatch =
+
+user.includes(search) ||
+
+email.includes(search);
+
+const roleMatch =
+
+userType.value==="all" ||
+
+role===userType.value;
+
+const typeMatch =
+
+notificationType.value==="all" ||
+
+type===notificationType.value;
+
+const deliveryMatch =
+
+deliveryType.value==="all" ||
+
+delivery===deliveryType.value;
+
+return (
+
+searchMatch &&
+
+roleMatch &&
+
+typeMatch &&
+
+deliveryMatch
+
+);
+
+});
+
+renderDashboard();
+
+renderTable();
 
 }
 </script>
