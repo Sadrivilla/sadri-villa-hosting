@@ -224,6 +224,48 @@ error
 }
 
 }
+  // =======================================
+// Save Dashboard Notification
+// =======================================
+
+async function saveDashboardNotification(data){
+
+try{
+
+await addDoc(
+collection(db,"notifications"),
+{
+
+userId:data.userId || "",
+
+type:data.notificationType || "custom",
+
+title:data.title || "",
+
+message:data.message || "",
+
+url:data.url || "/dashboard.html",
+
+read:false,
+
+createdAt:serverTimestamp(),
+
+createdBy:data.triggeredBy || "Admin",
+
+senderName:data.triggeredBy || "Admin"
+
+});
+
+}catch(error){
+
+console.error(
+"Dashboard Notification Error:",
+error
+);
+
+}
+
+}
 
 async function loadUsers(){
 
@@ -375,7 +417,21 @@ role:user.role || "user",
 triggeredBy:"Admin"
 
 });
+await saveDashboardNotification({
 
+userId:docSnap.id,
+
+notificationType:"custom",
+
+title:title,
+
+message:message,
+
+url:url,
+
+triggeredBy:"Admin"
+
+});
 sent++;
 
 }catch(err){
@@ -463,6 +519,21 @@ userName:userData.fullName || "",
 email:userData.email || "",
 
 role:userData.role || "user",
+
+triggeredBy:"Admin"
+
+});
+  await saveDashboardNotification({
+
+userId:recipient,
+
+notificationType:"custom",
+
+title:title,
+
+message:message,
+
+url:url,
 
 triggeredBy:"Admin"
 
