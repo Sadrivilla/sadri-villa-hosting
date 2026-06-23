@@ -1849,6 +1849,21 @@ ${notification.message}
 `;
 
 container.prepend(toast);
+  const closeBtn = toast.querySelector("div:last-child");
+
+closeBtn.onclick = (e) => {
+
+    e.stopPropagation();
+
+    toast.style.transform = "translateX(420px)";
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 350);
+
+};
 
 requestAnimationFrame(()=>{
 
@@ -2255,7 +2270,6 @@ try {
 
 onMessage(messaging, (payload) => {
 
- alert("Foreground notification received");
 
 console.log("Foreground Notification:", payload);
 
