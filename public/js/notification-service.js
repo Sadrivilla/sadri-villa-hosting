@@ -223,10 +223,15 @@ async function saveNotificationHistory(data){
 async function sendNotification(options){
 
     const users = await getRecipients(options.recipients);
+    let sent = 0;
 
-    for(const user of users){
+for(const user of users){
 
-        try{
+    if(!user.email){
+        continue;
+    }
+
+    try{
 
             if(
                 !user.fcmToken ||
@@ -277,35 +282,47 @@ async function sendNotification(options){
 
                 appStatus:"sent",
 
-                browserStatus:"sent"
+                browserStatus:"pending"
 
             });
 
-            await sendPushNotification({
+           const result = await sendPushNotification({
 
-                token:user.fcmToken,
+    token:user.fcmToken,
 
-                title:options.title,
+    title:options.title,
 
-                body:options.message,
+    body:options.message,
 
-                url:options.url
+    url:options.url
 
-            });
+});
+
+console.log(
+    "Push sent:",
+    user.email,
+    result
+);
+            sent++;
 
         }catch(error){
 
-            console.error(
-                "Notification Error:",
-                user.email,
-                error
-            );
+           console.error(
+    "Notification Error:",
+    {
+        userId:user.id,
+        email:user.email,
+        error:error
+    }
+);
 
         }
-
     }
 
+return sent;
+
 }
+
 export {
 
     db,
