@@ -216,6 +216,96 @@ async function saveNotificationHistory(data){
     }
 
 }
+// ======================================
+// Main Notification Engine
+// ======================================
+
+async function sendNotification(options){
+
+    const users = await getRecipients(options.recipients);
+
+    for(const user of users){
+
+        try{
+
+            if(
+                !user.fcmToken ||
+                user.notificationsEnabled===false
+            ){
+                continue;
+            }
+
+            await saveDashboardNotification({
+
+                userId:user.id,
+
+                type:options.type,
+
+                title:options.title,
+
+                message:options.message,
+
+                url:options.url,
+
+                createdBy:options.triggeredBy || "System",
+
+                senderName:options.triggeredBy || "System"
+
+            });
+
+            await saveNotificationHistory({
+
+                userId:user.id,
+
+                userName:user.fullName,
+
+                email:user.email,
+
+                role:user.role,
+
+                type:options.type,
+
+                title:options.title,
+
+                message:options.message,
+
+                triggeredBy:options.triggeredBy || "System",
+
+                delivery:"app",
+
+                status:"sent",
+
+                appStatus:"sent",
+
+                browserStatus:"sent"
+
+            });
+
+            await sendPushNotification({
+
+                token:user.fcmToken,
+
+                title:options.title,
+
+                body:options.message,
+
+                url:options.url
+
+            });
+
+        }catch(error){
+
+            console.error(
+                "Notification Error:",
+                user.email,
+                error
+            );
+
+        }
+
+    }
+
+}
 export {
 
     db,
@@ -244,6 +334,8 @@ getRecipients,
 
 saveDashboardNotification,
 
-saveNotificationHistory
+saveNotificationHistory,
+
+sendNotification
 
 };
