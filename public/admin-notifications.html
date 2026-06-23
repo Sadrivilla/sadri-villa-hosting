@@ -416,17 +416,21 @@ return;
 
 }
 
-await sendPushNotification({
+console.log("Sending to token:", token);
 
-token:token,
+const result = await sendPushNotification({
 
-title:title,
+token: token,
 
-body:message,
+title: title,
 
-url:url
+body: message,
+
+url: url
 
 });
+
+console.log("Function Result:", result);
 
 // Save notification history
 
