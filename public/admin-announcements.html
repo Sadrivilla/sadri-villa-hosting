@@ -252,6 +252,10 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 getAuth
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+sendNotification
+}
+from "./js/notification-service.js";
 
 /* -----------------------------------
    FIREBASE CONFIG
@@ -1074,16 +1078,21 @@ createdAt: serverTimestamp()
 }
 );
 
-await addDoc(
-collection(db,"notifications"),
-{
-type:"announcement",
-announcementId:announcementRef.id,
-title:announcementData.title,
-read:false,
-createdAt:serverTimestamp()
-}
-);
+await sendNotification({
+
+    recipients:"all",
+
+    type:"announcement",
+
+    title:announcementData.title,
+
+    message:announcementData.description,
+
+    url:"/announcements.html",
+
+    triggeredBy:"Admin"
+
+});
   }
 
 
