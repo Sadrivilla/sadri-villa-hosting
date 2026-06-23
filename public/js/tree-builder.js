@@ -749,7 +749,6 @@ data.push({
   XLSX.writeFile(workbook, "Digital-Shajra-Sadri.xlsx");
 };
 
-
 renderTree().then(() => {
 
 const urlParams =
@@ -768,28 +767,10 @@ const member =
 window.memberMap[memberId];
 
 if(member){
-
 openProfileModal(member);
-
 }
 
 },800);
-
-});
-
-  // Wait briefly to ensure SVG is fully rendered
-  setTimeout(() => {
-
-    // Highlight and scroll to the member
-    focusMember(memberId);
-
-    // Open profile modal
-    const member = window.memberMap[memberId];
-    if (member) {
-      openProfileModal(member);
-    }
-
-  }, 800);
 
 });
 // ===============================
