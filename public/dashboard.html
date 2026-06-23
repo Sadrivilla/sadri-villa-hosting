@@ -1093,6 +1093,7 @@ error
 
 }
   let notifications = [];
+  let firstNotificationLoad = true;
   async function loadLatestAnnouncements(){
 
 const wrap =
@@ -1753,6 +1754,131 @@ error
 }
 
 }
+  // =======================================
+// Dashboard Toast Notification
+// =======================================
+
+function showToastNotification(notification){
+
+const container =
+document.getElementById("toastContainer");
+
+if(!container) return;
+
+const icons={
+
+approval:"✅",
+
+announcement:"📢",
+
+member:"👤",
+
+custom:"🔔",
+
+gallery:"🖼️",
+
+team:"👥"
+
+};
+
+const icon=
+icons[notification.type] || "🔔";
+
+const toast=document.createElement("div");
+
+toast.style.cssText=`
+width:340px;
+background:rgba(15,23,42,.96);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:18px;
+padding:16px;
+color:#fff;
+box-shadow:0 12px 35px rgba(0,0,0,.35);
+pointer-events:auto;
+cursor:pointer;
+transform:translateX(420px);
+transition:.35s;
+`;
+
+toast.innerHTML=`
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:8px;
+">
+
+<div style="
+font-size:24px;
+">
+${icon}
+</div>
+
+<div style="
+font-weight:700;
+font-size:15px;
+flex:1;
+margin-left:10px;
+">
+${notification.title}
+</div>
+
+<div
+style="
+cursor:pointer;
+font-size:18px;
+"
+>
+×
+</div>
+
+</div>
+
+<div
+style="
+font-size:13px;
+color:#cbd5e1;
+line-height:1.5;
+">
+${notification.message}
+</div>
+
+`;
+
+container.prepend(toast);
+
+requestAnimationFrame(()=>{
+
+toast.style.transform="translateX(0)";
+
+});
+
+toast.onclick=()=>{
+
+if(notification.url){
+
+location.href=notification.url;
+
+}
+
+};
+
+setTimeout(()=>{
+
+toast.style.transform="translateX(420px)";
+
+setTimeout(()=>{
+
+toast.remove();
+
+},350);
+
+},6000);
+
+}
   function renderNotifications(){
 
 const wrap =
@@ -2183,7 +2309,12 @@ onSnapshot(
 notificationQuery,
 (snapshot)=>{
 
-notifications=[];
+const previousIds =
+new Set(
+notifications.map(n => n.id)
+);
+
+notifications = [];
 
 snapshot.forEach(docSnap=>{
 
@@ -2191,6 +2322,8 @@ const data = {
 id:docSnap.id,
 ...docSnap.data()
 };
+  const isNewNotification =
+!previousIds.has(data.id);
 
 /* Approval notifications should only be visible
    to the approved user */
@@ -2204,6 +2337,12 @@ return;
 
 notifications.push(data);
 
+if(!firstNotificationLoad && isNewNotification){
+
+showToastNotification(data);
+
+}
+
 });
 
 document.getElementById(
@@ -2214,6 +2353,8 @@ n => !n.read
 ).length;
 
 renderNotifications();
+
+firstNotificationLoad = false;
 
 }
 );
@@ -2869,5 +3010,21 @@ overlay.classList.add("hidden");
 
 
 </script>
+  <!-- ===============================
+Dashboard Toast Notification
+=============================== -->
+
+<div id="toastContainer"
+style="
+position:fixed;
+top:20px;
+right:20px;
+z-index:999999;
+display:flex;
+flex-direction:column;
+gap:12px;
+pointer-events:none;
+">
+</div>
 </body>
 </html>
