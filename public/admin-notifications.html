@@ -139,7 +139,9 @@ getFirestore,
 collection,
 getDocs,
 doc,
-getDoc
+getDoc,
+addDoc,
+serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 import {
@@ -170,6 +172,58 @@ functions,
 
 const recipientSelect =
 document.getElementById("recipient");
+  // =======================================
+// Save Notification History
+// =======================================
+
+async function saveNotificationHistory(data){
+
+try{
+
+await addDoc(
+collection(db,"notification_history"),
+{
+
+title:data.title || "",
+
+message:data.message || "",
+
+notificationType:data.notificationType || "custom",
+
+delivery:data.delivery || "app",
+
+status:data.status || "sent",
+
+browserStatus:data.browserStatus || "",
+
+appStatus:data.appStatus || "sent",
+
+userId:data.userId || "",
+
+userName:data.userName || "",
+
+email:data.email || "",
+
+role:data.role || "user",
+
+triggeredBy:data.triggeredBy || "Admin",
+
+read:false,
+
+createdAt:serverTimestamp()
+
+});
+
+}catch(error){
+
+console.error(
+"Notification History Error:",
+error
+);
+
+}
+
+}
 
 async function loadUsers(){
 
@@ -294,6 +348,34 @@ url:url
 
 });
 
+await saveNotificationHistory({
+
+title:title,
+
+message:message,
+
+notificationType:"custom",
+
+delivery:"app",
+
+status:"sent",
+
+appStatus:"sent",
+
+browserStatus:"",
+
+userId:docSnap.id,
+
+userName:user.fullName || "",
+
+email:user.email || "",
+
+role:user.role || "user",
+
+triggeredBy:"Admin"
+
+});
+
 sent++;
 
 }catch(err){
@@ -343,6 +425,42 @@ title:title,
 body:message,
 
 url:url
+
+});
+
+// Save notification history
+
+const userDoc = await getDoc(doc(db,"users",recipient));
+
+const userData = userDoc.exists()
+? userDoc.data()
+: {};
+
+await saveNotificationHistory({
+
+title:title,
+
+message:message,
+
+notificationType:"custom",
+
+delivery:"app",
+
+status:"sent",
+
+appStatus:"sent",
+
+browserStatus:"",
+
+userId:recipient,
+
+userName:userData.fullName || "",
+
+email:userData.email || "",
+
+role:userData.role || "user",
+
+triggeredBy:"Admin"
 
 });
 
