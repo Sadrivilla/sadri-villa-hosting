@@ -2091,12 +2091,15 @@ console.log("Foreground Notification:", payload);
     const clickUrl =
         payload.data?.url || "/dashboard.html";
 
-    if (Notification.permission === "granted") {
+   if (Notification.permission === "granted") {
+
+    try {
 
         const notification = new Notification(title, {
 
             body: body,
-            icon: "/favicon.png"
+            icon: "/favicon.png",
+            requireInteraction: true
 
         });
 
@@ -2107,7 +2110,15 @@ console.log("Foreground Notification:", payload);
 
         };
 
+        console.log("Browser notification created.");
+
+    } catch (error) {
+
+        console.error("Notification Error:", error);
+
     }
+
+}
 
 });
 const notificationQuery =
