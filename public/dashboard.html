@@ -2004,43 +2004,6 @@ item.url || "family-tree.html";
 
 }
 
-div.onclick = async()=>{
-
-try{
-
-await updateDoc(
-doc(db,"notifications",item.id),
-{
-read:true
-});
-
-/* Update local notification */
-
-item.read = true;
-
-/* Update bell count */
-
-document.getElementById("notificationCount").innerText =
-notifications.filter(n => !n.read).length;
-
-/* Refresh notification UI */
-
-renderNotifications();
-
-}catch(error){
-
-alert("Update Failed");
-console.error(error);
-
-}
-
-location.href =
-item.url || "shajra.html";
-
-};
-
-}
-
 if(item.type==="announcement"){
 
 div.innerHTML=`
