@@ -2058,7 +2058,7 @@ console.error(error);
 }
 
 location.href =
-`announcements.html?id=${item.announcementId}`;
+item.url || "announcements.html";
 
 };
 
