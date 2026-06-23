@@ -15,6 +15,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
 import { db, storage } from "./firebase.js";
+import { sendNotification } from "./notification-service.js";
 async function loadTeamDropdown() {
   const searchInput = document.getElementById("teamMemberSearch");
   const hiddenInput = document.getElementById("teamMemberId");
@@ -587,16 +588,22 @@ createdAt: serverTimestamp()
 }
 );
 
-await addDoc(
-collection(db,"notifications"),
-{
-type:"member",
-memberId:newMemberRef.id,
-memberName:name,
-read:false,
-createdAt:serverTimestamp()
-}
-);
+
+      await sendNotification({
+
+    recipients:"all",
+
+    type:"member",
+
+    title:"New Family Member Added",
+
+    message:`${name} has been added to the Sadri Villa Family Tree.`,
+
+    url:`/shajra.html?id=${newMemberRef.id}`,
+
+    triggeredBy:"Admin"
+
+});
 
 showMessage("Member added successfully.");
 
