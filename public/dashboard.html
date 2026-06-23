@@ -2078,7 +2078,9 @@ try {
 
 onMessage(messaging, (payload) => {
 
-    console.log("Foreground Notification:", payload);
+ alert("Foreground notification received");
+
+console.log("Foreground Notification:", payload);
 
     const title =
         payload.notification?.title || "Sadri Villa";
