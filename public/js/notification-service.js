@@ -285,6 +285,7 @@ for(const user of users){
                 browserStatus:"pending"
 
             });
+        console.log("Notification URL:", options.url);
 
            const result = await sendPushNotification({
 
