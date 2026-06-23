@@ -752,11 +752,30 @@ data.push({
 
 renderTree().then(() => {
 
-  // Get member ID from URL hash
-  const memberId = window.location.hash.replace("#", "").trim();
+const urlParams =
+new URLSearchParams(window.location.search);
 
-  // Stop if URL has no hash
-  if (!memberId) return;
+const memberId =
+urlParams.get("id");
+
+if(!memberId) return;
+
+setTimeout(()=>{
+
+focusMember(memberId);
+
+const member =
+window.memberMap[memberId];
+
+if(member){
+
+openProfileModal(member);
+
+}
+
+},800);
+
+});
 
   // Wait briefly to ensure SVG is fully rendered
   setTimeout(() => {
