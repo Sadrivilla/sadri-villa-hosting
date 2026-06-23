@@ -1233,20 +1233,37 @@ behavior: "smooth"
 }
 function focusMember(id){
 
-const rect = document.querySelector(`.node-box[data-id="${id}"]`);
+const rect =
+document.querySelector(`.node-box[data-id="${id}"]`);
+
 if(!rect) return;
 
 highlightLineage(id);
+
 scrollToNode(rect);
+
 showAncestorOnly(id);
 
+rect.classList.add("active-node");
+
+setTimeout(()=>{
+
+rect.classList.remove("active-node");
+
+},6000);
+
 }
+
 function showAncestorOnly(id){
 
 const nodes = document.querySelectorAll(".node-box");
 
 nodes.forEach(n=>{
+
 n.style.opacity = "0.2";
+
+n.classList.remove("active-node");
+
 });
 
 let current = window.memberMap[id];
@@ -1264,6 +1281,20 @@ if(!current.fatherId) break;
 current = window.memberMap[current.fatherId];
 
 }
+
+document.querySelectorAll(".node-box").forEach(node=>{
+
+if(node.style.opacity==="0.2"){
+
+setTimeout(()=>{
+
+node.style.opacity="1";
+
+},6000);
+
+}
+
+});
 
 }
 // =======================================
