@@ -1988,6 +1988,57 @@ notificationDropdown.classList.add("hidden");
 };
 
 }
+  if(item.type==="custom"){
+
+div.innerHTML=`
+<div class="font-semibold text-cyan-400">
+🔔 ${item.title}
+</div>
+
+<div class="text-xs text-slate-400 mt-1">
+${item.message}
+</div>
+
+<div class="text-[11px] text-slate-500 mt-2">
+${notificationTime}
+</div>
+`;
+
+div.onclick = async()=>{
+
+try{
+
+await updateDoc(
+doc(db,"notifications",item.id),
+{
+read:true
+}
+);
+
+item.read=true;
+
+document.getElementById("notificationCount").innerText=
+notifications.filter(n=>!n.read).length;
+
+renderNotifications();
+
+}catch(error){
+
+console.error(error);
+
+}
+
+notificationDropdown.classList.add("hidden");
+
+if(item.url){
+
+location.href=item.url;
+
+}
+
+};
+
+}
   wrap.appendChild(div);
 
 });
