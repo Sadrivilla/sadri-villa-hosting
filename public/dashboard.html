@@ -1023,9 +1023,10 @@ addDoc,
 updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import {
+import {
 getMessaging,
-getToken
+getToken,
+onMessage
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
@@ -2071,6 +2072,42 @@ try {
     console.error("❌ Error getting FCM token:", error);
 
 }
+  // ======================================
+// Foreground Push Notifications
+// ======================================
+
+onMessage(messaging, (payload) => {
+
+    console.log("Foreground Notification:", payload);
+
+    const title =
+        payload.notification?.title || "Sadri Villa";
+
+    const body =
+        payload.notification?.body || "";
+
+    const clickUrl =
+        payload.data?.url || "/dashboard.html";
+
+    if (Notification.permission === "granted") {
+
+        const notification = new Notification(title, {
+
+            body: body,
+            icon: "/favicon.png"
+
+        });
+
+        notification.onclick = () => {
+
+            window.focus();
+            window.location.href = clickUrl;
+
+        };
+
+    }
+
+});
 const notificationQuery =
 query(
 collection(db,"notifications"),
