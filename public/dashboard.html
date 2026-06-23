@@ -2196,7 +2196,7 @@ id:docSnap.id,
    to the approved user */
 
 if(
-data.type === "approval" &&
+data.userId &&
 data.userId !== auth.currentUser.uid
 ){
 return;
