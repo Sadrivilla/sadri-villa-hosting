@@ -13,16 +13,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Firebase Service Account
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > service-account.json
+
+      - name: Set Google Credentials
+        run: |
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/service-account.json" >> $GITHUB_ENV
+
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Verify Firebase Token
-        run: |
-          echo "Token Length: ${#FIREBASE_TOKEN}"
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-
       - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --project sadri-villa-14c06 --token "$FIREBASE_TOKEN"
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: firebase deploy --only hosting --project sadri-villa-hosting
