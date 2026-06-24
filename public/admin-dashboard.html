@@ -1855,11 +1855,17 @@ return;
 LOAD DASHBOARD STATS
 ========================= */
 
-const usersSnap =
-await getDocs(
-collection(db,"users")
+const statsSnap =
+await getDoc(
+doc(db,"dashboard_stats","admin")
 );
- allUsers = [];
+
+const dashboardStats =
+statsSnap.exists()
+? statsSnap.data()
+: {};
+
+allUsers = [];
 
 usersSnap.forEach(docSnap => {
     allUsers.push({
@@ -2173,12 +2179,12 @@ await loadProfileCompletionAnalytics();
 document.getElementById(
 "totalUsers"
 ).textContent =
-totalUsers;
+dashboardStats.totalUsers || totalUsers;
 
 document.getElementById(
 "pendingTop"
 ).textContent =
-pendingUsers;
+dashboardStats.pendingUsers || pendingUsers;
 
 
 
