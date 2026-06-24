@@ -2818,7 +2818,8 @@ try{
 const pendingQuery =
 query(
 collection(db,"users"),
-where("approved","==",false)
+where("approved","==",false),
+limit(5)
 );
 
 const pendingSnap =
