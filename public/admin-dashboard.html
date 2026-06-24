@@ -1524,6 +1524,7 @@ const db = getFirestore(app);
  const messaging = getMessaging(app);
 
   let allShajraMembers = [];
+ let allUsers = [];
 const sidebar =
 document.getElementById("sidebar");
 
@@ -1857,6 +1858,14 @@ const usersSnap =
 await getDocs(
 collection(db,"users")
 );
+ allUsers = [];
+
+usersSnap.forEach(docSnap => {
+    allUsers.push({
+        id: docSnap.id,
+        ...docSnap.data()
+    });
+});
 
 let totalUsers = 0;
 let pendingUsers = 0;
@@ -3586,10 +3595,7 @@ requiredFields.push(docSnap.id);
 
 });
 
-const usersSnap =
-await getDocs(
-collection(db,"users")
-);
+const usersSnap = allUsers;
 
 let complete = 0;
 let medium = 0;
@@ -3599,9 +3605,7 @@ let poor = 0;
 
 const userProfiles = [];
 
-usersSnap.forEach(docSnap=>{
-
-const user = docSnap.data();
+usersSnap.forEach(user=>{
 
 let totalFields = 4;
 let filledFields = 0;
@@ -3660,8 +3664,7 @@ poorProfiles++;
 
 userProfiles.push({
 
-uid: docSnap.id,
-
+uid: user.id,
 name:
 user.fullName || "Unknown User",
 
