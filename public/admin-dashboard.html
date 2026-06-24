@@ -1871,12 +1871,9 @@ usersSnap.forEach(docSnap => {
 let totalUsers = 0;
 let pendingUsers = 0;
 
-usersSnap.forEach(docSnap=>{
+allUsers.forEach(userData=>{
 
 totalUsers++;
-
-const userData =
-docSnap.data();
 
 if(
 userData.approved !== true
@@ -1905,7 +1902,7 @@ if(userData.isFirstRegistration === true){
 
             page:"admin-approval-requests.html",
 
-            targetId:docSnap.id,
+            targetId:userData.id,
 
             userName:userData.fullName || "User",
 
@@ -1938,7 +1935,7 @@ if(userData.isFirstRegistration === true){
 
                 page:"admin-approval-requests.html",
 
-                targetId:docSnap.id,
+                targetId:userData.id,
 
                 userName:userData.fullName || "User",
 
@@ -1979,9 +1976,7 @@ let ageGroups = {
 
 let totalAgeUsers = 0;
 
-usersSnap.forEach(docSnap=>{
-
-const userData = docSnap.data();
+allUsers.forEach(userData=>{
 
 const dob =
 userData.adminFields?.["Date of birth"];
@@ -2815,26 +2810,7 @@ console.error(error);
 
 try{
 
-const pendingQuery =
-query(
-collection(db,"users"),
-where("approved","==",false),
-limit(5)
-);
-
-const pendingSnap =
-await getDocs(pendingQuery);
-
-const users = [];
-
-pendingSnap.forEach(docSnap=>{
-
-users.push({
-id:docSnap.id,
-...docSnap.data()
-});
-
-});
+const users = allUsers.filter(user => user.approved !== true);
 
 users.sort((a,b)=>{
 
@@ -2976,6 +2952,16 @@ isFirstRegistration:false,
 approvedAt:new Date().toISOString()
 }
 );
+
+ const user = allUsers.find(u => u.id === uid);
+
+if (user) {
+    user.approved = true;
+    user.approvalReminder = false;
+    user.approvalRequests = [];
+    user.isFirstRegistration = false;
+    user.approvedAt = new Date().toISOString();
+}
  /* Create approval notification */
 
 await addDoc(
