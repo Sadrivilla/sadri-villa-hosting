@@ -3021,20 +3021,14 @@ await showConfirmModal(
 
 try{
 
-const usersSnap =
-await getDocs(
-collection(db,"users")
-);
+const usersSnap = allUsers;
 
 let totalUsers = 0;
 let pendingUsers = 0;
 
-usersSnap.forEach(docSnap=>{
+usersSnap.forEach(data=>{
 
 totalUsers++;
-
-const data =
-docSnap.data();
 
 if(data.approved !== true){
 
