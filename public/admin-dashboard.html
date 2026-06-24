@@ -1491,7 +1491,8 @@ query,
 where,
 orderBy,
 updateDoc,
-onSnapshot
+onSnapshot,
+limit
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -2741,9 +2742,10 @@ try{
 
 const activitySnap =
 await getDocs(
-collection(
-db,
-"user_dashboard_activity"
+query(
+collection(db,"user_dashboard_activity"),
+orderBy("createdAt","desc"),
+limit(5)
 )
 );
 
@@ -2757,12 +2759,7 @@ docSnap.data()
 
 });
 
-activities.sort(
-(a,b)=>
-(b.createdAt?.seconds || 0)
--
-(a.createdAt?.seconds || 0)
-);
+
 
 const container =
 document.getElementById(
@@ -2771,9 +2768,7 @@ document.getElementById(
 
 container.innerHTML = "";
 
-activities
-.slice(0,5)
-.forEach(activity=>{
+activities.forEach(activity=>{
 
 const card =
 document.createElement("div");
