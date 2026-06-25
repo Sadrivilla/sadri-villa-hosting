@@ -1,23 +1,18 @@
-name: Deploy to Firebase Hosting
+name: Test Secret
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  test:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: sadri-villa-hosting
-          channelId: live
+      - name: Check Secret
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+            echo "SECRET IS EMPTY"
+            exit 1
+          else
+            echo "SECRET EXISTS"
+          fi
