@@ -6,26 +6,18 @@ on:
       - main
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Firebase Service Account
-        run: |
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > service-account.json
-
-      - name: Set Google Credentials
-        run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/service-account.json" >> $GITHUB_ENV
-
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
-      - name: Deploy to Firebase Hosting
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/service-account.json
-        run: |
-          firebase deploy --only hosting
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: sadri-villa-hosting
+          channelId: live
